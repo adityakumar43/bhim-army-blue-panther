@@ -4,7 +4,7 @@ import { useTranslation } from 'react-i18next'
 import { pickText } from '../lib/text.js'
 import { cdn } from '../lib/img.js'
 
-// Only on-site paths and web addresses are used as links
+
 const safeLink = (l) => (l && /^(\/(?!\/)|https?:\/\/)/.test(l) ? l : null)
 
 function SlideLink({ link, tabIndex, children }) {
@@ -20,21 +20,21 @@ const Icon = ({ d }) => (
     strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><path d={d} /></svg>
 )
 
-// interval = milliseconds each picture stays on screen
+
 export default function Slider({ slides, interval = 5000 }) {
   const { t, i18n } = useTranslation()
   const n = slides.length
   const [index, setIndex] = useState(0)
-  // People who asked their device for less motion get a slider that does not move by itself
+  
   const [playing, setPlaying] = useState(() => !window.matchMedia?.('(prefers-reduced-motion: reduce)').matches)
-  const [hold, setHold] = useState(false) // hovering, touching or using the keyboard inside
+  const [hold, setHold] = useState(false) 
   const touchX = useRef(null)
 
   const go = (i) => setIndex(((i % n) + n) % n)
 
   useEffect(() => { if (index >= n) setIndex(0) }, [n, index])
 
-  // Moves to the next picture. Choosing a picture yourself restarts the countdown.
+  
   useEffect(() => {
     if (n < 2 || !playing || hold) return
     const id = setInterval(() => { if (!document.hidden) setIndex((i) => (i + 1) % n) }, interval)
