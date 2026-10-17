@@ -24,7 +24,7 @@ import Team from './pages/admin/Team.jsx'
 import Security from './pages/admin/Security.jsx'
 
 export default function App() {
-  // The admin panel has its own header, so the public menu and footer are hidden there
+  
   const isAdmin = useLocation().pathname.startsWith('/admin')
 
   return (
