@@ -20,7 +20,7 @@ export default function Receipt() {
         const r = await api.get(`/donations/receipt/${token}`)
         if (cancelled) return
         setData(r)
-        // The payment can take a few seconds to be confirmed, so check again
+        
         if (r.pending && tries++ < 10) timer = setTimeout(load, 3000)
       } catch (err) {
         if (!cancelled) setError(err.message)
