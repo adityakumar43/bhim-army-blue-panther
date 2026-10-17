@@ -1,5 +1,4 @@
-// Edit this list. Put each photo in frontend/public/leaders/ and write its file name in photo.
-// Fill nameHi/roleHi (Hindi) and nameEn/roleEn (English). Add or remove people freely.
+
 export const leaders = [
   { id: 1, nameHi: 'डॉ. हेमंत हिरोले', nameEn: 'Dr. Hemant Hirole', roleHi: 'संस्थापक व संयोजक', roleEn: 'Founder and Coordinator', photo: '/leaders/hemanth.jpg' },
   { id: 2, nameHi: 'पवन बोहत', nameEn: 'Pawan Bohat', roleHi: 'राष्ट्रीय अध्यक्ष', roleEn: 'National President', photo: '/leaders/pawan.jpg' },
