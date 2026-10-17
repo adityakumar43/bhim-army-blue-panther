@@ -26,7 +26,7 @@ export default function Navbar() {
   const { pathname } = useLocation()
   const lang = i18n.language
 
-  // Close the phone menu after choosing a page
+  
   useEffect(() => setOpen(false), [pathname])
 
   const linkClass = ({ isActive }) =>
