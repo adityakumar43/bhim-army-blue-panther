@@ -41,7 +41,7 @@ export default function AdminLayout() {
     return () => clearInterval(id)
   }, [me])
 
-  // Opening the Donations page counts as seeing them
+  
   useEffect(() => {
     if (me?.permissions.includes('donations') && pathname === '/admin/donations') {
       api.post('/admin/seen/donations').then(refresh).catch(() => { })
