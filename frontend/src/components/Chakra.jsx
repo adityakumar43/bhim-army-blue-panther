@@ -1,4 +1,4 @@
-// 24-spoke wheel, drawn as a faint background motif.
+
 export default function Chakra({ className = '' }) {
   const spokes = Array.from({ length: 24 }, (_, i) => {
     const a = (i * 15 * Math.PI) / 180
