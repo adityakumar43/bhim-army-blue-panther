@@ -1,0 +1,128 @@
+{
+  "org": "Bhim Army Blue Panther",
+  "address": "Bhingari Bazar, Deoria (UP) 274702",
+  "tagline": "If that Messiah had never been born the chain of happiness would never have begun;, This earth would have remained colorless and the sky would never have been blue. 💙",
+  "footerText": "Justice and dignity for every oppressed and deprived person; the upliftment of all is our mission.",
+  "mission": "Justice and dignity for every oppressed and deprived person; the upliftment of all is our mission.",
+  "greeting": "Jai Bhim",
+  "nav": {
+    "home": "Home",
+    "about": "About",
+    "campaigns": "Campaigns",
+    "news": "News",
+    "gallery": "Gallery",
+    "contact": "Contact",
+    "join": "Join Us"
+  },
+  "cta": {
+    "member": "Become a Member",
+    "donate": "Donate",
+    "register": "Register Now"
+  },
+  "sections": {
+    "campaigns": "Our Campaigns",
+    "news": "Latest News",
+    "band": "Stand with us. Join the movement.",
+    "events": "Events"
+  },
+  "loading": "Loading...",
+  "empty": "Nothing published yet.",
+  "viewAll": "View all",
+  "join": {
+    "title": "Become a Member",
+    "intro": "Fill in the form. Our team will review your application and contact you.",
+    "name": "Full name",
+    "phone": "Mobile number",
+    "email": "Email (your membership card will be sent here)",
+    "city": "Village / City",
+    "district": "District",
+    "state": "State",
+    "message": "Why do you want to join? (optional)",
+    "submit": "Send application",
+    "sending": "Sending...",
+    "doneTitle": "Application received. Jai Bhim!",
+    "doneBody": "Our team will contact you soon."
+  },
+  "about": {
+    "title": "About Us",
+    "intro": "The primary mission of Bheem Army Blue Panthers is to uplift the backward, Dalit, minority, women, and tribal (Adivasi) communities across the country and to raise a strong voice against the crimes, exploitation, and atrocities committed against them.",
+    "principlesTitle": "Our Path",
+    "educate": {
+      "title": "Educate",
+      "text": "Education is the foundation of every change. Knowing your rights is the greatest strength."
+    },
+    "organize": {
+      "title": "Organize",
+      "text": "A united community can put its voice forward with strength."
+    },
+    "struggle": {
+      "title": "Struggle",
+      "text": "Raising our voice against injustice, within the Constitution, is our right."
+    },
+    "historyTitle": "How We Began",
+    "history": "[Write how the organization started and its journey so far]",
+    "leadersTitle": "Leadership",
+    "leaders": "[Write the names and roles of office bearers here]"
+  },
+  "contact": {
+    "title": "Contact Us",
+    "address": "Address",
+    "phone": "Phone",
+    "email": "Email",
+    "name": "Your name",
+    "message": "Your message",
+    "send": "Send message",
+    "sending": "Sending...",
+    "doneTitle": "Message received",
+    "doneBody": "We will get back to you soon."
+  },
+  "donate": {
+    "title": "Donate",
+    "intro": "Your support moves our social work forward.",
+    "amount": "Choose an amount",
+    "other": "Or enter your own amount (₹)",
+    "name": "Your name (optional)",
+    "phone": "Mobile number (optional)",
+    "email": "Email (optional)",
+    "pay": "Donate",
+    "wait": "Please wait...",
+    "desc": "Donation to the organization",
+    "failed": "The payment did not go through. Please try again.",
+    "doneTitle": "Thank you! Jai Bhim",
+    "doneBody": "Your donation has been received.",
+    "receiptHint": "If you add your email, we will also send the receipt there."
+  },
+  "footer": {
+    "links": "Quick links"
+  },
+  "receipt": {
+    "title": "Donation receipt",
+    "thanks": "Thank you for your donation. Jai Bhim!",
+    "no": "Receipt no.",
+    "date": "Date",
+    "donor": "Donor",
+    "amount": "Amount",
+    "paymentId": "Payment ID",
+    "print": "Print / Save as PDF",
+    "home": "Home page",
+    "anonymous": "Anonymous",
+    "pending": "Your payment is being confirmed. Please refresh this page in a moment.",
+    "note": "This receipt confirms that we have received your donation."
+  },
+  "slider": {
+    "label": "Featured photos",
+    "prev": "Previous slide",
+    "next": "Next slide",
+    "pause": "Pause slideshow",
+    "play": "Play slideshow",
+    "goTo": "Go to slide {{n}}"
+  },
+  "card": {
+    "title": "Membership card",
+    "no": "Member no.",
+    "since": "Member since",
+    "print": "Print / Save as PDF",
+    "invalid": "This card was not found or is no longer valid.",
+    "scan": "Scan to verify this card"
+  }
+}
