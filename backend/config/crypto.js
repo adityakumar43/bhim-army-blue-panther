@@ -1,6 +1,6 @@
 import crypto from 'crypto'
 
-// Authenticator secrets are stored encrypted, so a copy of the database alone cannot be used to make codes.
+
 const key = () => crypto.createHash('sha256').update(`${process.env.JWT_SECRET}:2fa`).digest()
 
 export function encrypt(text) {
