@@ -16,7 +16,12 @@ function getTransport() {
 export async function sendMail({ to, subject, text, html }) {
   const t = getTransport()
   if (!t) return false
-  await t.sendMail({ from: process.env.MAIL_FROM || process.env.SMTP_USER, to, subject, text, html })
+  const info = await t.sendMail({ from: process.env.MAIL_FROM || process.env.SMTP_USER, to, subject, text, html })
+  // A mail server can answer "ok" while refusing every address. That is not a success.
+  if (Array.isArray(info.accepted) && info.accepted.length === 0) {
+    throw new Error(`The mail server did not accept ${to}: ${info.response || 'no reason given'}`)
+  }
+  console.log(`Email handed to the mail server for ${to}: ${info.response || 'ok'}`)
   return true
 }
 
