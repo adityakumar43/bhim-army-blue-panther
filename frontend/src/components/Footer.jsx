@@ -26,12 +26,16 @@ export default function Footer() {
           <h2 className="mb-3 text-base font-semibold">{t('nav.contact')}</h2>
           <address className="flex flex-col gap-3 text-white/85 not-italic">
             <div>
+              <div className="font-semibold text-white">{t('offices.head')}</div>
+              <div>{t('offices.headAddress')}</div>
+            </div>
+            <div>
               <div className="font-semibold text-white">{t('offices.delhi')}</div>
               <div>{t('offices.delhiAddress')}</div>
             </div>
             <div>
-              <div className="font-semibold text-white">{t('offices.head')}</div>
-              <div>{t('offices.headAddress')}</div>
+              <div className="font-semibold text-white">{t('offices.up')}</div>
+              <div>{t('offices.upAddress')}</div>
             </div>
             <span>{ORG.phone}</span>
             <span>{ORG.email}</span>
