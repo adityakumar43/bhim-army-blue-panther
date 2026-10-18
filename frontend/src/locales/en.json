@@ -127,8 +127,10 @@
   "offices": {
     "head": "Head Office",
     "headAddress": "Constitution Building (Dr. B.R.Ambedkar's birth place Mhow ), Sudarshan Complex, Pithampur, District Indore, Madhya Pradesh",
-    "delhi": "Delhi Office",
-    "delhiAddress": "C-32, New Gopal Nagar, Najafgarh, New Delhi 110043"
+    "delhi": "National Office",
+    "delhiAddress": "C-32, New Gopal Nagar, Najafgarh, New Delhi 110043",
+    "up": "Uttar Pradesh Office",
+    "upAddress": "Bhingari Bazar, Deoria, UP - 274702"
   },
   "card": {
     "title": "Membership card",
