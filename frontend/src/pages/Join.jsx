@@ -1,12 +1,14 @@
 import { useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { api } from '../lib/api.js'
+import { shrinkImage } from '../lib/shrinkImage.js'
 
 const FIELDS = ['name', 'phone', 'email', 'city', 'district', 'state']
 
 export default function Join() {
   const { t } = useTranslation()
   const [form, setForm] = useState({})
+  const [photo, setPhoto] = useState(null)
   const [error, setError] = useState('')
   const [busy, setBusy] = useState(false)
   const [done, setDone] = useState(false)
@@ -16,7 +18,11 @@ export default function Join() {
     setBusy(true)
     setError('')
     try {
-      await api.post('/members', form)
+      if (!photo) throw new Error(t('join.photoNeeded'))
+      const data = new FormData()
+      Object.entries(form).forEach(([k, v]) => v && data.append(k, v))
+      data.append('photo', await shrinkImage(photo), 'photo.jpg')
+      await api.post('/members', data)
       setDone(true)
     } catch (err) {
       setError(err.message)
@@ -54,6 +60,28 @@ export default function Join() {
             />
           </label>
         ))}
+
+        {[['assemblyNo', 'join.assemblyNo'], ['lokSabhaNo', 'join.lokSabhaNo']].map(([f, label]) => (
+          <label key={f} className="flex flex-col gap-1 font-semibold">
+            {t(label)}
+            <input inputMode="numeric" pattern="[0-9]{1,3}" maxLength="3" onChange={set(f)} className={input} />
+          </label>
+        ))}
+        <p className="-mt-2 text-sm text-navy/70">{t('join.constituencyHint')}</p>
+
+
+        <label className="flex flex-col gap-1 font-semibold">
+          {t('join.dob')}
+          <input type="date" required max={new Date().toLocaleDateString('en-CA')} autoComplete="bday"
+            onChange={set('dob')} className={input} />
+        </label>
+        <label className="flex flex-col gap-1 font-semibold">
+          {t('join.photo')}
+          <span className="text-sm font-normal text-navy/70">{t('join.photoHint')}</span>
+          <input type="file" accept="image/jpeg,image/png,image/webp" required
+            onChange={(e) => setPhoto(e.target.files[0] || null)} className="font-normal" />
+        </label>
+
         <label className="flex flex-col gap-1 font-semibold">
           {t('join.message')}
           <textarea rows="3" maxLength="500" onChange={set('message')} className={input} />
