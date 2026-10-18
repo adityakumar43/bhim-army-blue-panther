@@ -6,10 +6,10 @@ cloudinary.config({
   api_secret: process.env.CLOUDINARY_API_SECRET,
 })
 
-export function uploadImage(buffer) {
+export function uploadImage(buffer, folder = 'bluepanther') {
   return new Promise((resolve, reject) => {
     cloudinary.uploader
-      .upload_stream({ folder: 'bluepanther', resource_type: 'image' }, (err, result) => {
+      .upload_stream({ folder, resource_type: 'image' }, (err, result) => {
         if (err) return reject(err)
         resolve({ url: result.secure_url, publicId: result.public_id })
       })
