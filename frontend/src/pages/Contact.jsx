@@ -32,8 +32,8 @@ export default function Contact() {
         <h1 className="mb-6 text-4xl font-extrabold">{t('contact.title')}</h1>
         <dl className="flex flex-col gap-4 text-lg">
           <div><dt className="font-semibold text-brand">{t('contact.address')}</dt><dd>{t('address')}</dd></div>
-          <div><dt className="font-semibold text-brand">{t('contact.phone')}</dt><dd>{ORG.phone}</dd></div>
-          <div><dt className="font-semibold text-brand">{t('contact.email')}</dt><dd>{ORG.email}</dd></div>
+          {/* <div><dt className="font-semibold text-brand">{t('contact.phone')}</dt><dd>{ORG.phone}</dd></div> */}
+          {/* <div><dt className="font-semibold text-brand">{t('contact.email')}</dt><dd>{ORG.email}</dd></div> */}
         </dl>
       </div>
 
