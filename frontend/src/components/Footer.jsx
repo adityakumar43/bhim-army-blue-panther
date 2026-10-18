@@ -5,7 +5,7 @@ import { ORG } from '../lib/orgInfo.js'
 export default function Footer() {
   const { t } = useTranslation()
   const links = [['/about', t('nav.about')], ['/campaigns', t('nav.campaigns')], ['/news', t('nav.news')],
-    ['/gallery', t('nav.gallery')], ['/contact', t('nav.contact')], ['/donate', t('cta.donate')]]
+  ['/gallery', t('nav.gallery')], ['/contact', t('nav.contact')], ['/donate', t('cta.donate')]]
 
   return (
     <footer className="print:hidden mt-16 bg-navy text-white">
@@ -24,8 +24,15 @@ export default function Footer() {
         </div>
         <div>
           <h2 className="mb-3 text-base font-semibold">{t('nav.contact')}</h2>
-          <address className="flex flex-col gap-1 text-white/85 not-italic">
-            <span>{t('address')}</span>
+          <address className="flex flex-col gap-3 text-white/85 not-italic">
+            <div>
+              <div className="font-semibold text-white">{t('offices.delhi')}</div>
+              <div>{t('offices.delhiAddress')}</div>
+            </div>
+            <div>
+              <div className="font-semibold text-white">{t('offices.head')}</div>
+              <div>{t('offices.headAddress')}</div>
+            </div>
             <span>{ORG.phone}</span>
             <span>{ORG.email}</span>
           </address>
