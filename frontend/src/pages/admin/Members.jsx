@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react'
 import { useOutletContext } from 'react-router-dom'
 import { api } from '../../lib/api.js'
+import { portrait } from '../../lib/img.js'
 import { PageHeader, Notice, Pill } from './ui.jsx'
 
 const FILTERS = [['pending', 'Pending'], ['approved', 'Approved'], ['rejected', 'Rejected']]
@@ -8,11 +9,12 @@ const TONE = { pending: 'gold', approved: 'green', rejected: 'red' }
 
 function downloadCsv(rows) {
   const when = (d) => (d ? new Date(d).toLocaleString('en-IN', { dateStyle: 'medium', timeStyle: 'short' }) : '')
-  const head = ['Name', 'Phone', 'Email', 'City', 'District', 'State', 'Status', 'Member no',
-    'Applied on', 'Approved/Rejected on', 'Approved/Rejected by']
+  const born = (d) => (d ? new Date(d).toLocaleDateString('en-IN', { dateStyle: 'medium', timeZone: 'UTC' }) : '')
+  const head = ['Name', 'Phone', 'Email', 'Date of birth', 'City', 'District', 'State', 'Status', 'Member no',
+    'Applied on', 'Approved/Rejected on', 'Approved/Rejected by', 'Photo link', 'Assembly constituency no', 'Lok Sabha constituency no']
   const lines = rows.map((m) => [
-    m.name, m.phone, m.email, m.city, m.district, m.state, m.status, m.memberNo,
-    when(m.createdAt), when(m.reviewedAt), m.reviewedByName,
+    m.name, m.phone, m.email, born(m.dob), m.city, m.district, m.state, m.status, m.memberNo, 
+    when(m.createdAt), when(m.reviewedAt), m.reviewedByName, m.photo?.url, m.assemblyNo, m.lokSabhaNo,
   ])
   const csv = [head, ...lines]
     .map((r) => r.map((v) => `"${String(v ?? '').replace(/"/g, '""')}"`).join(','))
@@ -79,10 +81,23 @@ export default function Members() {
       <ul className="grid gap-4 xl:grid-cols-2">
         {items?.map((m) => (
           <li key={m._id} className="card">
-            <div className="flex flex-wrap items-start justify-between gap-3">
-              <div className="min-w-0">
+            <div className="flex items-start gap-3">
+              {m.photo?.url && <img src={portrait(m.photo.url, 120)} alt="" className="h-20 w-16 shrink-0 object-cover" />}
+              <div className="min-w-0 flex-1">
                 <div className="text-lg font-semibold">{m.name}</div>
                 <div>{m.phone}{m.email ? ` · ${m.email}` : ''}</div>
+                {m.dob && (
+                  <div className="text-sm text-navy/70">
+                    Born {new Date(m.dob).toLocaleDateString('en-IN', { dateStyle: 'medium', timeZone: 'UTC' })}
+                    {(m.assemblyNo || m.lokSabhaNo) && (
+                      <div className="text-sm text-navy/70">
+                        {m.assemblyNo ? `Assembly no. ${m.assemblyNo}` : ''}
+                        {m.assemblyNo && m.lokSabhaNo ? ' · ' : ''}
+                        {m.lokSabhaNo ? `Lok Sabha no. ${m.lokSabhaNo}` : ''}
+                      </div>
+                    )}
+                  </div>
+                )}
                 <div className="text-sm text-navy/70">
                   {[m.city, m.district, m.state].filter(Boolean).join(', ')}
                   {' · '}Applied {new Date(m.createdAt).toLocaleString('en-IN', { dateStyle: 'medium', timeStyle: 'short' })}
@@ -94,7 +109,7 @@ export default function Members() {
                   </div>
                 )}
               </div>
-              <Pill tone={TONE[m.status]}>{m.status}</Pill>
+              <div className="shrink-0"><Pill tone={TONE[m.status]}>{m.status}</Pill></div>
             </div>
             {m.message && <p className="mt-3 border-l-4 border-mist pl-3 text-navy/80">{m.message}</p>}
 
