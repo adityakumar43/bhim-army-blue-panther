@@ -4,9 +4,28 @@ import Member from '../models/Member.js'
 import { protect, requirePermission } from '../middleware/auth.js'
 import { notifyAdmin } from '../services/mailer.js'
 import QRCode from 'qrcode'
+import { upload } from '../middleware/upload.js'
+import { uploadImage, deleteImage } from '../config/cloudinary.js'
 import { issueCard, sendWelcome, emailCard } from '../services/members.js'
 
 const router = Router()
+
+// An optional whole number from 1 to 999. Empty gives undefined; anything else that is not a number gives null.
+function parseConstituency(value) {
+  const s = String(value ?? '').trim()
+  if (!s) return undefined
+  return /^\d{1,3}$/.test(s) && Number(s) > 0 ? Number(s) : null
+}
+
+// "2001-05-17" becomes a real date in the past, otherwise null
+function parseDob(value) {
+  const s = String(value || '').trim()
+  if (!/^\d{4}-\d{2}-\d{2}$/.test(s)) return null
+  const d = new Date(`${s}T00:00:00Z`)
+  if (Number.isNaN(d.getTime()) || d.toISOString().slice(0, 10) !== s) return null // catches 2026-02-30
+  if (d > new Date() || d.getUTCFullYear() < 1900) return null
+  return d
+}
 
 const joinLimiter = rateLimit({
   windowMs: 60 * 60 * 1000,
@@ -15,7 +34,7 @@ const joinLimiter = rateLimit({
 })
 
 
-router.post('/', joinLimiter, async (req, res) => {
+router.post('/', joinLimiter, upload.single('photo'), async (req, res) => {
   const b = req.body || {}
 
 
@@ -31,12 +50,25 @@ router.post('/', joinLimiter, async (req, res) => {
     return res.status(400).json({ message: 'Enter a valid email address' })
   }
 
+  const dob = parseDob(b.dob)
+  if (!dob) return res.status(400).json({ message: 'Enter your date of birth' })
+  const assemblyNo = parseConstituency(b.assemblyNo)
+  const lokSabhaNo = parseConstituency(b.lokSabhaNo)
+  if (assemblyNo === null) return res.status(400).json({ message: 'Assembly constituency number must be a number, like 12' })
+  if (lokSabhaNo === null) return res.status(400).json({ message: 'Lok Sabha constituency number must be a number, like 3' })
+  if (!req.file) return res.status(400).json({ message: 'Please add your photo' })
+  if (await Member.exists({ phone })) {
+    return res.status(409).json({ message: 'This mobile number has already applied' })
+  }
+
+  const photo = await uploadImage(req.file.buffer, 'bluepanther/members')
   try {
     await Member.create({
-      name, phone,
+      name, phone, dob, photo, assemblyNo, lokSabhaNo,
       email: b.email, city: b.city, district: b.district, state: b.state, message: b.message,
     })
   } catch (err) {
+    await deleteImage(photo.publicId) // do not leave a photo behind for an application that was not saved
     if (err.code === 11000) {
       return res.status(409).json({ message: 'This mobile number has already applied' })
     }
@@ -62,14 +94,14 @@ router.patch('/:id/status', protect, requirePermission('members'), async (req, r
   if (!['pending', 'approved', 'rejected'].includes(status)) {
     return res.status(400).json({ message: 'Invalid status' })
   }
-  // Remember who decided and when, for the admin panel and the Excel download
+
   const who = status === 'pending'
     ? { reviewedAt: null, reviewedByName: null, reviewedById: null }
     : { reviewedAt: new Date(), reviewedByName: req.admin.name, reviewedById: req.admin._id }
   const member = await Member.findByIdAndUpdate(req.params.id, { status, ...who }, { new: true }).catch(() => null)
   if (!member) return res.status(404).json({ message: 'Not found' })
   if (status === 'approved') {
-    // First approval: give the membership number and email the card. Approving again changes nothing.
+
     const { member: issued, isNew } = await issueCard(member._id)
     if (isNew) sendWelcome(issued)
     return res.json(issued)
@@ -80,11 +112,11 @@ router.patch('/:id/status', protect, requirePermission('members'), async (req, r
 router.delete('/:id', protect, requirePermission('members'), async (req, res) => {
   const member = await Member.findByIdAndDelete(req.params.id).catch(() => null)
   if (!member) return res.status(404).json({ message: 'Not found' })
+  await deleteImage(member.photo?.publicId)
   res.json({ ok: true })
 })
 
-// Public card page data. The long random token is the key; phone and email are never returned.
-// A rejected or deleted member's card stops working.
+
 router.get('/card/:token', async (req, res) => {
   const m = await Member.findOne({ cardToken: req.params.token })
   if (!m || m.status !== 'approved' || !m.memberNo) return res.status(404).json({ message: 'Card not found' })
@@ -92,12 +124,24 @@ router.get('/card/:token', async (req, res) => {
   res.json({
     memberNo: m.memberNo,
     name: m.name,
+    photo: m.photo?.url,
     since: m.approvedAt || m.createdAt,
     qr: await QRCode.toDataURL(url, { margin: 1, width: 240 }),
   })
 })
 
-// Email the card again (or for the first time, if the first email did not go out)
+// For staff who scan a card: every detail, whatever the status. Needs a login with the members permission.
+router.get('/verify/:token', protect, requirePermission('members'), async (req, res) => {
+  const m = await Member.findOne({ cardToken: req.params.token })
+  if (!m) return res.status(404).json({ message: 'Card not found' })
+  res.json({
+    name: m.name, memberNo: m.memberNo, status: m.status, phone: m.phone, email: m.email, dob: m.dob,
+    city: m.city, district: m.district, state: m.state, assemblyNo: m.assemblyNo, lokSabhaNo: m.lokSabhaNo, photo: m.photo?.url,
+    appliedAt: m.createdAt, since: m.approvedAt, reviewedAt: m.reviewedAt, reviewedByName: m.reviewedByName,
+  })
+})
+
+
 router.post('/:id/send-card', protect, requirePermission('members'), async (req, res) => {
   const found = await Member.findById(req.params.id).catch(() => null)
   if (!found || found.status !== 'approved') return res.status(404).json({ message: 'Approved member not found' })
