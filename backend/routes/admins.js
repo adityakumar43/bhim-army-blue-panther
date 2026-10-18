@@ -69,7 +69,7 @@ router.patch('/:id', async (req, res) => {
 })
 
 
-// For a team member who lost their phone. Your own is changed on the Security page.
+
 router.post('/:id/reset-2fa', async (req, res) => {
   const target = await Admin.findById(req.params.id).catch(() => null)
   if (!target) return res.status(404).json({ message: 'Not found' })
