@@ -14,7 +14,7 @@ const router = Router()
 const MAX_WRONG = 5
 const LOCK_MINUTES = 15
 
-// The 5-minute pass handed out after the password step uses its own secret, so it can never work as a login token
+
 const challengeSecret = () => `${process.env.JWT_SECRET}:challenge`
 const sign = (id) => jwt.sign({ id }, process.env.JWT_SECRET, { expiresIn: '12h' })
 
@@ -31,7 +31,7 @@ const isLocked = (a) => a.lockUntil && new Date(a.lockUntil) > new Date()
 const lockedReply = (res) =>
   res.status(429).json({ message: `Too many wrong attempts. Try again in ${LOCK_MINUTES} minutes.` })
 
-// Counts a wrong password or code. After 5 wrong in a row the account is locked for 15 minutes.
+
 async function recordFailure(admin) {
   const wrong = (admin.failedLogins || 0) + 1
   await Admin.updateOne(
@@ -48,7 +48,7 @@ const clearFailures = async (admin) => {
   }
 }
 
-// Step 1: email and password. With two-step login on, this returns a short pass instead of a token.
+
 router.post('/login', limiter(10), async (req, res) => {
   const { email, password } = req.body || {}
   if (!email || !password) {
@@ -74,7 +74,7 @@ router.post('/login', limiter(10), async (req, res) => {
   res.json({ token: sign(admin._id), admin: profile(admin) })
 })
 
-// Step 2: the 6-digit code from the authenticator app
+
 router.post('/login/2fa', limiter(10), async (req, res) => {
   const { challenge, code } = req.body || {}
   const expired = () => res.status(401).json({ message: 'Your login session expired. Please log in again.' })
@@ -104,7 +104,7 @@ router.get('/me', protect, (req, res) => {
   res.json({ admin: profile(req.admin) })
 })
 
-// Turning two-step login on: first a QR code to scan, then one code to prove it works
+
 router.post('/2fa/setup', protect, async (req, res) => {
   if (req.admin.twoFactorEnabled) return res.status(400).json({ message: 'Two-step login is already on' })
   const secret = authenticator.generateSecret()
@@ -126,7 +126,7 @@ router.post('/2fa/enable', protect, async (req, res) => {
   res.json({ ok: true })
 })
 
-// Turning it off needs the password AND a current code
+
 router.post('/2fa/disable', protect, async (req, res) => {
   const { password, code } = req.body || {}
   const admin = await Admin.findById(req.admin._id).select('+password +twoFactorSecret')
