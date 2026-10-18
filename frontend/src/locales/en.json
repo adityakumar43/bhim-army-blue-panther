@@ -1,6 +1,6 @@
 {
   "org": "Bhim Army Blue Panther",
-  "address": "Bhingari Bazar, Deoria (UP) 274702",
+  "address": "Constitution Building (Dr. B.R.Ambedkar's birth place Mhow ), Sudarshan Complex, Pithampur, District Indore, Madhya Pradesh",
   "tagline": "If that Messiah had never been born the chain of happiness would never have begun;, This earth would have remained colorless and the sky would never have been blue. 💙",
   "footerText": "Justice and dignity for every oppressed and deprived person; the upliftment of all is our mission.",
   "mission": "Justice and dignity for every oppressed and deprived person; the upliftment of all is our mission.",
@@ -41,7 +41,14 @@
     "submit": "Send application",
     "sending": "Sending...",
     "doneTitle": "Application received. Jai Bhim!",
-    "doneBody": "Our team will contact you soon."
+    "doneBody": "Our team will contact you soon.",
+    "dob": "Date of birth",
+    "photo": "Your photo",
+    "photoHint": "A clear photo of your face (JPG, PNG or WebP)",
+    "photoNeeded": "Please choose your photo",
+    "assemblyNo": "Assembly constituency number (optional)",
+    "lokSabhaNo": "Lok Sabha constituency number (optional)",
+    "constituencyHint": "You can usually find these on your voter ID or on the Election Commission website. Leave blank if you do not know."
   },
   "about": {
     "title": "About Us",
@@ -117,12 +124,30 @@
     "play": "Play slideshow",
     "goTo": "Go to slide {{n}}"
   },
+  "offices": {
+    "head": "Head Office",
+    "headAddress": "Constitution Building (Dr. B.R.Ambedkar's birth place Mhow ), Sudarshan Complex, Pithampur, District Indore, Madhya Pradesh",
+    "delhi": "Delhi Office",
+    "delhiAddress": "C-32, New Gopal Nagar, Najafgarh, New Delhi 110043"
+  },
   "card": {
     "title": "Membership card",
     "no": "Member no.",
     "since": "Member since",
     "print": "Print / Save as PDF",
     "invalid": "This card was not found or is no longer valid.",
-    "scan": "Scan to verify this card"
+    "scan": "Scan to verify this card",
+    "staffTitle": "Full member details (staff only)",
+    "status": "Status",
+    "phone": "Phone",
+    "email": "Email",
+    "dob": "Date of birth",
+    "address": "Address",
+    "applied": "Applied on",
+    "decided": "Decision (by, on)",
+    "notValid": "This membership is NOT valid (status: {{status}}).",
+    "staffLogin": "Staff login",
+    "assembly": "Assembly constituency no.",
+    "lokSabha": "Lok Sabha constituency no."
   }
 }
