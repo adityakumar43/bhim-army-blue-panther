@@ -6,17 +6,21 @@ const memberSchema = new mongoose.Schema(
     name: { type: String, required: true, trim: true, maxlength: 100 },
     phone: { type: String, required: true, unique: true, trim: true },
     email: { type: String, trim: true, lowercase: true, maxlength: 120 },
+    dob: Date, // date of birth
+    assemblyNo: { type: Number, min: 1, max: 999 }, // Vidhan Sabha constituency number
+    lokSabhaNo: { type: Number, min: 1, max: 999 }, // Lok Sabha constituency number
+    photo: { url: String, publicId: String },
     city: { type: String, trim: true, maxlength: 100 },
     district: { type: String, trim: true, maxlength: 100 },
     state: { type: String, trim: true, maxlength: 100 },
     message: { type: String, trim: true, maxlength: 500 },
     status: { type: String, enum: ['pending', 'approved', 'rejected'], default: 'pending' },
-    memberNo: { type: String, unique: true, sparse: true }, 
-    
+    memberNo: { type: String, unique: true, sparse: true },
+
     cardToken: { type: String, unique: true, sparse: true, default: () => crypto.randomBytes(16).toString('hex') },
     approvedAt: Date,
-    reviewedAt: Date, 
-    reviewedByName: String, 
+    reviewedAt: Date,
+    reviewedByName: String,
     reviewedById: mongoose.Schema.Types.ObjectId,
     cardEmailedAt: Date,
   },
