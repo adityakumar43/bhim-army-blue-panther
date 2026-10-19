@@ -23,7 +23,7 @@ export default function Gallery() {
         {items.map((it) => (
           <figure key={it._id}>
             <img src={it.image.url} alt={pickText(it, 'title', i18n.language)} loading="lazy"
-              className="aspect-4/3 w-full object-cover" />
+              className="aspect-4/3 w-full object-contain" />
             {(it.titleHi || it.titleEn) && (
               <figcaption className="mt-2 text-sm">{pickText(it, 'title', i18n.language)}</figcaption>
             )}
