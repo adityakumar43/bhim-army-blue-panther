@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react'
+import { Link } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
 import { api } from '../lib/api.js'
 import { cdn } from '../lib/img.js'
@@ -29,7 +30,9 @@ export default function News() {
           <article key={n._id} className="border-b border-brand/20 pb-8">
             {n.image?.url && <img src={cdn(n.image.url, 1000)} alt="" loading="lazy" onError={(e) => { e.currentTarget.style.display = 'none' }} className="mb-4 max-h-96 w-full object-cover" />}
             <div className="font-semibold text-brand">{formatDate(n.createdAt, lang)}</div>
-            <h2 className="my-1 text-2xl font-extrabold">{pickText(n, 'title', lang)}</h2>
+            <h2 className="my-1 text-2xl font-extrabold">
+              <Link to={`/news/${n._id}`} className="hover:text-brand hover:underline">{pickText(n, 'title', lang)}</Link>
+            </h2>
             <p className="whitespace-pre-line text-lg">{pickText(n, 'body', lang)}</p>
           </article>
         ))}
@@ -44,7 +47,9 @@ export default function News() {
             <div className="font-semibold text-brand">
               {formatDate(ev.date, lang)}{ev.location ? `, ${ev.location}` : ''}
             </div>
-            <h3 className="my-1 text-xl font-extrabold">{pickText(ev, 'title', lang)}</h3>
+            <h3 className="my-1 text-xl font-extrabold">
+              <Link to={`/events/${ev._id}`} className="hover:text-brand hover:underline">{pickText(ev, 'title', lang)}</Link>
+            </h3>
             <p className="whitespace-pre-line">{pickText(ev, 'body', lang)}</p>
           </article>
         ))}
