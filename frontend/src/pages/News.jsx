@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { api } from '../lib/api.js'
+import { cdn } from '../lib/img.js'
 import { pickText, formatDate } from '../lib/text.js'
 
 export default function News() {
@@ -26,7 +27,7 @@ export default function News() {
       <div className="flex flex-col gap-8">
         {news.map((n) => (
           <article key={n._id} className="border-b border-brand/20 pb-8">
-            {n.image?.url && <img src={n.image.url} alt="" className="mb-4 max-h-96 w-full object-cover" />}
+            {n.image?.url && <img src={cdn(n.image.url, 1000)} alt="" loading="lazy" onError={(e) => { e.currentTarget.style.display = 'none' }} className="mb-4 max-h-96 w-full object-cover" />}
             <div className="font-semibold text-brand">{formatDate(n.createdAt, lang)}</div>
             <h2 className="my-1 text-2xl font-extrabold">{pickText(n, 'title', lang)}</h2>
             <p className="whitespace-pre-line text-lg">{pickText(n, 'body', lang)}</p>
@@ -39,6 +40,7 @@ export default function News() {
       <div className="flex flex-col gap-6">
         {events.map((ev) => (
           <article key={ev._id} className="border border-brand/20 p-5">
+            {ev.image?.url && <img src={cdn(ev.image.url, 1000)} alt="" loading="lazy" onError={(e) => { e.currentTarget.style.display = 'none' }} className="mb-4 max-h-80 w-full object-cover" />}
             <div className="font-semibold text-brand">
               {formatDate(ev.date, lang)}{ev.location ? `, ${ev.location}` : ''}
             </div>
