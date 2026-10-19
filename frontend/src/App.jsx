@@ -4,6 +4,7 @@ import Footer from './components/Footer.jsx'
 import ProtectedRoute from './components/ProtectedRoute.jsx'
 import Home from './pages/Home.jsx'
 import News from './pages/News.jsx'
+import Detail from './pages/Detail.jsx'
 import Gallery from './pages/Gallery.jsx'
 import Join from './pages/Join.jsx'
 import About from './pages/About.jsx'
@@ -24,7 +25,7 @@ import Team from './pages/admin/Team.jsx'
 import Security from './pages/admin/Security.jsx'
 
 export default function App() {
-  
+
   const isAdmin = useLocation().pathname.startsWith('/admin')
 
   return (
@@ -34,6 +35,8 @@ export default function App() {
         <Routes>
           <Route path="/" element={<Home />} />
           <Route path="/news" element={<News />} />
+          <Route path="/news/:id" element={<Detail kind="news" />} />
+          <Route path="/events/:id" element={<Detail kind="events" />} />
           <Route path="/gallery" element={<Gallery />} />
           <Route path="/join" element={<Join />} />
           <Route path="/about" element={<About />} />
