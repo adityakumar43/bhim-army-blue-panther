@@ -7,7 +7,8 @@
   "greeting": "जय भीम",
   "detail": {
     "back": "समाचार और कार्यक्रम",
-    "notFound": "यह पेज नहीं मिला।"
+    "notFound": "यह पेज नहीं मिला।",
+    "share": "WhatsApp पर शेयर करें"
   },
   "nav": {
     "home": "होम",
