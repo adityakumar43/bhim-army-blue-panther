@@ -6,6 +6,7 @@ import Slider from '../components/Slider.jsx'
 import { api } from '../lib/api.js'
 import { pickText, formatDate } from '../lib/text.js'
 import { campaigns } from '../data/compaigns.js'
+import { cdn } from '../lib/img.js'
 
 export default function Home() {
   const { t, i18n } = useTranslation()
@@ -56,6 +57,7 @@ export default function Home() {
             {events.map((ev) => (
               <Link key={ev._id} to="/news"
                 className="block border border-brand/20 border-t-4 border-t-brand bg-white p-6 hover:bg-mist">
+                {ev.image?.url && <img src={cdn(ev.image.url, 600)} alt="" loading="lazy" onError={(e) => { e.currentTarget.style.display = 'none' }} className="mb-4 aspect-video w-full object-cover" />}
                 <div className="font-semibold text-brand">{formatDate(ev.date, lang)}</div>
                 <h3 className="my-1 text-xl font-extrabold">{pickText(ev, 'title', lang)}</h3>
                 {ev.location && <div className="text-navy/70">{ev.location}</div>}
@@ -75,8 +77,9 @@ export default function Home() {
         {news.length === 0 && <p className="text-navy/70">{t('empty')}</p>}
         {news.map((n) => (
           <Link to="/news" key={n._id}
-            className="flex flex-col gap-1 border-b border-brand/20 py-4 hover:bg-mist sm:flex-row sm:gap-6">
+            className="flex flex-col gap-2 border-b border-brand/20 py-4 hover:bg-mist sm:flex-row sm:items-center sm:gap-6">
             <span className="shrink-0 font-semibold text-brand sm:w-44">{formatDate(n.createdAt, lang)}</span>
+            {n.image?.url && <img src={cdn(n.image.url, 240)} alt="" loading="lazy" onError={(e) => { e.currentTarget.style.display = 'none' }} className="h-20 w-32 shrink-0 object-cover" />}
             <span className="text-lg">{pickText(n, 'title', lang)}</span>
           </Link>
         ))}
