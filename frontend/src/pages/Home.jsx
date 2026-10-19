@@ -55,7 +55,7 @@ export default function Home() {
           </div>
           <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
             {events.map((ev) => (
-              <Link key={ev._id} to="/news"
+              <Link key={ev._id} to={`/events/${ev._id}`}
                 className="block border border-brand/20 border-t-4 border-t-brand bg-white p-6 hover:bg-mist">
                 {ev.image?.url && <img src={cdn(ev.image.url, 600)} alt="" loading="lazy" onError={(e) => { e.currentTarget.style.display = 'none' }} className="mb-4 aspect-video w-full object-cover" />}
                 <div className="font-semibold text-brand">{formatDate(ev.date, lang)}</div>
@@ -76,7 +76,7 @@ export default function Home() {
         </div>
         {news.length === 0 && <p className="text-navy/70">{t('empty')}</p>}
         {news.map((n) => (
-          <Link to="/news" key={n._id}
+          <Link to={`/news/${n._id}`} key={n._id}
             className="flex flex-col gap-2 border-b border-brand/20 py-4 hover:bg-mist sm:flex-row sm:items-center sm:gap-6">
             <span className="shrink-0 font-semibold text-brand sm:w-44">{formatDate(n.createdAt, lang)}</span>
             {n.image?.url && <img src={cdn(n.image.url, 240)} alt="" loading="lazy" onError={(e) => { e.currentTarget.style.display = 'none' }} className="h-20 w-32 shrink-0 object-cover" />}
