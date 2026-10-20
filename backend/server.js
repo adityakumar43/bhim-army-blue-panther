@@ -39,7 +39,8 @@ app.use('/api/events', crud(Event, {
   sort: { date: -1 },
 }))
 app.use('/api/gallery', crud(Gallery, {
-  fields: ['titleHi', 'titleEn'],
+  fields: ['titleHi', 'titleEn', 'section', 'kind', 'communityHi', 'communityEn'],
+  filterFields: ['section', 'kind'],
   sort: { createdAt: -1 },
   requireTitle: false,
   requireImage: true,
