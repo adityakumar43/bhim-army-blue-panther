@@ -20,12 +20,19 @@ export const Event = makeModel('Event', {
   date: { type: Date, required: true },
   location: { type: String, trim: true },
 })
-export const Gallery = makeModel('Gallery')
+
+// "general" photos, or "adivasi" for traditional dances and festivals of tribal and Adivasi communities
+export const Gallery = makeModel('Gallery', {
+  section: { type: String, enum: ['general', 'adivasi'], default: 'general' },
+  kind: { type: String, enum: ['', 'dance', 'festival'] },
+  communityHi: { type: String, trim: true, maxlength: 80 },
+  communityEn: { type: String, trim: true, maxlength: 80 },
+})
 
 
 export const Slide = makeModel('Slide', {
   order: { type: Number, default: 0 },
-  
+
   link: {
     type: String,
     trim: true,
