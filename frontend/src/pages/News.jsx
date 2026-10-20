@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react'
 import { Link } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
 import { api } from '../lib/api.js'
-import { cdn } from '../lib/img.js'
+import ZoomPhoto from '../components/ZoomPhoto.jsx'
 import { pickText, formatDate } from '../lib/text.js'
 
 export default function News() {
@@ -28,7 +28,7 @@ export default function News() {
       <div className="flex flex-col gap-8">
         {news.map((n) => (
           <article key={n._id} className="border-b border-brand/20 pb-8">
-            {n.image?.url && <img src={cdn(n.image.url, 1000)} alt="" loading="lazy" onError={(e) => { e.currentTarget.style.display = 'none' }} className="mb-4 max-h-96 w-full object-cover" />}
+            {n.image?.url && <ZoomPhoto item={n} width={1000} buttonClassName="mb-4" className="max-h-96 w-full object-cover" />}
             <div className="font-semibold text-brand">{formatDate(n.createdAt, lang)}</div>
             <h2 className="my-1 text-2xl font-extrabold">
               <Link to={`/news/${n._id}`} className="hover:text-brand hover:underline">{pickText(n, 'title', lang)}</Link>
@@ -43,7 +43,7 @@ export default function News() {
       <div className="flex flex-col gap-6">
         {events.map((ev) => (
           <article key={ev._id} className="border border-brand/20 p-5">
-            {ev.image?.url && <img src={cdn(ev.image.url, 1000)} alt="" loading="lazy" onError={(e) => { e.currentTarget.style.display = 'none' }} className="mb-4 max-h-80 w-full object-cover" />}
+            {ev.image?.url && <ZoomPhoto item={ev} width={1000} buttonClassName="mb-4" className="max-h-80 w-full object-cover" />}
             <div className="font-semibold text-brand">
               {formatDate(ev.date, lang)}{ev.location ? `, ${ev.location}` : ''}
             </div>
