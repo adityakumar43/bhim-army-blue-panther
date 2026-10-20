@@ -156,5 +156,22 @@
     "staffLogin": "Staff login",
     "assembly": "Assembly constituency no.",
     "lokSabha": "Lok Sabha constituency no."
+  },
+  "gallery": {
+    "photos": "Photos",
+    "culture": "Adivasi & tribal culture",
+    "cultureIntro": "Photos of the traditional dances and festivals of tribal and Adivasi communities.",
+    "all": "All",
+    "dance": "Dance",
+    "festival": "Festival",
+    "allCommunities": "All communities",
+    "noMatch": "No photos for this selection.",
+    "viewLarger": "View larger",
+    "close": "Close",
+    "prev": "Previous photo",
+    "next": "Next photo",
+    "zoomIn": "Zoom in",
+    "zoomOut": "Zoom out",
+    "counter": "{{current}} / {{total}}"
   }
 }
