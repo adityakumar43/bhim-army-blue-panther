@@ -12,8 +12,13 @@ const KINDS = {
     fields: ['titleHi', 'titleEn', 'bodyHi', 'bodyEn', 'date', 'location'],
   },
   gallery: {
-    label: 'Gallery', hint: 'Photos shown on the Gallery page.', endpoint: '/gallery', needImage: true,
-    fields: ['titleHi', 'titleEn'],
+    label: 'Gallery', hint: 'Photos shown on the Gallery page. Choose "Adivasi & tribal culture" for traditional dances and festivals.',
+    endpoint: '/gallery', needImage: true,
+    fields: ['titleHi', 'titleEn', 'section', 'kind', 'communityEn', 'communityHi'],
+    labels: {
+      titleHi: 'Caption (Hindi)', titleEn: 'Caption (English)', section: 'Where should it appear?',
+      kind: 'Dance or festival?', communityEn: 'Community / tribe name (English)', communityHi: 'Community / tribe name (Hindi)',
+    },
   },
 }
 
@@ -44,7 +49,7 @@ export default function Content({ kind }) {
   const [busy, setBusy] = useState(false)
   const [formKey, setFormKey] = useState(0)
 
-  const load = () => api.get(config.endpoint).then(setItems).catch((e) => setError(e.message))
+  const load = () => api.get(`${config.endpoint}?limit=100`).then(setItems).catch((e) => setError(e.message))
   useEffect(() => { load() }, [config.endpoint])
 
   function reset() {
@@ -75,6 +80,11 @@ export default function Content({ kind }) {
       const data = new FormData()
       // Empty values are sent too, so a field can be cleared while editing.
       config.fields.forEach((f) => data.append(f, form[f] ?? ''))
+      // A gallery photo is "general" unless marked Adivasi, and the extra boxes only belong to the Adivasi section
+      if (kind === 'gallery') {
+        data.set('section', form.section === 'adivasi' ? 'adivasi' : 'general')
+        if (form.section !== 'adivasi') ['kind', 'communityEn', 'communityHi'].forEach((k) => data.set(k, ''))
+      }
       if (file) data.append('image', file)
       if (editing) await api.put(`${config.endpoint}/${editing._id}`, data)
       else await api.post(config.endpoint, data)
@@ -105,14 +115,27 @@ export default function Content({ kind }) {
         <form key={formKey} onSubmit={submit} className="card flex flex-col gap-4">
           <h2 className="text-xl font-extrabold">{editing ? 'Edit item' : `Add to ${config.label}`}</h2>
           {config.fields.map((f) => {
+            // The dance/festival and community boxes only matter for the Adivasi section
+            if (['kind', 'communityEn', 'communityHi'].includes(f) && form.section !== 'adivasi') return null
             const common = { className: 'input', defaultValue: form[f], onChange: (e) => setForm({ ...form, [f]: e.target.value }) }
             return (
               <label key={f} className="flex flex-col gap-1 font-semibold">
                 {config.labels?.[f] || LABELS[f]}
                 {f.startsWith('body') ? <textarea rows="4" {...common} />
-                  : f === 'order' ? <input type="number" min="0" {...common} />
-                  : f === 'date' ? <input type="date" required {...common} />
-                  : <input type="text" {...common} />}
+                  : f === 'section' ? (
+                    <select {...common}>
+                      <option value="general">Photos (programs, rallies, general)</option>
+                      <option value="adivasi">Adivasi &amp; tribal culture (dances, festivals)</option>
+                    </select>
+                  ) : f === 'kind' ? (
+                    <select {...common}>
+                      <option value="">Choose...</option>
+                      <option value="dance">Traditional dance</option>
+                      <option value="festival">Festival</option>
+                    </select>
+                  ) : f === 'order' ? <input type="number" min="0" {...common} />
+                    : f === 'date' ? <input type="date" required {...common} />
+                      : <input type="text" {...common} />}
               </label>
             )
           })}
@@ -145,6 +168,11 @@ export default function Content({ kind }) {
                   <div className="font-semibold">{it.titleHi || it.titleEn || config.untitled || '(no title)'}</div>
                   {it.date && <div className="text-sm text-navy/70">{new Date(it.date).toLocaleDateString('en-IN')}</div>}
                   {it.order != null && <div className="text-sm text-navy/70">Order {it.order}</div>}
+                  {it.section === 'adivasi' && (
+                    <div className="text-sm text-navy/70">
+                      Adivasi culture{it.kind ? ` · ${it.kind}` : ''}{it.communityEn || it.communityHi ? ` · ${it.communityEn || it.communityHi}` : ''}
+                    </div>
+                  )}
                 </div>
                 <div className="flex gap-2">
                   <button onClick={() => startEdit(it)} className="abtn">Edit</button>
