@@ -4,7 +4,7 @@ import { upload } from '../middleware/upload.js'
 import { uploadImage, deleteImage } from '../config/cloudinary.js'
 
 
-export default function crud(Model, { fields, sort, requireTitle = true, requireImage = false }) {
+export default function crud(Model, { fields, sort, filterFields = [], requireTitle = true, requireImage = false }) {
   const router = Router()
 
   const pick = (body) => {
@@ -15,7 +15,11 @@ export default function crud(Model, { fields, sort, requireTitle = true, require
 
   router.get('/', async (req, res) => {
     const limit = Math.min(Number(req.query.limit) || 50, 100)
-    res.json(await Model.find().sort(sort).limit(limit))
+    const skip = Math.max(Number(req.query.skip) || 0, 0)
+    // Only the listed fields can be filtered, and only by plain text (so nobody can sneak in a database operator)
+    const filter = {}
+    for (const f of filterFields) if (req.query[f]) filter[f] = String(req.query[f])
+    res.json(await Model.find(filter).sort(sort).skip(skip).limit(limit))
   })
 
   router.get('/:id', async (req, res) => {
