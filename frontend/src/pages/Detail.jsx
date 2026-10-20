@@ -3,7 +3,7 @@ import { Link, useParams } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
 import { api } from '../lib/api.js'
 import { pickText, formatDate } from '../lib/text.js'
-import { cdn } from '../lib/img.js'
+import ZoomPhoto from '../components/ZoomPhoto.jsx'
 
 // One news item or one event on its own page. kind is "news" or "events".
 export default function Detail({ kind }) {
@@ -33,10 +33,7 @@ export default function Detail({ kind }) {
     return (
         <article className="mx-auto max-w-3xl px-5 py-12 lg:px-16">
             <Link to="/news" className="font-semibold text-brand">← {t('detail.back')}</Link>
-            {item.image?.url && (
-                <img src={cdn(item.image.url, 1200)} alt="" onError={(e) => { e.currentTarget.style.display = 'none' }}
-                    className="mt-6 max-h-112 w-full object-cover" />
-            )}
+            {item.image?.url && <ZoomPhoto item={item} width={1200} buttonClassName="mt-6" className="max-h-112 w-full object-cover" />}
             <div className="mt-6 font-semibold text-brand">
                 {formatDate(date, lang)}{item.location ? `, ${item.location}` : ''}
             </div>
