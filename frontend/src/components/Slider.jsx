@@ -113,10 +113,10 @@ export default function Slider({ slides, interval = 5000 }) {
           })}
         </div>
 
-        <button type="button" ref={zoomButton} onClick={() => setViewing(index)} aria-label={t('gallery.viewLarger')}
-          className="absolute top-2 right-2 z-10 flex h-11 w-11 items-center justify-center bg-navy/60 text-white hover:bg-navy sm:top-4 sm:right-4">
+        {/* <button type="button" ref={zoomButton} onClick={() => setViewing(index)} aria-label={t('gallery.viewLarger')}
+          className="absolute top-2 right-2 z-10 flex h-11 w-11 items-center justify-center bg-gold text-navy hover:bg-navy sm:top-4 sm:right-4 rounded-full motion-safe:transition">
           <Icon d="M21 21l-4.35-4.35M11 18a7 7 0 1 1 0-14 7 7 0 0 1 0 14z" />
-        </button>
+        </button> */}
 
 
         {n > 1 && (
