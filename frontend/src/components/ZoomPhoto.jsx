@@ -3,6 +3,7 @@ import { useTranslation } from 'react-i18next'
 import { pickText } from '../lib/text.js'
 import { cdn } from '../lib/img.js'
 import Lightbox from './Lightbox.jsx'
+import ZoomBadge from './ZoomBadge.jsx'
 
 // A news or event picture that opens in the full-screen viewer when clicked
 export default function ZoomPhoto({ item, width = 1000, className = '', buttonClassName = '' }) {
@@ -27,10 +28,12 @@ export default function ZoomPhoto({ item, width = 1000, className = '', buttonCl
     <>
       <button type="button" ref={button} onClick={() => setOpen(true)}
         aria-label={`${t('gallery.viewLarger')}: ${pickText(item, 'title', i18n.language)}`}
-        className={`block w-full cursor-zoom-in ${buttonClassName}`}>
-        <img src={cdn(item.image.url, width)} alt="" loading="lazy" onError={() => setBroken(true)} className={className} />
+        className={`group relative block w-full cursor-zoom-in ${buttonClassName}`}>
+        <img src={cdn(item.image.url, width)} alt="" loading="lazy" onError={() => setBroken(true)}
+          className={`${className} motion-safe:transition group-hover:brightness-90`} />
+        <ZoomBadge />
       </button>
-      {open && <Lightbox items={[item]} index={0} onIndex={() => {}} onClose={() => setOpen(false)} />}
+      {open && <Lightbox items={[item]} index={0} onIndex={() => { }} onClose={() => setOpen(false)} />}
     </>
   )
 }
