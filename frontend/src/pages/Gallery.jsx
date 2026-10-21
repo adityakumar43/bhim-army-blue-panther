@@ -5,6 +5,7 @@ import { api } from '../lib/api.js'
 import { pickText } from '../lib/text.js'
 import { cdn } from '../lib/img.js'
 import Lightbox from '../components/Lightbox.jsx'
+import ZoomBadge from '../components/ZoomBadge.jsx'
 
 const PAGE = 100
 
@@ -104,8 +105,9 @@ export default function Gallery() {
           const about = [pickText(it, 'community', lang), it.kind ? t(`gallery.${it.kind}`) : ''].filter(Boolean).join(' · ')
           return (
             <figure key={it._id}>
-              <button type="button" ref={(b) => { photoButtons.current[i] = b }} onClick={() => setOpen(i)} aria-label={`${t('gallery.viewLarger')}: ${caption || about}`} className="block w-full cursor-zoom-in">
-                <img src={cdn(it.image.url, 800)} alt={caption || about} loading="lazy" className="aspect-4/3 w-full object-cover" />
+              <button type="button" ref={(b) => { photoButtons.current[i] = b }} onClick={() => setOpen(i)} aria-label={`${t('gallery.viewLarger')}: ${caption || about}`} className="group relative block w-full cursor-zoom-in">
+                <img src={cdn(it.image.url, 800)} alt={caption || about} loading="lazy" className="aspect-4/3 w-full object-cover motion-safe:transition group-hover:brightness-90" />
+                <ZoomBadge />
               </button>
               {(caption || about) && (
                 <figcaption className="mt-2">
