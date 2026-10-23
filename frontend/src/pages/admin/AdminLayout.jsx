@@ -9,6 +9,7 @@ const NAV = [
   { to: '/admin/events', label: 'Events', perm: 'content' },
   { to: '/admin/gallery', label: 'Gallery', perm: 'content' },
   { to: '/admin/slides', label: 'Home slider', perm: 'content' },
+  { to: '/admin/updates', label: 'Home updates', perm: 'content' },
   { to: '/admin/members', label: 'Members', perm: 'members', badge: 'members' },
   { to: '/admin/messages', label: 'Messages', perm: 'messages', badge: 'messages' },
   { to: '/admin/donations', label: 'Donations', perm: 'donations', badge: 'donations' },
@@ -41,7 +42,7 @@ export default function AdminLayout() {
     return () => clearInterval(id)
   }, [me])
 
-  
+
   useEffect(() => {
     if (me?.permissions.includes('donations') && pathname === '/admin/donations') {
       api.post('/admin/seen/donations').then(refresh).catch(() => { })
