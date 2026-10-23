@@ -1,3 +1,4 @@
+import { useState } from 'react'
 import { Link } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
 import Chakra from './Chakra.jsx'
@@ -9,6 +10,7 @@ const dots = { backgroundImage: 'radial-gradient(rgba(255,255,255,0.07) 1px, tra
 
 export default function Hero() {
   const { t, i18n } = useTranslation()
+  const [photoOk, setPhotoOk] = useState(true)
   const lines = t('tagline').split(/,\s*/) // each part of the tagline on its own line
 
   return (
@@ -22,7 +24,7 @@ export default function Hero() {
           <p className="inline-flex items-center gap-2 rounded-full border border-white/15 bg-white/5 px-4 py-1.5 text-sm font-semibold text-gold">
             <Icon name="spark" size={16} />{t('greeting')}
           </p>
-          <h1 className="mt-5 mb-5 text-[clamp(1.6rem,3.2vw,2.75rem)] leading-snug font-extrabold">
+          <h1 className="mt-5 mb-5 text-[clamp(1.4rem,2.4vw,2.1rem)] leading-snug font-extrabold">
             {lines.map((line) => <span key={line} className="block">{line}</span>)}
           </h1>
           <p className="mb-8 max-w-xl text-lg text-white/80">{t('mission')}</p>
@@ -48,11 +50,12 @@ export default function Hero() {
           )}
         </div>
 
-        {/* Your photo (public/hero.jpg); without it, the wheel is shown */}
-        <div className="relative aspect-4/3 w-full overflow-hidden rounded-2xl bg-white/5 shadow-2xl ring-1 ring-white/15">
-          <Chakra className="absolute inset-0 m-auto h-2/3 w-2/3 text-white/20" />
-          <img src="/hero.jpg" alt="" onError={(e) => { e.currentTarget.style.display = 'none' }}
-            className="absolute inset-0 h-full w-full object-cover" />
+        {/* Your photo (public/hero.jpg), shown whole in its own shape and lined up with the top of the text.
+            Without a photo, the wheel is shown instead. */}
+        <div className={`relative w-full overflow-hidden rounded-2xl bg-white/5 shadow-2xl ring-1 ring-white/15 lg:self-start lg:mt-10 ${photoOk ? '' : 'aspect-4/3'}`}>
+          {photoOk
+            ? <img src="/hero.jpg" alt="" onError={() => setPhotoOk(false)} className="block h-auto max-h-[28rem] w-full object-contain sm:max-h-[30rem]" />
+            : <Chakra className="absolute inset-0 m-auto h-2/3 w-2/3 text-white/20" />}
           <div className="absolute inset-x-0 bottom-0 bg-linear-to-t from-navy/90 to-transparent p-5 pt-16">
             <span className="rounded-md bg-gold px-2.5 py-1 text-xs font-extrabold text-navy">{t('org')}</span>
           </div>
