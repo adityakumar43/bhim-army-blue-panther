@@ -60,7 +60,7 @@ export default function Announcements({ interval = 6000 }) {
       onMouseLeave={() => setHold(false)}
       onFocus={(e) => e.target.matches(':focus-visible') && setHold(true)}
       onBlur={() => setHold(false)}
-      className="bg-navy text-white"
+      className="bg-brand text-white"
     >
       <div className="mx-auto flex max-w-7xl items-center gap-3 px-5 py-2 lg:px-16">
         <span className="shrink-0 bg-gold px-2 py-0.5 text-sm font-extrabold text-navy">{t('announce.label')}</span>
