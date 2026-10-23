@@ -79,9 +79,9 @@ export default function Announcements({ interval = 6000 }) {
               <button type="button" onClick={() => go(index - 1)} aria-label={t('announce.prev')} className={small}><Icon d="M15 5l-7 7 7 7" /></button>
               <span className="hidden px-1 text-sm sm:inline">{t('announce.counter', { current: index + 1, total: n })}</span>
               <button type="button" onClick={() => go(index + 1)} aria-label={t('announce.next')} className={small}><Icon d="M9 5l7 7-7 7" /></button>
-              <button type="button" onClick={() => setPlaying(!playing)} aria-label={playing ? t('announce.pause') : t('announce.play')} aria-pressed={!playing} className={small}>
+              {/* <button type="button" onClick={() => setPlaying(!playing)} aria-label={playing ? t('announce.pause') : t('announce.play')} aria-pressed={!playing} className={small}>
                 <Icon d={playing ? 'M9 5v14M15 5v14' : 'M7 4l12 8-12 8z'} />
-              </button>
+              </button> */}
             </>
           )}
           <button type="button" onClick={() => { remember(signature); setHidden(true) }} aria-label={t('announce.hide')} className={small}>
