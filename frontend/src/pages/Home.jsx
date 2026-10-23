@@ -4,10 +4,40 @@ import { useTranslation } from 'react-i18next'
 import Hero from '../components/Hero.jsx'
 import Slider from '../components/Slider.jsx'
 import Announcements from '../components/Announcements.jsx'
+import Icon from '../components/Icon.jsx'
 import { api } from '../lib/api.js'
 import { pickText, formatDate } from '../lib/text.js'
-import { campaigns } from '../data/compaigns.js'
 import { cdn } from '../lib/img.js'
+import { campaigns } from '../data/compaigns.js'
+
+const hideBroken = (e) => { e.currentTarget.style.display = 'none' }
+const wrap = 'mx-auto max-w-7xl px-5 py-16 lg:px-16'
+const cardBox = 'flex h-full flex-col overflow-hidden rounded-2xl border border-navy/10 bg-white shadow-sm transition hover:shadow-md'
+
+function SectionHead({ title, intro, to, label }) {
+  return (
+    <div className="mb-8 flex flex-wrap items-end justify-between gap-3">
+      <div>
+        <h2 className="text-3xl font-extrabold">{title}</h2>
+        {intro && <p className="mt-2 text-navy/70">{intro}</p>}
+      </div>
+      <Link to={to} className="inline-flex items-center gap-1 font-semibold text-brand hover:underline">
+        {label}<Icon name="arrow" size={18} />
+      </Link>
+    </div>
+  )
+}
+
+function DateLine({ date, place, lang }) {
+  return (
+    <div className="mb-2 flex flex-wrap items-center gap-x-3 gap-y-1 text-sm font-semibold text-brand">
+      <span className="inline-flex items-center gap-1.5"><Icon name="calendar" size={16} />{formatDate(date, lang)}</span>
+      {place && <span className="inline-flex items-center gap-1.5 text-navy/70"><Icon name="pin" size={16} />{place}</span>}
+    </div>
+  )
+}
+
+const PATH = [['educate', 'book', 'bg-mist text-brand'], ['organize', 'users', 'bg-gold/20 text-navy'], ['struggle', 'shield', 'bg-brand/10 text-brand']]
 
 export default function Home() {
   const { t, i18n } = useTranslation()
@@ -21,7 +51,7 @@ export default function Home() {
     api.get('/slides').then(setSlides).catch(() => setSlides([]))
     // Upcoming events first (soonest on top), then the most recent past ones. Three are shown.
     api.get('/events?limit=20').then((all) => {
-      const today = new Date().toLocaleDateString('en-CA') // like 2026-10-12
+      const today = new Date().toLocaleDateString('en-CA')
       const upcoming = all.filter((e) => e.date.slice(0, 10) >= today).sort((a, b) => a.date.localeCompare(b.date))
       const past = all.filter((e) => e.date.slice(0, 10) < today).sort((a, b) => b.date.localeCompare(a.date))
       setEvents([...upcoming, ...past].slice(0, 3))
@@ -34,63 +64,91 @@ export default function Home() {
       {slides.length > 0 && <Slider slides={slides} />}
       <Hero />
 
-      <section className="mx-auto max-w-7xl px-5 pt-14 lg:px-16">
-        <div className="mb-7 flex items-baseline justify-between gap-4">
-          <h2 className="text-3xl font-extrabold">{t('sections.campaigns')}</h2>
-          <Link to="/campaigns" className="shrink-0 font-semibold text-brand">{t('viewAll')}</Link>
+      {/* Our path: the three principles */}
+      <section className="bg-white">
+        <div className={wrap}>
+          <div className="mx-auto mb-10 max-w-3xl text-center">
+            <h2 className="text-3xl font-extrabold">{t('about.principlesTitle')}</h2>
+            <p className="mt-3 text-lg text-navy/70">{t('about.intro')}</p>
+          </div>
+          <div className="grid gap-5 md:grid-cols-3">
+            {PATH.map(([key, icon, tone], i) => (
+              <article key={key} className="rounded-2xl border border-navy/10 bg-[#f6f8fc] p-6">
+                <span className={`mb-4 inline-flex h-12 w-12 items-center justify-center rounded-xl ${tone}`}><Icon name={icon} size={24} /></span>
+                <h3 className="mb-2 text-xl font-extrabold">{i + 1}. {t(`about.${key}.title`)}</h3>
+                <p className="text-navy/75">{t(`about.${key}.text`)}</p>
+              </article>
+            ))}
+          </div>
         </div>
-        <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
-          {campaigns.map((c) => (
-            <article key={c.id} className="border border-brand/20 border-t-4 border-t-brand bg-white p-6">
-              <h3 className="mb-2 text-xl font-extrabold">{pickText(c, 'title', lang)}</h3>
-              <p className="text-navy/80">{pickText(c, 'body', lang)}</p>
-            </article>
-          ))}
+      </section>
+
+      {/* Campaigns (from data/campaigns.js; add image: '/campaigns/name.jpg' to show a photo) */}
+      <section className="bg-[#f3f6fb]">
+        <div className={wrap}>
+          <SectionHead title={t('sections.campaigns')} intro={t('home.campaignsIntro')} to="/campaigns" label={t('viewAll')} />
+          <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
+            {campaigns.map((c) => (
+              <article key={c.id} className={`${cardBox} ${c.image ? '' : 'border-t-4 border-t-brand'}`}>
+                {c.image && <img src={c.image} alt="" loading="lazy" onError={hideBroken} className="aspect-video w-full object-cover" />}
+                <div className="flex-1 p-6">
+                  <h3 className="mb-2 text-xl font-extrabold">{pickText(c, 'title', lang)}</h3>
+                  <p className="text-navy/75">{pickText(c, 'body', lang)}</p>
+                </div>
+              </article>
+            ))}
+          </div>
         </div>
       </section>
 
       {events.length > 0 && (
-        <section className="mx-auto max-w-7xl px-5 pt-14 lg:px-16">
-          <div className="mb-7 flex items-baseline justify-between gap-4">
-            <h2 className="text-3xl font-extrabold">{t('sections.events')}</h2>
-            <Link to="/news" className="shrink-0 font-semibold text-brand">{t('viewAll')}</Link>
-          </div>
-          <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
-            {events.map((ev) => (
-              <Link key={ev._id} to={`/events/${ev._id}`}
-                className="block border border-brand/20 border-t-4 border-t-brand bg-white p-6 hover:bg-mist">
-                {ev.image?.url && <img src={cdn(ev.image.url, 600)} alt="" loading="lazy" onError={(e) => { e.currentTarget.style.display = 'none' }} className="mb-4 aspect-video w-full object-cover" />}
-                <div className="font-semibold text-brand">{formatDate(ev.date, lang)}</div>
-                <h3 className="my-1 text-xl font-extrabold">{pickText(ev, 'title', lang)}</h3>
-                {ev.location && <div className="text-navy/70">{ev.location}</div>}
-                <p className="mt-2 line-clamp-2 text-navy/80">{pickText(ev, 'body', lang)}</p>
-              </Link>
-            ))}
+        <section className="bg-white">
+          <div className={wrap}>
+            <SectionHead title={t('sections.events')} intro={t('home.eventsIntro')} to="/news" label={t('viewAll')} />
+            <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
+              {events.map((ev) => (
+                <Link key={ev._id} to={`/events/${ev._id}`} className={cardBox}>
+                  {ev.image?.url && <img src={cdn(ev.image.url, 600)} alt="" loading="lazy" onError={hideBroken} className="aspect-video w-full object-cover" />}
+                  <div className="flex-1 p-6">
+                    <DateLine date={ev.date} place={ev.location} lang={lang} />
+                    <h3 className="mb-2 text-xl font-extrabold">{pickText(ev, 'title', lang)}</h3>
+                    <p className="line-clamp-2 text-navy/75">{pickText(ev, 'body', lang)}</p>
+                  </div>
+                </Link>
+              ))}
+            </div>
           </div>
         </section>
       )}
 
-
-      <section className="mx-auto max-w-7xl px-5 py-12 lg:px-16">
-        <div className="mb-5 flex items-baseline justify-between gap-4">
-          <h2 className="text-3xl font-extrabold">{t('sections.news')}</h2>
-          <Link to="/news" className="shrink-0 font-semibold text-brand">{t('viewAll')}</Link>
+      <section className={events.length > 0 ? 'bg-[#f3f6fb]' : 'bg-white'}>
+        <div className={wrap}>
+          <SectionHead title={t('sections.news')} intro={t('home.newsIntro')} to="/news" label={t('viewAll')} />
+          {news.length === 0 && <p className="text-navy/70">{t('empty')}</p>}
+          <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
+            {news.map((n) => (
+              <Link key={n._id} to={`/news/${n._id}`} className={cardBox}>
+                {n.image?.url && <img src={cdn(n.image.url, 600)} alt="" loading="lazy" onError={hideBroken} className="aspect-video w-full object-cover" />}
+                <div className="flex-1 p-6">
+                  <DateLine date={n.createdAt} lang={lang} />
+                  <h3 className="mb-2 text-xl font-extrabold">{pickText(n, 'title', lang)}</h3>
+                  <p className="line-clamp-2 text-navy/75">{pickText(n, 'body', lang)}</p>
+                </div>
+              </Link>
+            ))}
+          </div>
         </div>
-        {news.length === 0 && <p className="text-navy/70">{t('empty')}</p>}
-        {news.map((n) => (
-          <Link to={`/news/${n._id}`} key={n._id}
-            className="flex flex-col gap-2 border-b border-brand/20 py-4 hover:bg-mist sm:flex-row sm:items-center sm:gap-6">
-            <span className="shrink-0 font-semibold text-brand sm:w-44">{formatDate(n.createdAt, lang)}</span>
-            {n.image?.url && <img src={cdn(n.image.url, 240)} alt="" loading="lazy" onError={(e) => { e.currentTarget.style.display = 'none' }} className="h-20 w-32 shrink-0 object-cover" />}
-            <span className="text-lg">{pickText(n, 'title', lang)}</span>
-          </Link>
-        ))}
       </section>
 
-      <section className="bg-gold">
-        <div className="mx-auto flex max-w-7xl flex-col items-start justify-between gap-4 px-5 py-10 lg:flex-row lg:items-center lg:px-16">
-          <h2 className="text-2xl font-extrabold lg:text-3xl">{t('sections.band')}</h2>
-          <Link to="/join" className="btn bg-navy text-white">{t('cta.register')}</Link>
+      {/* Call to action */}
+      <section className="bg-linear-to-br from-navy via-[#0d2a6b] to-brand text-white">
+        <div className="mx-auto max-w-4xl px-5 py-16 text-center lg:px-16">
+          <h2 className="text-3xl font-extrabold text-gold">{t('sections.band')}</h2>
+          <p className="mx-auto mt-3 max-w-2xl text-lg text-white/85">{t('home.bandIntro')}</p>
+          <div className="mt-8 flex flex-col justify-center gap-3 sm:flex-row">
+            <Link to="/join" className="btn rounded-xl bg-gold text-navy shadow-lg hover:brightness-105">{t('cta.register')}</Link>
+            <Link to="/contact" className="btn rounded-xl border border-white/30 text-white hover:bg-white/10">{t('nav.contact')}</Link>
+          </div>
         </div>
       </section>
     </>
