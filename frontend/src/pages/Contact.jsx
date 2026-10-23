@@ -29,8 +29,8 @@ export default function Contact() {
   return (
     <div className="mx-auto grid max-w-5xl gap-12 px-5 py-12 lg:grid-cols-2 lg:px-16">
       <div>
-        <h1 className="mb-6 text-4xl font-extrabold">{t('contact.title')}</h1>
-        <dl className="flex flex-col gap-4 text-lg">
+        
+        <dl className="panel flex flex-col gap-4 text-lg">
           <div><dt className="font-semibold text-brand">{t('contact.address')}</dt><dd>{t('address')}</dd></div>
           {/* <div><dt className="font-semibold text-brand">{t('contact.phone')}</dt><dd>{ORG.phone}</dd></div> */}
           {/* <div><dt className="font-semibold text-brand">{t('contact.email')}</dt><dd>{ORG.email}</dd></div> */}
@@ -43,7 +43,7 @@ export default function Contact() {
           <p className="text-lg">{t('contact.doneBody')}</p>
         </div>
       ) : (
-        <form onSubmit={submit} className="flex flex-col gap-4">
+        <form onSubmit={submit} className="panel flex flex-col gap-4 sm:p-8">
           <label className="flex flex-col gap-1 font-semibold">{t('contact.name')}
             <input required onChange={set('name')} autoComplete="name" className={input} />
           </label>
