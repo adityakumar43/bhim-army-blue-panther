@@ -61,27 +61,33 @@
 
 @layer components {
   .input {
-    @apply min-h-12 w-full border border-navy/30 bg-white px-3 py-3 font-normal focus:border-brand;
+    @apply min-h-12 w-full rounded-lg border border-navy/30 bg-white px-3 py-3 font-normal focus:border-brand;
   }
 
   .btn {
-    @apply inline-flex min-h-12 items-center justify-center px-6 py-3 text-center font-extrabold;
+    @apply inline-flex min-h-12 items-center justify-center rounded-xl px-6 py-3 text-center font-extrabold;
   }
+
+  /* A white rounded card on the light grey public pages */
+  .panel {
+    @apply rounded-2xl border border-navy/10 bg-white p-6 shadow-sm;
+  }
+
 
   /* Admin panel */
   .card {
-    @apply min-w-0 border border-brand/15 bg-white p-5 sm:p-6 [overflow-wrap:anywhere];
+    @apply min-w-0 rounded-xl border border-brand/15 bg-white p-5 sm:p-6 [overflow-wrap:anywhere];
   }
 
   .abtn {
-    @apply inline-flex min-h-10 items-center justify-center border border-navy bg-white px-4 py-2 text-sm font-semibold;
+    @apply rounded-lg inline-flex min-h-10 items-center justify-center border border-navy bg-white px-4 py-2 text-sm font-semibold;
   }
 
   .abtn-primary {
-    @apply inline-flex min-h-10 items-center justify-center border border-brand bg-brand px-4 py-2 text-sm font-semibold text-white disabled:opacity-60;
+    @apply rounded-lg inline-flex min-h-10 items-center justify-center border border-brand bg-brand px-4 py-2 text-sm font-semibold text-white disabled:opacity-60;
   }
 
   .abtn-danger {
-    @apply inline-flex min-h-10 items-center justify-center border border-red-700 bg-white px-4 py-2 text-sm font-semibold text-red-700;
+    @apply rounded-lg inline-flex min-h-10 items-center justify-center border border-red-700 bg-white px-4 py-2 text-sm font-semibold text-red-700;
   }
 }
