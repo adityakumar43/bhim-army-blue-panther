@@ -14,7 +14,7 @@ export default function Footer() {
       <div className="mx-auto grid max-w-7xl gap-8 px-5 py-10 sm:grid-cols-2 sm:gap-10 sm:py-12 lg:grid-cols-[1.4fr_1fr_1fr_1.3fr] lg:px-16">
         <div>
           <div className="mb-4 flex items-center gap-3">
-            <img src="/logo.png" alt="" className="h-11 w-11 rounded-full bg-white object-cover" />
+            <img src="/logo.png" alt="" className="h-11 w-11  object-contain rounded-md" />
             <strong className="text-lg">{t('org')}</strong>
           </div>
           <p className="mb-3 text-sm text-white/75">{t('footerText', { defaultValue: t('mission') })}</p>
