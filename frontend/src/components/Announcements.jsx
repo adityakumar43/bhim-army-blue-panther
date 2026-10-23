@@ -15,7 +15,7 @@ const Icon = ({ d }) => (
   <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.4"
     strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><path d={d} /></svg>
 )
-const small = 'flex h-9 w-9 items-center justify-center hover:bg-white/15'
+const small = 'flex h-8 w-8 items-center justify-center hover:bg-white/15 sm:h-9 sm:w-9'
 
 // The "Latest updates" bar at the top of the Home page. interval = milliseconds each update stays.
 export default function Announcements({ interval = 6000 }) {
@@ -62,9 +62,10 @@ export default function Announcements({ interval = 6000 }) {
       onBlur={() => setHold(false)}
       className="bg-navy text-white"
     >
-      <div className="mx-auto flex max-w-7xl items-center gap-3 px-5 py-2 lg:px-16">
-        <span className="shrink-0 bg-gold px-2 py-0.5 text-sm font-extrabold text-navy">{t('announce.label')}</span>
-        <p className="min-w-0 flex-1">
+      {/* On phones: label and buttons on the first row, the text across the full width below. From "sm" up: one row. */}
+      <div className="mx-auto flex max-w-7xl flex-wrap items-center gap-x-3 gap-y-1 px-5 py-2 lg:px-16">
+        <span className="order-1 shrink-0 bg-gold px-2 py-0.5 text-xs font-extrabold text-navy sm:text-sm">{t('announce.label')}</span>
+        <p className="order-3 w-full text-sm sm:order-2 sm:w-auto sm:min-w-0 sm:flex-1 sm:text-base">
           {current.important && <strong className="mr-2 text-gold">{t('announce.important')}:</strong>}
           {href
             ? href.startsWith('/')
@@ -72,19 +73,21 @@ export default function Announcements({ interval = 6000 }) {
               : <a href={href} target="_blank" rel="noopener noreferrer" className={linkClass}>{text}</a>
             : text}
         </p>
-        {n > 1 && (
-          <div className="flex shrink-0 items-center">
-            <button type="button" onClick={() => go(index - 1)} aria-label={t('announce.prev')} className={small}><Icon d="M15 5l-7 7 7 7" /></button>
-            <span className="px-1 text-sm">{t('announce.counter', { current: index + 1, total: n })}</span>
-            <button type="button" onClick={() => go(index + 1)} aria-label={t('announce.next')} className={small}><Icon d="M9 5l7 7-7 7" /></button>
-            {/* <button type="button" onClick={() => setPlaying(!playing)} aria-label={playing ? t('announce.pause') : t('announce.play')} aria-pressed={!playing} className={small}>
-              <Icon d={playing ? 'M9 5v14M15 5v14' : 'M7 4l12 8-12 8z'} />
-            </button> */}
-          </div>
-        )}
-        <button type="button" onClick={() => { remember(signature); setHidden(true) }} aria-label={t('announce.hide')} className={small}>
-          <Icon d="M5 5l14 14M19 5L5 19" />
-        </button>
+        <div className="order-2 ml-auto flex shrink-0 items-center sm:order-3">
+          {n > 1 && (
+            <>
+              <button type="button" onClick={() => go(index - 1)} aria-label={t('announce.prev')} className={small}><Icon d="M15 5l-7 7 7 7" /></button>
+              <span className="hidden px-1 text-sm sm:inline">{t('announce.counter', { current: index + 1, total: n })}</span>
+              <button type="button" onClick={() => go(index + 1)} aria-label={t('announce.next')} className={small}><Icon d="M9 5l7 7-7 7" /></button>
+              <button type="button" onClick={() => setPlaying(!playing)} aria-label={playing ? t('announce.pause') : t('announce.play')} aria-pressed={!playing} className={small}>
+                <Icon d={playing ? 'M9 5v14M15 5v14' : 'M7 4l12 8-12 8z'} />
+              </button>
+            </>
+          )}
+          <button type="button" onClick={() => { remember(signature); setHidden(true) }} aria-label={t('announce.hide')} className={small}>
+            <Icon d="M5 5l14 14M19 5L5 19" />
+          </button>
+        </div>
       </div>
     </section>
   )
