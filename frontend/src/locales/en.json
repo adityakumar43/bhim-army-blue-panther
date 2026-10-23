@@ -174,7 +174,13 @@
     "zoomOut": "Zoom out",
     "counter": "{{current}} / {{total}}"
   },
-    "announce": {
+  "home": {
+    "campaignsIntro": "Our work on the ground, in villages and towns.",
+    "eventsIntro": "Upcoming and recent programmes.",
+    "newsIntro": "News, programmes and statements from the organisation.",
+    "bandIntro": "Become a member and stand with us for education, unity and justice."
+  },
+  "announce": {
     "label": "Latest updates",
     "important": "Important",
     "prev": "Previous update",
