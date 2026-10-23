@@ -70,7 +70,7 @@ export default function Gallery() {
 
   return (
     <div className="mx-auto max-w-7xl px-5 py-12 lg:px-16">
-      <h1 className="mb-6 text-4xl font-extrabold">{t('nav.gallery')}</h1>
+      
 
       <div role="group" aria-label={t('nav.gallery')} className="mb-6 flex w-full border border-navy/30 bg-white sm:inline-flex sm:w-auto">
         <button onClick={() => setParams({})} aria-pressed={section === 'general'} className={tab('general')}>{t('gallery.photos')}</button>
@@ -105,7 +105,7 @@ export default function Gallery() {
           const about = [pickText(it, 'community', lang), it.kind ? t(`gallery.${it.kind}`) : ''].filter(Boolean).join(' · ')
           return (
             <figure key={it._id}>
-              <button type="button" ref={(b) => { photoButtons.current[i] = b }} onClick={() => setOpen(i)} aria-label={`${t('gallery.viewLarger')}: ${caption || about}`} className="group relative block w-full cursor-zoom-in">
+              <button type="button" ref={(b) => { photoButtons.current[i] = b }} onClick={() => setOpen(i)} aria-label={`${t('gallery.viewLarger')}: ${caption || about}`} className="group relative block w-full cursor-zoom-in overflow-hidden rounded-xl">
                 <img src={cdn(it.image.url, 800)} alt={caption || about} loading="lazy" className="aspect-4/3 w-full object-cover motion-safe:transition group-hover:brightness-90" />
                 <ZoomBadge />
               </button>

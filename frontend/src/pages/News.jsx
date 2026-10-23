@@ -23,11 +23,11 @@ export default function News() {
 
   return (
     <div className="mx-auto max-w-4xl px-5 py-12 lg:px-16">
-      <h1 className="mb-8 text-4xl font-extrabold">{t('sections.news')}</h1>
+      
       {news.length === 0 && <p className="text-navy/70">{t('empty')}</p>}
       <div className="flex flex-col gap-8">
         {news.map((n) => (
-          <article key={n._id} className="border-b border-brand/20 pb-8">
+          <article key={n._id} className="panel">
             {n.image?.url && <ZoomPhoto item={n} width={1000} buttonClassName="mb-4" className="max-h-96 w-full object-cover" />}
             <div className="font-semibold text-brand">{formatDate(n.createdAt, lang)}</div>
             <h2 className="my-1 text-2xl font-extrabold">
@@ -42,7 +42,7 @@ export default function News() {
       {events.length === 0 && <p className="text-navy/70">{t('empty')}</p>}
       <div className="flex flex-col gap-6">
         {events.map((ev) => (
-          <article key={ev._id} className="border border-brand/20 p-5">
+          <article key={ev._id} className="panel">
             {ev.image?.url && <ZoomPhoto item={ev} width={1000} buttonClassName="mb-4" className="max-h-80 w-full object-cover" />}
             <div className="font-semibold text-brand">
               {formatDate(ev.date, lang)}{ev.location ? `, ${ev.location}` : ''}

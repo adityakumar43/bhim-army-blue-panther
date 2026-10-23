@@ -1,6 +1,7 @@
 import { Routes, Route, useLocation } from 'react-router-dom'
 import Navbar from './components/Navbar.jsx'
 import Footer from './components/Footer.jsx'
+import PageBand, { hasBand } from './components/PageBand.jsx'
 import ProtectedRoute from './components/ProtectedRoute.jsx'
 import Home from './pages/Home.jsx'
 import News from './pages/News.jsx'
@@ -27,12 +28,14 @@ import Security from './pages/admin/Security.jsx'
 
 export default function App() {
 
-  const isAdmin = useLocation().pathname.startsWith('/admin')
+  const { pathname } = useLocation()
+  const isAdmin = pathname.startsWith('/admin')
 
   return (
     <>
       {!isAdmin && <Navbar />}
-      <main>
+      <main className={hasBand(pathname) ? 'bg-[#f3f6fb]' : undefined}>
+        {!isAdmin && <PageBand />}
         <Routes>
           <Route path="/" element={<Home />} />
           <Route path="/news" element={<News />} />

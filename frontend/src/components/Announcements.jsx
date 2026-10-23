@@ -60,7 +60,7 @@ export default function Announcements({ interval = 6000 }) {
       onMouseLeave={() => setHold(false)}
       onFocus={(e) => e.target.matches(':focus-visible') && setHold(true)}
       onBlur={() => setHold(false)}
-      className="bg-navy text-white"
+      className="bg-brand text-white"
     >
       {/* On phones: label and buttons on the first row, the text across the full width below. From "sm" up: one row. */}
       <div className="mx-auto flex max-w-7xl flex-wrap items-center gap-x-3 gap-y-1 px-5 py-2 lg:px-16">

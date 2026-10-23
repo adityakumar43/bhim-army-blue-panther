@@ -4,47 +4,47 @@ import { ORG } from '../lib/orgInfo.js'
 
 export default function Footer() {
   const { t } = useTranslation()
-  const links = [['/about', t('nav.about')], ['/campaigns', t('nav.campaigns')], ['/news', t('nav.news')],
-  ['/gallery', t('nav.gallery')], ['/contact', t('nav.contact')], ['/donate', t('cta.donate')]]
+  const links = [['/', t('nav.home')], ['/about', t('nav.about')], ['/campaigns', t('nav.campaigns')], ['/news', t('nav.news')],
+  ['/gallery', t('nav.gallery')], ['/join', t('nav.join')], ['/donate', t('cta.donate')]]
+  const path = ['educate', 'organize', 'struggle'].map((k) => t(`about.${k}.title`))
+  const head = 'mb-4 border-b border-white/10 pb-3 text-sm font-extrabold tracking-wide uppercase'
 
   return (
-    <footer className="print:hidden mt-16 bg-navy text-white">
-      <div className="mx-auto grid max-w-7xl gap-8 px-5 py-10 sm:grid-cols-2 lg:grid-cols-[2fr_1fr_1fr] lg:px-16">
+    <footer className="print:hidden bg-[#06112c] text-white">
+      <div className="mx-auto grid max-w-7xl gap-10 px-5 py-12 sm:grid-cols-2 lg:grid-cols-[1.4fr_1fr_1fr_1.3fr] lg:px-16">
         <div>
-          <strong className="text-lg">{t('org')}</strong>
-          <p className="mt-2 max-w-sm text-white/80">{t('footerText')}</p>
+          <div className="mb-4 flex items-center gap-3">
+            <img src="/logo.png" alt="" className="h-11 w-11 rounded-full bg-white object-cover" />
+            <strong className="text-lg">{t('org')}</strong>
+          </div>
+          <p className="mb-3 text-sm text-white/75">{t('footerText', { defaultValue: t('mission') })}</p>
+          <p className="text-sm font-semibold text-gold">{t('greeting')}</p>
         </div>
         <div>
-          <h2 className="mb-3 text-base font-semibold">{t('footer.links')}</h2>
-          <ul className="grid grid-cols-2 gap-x-4 sm:grid-cols-1">
+          <h2 className={head}>{t('footer.links')}</h2>
+          <ul className="flex flex-col gap-1">
             {links.map(([to, label]) => (
-              <li key={to}><Link to={to} className="inline-flex min-h-10 items-center text-white/85 hover:text-white">{label}</Link></li>
+              <li key={to}><Link to={to} className="inline-flex min-h-9 items-center text-sm text-white/75 hover:text-white">{label}</Link></li>
             ))}
           </ul>
         </div>
         <div>
-          <h2 className="mb-3 text-base font-semibold">{t('nav.contact')}</h2>
-          <address className="flex flex-col gap-3 text-white/85 not-italic">
-            <div>
-              <div className="font-semibold text-white">{t('offices.head')}</div>
-              <div>{t('offices.headAddress')}</div>
-            </div>
-            <div>
-              <div className="font-semibold text-white">{t('offices.delhi')}</div>
-              <div>{t('offices.delhiAddress')}</div>
-            </div>
-            <div>
-              <div className="font-semibold text-white">{t('offices.up')}</div>
-              <div>{t('offices.upAddress')}</div>
-            </div>
-            <span>{ORG.phone}</span>
-            <span>{ORG.email}</span>
+          <h2 className={head}>{t('about.principlesTitle')}</h2>
+          <ul className="flex flex-col gap-2">
+            {path.map((p) => <li key={p}><Link to="/about" className="text-sm text-white/75 hover:text-white">• {p}</Link></li>)}
+          </ul>
+        </div>
+        <div>
+          <h2 className={head}>{t('nav.contact')}</h2>
+          <address className="flex flex-col gap-3 text-sm text-white/75 not-italic">
+            <div><div className="font-semibold text-white">{t('offices.head')}</div><div>{t('offices.headAddress')}</div></div>
+            <div><div className="font-semibold text-white">{t('offices.delhi')}</div><div>{t('offices.delhiAddress')}</div></div>
+            <span className="text-gold">{ORG.phone}</span>
+            <span className="break-all">{ORG.email}</span>
           </address>
         </div>
       </div>
-      <div className="border-t border-white/15 px-5 py-4 text-center text-sm text-white/70">
-        © {new Date().getFullYear()} {t('org')} 💙
-      </div>
+      <div className="border-t border-white/10 px-5 py-4 text-center text-sm text-white/60">© {new Date().getFullYear()} {t('org')}</div>
     </footer>
   )
 }
