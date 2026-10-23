@@ -173,5 +173,15 @@
     "zoomIn": "Zoom in",
     "zoomOut": "Zoom out",
     "counter": "{{current}} / {{total}}"
+  },
+    "announce": {
+    "label": "Latest updates",
+    "important": "Important",
+    "prev": "Previous update",
+    "next": "Next update",
+    "pause": "Pause updates",
+    "play": "Play updates",
+    "hide": "Hide updates",
+    "counter": "{{current}} / {{total}}"
   }
 }
