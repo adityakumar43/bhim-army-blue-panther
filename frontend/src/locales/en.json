@@ -189,5 +189,6 @@
     "play": "Play updates",
     "hide": "Hide updates",
     "counter": "{{current}} / {{total}}"
-  }
+  },
+  "heroPhoto": "Dr. B. R. Ambedkar"
 }
