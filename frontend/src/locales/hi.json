@@ -173,5 +173,15 @@
     "zoomIn": "ज़ूम करें",
     "zoomOut": "ज़ूम घटाएँ",
     "counter": "{{current}} / {{total}}"
+  },
+    "announce": {
+    "label": "ताज़ा सूचनाएँ",
+    "important": "ज़रूरी",
+    "prev": "पिछली सूचना",
+    "next": "अगली सूचना",
+    "pause": "रोकें",
+    "play": "चलाएँ",
+    "hide": "सूचनाएँ छिपाएँ",
+    "counter": "{{current}} / {{total}}"
   }
 }
