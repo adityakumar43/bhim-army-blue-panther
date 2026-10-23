@@ -45,9 +45,8 @@ export default function Join() {
 
   return (
     <div className="mx-auto max-w-xl px-5 py-12">
-      <h1 className="mb-2 text-4xl font-extrabold">{t('join.title')}</h1>
-      <p className="mb-8 text-lg text-navy/80">{t('join.intro')}</p>
-      <form onSubmit={submit} className="flex flex-col gap-4">
+      
+      <form onSubmit={submit} className="panel flex flex-col gap-4 sm:p-8">
         {FIELDS.map((f) => (
           <label key={f} className="flex flex-col gap-1 font-semibold">
             {t(`join.${f}`)}
