@@ -4,26 +4,34 @@ import { protect, requirePermission } from '../middleware/auth.js'
 
 const router = Router()
 
-const dayStart = (d) => {
-  const x = new Date(d)
-  x.setUTCHours(0, 0, 0, 0)
-  return x
+
+
+// India Standard Time is UTC+5:30 all year (there is no daylight saving)
+const IST_OFFSET = 330 * 60 * 1000
+
+// Today's date in India, as a date at 00:00 UTC. That is the same form the start and end dates are saved in,
+// so "today" in India is compared with them directly.
+export function istToday(now = new Date()) {
+  const t = new Date(now.getTime() + IST_OFFSET)
+  return new Date(Date.UTC(t.getUTCFullYear(), t.getUTCMonth(), t.getUTCDate()))
 }
 
-// "Showing now": already started (or no start date) and not yet ended (or no end date).
-// The end date counts as a full day.
+// "Showing now": its start day has come (or there is none) and its end day has not passed (or there is none).
+// Days change at 12:00 am India time, and the end day counts as a full day.
 export function liveFilter(now = new Date()) {
+  const today = istToday(now)
   return {
     $and: [
-      { $or: [{ startsAt: null }, { startsAt: { $lte: now } }] },
-      { $or: [{ endsAt: null }, { endsAt: { $gte: dayStart(now) } }] },
+      { $or: [{ startsAt: null }, { startsAt: { $lte: today } }] },
+      { $or: [{ endsAt: null }, { endsAt: { $gte: today } }] },
     ],
   }
 }
 
 function statusOf(a, now = new Date()) {
-  if (a.startsAt && a.startsAt > now) return 'scheduled'
-  if (a.endsAt && a.endsAt < dayStart(now)) return 'expired'
+  const today = istToday(now)
+  if (a.startsAt && a.startsAt > today) return 'scheduled'
+  if (a.endsAt && a.endsAt < today) return 'expired'
   return 'live'
 }
 
