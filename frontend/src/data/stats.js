@@ -4,3 +4,4 @@
 
 
 // export const stats = [{ value: '1,200+', labelHi: 'सदस्य', labelEn: 'Members' }]
+export const stats = []
