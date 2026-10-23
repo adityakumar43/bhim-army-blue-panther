@@ -3,7 +3,6 @@ import { Link } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
 import Hero from '../components/Hero.jsx'
 import Slider from '../components/Slider.jsx'
-import Announcements from '../components/Announcements.jsx'
 import Icon from '../components/Icon.jsx'
 import { api } from '../lib/api.js'
 import { pickText, formatDate } from '../lib/text.js'
@@ -60,7 +59,7 @@ export default function Home() {
 
   return (
     <>
-      <Announcements />
+      
       {slides.length > 0 && <Slider slides={slides} />}
       <Hero />
 
