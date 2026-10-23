@@ -7,11 +7,11 @@ export default function Footer() {
   const links = [['/', t('nav.home')], ['/about', t('nav.about')], ['/campaigns', t('nav.campaigns')], ['/news', t('nav.news')],
   ['/gallery', t('nav.gallery')], ['/join', t('nav.join')], ['/donate', t('cta.donate')]]
   const path = ['educate', 'organize', 'struggle'].map((k) => t(`about.${k}.title`))
-  const head = 'mb-4 border-b border-white/10 pb-3 text-sm font-extrabold tracking-wide uppercase'
+  const head = 'mb-3 border-b border-white/10 pb-2 text-sm font-extrabold tracking-wide uppercase sm:mb-4 sm:pb-3'
 
   return (
     <footer className="print:hidden bg-[#06112c] text-white">
-      <div className="mx-auto grid max-w-7xl gap-10 px-5 py-12 sm:grid-cols-2 lg:grid-cols-[1.4fr_1fr_1fr_1.3fr] lg:px-16">
+      <div className="mx-auto grid max-w-7xl gap-8 px-5 py-10 sm:grid-cols-2 sm:gap-10 sm:py-12 lg:grid-cols-[1.4fr_1fr_1fr_1.3fr] lg:px-16">
         <div>
           <div className="mb-4 flex items-center gap-3">
             <img src="/logo.png" alt="" className="h-11 w-11 rounded-full bg-white object-cover" />
@@ -22,7 +22,7 @@ export default function Footer() {
         </div>
         <div>
           <h2 className={head}>{t('footer.links')}</h2>
-          <ul className="flex flex-col gap-1">
+          <ul className="grid grid-cols-2 gap-x-6 sm:grid-cols-1 sm:gap-1">
             {links.map(([to, label]) => (
               <li key={to}><Link to={to} className="inline-flex min-h-9 items-center text-sm text-white/75 hover:text-white">{label}</Link></li>
             ))}
@@ -30,7 +30,7 @@ export default function Footer() {
         </div>
         <div>
           <h2 className={head}>{t('about.principlesTitle')}</h2>
-          <ul className="flex flex-col gap-2">
+          <ul className="flex flex-wrap gap-x-5 gap-y-2 sm:flex-col">
             {path.map((p) => <li key={p}><Link to="/about" className="text-sm text-white/75 hover:text-white">• {p}</Link></li>)}
           </ul>
         </div>
