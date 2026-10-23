@@ -90,7 +90,7 @@ export default function Updates() {
               <input type="date" value={form.endsAt} onChange={set('endsAt')} className="input" />
             </label>
           </div>
-          <p className="-mt-2 text-sm text-navy/70">Leave both dates empty to show it until you delete it. The last day counts as a full day.</p>
+          <p className="-mt-2 text-sm text-navy/70">Leave both dates empty to show it until you delete it. Days follow Indian time: an update starts at 12:00 am on its first day and stays until 11:59 pm on its last day.</p>
           <Notice>{error}</Notice>
           <Notice kind="success">{note}</Notice>
           <div className="flex gap-3">
