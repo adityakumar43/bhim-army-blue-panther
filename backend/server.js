@@ -7,6 +7,7 @@ import { connectDB } from './config/db.js'
 import authRoutes from './routes/auth.js'
 import crud from './routes/crud.js'
 import memberRoutes from './routes/members.js'
+import announcementRoutes from './routes/announcements.js'
 import contactRoutes from './routes/contact.js'
 import donationRoutes, { razorpayWebhook } from './routes/donations.js'
 import adminRoutes from './routes/admin.js'
@@ -54,6 +55,7 @@ app.use('/api/slides', crud(Slide, {
 }))
 
 app.use('/api/members', memberRoutes)
+app.use('/api/announcements', announcementRoutes)
 
 app.use('/api/contact', contactRoutes)
 app.use('/api/donations', donationRoutes)
