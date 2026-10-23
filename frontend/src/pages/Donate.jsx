@@ -78,9 +78,8 @@ export default function Donate() {
 
   return (
     <div className="mx-auto max-w-xl px-5 py-12">
-      <h1 className="mb-2 text-4xl font-extrabold">{t('donate.title')}</h1>
-      <p className="mb-8 text-lg text-navy/80">{t('donate.intro')}</p>
-      <form onSubmit={pay} className="flex flex-col gap-4">
+      
+      <form onSubmit={pay} className="panel flex flex-col gap-4 sm:p-8">
         <fieldset>
           <legend className="mb-2 font-semibold">{t('donate.amount')}</legend>
           <div className="flex flex-wrap gap-2">
