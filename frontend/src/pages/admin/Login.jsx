@@ -11,9 +11,11 @@ export default function Login() {
   const [error, setError] = useState('')
   const [busy, setBusy] = useState(false)
   const [show, setShow] = useState(false)
+  const [notice] = useState(() => { try { return sessionStorage.getItem('loginNotice') || '' } catch { return '' } })
 
   async function submit(e) {
     e.preventDefault()
+    try { sessionStorage.removeItem('loginNotice') } catch { /* storage blocked */ }
     setBusy(true)
     setError('')
     localStorage.removeItem('token') // an old expired token must not interfere
@@ -54,6 +56,9 @@ export default function Login() {
             <span className="inline-flex items-center gap-1 rounded-full bg-mist px-3 py-1 text-xs font-semibold text-brand"><Icon name="shield" size={14} /> Staff only</span>
           </div>
         </div>
+
+        {notice && <p role="status" className="mb-4 rounded-xl border border-gold/50 bg-gold/10 p-3 text-sm text-navy">{notice}</p>}
+
         <form onSubmit={submit} className="flex flex-col gap-3">
           {challenge ? (
             <label className="flex flex-col gap-1 font-semibold">
