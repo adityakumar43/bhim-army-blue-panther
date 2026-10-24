@@ -5,7 +5,7 @@ import Icon from './Icon.jsx'
 import Announcements from './Announcements.jsx'
 
 const links = [
-  ['/', 'home'], ['/about', 'about'], ['/campaigns', 'campaigns'],
+  ['/', 'home'], ['/about', 'about'], ['/leadership/states', 'states'], ['/campaigns', 'campaigns'],
   ['/news', 'news'], ['/gallery', 'gallery'], ['/contact', 'contact'],
 ]
 
