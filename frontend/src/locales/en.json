@@ -18,6 +18,7 @@
     "gallery": "Gallery",
     "contact": "Contact",
     "states": "State",
+    "inspire": "Inspirational Leaders",
     "join": "Join Us"
   },
   "cta": {
@@ -210,5 +211,18 @@
     "stateEmpty": "The leadership details for this state will be added soon.",
     "back": "All states",
     "notFound": "This state was not found."
+  },
+  "inspire": {
+    "title": "Our Inspirational Leaders",
+    "intro": "Social reformers and freedom fighters whose struggles for education, equality and dignity guide our work.",
+    "readMore": "Read more",
+    "viewAll": "View all",
+    "keyContributions": "Major contributions",
+    "contributions": "Contributions to society",
+    "biography": "Biography",
+    "back": "All inspirational leaders",
+    "more": "More inspirational leaders",
+    "notFound": "This page was not found.",
+    "noteTitle": "A note on history"
   }
 }
