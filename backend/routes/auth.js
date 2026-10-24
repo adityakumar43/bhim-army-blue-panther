@@ -1,5 +1,6 @@
 import { Router } from 'express'
 import jwt from 'jsonwebtoken'
+import crypto from 'crypto'
 import rateLimit from 'express-rate-limit'
 import { authenticator } from 'otplib'
 import QRCode from 'qrcode'
@@ -16,7 +17,12 @@ const LOCK_MINUTES = 15
 
 
 const challengeSecret = () => `${process.env.JWT_SECRET}:challenge`
-const sign = (id) => jwt.sign({ id }, process.env.JWT_SECRET, { expiresIn: '12h' })
+// Every new login gets a fresh session id, so older logins of this account on other devices stop working
+const sign = async (id) => {
+  const sid = crypto.randomUUID()
+  await Admin.updateOne({ _id: id }, { $set: { sessionId: sid } })
+  return jwt.sign({ id, sid }, process.env.JWT_SECRET, { expiresIn: '12h' })
+}
 
 const limiter = (max) =>
   rateLimit({ windowMs: 15 * 60 * 1000, max, message: { message: 'Too many attempts. Try again in 15 minutes.' } })
@@ -71,7 +77,7 @@ router.post('/login', limiter(10), async (req, res) => {
     const challenge = jwt.sign({ id: admin._id }, challengeSecret(), { expiresIn: '5m' })
     return res.json({ needs2fa: true, challenge })
   }
-  res.json({ token: sign(admin._id), admin: profile(admin) })
+  res.json({ token: await sign(admin._id), admin: profile(admin) })
 })
 
 
@@ -97,7 +103,7 @@ router.post('/login/2fa', limiter(10), async (req, res) => {
   }
 
   await Admin.updateOne({ _id: admin._id }, { $set: { twoFactorLastStep: step, failedLogins: 0 }, $unset: { lockUntil: 1 } })
-  res.json({ token: sign(admin._id), admin: profile(admin) })
+  res.json({ token: await sign(admin._id), admin: profile(admin) })
 })
 
 router.get('/me', protect, (req, res) => {
