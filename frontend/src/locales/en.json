@@ -190,5 +190,24 @@
     "hide": "Hide updates",
     "counter": "{{current}} / {{total}}"
   },
-  "heroPhoto": "Dr. B. R. Ambedkar"
+  "heroPhoto": "Dr. B. R. Ambedkar",
+  "leaders": {
+    "national": "National Leadership",
+    "state": "State Leadership",
+    "viewStates": "See leadership in each state",
+    "stateCardText": "Choose a state or union territory to see the organisation's leaders there.",
+    "statesTitle": "State Leadership",
+    "statesIntro": "Choose a state or union territory.",
+    "states": "States",
+    "uts": "Union Territories",
+    "search": "Search for a state",
+    "noMatch": "No state matches your search.",
+    "count_one": "{{count}} leader",
+    "count_other": "{{count}} leaders",
+    "none": "Details coming soon",
+    "empty": "Details will be added soon.",
+    "stateEmpty": "The leadership details for this state will be added soon.",
+    "back": "All states",
+    "notFound": "This state was not found."
+  }
 }
