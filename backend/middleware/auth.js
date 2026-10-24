@@ -13,10 +13,13 @@ export async function protect(req, res, next) {
   if (!token) return res.status(401).json({ message: 'Login required' })
 
   try {
-    const { id } = jwt.verify(token, process.env.JWT_SECRET)
-    const admin = await Admin.findById(id)
+    const { id, sid } = jwt.verify(token, process.env.JWT_SECRET)
+    const admin = await Admin.findById(id).select('+sessionId')
     if (!admin) return res.status(401).json({ message: 'Account not found' })
     if (admin.active === false) return res.status(401).json({ message: 'This account is disabled' })
+    if (admin.sessionId && sid !== admin.sessionId) {
+      return res.status(401).json({ message: 'You were logged out because this account was logged in on another device.' })
+    }
     if (needsTwoFactor(admin.role) && !admin.twoFactorEnabled && !SETUP_PATHS.includes(req.originalUrl.split('?')[0])) {
       return res.status(403).json({ code: '2FA_REQUIRED', message: 'Your role requires two-step login. Set it up first.' })
     }
