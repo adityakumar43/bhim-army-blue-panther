@@ -3,6 +3,7 @@ import { Link, NavLink, Outlet, useLocation, useNavigate } from 'react-router-do
 import { api } from '../../lib/api.js'
 import { ROLE_INFO } from '../../lib/roles.js'
 
+
 const NAV = [
   { to: '/admin', label: 'Overview', end: true },
   { to: '/admin/news', label: 'News', perm: 'content' },
