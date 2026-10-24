@@ -9,6 +9,8 @@ import Detail from './pages/Detail.jsx'
 import Gallery from './pages/Gallery.jsx'
 import Join from './pages/Join.jsx'
 import About from './pages/About.jsx'
+import StatesList from './pages/StatesList.jsx'
+import StateLeaders from './pages/StateLeaders.jsx'
 import Campaigns from './pages/Campaigns.jsx'
 import Contact from './pages/Contact.jsx'
 import Donate from './pages/Donate.jsx'
@@ -23,6 +25,7 @@ import Members from './pages/admin/Members.jsx'
 import Messages from './pages/admin/Messages.jsx'
 import Donations from './pages/admin/Donations.jsx'
 import Team from './pages/admin/Team.jsx'
+import Leaders from './pages/admin/Leaders.jsx'
 import Updates from './pages/admin/Updates.jsx'
 import Security from './pages/admin/Security.jsx'
 
@@ -44,6 +47,8 @@ export default function App() {
           <Route path="/gallery" element={<Gallery />} />
           <Route path="/join" element={<Join />} />
           <Route path="/about" element={<About />} />
+          <Route path="/leadership/states" element={<StatesList />} />
+          <Route path="/leadership/states/:code" element={<StateLeaders />} />
           <Route path="/campaigns" element={<Campaigns />} />
           <Route path="/contact" element={<Contact />} />
           <Route path="/donate" element={<Donate />} />
@@ -57,6 +62,7 @@ export default function App() {
             <Route path="events" element={<Perm perm="content"><Content key="events" kind="events" /></Perm>} />
             <Route path="gallery" element={<Perm perm="content"><Content key="gallery" kind="gallery" /></Perm>} />
             <Route path="slides" element={<Perm perm="content"><Content key="slides" kind="slides" /></Perm>} />
+            <Route path="leaders" element={<Perm perm="content"><Leaders /></Perm>} />
             <Route path="updates" element={<Perm perm="content"><Updates /></Perm>} />
             <Route path="members" element={<Perm perm="members"><Members /></Perm>} />
             <Route path="messages" element={<Perm perm="messages"><Messages /></Perm>} />
