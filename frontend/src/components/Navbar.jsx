@@ -38,7 +38,7 @@ export default function Navbar() {
     <header className="print:hidden sticky top-0 z-50 border-b border-white/10 bg-navy text-white shadow-lg">
       <div className="mx-auto flex max-w-7xl items-center justify-between gap-3 px-5 py-2.5 xl:px-16">
         <Link to="/" className="flex min-w-0 items-center gap-3">
-          <img src="/logo.png" alt="" className="h-11 w-11 shrink-0  object-contain sm:h-12 sm:w-12 rounded-md" />
+          <img src="/logo.png" alt="" className="h-11 w-11 shrink-0  object-contain sm:h-12 sm:w-12" />
           <strong className="truncate text-base leading-tight sm:text-lg">{t('org')}</strong>
         </Link>
 
