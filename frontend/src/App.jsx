@@ -20,6 +20,7 @@ import Receipt from './pages/Receipt.jsx'
 import Card from './pages/Card.jsx'
 import Login from './pages/admin/Login.jsx'
 import AdminLayout from './pages/admin/AdminLayout.jsx'
+import SessionWatch from './pages/admin/SessionWatch.jsx'
 import Perm from './pages/admin/Perm.jsx'
 import Overview from './pages/admin/Overview.jsx'
 import Content from './pages/admin/Content.jsx'
@@ -60,7 +61,7 @@ export default function App() {
           <Route path="/card/:token" element={<Card />} />
 
           <Route path="/admin/login" element={<Login />} />
-          <Route path="/admin" element={<ProtectedRoute><AdminLayout /></ProtectedRoute>}>
+          <Route path="/admin" element={<ProtectedRoute><SessionWatch /><AdminLayout /></ProtectedRoute>}>
             <Route index element={<Overview />} />
             <Route path="news" element={<Perm perm="content"><Content key="news" kind="news" /></Perm>} />
             <Route path="events" element={<Perm perm="content"><Content key="events" kind="events" /></Perm>} />
