@@ -4,7 +4,7 @@ import { ORG } from '../lib/orgInfo.js'
 
 export default function Footer() {
   const { t } = useTranslation()
-  const links = [['/', t('nav.home')], ['/about', t('nav.about')], ['/leadership/states', t('nav.states')], ['/campaigns', t('nav.campaigns')], ['/news', t('nav.news')],
+  const links = [['/', t('nav.home')], ['/about', t('nav.about')], ['/leadership/states', t('nav.states')], ['/inspirations', t('nav.inspire')], ['/campaigns', t('nav.campaigns')], ['/news', t('nav.news')],
   ['/gallery', t('nav.gallery')], ['/join', t('nav.join')], ['/donate', t('cta.donate')]]
   const path = ['educate', 'organize', 'struggle'].map((k) => t(`about.${k}.title`))
   const head = 'mb-3 border-b border-white/10 pb-2 text-sm font-extrabold tracking-wide uppercase sm:mb-4 sm:pb-3'
