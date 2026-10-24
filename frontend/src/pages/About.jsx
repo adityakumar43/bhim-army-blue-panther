@@ -1,5 +1,5 @@
 import { useTranslation } from 'react-i18next'
-import { leaders } from '../data/leaders.js'
+import Leadership from '../components/Leadership.jsx'
 import { pickText } from '../lib/text.js'
 
 export default function About() {
@@ -23,20 +23,8 @@ export default function About() {
       {/* <h2 className="mb-3 text-3xl font-extrabold">{t('about.historyTitle')}</h2>
       <p className="mb-10 text-lg">{t('about.history')}</p> */}
 
-      <h2 className="mb-8 text-3xl font-extrabold">{t('about.leadersTitle')}</h2>
-      <div className="grid grid-cols-2 gap-9 sm:grid-cols-3 lg:grid-cols-4">
-        {leaders.map((l) => (
-          <figure key={l.id} className="text-center">
-            <img src={l.photo} alt={pickText(l, 'name', i18n.language)} loading="lazy"
-              onError={(e) => { e.currentTarget.style.visibility = 'hidden' }}
-              className="aspect-3/4 w-full bg-mist object-cover object-top" />
-            <figcaption className="mt-3">
-              <div className="font-extrabold">{pickText(l, 'name', i18n.language)}</div>
-              <div className="text-navy/70">{pickText(l, 'role', i18n.language)}</div>
-            </figcaption>
-          </figure>
-        ))}
-      </div>
+      <h2 className="mb-6 text-3xl font-extrabold">{t('about.leadersTitle')}</h2>
+      <Leadership />
     </div>
   )
 }
