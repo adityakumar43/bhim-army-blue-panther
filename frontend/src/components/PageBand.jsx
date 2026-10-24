@@ -11,10 +11,11 @@ const BANDS = {
   '/join': ['join.title', 'join.intro'],
   '/donate': ['donate.title', 'donate.intro'],
   '/leadership/states': ['leaders.statesTitle', 'leaders.statesIntro'],
+  '/inspirations': ['inspire.title', 'inspire.intro'],
 }
 
 // Pages with a band get the light grey background. Each state's page draws its own band (with the state's name).
-export const hasBand = (pathname) => Object.hasOwn(BANDS, pathname) || pathname.startsWith('/leadership/states/')
+export const hasBand = (pathname) => Object.hasOwn(BANDS, pathname) || pathname.startsWith('/leadership/states/') || pathname.startsWith('/inspirations/')
 
 const dots = { backgroundImage: 'radial-gradient(rgba(255,255,255,0.07) 1px, transparent 1px)', backgroundSize: '22px 22px' }
 
