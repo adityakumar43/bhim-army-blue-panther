@@ -11,6 +11,8 @@ import Join from './pages/Join.jsx'
 import About from './pages/About.jsx'
 import StatesList from './pages/StatesList.jsx'
 import StateLeaders from './pages/StateLeaders.jsx'
+import Inspirations from './pages/Inspirations.jsx'
+import Inspiration from './pages/Inspiration.jsx'
 import Campaigns from './pages/Campaigns.jsx'
 import Contact from './pages/Contact.jsx'
 import Donate from './pages/Donate.jsx'
@@ -49,6 +51,8 @@ export default function App() {
           <Route path="/about" element={<About />} />
           <Route path="/leadership/states" element={<StatesList />} />
           <Route path="/leadership/states/:code" element={<StateLeaders />} />
+          <Route path="/inspirations" element={<Inspirations />} />
+          <Route path="/inspirations/:slug" element={<Inspiration />} />
           <Route path="/campaigns" element={<Campaigns />} />
           <Route path="/contact" element={<Contact />} />
           <Route path="/donate" element={<Donate />} />
