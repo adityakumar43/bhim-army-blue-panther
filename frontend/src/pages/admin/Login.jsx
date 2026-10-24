@@ -38,12 +38,12 @@ export default function Login() {
   }
 
   return (
-    <div className="relative flex min-h-screen items-center justify-center overflow-hidden bg-navy px-5 py-10">
+    <div className="relative flex min-h-dvh items-center justify-center overflow-hidden bg-navy px-5 py-4">
       <div className="pointer-events-none absolute inset-0" style={{ backgroundImage: 'radial-gradient(rgba(255,255,255,0.07) 1px, transparent 1px)', backgroundSize: '22px 22px' }} />
       <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(ellipse_at_top_left,rgba(11,60,157,0.75),transparent_60%)]" />
       <div className="pointer-events-none absolute -right-24 -bottom-24 h-80 w-80 rounded-full bg-gold/15 blur-3xl" />
-      <div className="relative w-full max-w-md rounded-3xl border-t-[6px] border-gold bg-white p-6 shadow-2xl shadow-black/40 sm:p-8">
-        <div className="mb-5">
+      <div className="relative w-full max-w-md rounded-3xl border-t-[6px] border-gold bg-white p-6 shadow-2xl shadow-black/40 sm:p-7">
+        <div className="mb-4">
           <div className="flex items-center gap-3">
             <img src="/logo.png" alt="" className="h-14 w-14 shrink-0 rounded-xl object-cover shadow-sm ring-2 ring-mist" />
             <div>
@@ -51,13 +51,13 @@ export default function Login() {
               <p className="text-xs text-navy/60">शिक्षित बनो, संगठित रहो, संघर्ष करो</p>
             </div>
           </div>
-          <div className="mt-4 flex items-center justify-between gap-2 border-t border-navy/10 pt-4">
+          <div className="mt-3 flex items-center justify-between gap-2 border-t border-navy/10 pt-3">
             <h1 className="text-2xl font-extrabold">Admin login</h1>
             <span className="inline-flex items-center gap-1 rounded-full bg-mist px-3 py-1 text-xs font-semibold text-brand"><Icon name="shield" size={14} /> Staff only</span>
           </div>
         </div>
 
-        {notice && <p role="status" className="mb-4 rounded-xl border border-gold/50 bg-gold/10 p-3 text-sm text-navy">{notice}</p>}
+        {notice && <p role="status" className="mb-3 rounded-xl border border-gold/50 bg-gold/10 px-3 py-2 text-sm text-navy">{notice}</p>}
 
         <form onSubmit={submit} className="flex flex-col gap-3">
           {challenge ? (
@@ -98,7 +98,7 @@ export default function Login() {
             </button>
           )}
         </form>
-        <Link to="/" className="mt-4 flex items-center justify-center gap-1 text-sm font-semibold text-navy/60 hover:text-brand">← Back to the website</Link>
+        <Link to="/" className="mt-3 flex items-center justify-center gap-1 text-sm font-semibold text-navy/60 hover:text-brand">← Back to the website</Link>
       </div>
     </div>
   )
