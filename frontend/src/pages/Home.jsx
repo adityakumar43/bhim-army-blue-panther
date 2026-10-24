@@ -8,6 +8,7 @@ import { api } from '../lib/api.js'
 import { pickText, formatDate } from '../lib/text.js'
 import { cdn } from '../lib/img.js'
 import { campaigns } from '../data/compaigns.js'
+import InspirationsPreview from '../components/InspirationsPreview.jsx'
 
 const hideBroken = (e) => { e.currentTarget.style.display = 'none' }
 const wrap = 'mx-auto max-w-7xl px-5 py-16 lg:px-16'
@@ -59,7 +60,7 @@ export default function Home() {
 
   return (
     <>
-      
+
       {slides.length > 0 && <Slider slides={slides} />}
       <Hero />
 
@@ -89,7 +90,7 @@ export default function Home() {
           <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
             {campaigns.map((c) => (
               <article key={c.id} className={`${cardBox} ${c.image ? '' : 'border-t-4 border-t-brand'}`}>
-                {c.image && <img src={c.image} alt="" loading="lazy" onError={hideBroken} className="aspect-video w-full object-cover" />}
+                {c.image && <img src={c.image} alt="" loading="lazy" onError={hideBroken} className="aspect-video w-full object-cover object-top" />}
                 <div className="flex-1 p-6">
                   <h3 className="mb-2 text-xl font-extrabold">{pickText(c, 'title', lang)}</h3>
                   <p className="text-navy/75">{pickText(c, 'body', lang)}</p>
@@ -138,6 +139,9 @@ export default function Home() {
           </div>
         </div>
       </section>
+
+
+      <InspirationsPreview />
 
       {/* Call to action */}
       <section className="bg-linear-to-br from-navy via-[#0d2a6b] to-brand text-white">
