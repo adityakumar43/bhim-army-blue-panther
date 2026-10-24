@@ -4,6 +4,8 @@ import { ORG } from '../lib/orgInfo.js'
 
 export default function Footer() {
   const { t } = useTranslation()
+  let loggedIn = false
+  try { loggedIn = !!localStorage.getItem('token') } catch { /* storage blocked */ }
   const links = [['/', t('nav.home')], ['/about', t('nav.about')], ['/leadership/states', t('nav.states')], ['/inspirations', t('nav.inspire')], ['/campaigns', t('nav.campaigns')], ['/news', t('nav.news')],
   ['/gallery', t('nav.gallery')], ['/join', t('nav.join')], ['/donate', t('cta.donate')]]
   const path = ['educate', 'organize', 'struggle'].map((k) => t(`about.${k}.title`))
@@ -44,7 +46,11 @@ export default function Footer() {
           </address>
         </div>
       </div>
-      <div className="border-t border-white/10 px-5 py-4 text-center text-sm text-white/60">© {new Date().getFullYear()} {t('org')}</div>
+      <div className="border-t border-white/10 px-5 py-4 text-center text-sm text-white/60">© {new Date().getFullYear()} {t('org')}
+        <span className="mx-2 opacity-40">·</span>
+        <Link to={loggedIn ? '/admin' : '/admin/login'} className="opacity-60 hover:opacity-100 hover:underline">
+          {loggedIn ? 'Admin panel' : 'Staff login'}
+        </Link></div>
     </footer>
   )
 }
