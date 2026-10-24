@@ -14,6 +14,7 @@ async function request(path, { method = 'GET', body } = {}) {
 
   if (res.status === 401 && token) {
     localStorage.removeItem('token')
+    try { sessionStorage.setItem('loginNotice', data.message || '') } catch { /* storage blocked */ }
     window.location.href = '/admin/login'
   }
   if (!res.ok) throw new Error(data.message || 'Request failed')
