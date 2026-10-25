@@ -44,6 +44,9 @@ export default function Members() {
   const [status, setStatus] = useState('pending')
   const [items, setItems] = useState(null)
   const [error, setError] = useState('')
+  const [picked, setPicked] = useState([])
+  const [progress, setProgress] = useState('')
+  const [note, setNote] = useState('')
 
   const [q, setQ] = useState('')
   const [stateF, setStateF] = useState('')
@@ -71,8 +74,41 @@ export default function Members() {
   const filtering = q || stateF || districtF
   const clearFilters = () => { setQ(''); setStateF(''); setDistrictF('') }
 
+  // Only people who are still on screen stay ticked after the search changes
+  useEffect(() => { setPicked((p) => p.filter((id) => shown.some((m) => m._id === id))) }, [shown])
+  const allPicked = shown.length > 0 && shown.every((m) => picked.includes(m._id))
+
   const load = () => api.get(`/members?status=${status}`).then(setItems).catch((e) => setError(e.message))
-  useEffect(() => { setItems(null); setError(''); load() }, [status])
+  useEffect(() => { setItems(null); setError(''); setPicked([]); load() }, [status])
+
+  // Approve or reject many applications at once
+  const isPicked = (id) => picked.includes(id)
+  const togglePick = (id) => setPicked((p) => (p.includes(id) ? p.filter((x) => x !== id) : [...p, id]))
+
+  async function bulk(newStatus) {
+    const word = newStatus === 'approved' ? 'Approve' : 'Reject'
+    if (!window.confirm(`${word} ${picked.length} application(s)?${newStatus === 'approved' ? ' Each person gets their membership card by email.' : ''}`)) return
+    setError('')
+    setNote('')
+    let done = 0
+    const failed = []
+    // One by one, so each person's card email goes out and is recorded properly
+    for (const id of picked) {
+      setProgress(`${word === 'Approve' ? 'Approving' : 'Rejecting'} ${done + failed.length + 1} of ${picked.length}...`)
+      try {
+        await api.patch(`/members/${id}/status`, { status: newStatus })
+        done++
+      } catch (err) {
+        failed.push(`${items.find((m) => m._id === id)?.name || id}: ${err.message}`)
+      }
+    }
+    setProgress('')
+    setPicked([])
+    if (done) setNote(`${done} application(s) ${newStatus}.`)
+    if (failed.length) setError(`Could not update ${failed.length}: ${failed.join('; ')}`)
+    await load()
+    refresh()
+  }
 
   async function act(fn) {
     try {
@@ -129,6 +165,13 @@ export default function Members() {
       )}
 
       <Notice>{error}</Notice>
+      <Notice kind="success">{note}</Notice>
+      {shown.length > 0 && (
+        <label className="mb-3 inline-flex cursor-pointer items-center gap-2 text-sm font-semibold text-navy/75">
+          <input type="checkbox" checked={allPicked} onChange={() => setPicked(allPicked ? [] : shown.map((m) => m._id))} className="h-5 w-5 accent-brand" />
+          Select all {shown.length} shown
+        </label>
+      )}
       {!items && !error && <p>Loading...</p>}
       {items?.length === 0 && <p className="card text-center text-navy/70">📭 No {status} applications.</p>}
       {items?.length > 0 && shown.length === 0 && (
@@ -137,8 +180,10 @@ export default function Members() {
 
       <ul className="grid gap-4 xl:grid-cols-2">
         {shown.map((m) => (
-          <li key={m._id} className="card flex flex-col p-4 sm:p-5">
+          <li key={m._id} className={`card flex flex-col p-4 sm:p-5 ${isPicked(m._id) ? 'ring-2 ring-brand' : ''}`}>
             <div className="flex items-start gap-3">
+              <input type="checkbox" checked={isPicked(m._id)} onChange={() => togglePick(m._id)} aria-label={`Select ${m.name}`}
+                className="mt-1 h-5 w-5 shrink-0 cursor-pointer accent-brand" />
               {m.photo?.url
                 ? <img src={portrait(m.photo.url, 120)} alt="" className="h-20 w-16 shrink-0 object-cover shadow-sm" />
                 : <span aria-hidden="true" className="flex h-20 w-16 shrink-0 items-center justify-center rounded-lg bg-mist text-2xl">👤</span>}
@@ -202,6 +247,20 @@ export default function Members() {
           </li>
         ))}
       </ul>
+
+      {/* Floating bar while applications are ticked */}
+      {picked.length > 0 && (
+        <div className="sticky bottom-4 z-30 mt-5 flex flex-wrap items-center gap-2 rounded-2xl bg-navy px-4 py-3 text-white shadow-2xl">
+          <span className="mr-auto font-semibold">☑️ {progress || `${picked.length} selected`}</span>
+          {!progress && status !== 'approved' && (
+            <button onClick={() => bulk('approved')} className="abtn min-h-9 border-0 bg-green-500 px-4 text-white hover:bg-green-600 hover:text-white">✅ Approve all</button>
+          )}
+          {!progress && status !== 'rejected' && (
+            <button onClick={() => bulk('rejected')} className="abtn min-h-9 border-0 bg-white/15 px-4 text-white hover:bg-red-500 hover:text-white">❌ Reject all</button>
+          )}
+          {!progress && <button onClick={() => setPicked([])} className="min-h-9 px-2 text-sm text-white/70 underline hover:text-white">Clear</button>}
+        </div>
+      )}
     </>
   )
 }
