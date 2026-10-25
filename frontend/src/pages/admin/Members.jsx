@@ -1,8 +1,9 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import { useOutletContext } from 'react-router-dom'
 import { api } from '../../lib/api.js'
 import { portrait } from '../../lib/img.js'
 import { PageHeader, Notice, Pill } from './ui.jsx'
+import Icon from '../../components/Icon.jsx'
 
 const FILTERS = [['pending', '⏳ Pending'], ['approved', '✅ Approved'], ['rejected', '❌ Rejected']]
 const TONE = { pending: 'gold', approved: 'green', rejected: 'red' }
@@ -15,7 +16,7 @@ function downloadCsv(rows) {
   const head = ['Name', 'Phone', 'Email', 'Date of birth', 'City', 'District', 'State', 'Status', 'Member no',
     'Applied on', 'Approved/Rejected on', 'Approved/Rejected by', 'Photo link', 'Assembly constituency no', 'Lok Sabha constituency no']
   const lines = rows.map((m) => [
-    m.name, m.phone, m.email, born(m.dob), m.city, m.district, m.state, m.status, m.memberNo, 
+    m.name, m.phone, m.email, born(m.dob), m.city, m.district, m.state, m.status, m.memberNo,
     when(m.createdAt), when(m.reviewedAt), m.reviewedByName, m.photo?.url, m.assemblyNo, m.lokSabhaNo,
   ])
   const csv = [head, ...lines]
@@ -44,6 +45,32 @@ export default function Members() {
   const [items, setItems] = useState(null)
   const [error, setError] = useState('')
 
+  const [q, setQ] = useState('')
+  const [stateF, setStateF] = useState('')
+  const [districtF, setDistrictF] = useState('')
+
+  // Choices for the State and District boxes, taken from the applications in this tab
+  const clean = (v) => (v || '').trim()
+  const states = useMemo(() => [...new Set((items || []).map((m) => clean(m.state)).filter(Boolean))].sort(), [items])
+  const districts = useMemo(() => [...new Set((items || [])
+    .filter((m) => !stateF || clean(m.state) === stateF)
+    .map((m) => clean(m.district)).filter(Boolean))].sort(), [items, stateF])
+
+  // Search by name, phone, email, member no, city or district
+  const shown = useMemo(() => {
+    const text = q.trim().toLowerCase()
+    const digits = text.replace(/\D/g, '')
+    return (items || []).filter((m) => {
+      if (stateF && clean(m.state) !== stateF) return false
+      if (districtF && clean(m.district) !== districtF) return false
+      if (!text) return true
+      const words = [m.name, m.email, m.memberNo, m.city, m.district].join(' ').toLowerCase()
+      return words.includes(text) || (digits.length >= 3 && String(m.phone || '').replace(/\D/g, '').includes(digits))
+    })
+  }, [items, q, stateF, districtF])
+  const filtering = q || stateF || districtF
+  const clearFilters = () => { setQ(''); setStateF(''); setDistrictF('') }
+
   const load = () => api.get(`/members?status=${status}`).then(setItems).catch((e) => setError(e.message))
   useEffect(() => { setItems(null); setError(''); load() }, [status])
 
@@ -64,8 +91,8 @@ export default function Members() {
   return (
     <>
       <PageHeader title="Members" subtitle="Review the applications that come from the Join page.">
-        {items?.length > 0 && (
-          <button onClick={() => downloadCsv(items)} className="abtn">📥 Download Excel (CSV)</button>
+        {shown.length > 0 && (
+          <button onClick={() => downloadCsv(shown)} className="abtn">📥 Download Excel ({shown.length})</button>
         )}
       </PageHeader>
 
@@ -76,12 +103,40 @@ export default function Members() {
         ))}
       </div>
 
+      {items?.length > 0 && (
+        <div className="card mb-5 flex flex-wrap items-center gap-2 p-3 sm:p-3">
+          <label className="relative min-w-60 flex-[2]">
+            <span className="sr-only">Search</span>
+            <span aria-hidden="true" className="pointer-events-none absolute top-1/2 left-3.5 -translate-y-1/2 text-navy/40">🔍</span>
+            <input type="search" value={q} onChange={(e) => setQ(e.target.value)} placeholder="Search name, phone, email or member no."
+              className="input min-h-10 py-2 pl-10" />
+          </label>
+          <select aria-label="State" value={stateF} onChange={(e) => { setStateF(e.target.value); setDistrictF('') }} className="input min-h-10 min-w-40 flex-1 py-2">
+            <option value="">📍 All states</option>
+            {states.map((s) => <option key={s} value={s}>{s}</option>)}
+          </select>
+          <select aria-label="District" value={districtF} onChange={(e) => setDistrictF(e.target.value)} className="input min-h-10 min-w-40 flex-1 py-2">
+            <option value="">🏘️ All districts</option>
+            {districts.map((d) => <option key={d} value={d}>{d}</option>)}
+          </select>
+          {filtering && (
+            <button onClick={clearFilters} className="abtn min-h-10 px-3"><Icon name="close" size={16} /> Clear</button>
+          )}
+          <p className="w-full px-1 text-xs text-navy/60">
+            Showing <b className="text-navy">{shown.length}</b> of {items.length} {status} applications
+          </p>
+        </div>
+      )}
+
       <Notice>{error}</Notice>
       {!items && !error && <p>Loading...</p>}
       {items?.length === 0 && <p className="card text-center text-navy/70">📭 No {status} applications.</p>}
+      {items?.length > 0 && shown.length === 0 && (
+        <p className="card text-center text-navy/70">🔍 No one matches your search. <button onClick={clearFilters} className="font-semibold text-brand underline">Clear search</button></p>
+      )}
 
       <ul className="grid gap-4 xl:grid-cols-2">
-        {items?.map((m) => (
+        {shown.map((m) => (
           <li key={m._id} className="card flex flex-col p-4 sm:p-5">
             <div className="flex items-start gap-3">
               {m.photo?.url
