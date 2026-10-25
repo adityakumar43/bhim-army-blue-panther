@@ -2,7 +2,7 @@ import { Router } from 'express'
 import rateLimit from 'express-rate-limit'
 import Message from '../models/Message.js'
 import { protect, requirePermission } from '../middleware/auth.js'
-import { notifyAdmin } from '../services/mailer.js'
+import { notifyAdmin, sendMail } from '../services/mailer.js'
 
 const router = Router()
 
@@ -14,7 +14,7 @@ const limiter = rateLimit({
 
 router.post('/', limiter, async (req, res) => {
   const b = req.body || {}
-  if (b.website) return res.status(201).json({ ok: true }) 
+  if (b.website) return res.status(201).json({ ok: true })
 
   const name = String(b.name || '').trim()
   const message = String(b.message || '').trim()
@@ -55,5 +55,42 @@ router.delete('/:id', protect, requirePermission('messages'), async (req, res) =
   if (!m) return res.status(404).json({ message: 'Not found' })
   res.json({ ok: true })
 })
+
+// Reply to a message by email, straight from the admin panel
+const escape = (s) => String(s).replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' })[c])
+const asHtml = (s) => escape(s).replace(/\n/g, '<br>')
+
+router.post('/:id/reply', protect, requirePermission('messages'), async (req, res) => {
+  const text = String(req.body?.text || '').trim()
+  if (!text) return res.status(400).json({ message: 'Write your reply first' })
+  if (text.length > 5000) return res.status(400).json({ message: 'Your reply is too long (5000 letters at most)' })
+
+  const m = await Message.findById(req.params.id).catch(() => null)
+  if (!m) return res.status(404).json({ message: 'Not found' })
+  if (!m.email) {
+    return res.status(400).json({ message: `${m.name} did not give an email address.${m.phone ? ` Call or WhatsApp them on ${m.phone}.` : ''}` })
+  }
+
+  const org = 'Bhim Army Blue Panther'
+  const sent = new Date(m.createdAt).toLocaleDateString('en-IN', { dateStyle: 'medium', timeZone: 'Asia/Kolkata' })
+  const ok = await sendMail({
+    to: m.email,
+    subject: `Re: Your message to ${org}`,
+    text: `${text}\n\n— ${org}\n\n----- Your message (${sent}) -----\n${m.message}`,
+    html: `<div style="font-family:Arial,sans-serif;font-size:15px;line-height:1.6;color:#0a1a3f">
+      <p>${asHtml(text)}</p>
+      <p style="margin-top:20px">— <b>${org}</b><br><span style="color:#0b3c9d">शिक्षित बनो, संगठित रहो, संघर्ष करो</span></p>
+      <div style="margin-top:24px;padding:12px 16px;border-left:4px solid #f2b705;background:#f3f6fb;color:#3a4a70;font-size:13px">
+        <b>Your message (${escape(sent)}):</b><br>${asHtml(m.message)}
+      </div></div>`,
+  }).catch((err) => { throw Object.assign(new Error(`Email could not be sent: ${err.message}`), { status: 400 }) })
+  if (!ok) return res.status(400).json({ message: 'Email is not set up on the server (SMTP settings are missing in .env).' })
+
+  m.replies.push({ text, byName: req.admin.name })
+  m.read = true
+  await m.save()
+  res.json(m)
+})
+
 
 export default router

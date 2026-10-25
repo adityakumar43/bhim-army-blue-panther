@@ -8,6 +8,30 @@ export default function Messages() {
   const [items, setItems] = useState(null)
   const [error, setError] = useState('')
 
+  const [note, setNote] = useState('')
+  const [replyFor, setReplyFor] = useState(null)
+  const [replyText, setReplyText] = useState('')
+  const [sending, setSending] = useState(false)
+
+  const openReply = (m) => { setReplyFor(m._id); setReplyText(`Jai Bhim ${m.name},\n\n`); setNote(''); setError('') }
+
+  async function sendReply(m) {
+    setSending(true)
+    setError('')
+    setNote('')
+    try {
+      await api.post(`/contact/${m._id}/reply`, { text: replyText })
+      setNote(`Reply emailed to ${m.email}.`)
+      setReplyFor(null)
+      await load()
+      refresh()
+    } catch (err) {
+      setError(err.message)
+    } finally {
+      setSending(false)
+    }
+  }
+
   const load = () => api.get('/contact').then(setItems).catch((e) => setError(e.message))
   useEffect(() => { load() }, [])
 
@@ -29,6 +53,7 @@ export default function Messages() {
     <>
       <PageHeader title="Messages" subtitle="Messages sent from the Contact page. Unread ones are highlighted." />
       <Notice>{error}</Notice>
+      <Notice kind="success">{note}</Notice>
       {!items && !error && <p>Loading...</p>}
       {items?.length === 0 && <p className="card text-center text-navy/70">📭 No messages yet.</p>}
       <ul className="flex flex-col gap-3">
@@ -51,7 +76,41 @@ export default function Messages() {
                   {m.email && <a href={`mailto:${m.email}`} className="break-all hover:text-brand hover:underline">✉️ {m.email}</a>}
                 </div>
                 <p className="mt-3 rounded-xl bg-white px-3 py-2 whitespace-pre-line text-navy/90 ring-1 ring-brand/10">{m.message}</p>
+
+                {/* Replies already sent */}
+                {m.replies?.map((r, i) => (
+                  <div key={i} className="mt-2 ml-4 rounded-xl border-l-4 border-green-400 bg-green-50 px-3 py-2 text-sm">
+                    <div className="mb-0.5 text-xs font-semibold text-green-800">
+                      ↩️ Replied by {r.byName || 'an admin'} · {new Date(r.at).toLocaleString('en-IN', { dateStyle: 'medium', timeStyle: 'short' })}
+                    </div>
+                    <p className="whitespace-pre-line text-navy/85">{r.text}</p>
+                  </div>
+                ))}
+
+                {replyFor === m._id && (
+                  <div className="mt-3 rounded-xl bg-white p-3 ring-2 ring-brand/30">
+                    <label className="flex flex-col gap-1 text-sm font-semibold">✉️ Reply to {m.email}
+                      <textarea rows="5" value={replyText} onChange={(e) => setReplyText(e.target.value)} maxLength="5000" autoFocus
+                        className="input min-h-28 py-2 font-normal" />
+                    </label>
+                    <p className="mt-1 text-xs text-navy/55">Their original message is added below your reply automatically.</p>
+                    <div className="mt-2 flex justify-end gap-2">
+                      <button onClick={() => setReplyFor(null)} className="abtn min-h-9 px-3">Cancel</button>
+                      <button onClick={() => sendReply(m)} disabled={sending || !replyText.trim()} className="abtn-primary min-h-9 px-4">
+                        {sending ? 'Sending...' : '📤 Send reply'}
+                      </button>
+                    </div>
+                  </div>
+                )}
+
                 <div className="mt-3 flex flex-wrap gap-2">
+                  {m.email && replyFor !== m._id && (
+                    <button onClick={() => openReply(m)} className="abtn-primary min-h-9 px-3">↩️ Reply by email</button>
+                  )}
+                  {m.phone && (
+                    <a href={`https://wa.me/91${String(m.phone).replace(/\D/g, '').slice(-10)}`} target="_blank" rel="noreferrer"
+                      className="abtn min-h-9 border-green-300 px-3 text-green-800 hover:border-green-500 hover:text-green-900">💬 WhatsApp</a>
+                  )}
                   <button onClick={() => act(() => api.patch(`/contact/${m._id}/read`, { read: !m.read }))} className="abtn min-h-9 px-3">
                     {m.read ? '↩️ Mark as unread' : '✔️ Mark as read'}
                   </button>
