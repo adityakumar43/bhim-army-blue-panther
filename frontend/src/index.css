@@ -128,7 +128,7 @@
   }
 
   .split-grid {
-    @apply grid items-start gap-6 xl:min-h-0 xl:flex-1 xl:grid-cols-2 xl:grid-rows-[minmax(0, 1fr)] xl:items-stretch;
+    @apply grid items-start gap-6 xl:min-h-0 xl:flex-1 xl:grid-cols-2 xl:grid-rows-[minmax(0,1fr)] xl:items-stretch;
   }
 
   .split-form {
