@@ -1,6 +1,7 @@
 import { Link, useOutletContext } from 'react-router-dom'
 import { ROLE_INFO } from '../../lib/roles.js'
 import Icon from '../../components/Icon.jsx'
+import Stats from './Stats.jsx'
 
 const greeting = () => {
   const h = new Date().getHours()
@@ -86,6 +87,7 @@ export default function Overview() {
           </div>
         </>
       )}
+      <Stats />
     </>
   )
 }
