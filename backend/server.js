@@ -13,6 +13,8 @@ import contactRoutes from './routes/contact.js'
 import donationRoutes, { razorpayWebhook } from './routes/donations.js'
 import adminRoutes from './routes/admin.js'
 import adminsRoutes from './routes/admins.js'
+import activityRoutes from './routes/activity.js'
+import { activityLog } from './middleware/activity.js'
 import { News, Event, Gallery, Slide } from './models/Content.js'
 
 if (!process.env.JWT_SECRET || !process.env.MONGO_URI) {
@@ -28,6 +30,7 @@ app.use(cors({ origin: process.env.CLIENT_URL }))
 
 app.post('/api/donations/webhook', express.raw({ type: 'application/json' }), razorpayWebhook)
 app.use(express.json({ limit: '1mb' }))
+app.use(activityLog)
 
 app.get('/api/health', (req, res) => res.json({ ok: true }))
 app.use('/api/auth', authRoutes)
@@ -63,6 +66,7 @@ app.use('/api/contact', contactRoutes)
 app.use('/api/donations', donationRoutes)
 app.use('/api/admin', adminRoutes)
 app.use('/api/admins', adminsRoutes)
+app.use('/api/activity', activityRoutes)
 
 app.use((req, res) => res.status(404).json({ message: 'Not found' }))
 app.use((err, req, res, next) => {

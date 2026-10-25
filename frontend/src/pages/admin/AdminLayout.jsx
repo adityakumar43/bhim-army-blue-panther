@@ -17,6 +17,7 @@ const NAV = [
   { to: '/admin/messages', label: 'Messages', icon: 'chat', perm: 'messages', badge: 'messages' },
   { to: '/admin/donations', label: 'Donations', icon: 'heart', perm: 'donations', badge: 'donations' },
   { to: '/admin/team', label: 'Team & roles', icon: 'users', perm: 'admins' },
+  { to: '/admin/activity', label: 'Activity log', icon: 'activity', perm: 'admins' },
   { to: '/admin/security', label: 'Security', icon: 'shield' },
 ]
 
