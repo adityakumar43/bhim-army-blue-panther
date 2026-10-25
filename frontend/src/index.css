@@ -76,18 +76,74 @@
 
   /* Admin panel */
   .card {
-    @apply min-w-0 rounded-xl border border-brand/15 bg-white p-5 sm:p-6 [overflow-wrap:anywhere];
+    @apply rounded-2xl border border-brand/10 bg-white p-5 shadow-sm sm:p-6;
   }
 
   .abtn {
-    @apply rounded-lg inline-flex min-h-10 items-center justify-center border border-navy bg-white px-4 py-2 text-sm font-semibold;
+    @apply inline-flex min-h-10 items-center justify-center gap-1.5 rounded-xl border border-navy/20 bg-white px-4 py-2 text-sm font-semibold text-navy shadow-sm transition hover:border-brand hover:text-brand disabled:opacity-60;
   }
 
   .abtn-primary {
-    @apply rounded-lg inline-flex min-h-10 items-center justify-center border border-brand bg-brand px-4 py-2 text-sm font-semibold text-white disabled:opacity-60;
+    @apply inline-flex min-h-10 items-center justify-center gap-1.5 rounded-xl border border-brand bg-brand px-4 py-2 text-sm font-semibold text-white shadow-md shadow-brand/25 transition hover:bg-navy disabled:opacity-60;
   }
 
   .abtn-danger {
-    @apply rounded-lg inline-flex min-h-10 items-center justify-center border border-red-700 bg-white px-4 py-2 text-sm font-semibold text-red-700;
+    @apply inline-flex min-h-10 items-center justify-center gap-1.5 rounded-xl border border-red-200 bg-white px-4 py-2 text-sm font-semibold text-red-700 shadow-sm transition hover:border-red-400 hover:bg-red-50 disabled:opacity-60;
+  }
+
+  .admin-main .input {
+    @apply rounded-xl border-navy/20 focus:ring-4 focus:ring-brand/10;
+  }
+
+  .admin-main label {
+    @apply text-navy/85;
+  }
+
+  .admin-main .border {
+    @apply rounded-xl;
+  }
+
+  .admin-main .border img,
+  .admin-main img.border {
+    @apply rounded-lg;
+  }
+
+
+  /* Admin forms: compact labels and boxes */
+  .admin-main form label {
+    @apply text-sm;
+  }
+
+  .admin-main form .input {
+    @apply min-h-11 py-2;
+  }
+
+  .file-pick {
+    @apply text-sm font-normal file:mr-3 file:cursor-pointer file:rounded-lg file:border-0 file:bg-mist file:px-3 file:py-2 file:font-semibold file:text-brand hover:file:bg-brand hover:file:text-white;
+  }
+
+  /* Form + list pages: on large screens the page fits the window and only the list scrolls */
+  .split-page {
+    @apply xl:flex xl:h-[calc(100dvh-7rem)] xl:flex-col;
+  }
+
+  .split-grid {
+    @apply grid items-start gap-6 xl:min-h-0 xl:flex-1 xl:grid-cols-2 xl:grid-rows-[minmax(0, 1fr)] xl:items-stretch;
+  }
+
+  .split-form {
+    @apply xl:min-h-0 xl:overflow-y-auto;
+  }
+
+  .split-list {
+    @apply relative flex min-h-72 flex-col rounded-2xl border border-brand/10 bg-white p-5 shadow-sm sm:p-6 xl:min-h-0 xl:p-0;
+  }
+
+  .split-inner {
+    @apply flex min-h-0 flex-1 flex-col xl:absolute xl:inset-0 xl:p-6;
+  }
+
+  .split-scroll {
+    @apply -mr-2 flex min-h-0 flex-1 flex-col gap-2 overflow-y-auto pr-2;
   }
 }
