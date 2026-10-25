@@ -3,6 +3,7 @@ import { api } from '../../lib/api.js'
 import { portrait } from '../../lib/img.js'
 import { STATES, stateByCode } from '../../data/states.js'
 import { PageHeader, Notice, Pill } from './ui.jsx'
+import Icon from '../../components/Icon.jsx'
 
 const EMPTY = { level: 'national', state: '', nameHi: '', nameEn: '', roleHi: '', roleEn: '', areaHi: '', areaEn: '', phone: '', order: '' }
 const TEXTS = [
@@ -21,6 +22,7 @@ export default function Leaders() {
   const [error, setError] = useState('')
   const [note, setNote] = useState('')
   const [busy, setBusy] = useState(false)
+  const [adding, setAdding] = useState(false)
   const [formKey, setFormKey] = useState(0)
 
   const set = (f) => (e) => setForm({ ...form, [f]: e.target.value })
@@ -32,6 +34,7 @@ export default function Leaders() {
     setFile(null)
     setRemovePhoto(false)
     setEditing(null)
+    setAdding(false)
     setFormKey((k) => k + 1) // empties the file box
   }
 
@@ -83,29 +86,38 @@ export default function Leaders() {
   const shown = (items || []).filter((l) => show === 'all' || (show === 'national' ? l.level === 'national' : l.state === show))
   const where = (l) => (l.level === 'national' ? 'National' : stateByCode(l.state)?.en || l.state)
 
+  const showForm = adding || !!editing
+
   return (
     <>
-      <PageHeader title="Leadership" subtitle="National leaders show on the About page. State leaders show on each state's page." />
-      <div className="grid items-start gap-6 xl:grid-cols-2">
-        <form key={formKey} onSubmit={submit} className="card flex flex-col gap-4">
-          <h2 className="text-xl font-extrabold">{editing ? 'Edit leader' : 'Add a leader'}</h2>
-          <div className="grid gap-4 sm:grid-cols-2">
-            <label className="flex flex-col gap-1 font-semibold">Leadership
+      <PageHeader title="Leadership" subtitle="National leaders show on the About page. State leaders show on each state's page.">
+        {!showForm && <button onClick={() => { setAdding(true); setError(''); setNote('') }} className="abtn-primary">➕ Add leader</button>}
+      </PageHeader>
+      <Notice kind="success">{note}</Notice>
+
+      {showForm && (
+        <form key={formKey} onSubmit={submit} className="card mb-6 border-brand/30">
+          <div className="mb-3 flex items-center justify-between gap-3">
+            <h2 className="text-lg font-extrabold">{editing ? '✏️ Edit leader' : '➕ Add a leader'}</h2>
+            <button type="button" onClick={reset} aria-label="Close" className="flex h-9 w-9 items-center justify-center rounded-lg text-navy/60 hover:bg-mist">
+              <Icon name="close" size={18} />
+            </button>
+          </div>
+          <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
+            <label className="flex flex-col gap-1 font-semibold">🏛️ Leadership
               <select value={form.level} onChange={set('level')} className="input">
                 <option value="national">National</option>
                 <option value="state">State</option>
               </select>
             </label>
             {form.level === 'state' && (
-              <label className="flex flex-col gap-1 font-semibold">State
+              <label className="flex flex-col gap-1 font-semibold">📍 State
                 <select required value={form.state} onChange={set('state')} className="input">
                   <option value="">Choose...</option>
                   {sortedStates.map((s) => <option key={s.code} value={s.code}>{s.en}</option>)}
                 </select>
               </label>
             )}
-          </div>
-          <div className="grid gap-4 sm:grid-cols-2">
             {TEXTS.map(([f, label]) => (
               <label key={f} className="flex flex-col gap-1 font-semibold">{label}
                 <input value={form[f]} onChange={set(f)} maxLength="100" className="input" />
@@ -116,69 +128,72 @@ export default function Leaders() {
                 <input value={form[f]} onChange={set(f)} maxLength="100" className="input" />
               </label>
             ))}
-            <label className="flex flex-col gap-1 font-semibold">Public phone (optional)
+            <label className="flex flex-col gap-1 font-semibold">📞 Public phone (optional)
               <input type="tel" value={form.phone} onChange={set('phone')} className="input" />
             </label>
-            <label className="flex flex-col gap-1 font-semibold">Order (1 shows first)
+            <label className="flex flex-col gap-1 font-semibold">🔢 Order (1 shows first)
               <input type="number" min="0" value={form.order} onChange={set('order')} className="input" />
             </label>
+            <label className="flex flex-col gap-1 font-semibold sm:col-span-2">
+              📷 {editing?.photo ? 'Replace photo (leave empty to keep it)' : 'Photo (optional)'}
+              <span className="flex items-center gap-3">
+                {editing?.photo && <img src={portrait(editing.photo, 120)} alt="" className="h-12 w-9 rounded-lg object-cover" />}
+                <input type="file" accept="image/jpeg,image/png,image/webp" onChange={(e) => setFile(e.target.files[0] || null)} className="file-pick min-w-0 flex-1" />
+              </span>
+              <span className="text-xs font-normal text-navy/60">A clear face photo, JPG, PNG or WebP, up to 5 MB</span>
+            </label>
           </div>
-          <label className="flex flex-col gap-1 font-semibold">
-            {editing?.photo ? 'Replace photo (leave empty to keep it)' : 'Photo (optional)'}
-            <span className="text-sm font-normal text-navy/70">A clear face photo, JPG, PNG or WebP, up to 5 MB</span>
-            {editing?.photo && <img src={portrait(editing.photo, 120)} alt="" className="h-24 w-18 rounded-lg object-cover" />}
-            <input type="file" accept="image/jpeg,image/png,image/webp" onChange={(e) => setFile(e.target.files[0] || null)} className="font-normal" />
-          </label>
           {editing?.photo && !file && (
-            <label className="flex items-center gap-3 font-semibold">
+            <label className="mt-3 flex items-center gap-3 text-sm font-semibold">
               <input type="checkbox" checked={removePhoto} onChange={(e) => setRemovePhoto(e.target.checked)} className="h-5 w-5" />
               Remove the photo
             </label>
           )}
-          <Notice>{error}</Notice>
-          <Notice kind="success">{note}</Notice>
-          <div className="flex gap-3">
-            <button disabled={busy} className="btn flex-1 bg-brand text-white disabled:opacity-60">
-              {busy ? 'Saving...' : editing ? 'Save changes' : 'Add leader'}
+          {error && <div className="mt-3"><Notice>{error}</Notice></div>}
+          <div className="mt-4 flex justify-end gap-2">
+            <button type="button" onClick={reset} className="abtn min-h-11">Cancel</button>
+            <button disabled={busy} className="abtn-primary min-h-11 px-6">
+              {busy ? 'Saving...' : editing ? '💾 Save changes' : '✅ Add leader'}
             </button>
-            {editing && <button type="button" onClick={reset} className="abtn min-h-12">Cancel</button>}
           </div>
         </form>
+      )}
 
-        <section className="card">
-          <div className="mb-4 flex flex-wrap items-center justify-between gap-3">
-            <h2 className="text-xl font-extrabold">Leaders {items && `(${shown.length})`}</h2>
-            <select aria-label="Show" value={show} onChange={(e) => setShow(e.target.value)} className="input w-auto">
-              <option value="all">Everyone</option>
-              <option value="national">National ({count('national')})</option>
-              {sortedStates.map((s) => <option key={s.code} value={s.code}>{s.en} ({count(s.code)})</option>)}
-            </select>
-          </div>
-          {!items && <p>Loading...</p>}
-          {items && shown.length === 0 && <p className="text-navy/70">No leaders here yet. Use the form to add one.</p>}
-          <ul className="flex flex-col gap-3">
-            {shown.map((l) => (
-              <li key={l._id} className={`flex flex-wrap items-center gap-3 rounded-lg border p-3 ${editing?._id === l._id ? 'border-brand bg-mist' : 'border-brand/15'}`}>
-                {l.photo
-                  ? <img src={portrait(l.photo, 120)} alt="" className="h-16 w-12 rounded-md object-cover" />
-                  : <span className="h-16 w-12 rounded-md bg-navy/10" />}
-                <div className="min-w-0 flex-1">
-                  <div className="font-semibold">{l.nameEn || l.nameHi}</div>
-                  <div className="text-sm text-navy/70">{l.roleEn || l.roleHi}</div>
-                  <div className="mt-1 flex flex-wrap gap-2">
-                    <Pill tone={l.level === 'national' ? 'gold' : 'blue'}>{where(l)}</Pill>
-                    {l.order ? <Pill tone="gray">Order {l.order}</Pill> : null}
-                  </div>
-                </div>
-                <div className="flex gap-2">
-                  <button onClick={() => startEdit(l)} className="abtn">Edit</button>
-                  <button onClick={() => remove(l)} className="abtn-danger">Delete</button>
-                </div>
-              </li>
-            ))}
-          </ul>
-        </section>
+      {!showForm && <Notice>{error}</Notice>}
+      <div className="mb-3 flex flex-wrap items-center justify-between gap-3">
+        <h2 className="text-lg font-extrabold">👥 Leaders {items && `(${shown.length})`}</h2>
+        <select aria-label="Show" value={show} onChange={(e) => setShow(e.target.value)} className="input min-h-10 w-auto max-w-xs py-1.5 text-sm">
+          <option value="all">Everyone</option>
+          <option value="national">National ({count('national')})</option>
+          {sortedStates.map((s) => <option key={s.code} value={s.code}>{s.en} ({count(s.code)})</option>)}
+        </select>
       </div>
+      {!items && <p>Loading...</p>}
+      {items && shown.length === 0 && <p className="card text-center text-navy/70">📭 No leaders here yet. Click "Add leader" to add one.</p>}
+      <ul className="grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
+        {shown.map((l) => (
+          <li key={l._id} className={`card flex flex-col p-4 sm:p-4 ${editing?._id === l._id ? 'ring-2 ring-brand' : ''}`}>
+            <div className="flex items-start gap-3">
+              {l.photo
+                ? <img src={portrait(l.photo, 120)} alt="" className="h-20 w-15 shrink-0 object-cover shadow-sm" />
+                : <span className="flex h-20 w-15 shrink-0 items-center justify-center rounded-lg bg-mist text-2xl" aria-hidden="true">👤</span>}
+              <div className="min-w-0 flex-1">
+                <div className="line-clamp-2 leading-tight font-bold">{l.nameEn || l.nameHi}</div>
+                <div className="truncate text-sm text-navy/70">{l.roleEn || l.roleHi}</div>
+                <div className="mt-1.5 flex flex-wrap gap-1.5">
+                  <Pill tone={l.level === 'national' ? 'gold' : 'blue'}>{l.level === 'national' ? '🏛️' : '📍'} {where(l)}</Pill>
+                  {l.order ? <Pill tone="gray">#{l.order}</Pill> : null}
+                </div>
+                {l.phone && <div className="mt-1 text-xs text-navy/60">📞 {l.phone}</div>}
+              </div>
+            </div>
+            <div className="mt-auto flex gap-2 pt-3">
+              <button onClick={() => startEdit(l)} className="abtn min-h-9 flex-1 px-3">✏️ Edit</button>
+              <button onClick={() => remove(l)} className="abtn-danger min-h-9 flex-1 px-3">🗑️ Delete</button>
+            </div>
+          </li>
+        ))}
+      </ul>
     </>
   )
 }
