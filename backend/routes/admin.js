@@ -3,7 +3,8 @@ import Member from '../models/Member.js'
 import Message from '../models/Message.js'
 import Donation from '../models/Donation.js'
 import Admin from '../models/Admin.js'
-import { protect, requirePermission } from '../middleware/auth.js'
+import { protect, requirePermission, stateScope } from '../middleware/auth.js'
+import { memberStateFilter } from '../config/stateNames.js'
 import { can } from '../config/roles.js'
 
 const router = Router()
@@ -12,8 +13,10 @@ const router = Router()
 router.get('/summary', protect, async (req, res) => {
   const role = req.admin.role
   const since = req.admin.seenDonationsAt || req.admin.createdAt
+  const scope = stateScope(req.admin)
+  const mine = scope ? memberStateFilter(scope) : {} // State admins count only their state
   const [members, messages, donations] = await Promise.all([
-    can(role, 'members') ? Member.countDocuments({ status: 'pending' }) : 0,
+    can(role, 'members') ? Member.countDocuments({ status: 'pending', ...mine }) : 0,
     can(role, 'messages') ? Message.countDocuments({ read: false }) : 0,
     can(role, 'donations')
       ? Donation.countDocuments({
@@ -58,13 +61,17 @@ router.get('/stats', protect, async (req, res) => {
   const out = {}
 
   if (can(role, 'members')) {
+    const scope = stateScope(req.admin)
+    const mine = { $match: scope ? memberStateFilter(scope) : {} } // State admins see only their state
     const [statusRows, joins, states] = await Promise.all([
-      Member.aggregate([{ $group: { _id: '$status', n: { $sum: 1 } } }]),
+      Member.aggregate([mine, { $group: { _id: '$status', n: { $sum: 1 } } }]),
       Member.aggregate([
+        mine,
         { $match: { createdAt: { $gte: since } } },
         { $group: { _id: byMonth('$createdAt'), n: { $sum: 1 } } },
       ]),
       Member.aggregate([
+        mine,
         { $match: { status: 'approved' } },
         { $group: { _id: { $trim: { input: { $ifNull: ['$state', ''] } } }, n: { $sum: 1 } } },
         { $sort: { n: -1 } },

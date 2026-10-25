@@ -3,6 +3,7 @@ import { Link, NavLink, Outlet, useLocation, useNavigate } from 'react-router-do
 import { api } from '../../lib/api.js'
 import { ROLE_INFO } from '../../lib/roles.js'
 import Icon from '../../components/Icon.jsx'
+import { stateByCode } from '../../data/states.js'
 
 
 const NAV = [
@@ -11,7 +12,7 @@ const NAV = [
   { to: '/admin/events', label: 'Events', icon: 'calendar', perm: 'content' },
   { to: '/admin/gallery', label: 'Gallery', icon: 'image', perm: 'content' },
   { to: '/admin/slides', label: 'Home slider', icon: 'layers', perm: 'content' },
-  { to: '/admin/leaders', label: 'Leadership', icon: 'award', perm: 'content' },
+  { to: '/admin/leaders', label: 'Leadership', icon: 'award', perm: 'leaders' },
   { to: '/admin/updates', label: 'Home updates', icon: 'bell', perm: 'content' },
   { to: '/admin/members', label: 'Members', icon: 'userPlus', perm: 'members', badge: 'members' },
   { to: '/admin/messages', label: 'Messages', icon: 'chat', perm: 'messages', badge: 'messages' },
@@ -83,7 +84,7 @@ export default function AdminLayout() {
             </span>
             <span className="max-w-48 leading-tight">
               <span className="block truncate font-semibold">{me.name}</span>
-              <span className="block truncate text-xs text-white/60">{ROLE_INFO[me.role]?.label}</span>
+              <span className="block truncate text-xs text-white/60">{ROLE_INFO[me.role]?.label}{me.state ? ` · ${stateByCode(me.state)?.en}` : ''}</span>
             </span>
           </div>
           <Link to="/" title="View site" className="flex h-9 items-center gap-1.5 rounded-lg px-2.5 font-semibold text-white/85 hover:bg-white/10 hover:text-white">

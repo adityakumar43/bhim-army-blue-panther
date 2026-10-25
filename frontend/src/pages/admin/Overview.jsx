@@ -28,8 +28,9 @@ export default function Overview() {
     ['content', '/admin/gallery', 'Upload photos', 'image'],
     ['content', '/admin/slides', 'Home slider', 'layers'],
     ['content', '/admin/updates', 'Home updates', 'bell'],
+    ['leaders', '/admin/leaders', 'Leadership', 'award'],
     ['admins', '/admin/team', 'Team & roles', 'users'],
-  ].filter(([perm]) => can(perm))
+  ].filter(([perm, to]) => can(perm) && !(to === '/admin/leaders' && can('content'))) // content editors reach Leadership from the sidebar
 
   return (
     <>

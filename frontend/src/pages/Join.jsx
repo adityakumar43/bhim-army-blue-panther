@@ -2,11 +2,12 @@ import { useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { api } from '../lib/api.js'
 import { shrinkImage } from '../lib/shrinkImage.js'
+import { STATES, stateName } from '../data/states.js'
 
-const FIELDS = ['name', 'phone', 'email', 'city', 'district', 'state']
+const FIELDS = ['name', 'phone', 'email', 'city', 'district']
 
 export default function Join() {
-  const { t } = useTranslation()
+  const { t, i18n } = useTranslation()
   const [form, setForm] = useState({})
   const [photo, setPhoto] = useState(null)
   const [error, setError] = useState('')
@@ -45,7 +46,7 @@ export default function Join() {
 
   return (
     <div className="mx-auto max-w-xl px-5 py-12">
-      
+
       <form onSubmit={submit} className="panel flex flex-col gap-4 sm:p-8">
         {FIELDS.map((f) => (
           <label key={f} className="flex flex-col gap-1 font-semibold">
@@ -59,6 +60,21 @@ export default function Join() {
             />
           </label>
         ))}
+
+        {/* State from a list, so each application reaches the right state team */}
+        <label className="flex flex-col gap-1 font-semibold">
+          {t('join.state')}
+          <select required defaultValue="" onChange={set('stateCode')} className={input}>
+            <option value="" disabled>—</option>
+            {[['state', t('join.states')], ['ut', t('join.uts')]].map(([type, groupLabel]) => (
+              <optgroup key={type} label={groupLabel}>
+                {STATES.filter((s) => s.type === type)
+                  .sort((a, b) => stateName(a, i18n.language).localeCompare(stateName(b, i18n.language), i18n.language))
+                  .map((s) => <option key={s.code} value={s.code}>{stateName(s, i18n.language)}</option>)}
+              </optgroup>
+            ))}
+          </select>
+        </label>
 
         {[['assemblyNo', 'join.assemblyNo'], ['lokSabhaNo', 'join.lokSabhaNo']].map(([f, label]) => (
           <label key={f} className="flex flex-col gap-1 font-semibold">

@@ -1,6 +1,6 @@
 import { Router } from 'express'
 import Leader from '../models/Leader.js'
-import { protect, requirePermission } from '../middleware/auth.js'
+import { protect, requirePermission, stateScope } from '../middleware/auth.js'
 import { upload } from '../middleware/upload.js'
 import { uploadImage, deleteImage } from '../config/cloudinary.js'
 import { STATE_CODES } from '../config/states.js'
@@ -35,6 +35,10 @@ function read(body) {
   return { data }
 }
 
+// State admins may only add, edit or delete leaders of their own state
+const notMyState = (req, state) => { const scope = stateScope(req.admin); return scope && state !== scope }
+const OWN_STATE_ONLY = 'You can only manage leaders of your own state'
+
 // Public: ?level=national or ?state=uttar-pradesh
 router.get('/', async (req, res) => {
   const filter = {}
@@ -54,16 +58,18 @@ router.get('/counts', async (req, res) => {
   res.json(Object.fromEntries(rows.map((r) => [r._id, r.n])))
 })
 
-router.post('/', protect, requirePermission('content'), upload.single('photo'), async (req, res) => {
+router.post('/', protect, requirePermission('leaders'), upload.single('photo'), async (req, res) => {
   const { data, error } = read(req.body || {})
   if (error) return res.status(400).json({ message: error })
+  if (notMyState(req, data.state)) return res.status(403).json({ message: OWN_STATE_ONLY })
   if (req.file) data.photo = await uploadImage(req.file.buffer, 'bluepanther/leaders')
   res.status(201).json(view(await Leader.create(data)))
 })
 
-router.put('/:id', protect, requirePermission('content'), upload.single('photo'), async (req, res) => {
+router.put('/:id', protect, requirePermission('leaders'), upload.single('photo'), async (req, res) => {
   const leader = await Leader.findById(req.params.id).catch(() => null)
-  if (!leader) return res.status(404).json({ message: 'Not found' })
+  if (!leader || notMyState(req, leader.state)) return res.status(404).json({ message: 'Not found' })
+  if (error) return res.status(400).json({ message: error })
   const { data, error } = read(req.body || {})
   if (error) return res.status(400).json({ message: error })
   Object.assign(leader, data)
@@ -78,9 +84,10 @@ router.put('/:id', protect, requirePermission('content'), upload.single('photo')
   res.json(view(leader))
 })
 
-router.delete('/:id', protect, requirePermission('content'), async (req, res) => {
-  const leader = await Leader.findByIdAndDelete(req.params.id).catch(() => null)
-  if (!leader) return res.status(404).json({ message: 'Not found' })
+router.delete('/:id', protect, requirePermission('leaders'), async (req, res) => {
+  const found = await Leader.findById(req.params.id).catch(() => null)
+  if (!found || notMyState(req, found.state)) return res.status(404).json({ message: 'Not found' })
+  const leader = await Leader.findByIdAndDelete(found._id)
   await deleteImage(leader.photo?.publicId)
   res.json({ ok: true })
 })

@@ -31,7 +31,7 @@ const limiter = (max) =>
 const profile = (a) => ({
   id: a._id, name: a.name, email: a.email, role: a.role,
   permissions: ROLES[a.role] || [], twoFactorEnabled: a.twoFactorEnabled === true,
-  twoFactorRequired: needsTwoFactor(a.role),
+  twoFactorRequired: needsTwoFactor(a.role), state: a.state || null,
 })
 
 const isLocked = (a) => a.lockUntil && new Date(a.lockUntil) > new Date()

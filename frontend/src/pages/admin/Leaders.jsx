@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react'
+import { useOutletContext } from 'react-router-dom'
 import { api } from '../../lib/api.js'
 import { portrait } from '../../lib/img.js'
 import { STATES, stateByCode } from '../../data/states.js'
@@ -13,8 +14,12 @@ const TEXTS = [
 const sortedStates = [...STATES].sort((a, b) => a.en.localeCompare(b.en))
 
 export default function Leaders() {
+  // A State admin works only on their own state's leaders
+  const { me } = useOutletContext()
+  const myState = me.role === 'stateadmin' ? me.state : null
+  const blank = myState ? { ...EMPTY, level: 'state', state: myState } : EMPTY
   const [items, setItems] = useState(null)
-  const [form, setForm] = useState(EMPTY)
+  const [form, setForm] = useState(blank)
   const [file, setFile] = useState(null)
   const [removePhoto, setRemovePhoto] = useState(false)
   const [editing, setEditing] = useState(null)
@@ -30,7 +35,7 @@ export default function Leaders() {
   useEffect(() => { load() }, [])
 
   function reset() {
-    setForm(EMPTY)
+    setForm(blank)
     setFile(null)
     setRemovePhoto(false)
     setEditing(null)
@@ -83,7 +88,8 @@ export default function Leaders() {
   }
 
   const count = (code) => (items || []).filter((l) => (code === 'national' ? l.level === 'national' : l.state === code)).length
-  const shown = (items || []).filter((l) => show === 'all' || (show === 'national' ? l.level === 'national' : l.state === show))
+  const shown = (items || []).filter((l) => (myState ? l.state === myState
+    : show === 'all' || (show === 'national' ? l.level === 'national' : l.state === show)))
   const where = (l) => (l.level === 'national' ? 'National' : stateByCode(l.state)?.en || l.state)
 
   const showForm = adding || !!editing
@@ -95,6 +101,12 @@ export default function Leaders() {
       </PageHeader>
       <Notice kind="success">{note}</Notice>
 
+      {myState && (
+        <p className="mb-4 flex items-center gap-2 rounded-xl bg-mist px-4 py-2.5 text-sm font-semibold text-brand">
+          📍 You can add and edit leaders of {stateByCode(myState)?.en} only.
+        </p>
+      )}
+
       {showForm && (
         <form key={formKey} onSubmit={submit} className="card mb-6 border-brand/30">
           <div className="mb-3 flex items-center justify-between gap-3">
@@ -104,13 +116,15 @@ export default function Leaders() {
             </button>
           </div>
           <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
-            <label className="flex flex-col gap-1 font-semibold">🏛️ Leadership
-              <select value={form.level} onChange={set('level')} className="input">
-                <option value="national">National</option>
-                <option value="state">State</option>
-              </select>
-            </label>
-            {form.level === 'state' && (
+            {!myState && (
+              <label className="flex flex-col gap-1 font-semibold">🏛️ Leadership
+                <select value={form.level} onChange={set('level')} className="input">
+                  <option value="national">National</option>
+                  <option value="state">State</option>
+                </select>
+              </label>
+            )}
+            {!myState && form.level === 'state' && (
               <label className="flex flex-col gap-1 font-semibold">📍 State
                 <select required value={form.state} onChange={set('state')} className="input">
                   <option value="">Choose...</option>
@@ -162,11 +176,11 @@ export default function Leaders() {
       {!showForm && <Notice>{error}</Notice>}
       <div className="mb-3 flex flex-wrap items-center justify-between gap-3">
         <h2 className="text-lg font-extrabold">👥 Leaders {items && `(${shown.length})`}</h2>
-        <select aria-label="Show" value={show} onChange={(e) => setShow(e.target.value)} className="input min-h-10 w-auto max-w-xs py-1.5 text-sm">
+        {!myState && <select aria-label="Show" value={show} onChange={(e) => setShow(e.target.value)} className="input min-h-10 w-auto max-w-xs py-1.5 text-sm">
           <option value="all">Everyone</option>
           <option value="national">National ({count('national')})</option>
           {sortedStates.map((s) => <option key={s.code} value={s.code}>{s.en} ({count(s.code)})</option>)}
-        </select>
+        </select>}
       </div>
       {!items && <p>Loading...</p>}
       {items && shown.length === 0 && <p className="card text-center text-navy/70">📭 No leaders here yet. Click "Add leader" to add one.</p>}

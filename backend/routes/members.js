@@ -1,7 +1,9 @@
 import { Router } from 'express'
 import rateLimit from 'express-rate-limit'
 import Member from '../models/Member.js'
-import { protect, requirePermission } from '../middleware/auth.js'
+import { protect, requirePermission, stateScope } from '../middleware/auth.js'
+import { STATE_CODES } from '../config/states.js'
+import { stateNameEn, codeFromName, memberInState, memberStateFilter } from '../config/stateNames.js'
 import { notifyAdmin } from '../services/mailer.js'
 import QRCode from 'qrcode'
 import { upload } from '../middleware/upload.js'
@@ -9,6 +11,10 @@ import { uploadImage, deleteImage } from '../config/cloudinary.js'
 import { issueCard, sendWelcome, emailCard } from '../services/members.js'
 
 const router = Router()
+
+
+// State admins may only touch members of their own state
+const inMyState = (req, m) => { const scope = stateScope(req.admin); return !scope || memberInState(m, scope) }
 
 // An optional whole number from 1 to 999. Empty gives undefined; anything else that is not a number gives null.
 function parseConstituency(value) {
@@ -61,11 +67,15 @@ router.post('/', joinLimiter, upload.single('photo'), async (req, res) => {
     return res.status(409).json({ message: 'This mobile number has already applied' })
   }
 
+  // The state comes from the list on the Join form; older forms sent typed text
+  const stateCode = STATE_CODES.includes(String(b.stateCode || '')) ? String(b.stateCode) : codeFromName(b.state)
+  const state = stateCode ? stateNameEn(stateCode) : b.state
+
   const photo = await uploadImage(req.file.buffer, 'bluepanther/members')
   try {
     await Member.create({
       name, phone, dob, photo, assemblyNo, lokSabhaNo,
-      email: b.email, city: b.city, district: b.district, state: b.state, message: b.message,
+      email: b.email, city: b.city, district: b.district, state, stateCode: stateCode || undefined, message: b.message,
     })
   } catch (err) {
     await deleteImage(photo.publicId) // do not leave a photo behind for an application that was not saved
@@ -86,6 +96,8 @@ router.get('/', protect, requirePermission('members'), async (req, res) => {
   const filter = ['pending', 'approved', 'rejected'].includes(req.query.status)
     ? { status: req.query.status }
     : {}
+  const scope = stateScope(req.admin)
+  if (scope) Object.assign(filter, memberStateFilter(scope))
   res.json(await Member.find(filter).sort({ createdAt: -1 }).limit(1000))
 })
 
@@ -98,8 +110,9 @@ router.patch('/:id/status', protect, requirePermission('members'), async (req, r
   const who = status === 'pending'
     ? { reviewedAt: null, reviewedByName: null, reviewedById: null }
     : { reviewedAt: new Date(), reviewedByName: req.admin.name, reviewedById: req.admin._id }
-  const member = await Member.findByIdAndUpdate(req.params.id, { status, ...who }, { new: true }).catch(() => null)
-  if (!member) return res.status(404).json({ message: 'Not found' })
+  const found = await Member.findById(req.params.id).catch(() => null)
+  if (!found || !inMyState(req, found)) return res.status(404).json({ message: 'Not found' })
+  const member = await Member.findByIdAndUpdate(found._id, { status, ...who }, { new: true })
   if (status === 'approved') {
 
     const { member: issued, isNew } = await issueCard(member._id)
@@ -110,8 +123,9 @@ router.patch('/:id/status', protect, requirePermission('members'), async (req, r
 })
 
 router.delete('/:id', protect, requirePermission('members'), async (req, res) => {
-  const member = await Member.findByIdAndDelete(req.params.id).catch(() => null)
-  if (!member) return res.status(404).json({ message: 'Not found' })
+  const found = await Member.findById(req.params.id).catch(() => null)
+  if (!found || !inMyState(req, found)) return res.status(404).json({ message: 'Not found' })
+  const member = await Member.findByIdAndDelete(found._id)
   await deleteImage(member.photo?.publicId)
   res.json({ ok: true })
 })
@@ -134,6 +148,7 @@ router.get('/card/:token', async (req, res) => {
 router.get('/verify/:token', protect, requirePermission('members'), async (req, res) => {
   const m = await Member.findOne({ cardToken: req.params.token })
   if (!m) return res.status(404).json({ message: 'Card not found' })
+  if (!inMyState(req, m)) return res.status(403).json({ message: `This member belongs to ${m.state || 'another state'}, not your state.` })
   res.json({
     name: m.name, memberNo: m.memberNo, status: m.status, phone: m.phone, email: m.email, dob: m.dob,
     city: m.city, district: m.district, state: m.state, assemblyNo: m.assemblyNo, lokSabhaNo: m.lokSabhaNo, photo: m.photo?.url,
@@ -144,7 +159,7 @@ router.get('/verify/:token', protect, requirePermission('members'), async (req, 
 
 router.post('/:id/send-card', protect, requirePermission('members'), async (req, res) => {
   const found = await Member.findById(req.params.id).catch(() => null)
-  if (!found || found.status !== 'approved') return res.status(404).json({ message: 'Approved member not found' })
+  if (!found || found.status !== 'approved' || !inMyState(req, found)) return res.status(404).json({ message: 'Approved member not found' })
   if (!found.email) return res.status(400).json({ message: 'This member did not give an email address. Use the WhatsApp button.' })
   const { member } = await issueCard(found._id)
   try {

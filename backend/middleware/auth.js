@@ -30,6 +30,9 @@ export async function protect(req, res, next) {
   }
 }
 
+// A State admin only sees and changes their own state's members and leaders.
+// Gives their state code, or null for everyone else (no limit).
+export const stateScope = (admin) => (admin?.role === 'stateadmin' ? admin.state || 'none' : null)
 
 export const requirePermission = (permission) => (req, res, next) =>
   can(req.admin.role, permission)

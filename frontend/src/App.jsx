@@ -69,7 +69,7 @@ export default function App() {
             <Route path="events" element={<Perm perm="content"><Content key="events" kind="events" /></Perm>} />
             <Route path="gallery" element={<Perm perm="content"><Content key="gallery" kind="gallery" /></Perm>} />
             <Route path="slides" element={<Perm perm="content"><Content key="slides" kind="slides" /></Perm>} />
-            <Route path="leaders" element={<Perm perm="content"><Leaders /></Perm>} />
+            <Route path="leaders" element={<Perm perm="leaders"><Leaders /></Perm>} />
             <Route path="updates" element={<Perm perm="content"><Updates /></Perm>} />
             <Route path="members" element={<Perm perm="members"><Members /></Perm>} />
             <Route path="messages" element={<Perm perm="messages"><Messages /></Perm>} />

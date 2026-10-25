@@ -55,6 +55,8 @@
     "photoNeeded": "Please choose your photo",
     "assemblyNo": "Assembly constituency number (optional)",
     "lokSabhaNo": "Lok Sabha constituency number (optional)",
+    "states": "States",
+    "uts": "Union territories",
     "constituencyHint": "You can usually find these on your voter ID or on the Election Commission website. Leave blank if you do not know."
   },
   "about": {

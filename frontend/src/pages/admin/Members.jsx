@@ -4,6 +4,7 @@ import { api } from '../../lib/api.js'
 import { portrait } from '../../lib/img.js'
 import { PageHeader, Notice, Pill } from './ui.jsx'
 import Icon from '../../components/Icon.jsx'
+import { stateByCode } from '../../data/states.js'
 
 const FILTERS = [['pending', '⏳ Pending'], ['approved', '✅ Approved'], ['rejected', '❌ Rejected']]
 const TONE = { pending: 'gold', approved: 'green', rejected: 'red' }
@@ -40,7 +41,8 @@ function whatsappLink(m) {
 
 
 export default function Members() {
-  const { refresh } = useOutletContext()
+  const { refresh, me } = useOutletContext()
+  const myState = me.role === 'stateadmin' ? stateByCode(me.state) : null
   const [status, setStatus] = useState('pending')
   const [items, setItems] = useState(null)
   const [error, setError] = useState('')
@@ -132,6 +134,12 @@ export default function Members() {
         )}
       </PageHeader>
 
+      {myState && (
+        <p className="mb-4 flex items-center gap-2 rounded-xl bg-mist px-4 py-2.5 text-sm font-semibold text-brand">
+          📍 You are seeing only members from {myState.en}.
+        </p>
+      )}
+
       <div role="group" aria-label="Filter by status" className="mb-5 flex w-full gap-1 rounded-2xl border border-brand/10 bg-white p-1 shadow-sm sm:inline-flex sm:w-auto">
         {FILTERS.map(([key, label]) => (
           <button key={key} onClick={() => setStatus(key)} aria-pressed={status === key}
@@ -147,10 +155,10 @@ export default function Members() {
             <input type="search" value={q} onChange={(e) => setQ(e.target.value)} placeholder="Search name, phone, email or member no."
               className="input min-h-10 py-2 pl-10" />
           </label>
-          <select aria-label="State" value={stateF} onChange={(e) => { setStateF(e.target.value); setDistrictF('') }} className="input min-h-10 min-w-40 flex-1 py-2">
+          {!myState && <select aria-label="State" value={stateF} onChange={(e) => { setStateF(e.target.value); setDistrictF('') }} className="input min-h-10 min-w-40 flex-1 py-2">
             <option value="">📍 All states</option>
             {states.map((s) => <option key={s} value={s}>{s}</option>)}
-          </select>
+          </select>}
           <select aria-label="District" value={districtF} onChange={(e) => setDistrictF(e.target.value)} className="input min-h-10 min-w-40 flex-1 py-2">
             <option value="">🏘️ All districts</option>
             {districts.map((d) => <option key={d} value={d}>{d}</option>)}

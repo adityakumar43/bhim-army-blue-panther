@@ -22,7 +22,7 @@ const modelFor = (section) => {
     return Object.values(mongoose.models).find((m) => names.includes(m.collection?.name))
 }
 
-const ROLE_NAMES = { superadmin: 'Super admin', editor: 'Content editor', membership: 'Membership manager', finance: 'Finance' }
+const ROLE_NAMES = { superadmin: 'Super admin', editor: 'Content editor', membership: 'Membership manager', finance: 'Finance', stateadmin: 'State admin' }
 
 const nameOf = (doc) => {
     if (!doc || typeof doc !== 'object') return ''
@@ -50,6 +50,7 @@ function describe(section, method, part, body = {}, last = '') {
             if (method === 'POST' && part === 'reset-2fa') return ['security', 'reset two-step login for']
             if (method === 'POST') return ['create', 'added the team member']
             if (method === 'DELETE') return ['delete', 'deleted the account of']
+            if (body.state && !body.role) return ['role', 'changed the state of']
             if (body.role) return ['role', `changed the role to ${ROLE_NAMES[body.role] || 'another role'} for`]
             if (body.active === false) return ['disable', 'disabled the account of']
             if (body.active === true) return ['enable', 'enabled the account of']

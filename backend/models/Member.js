@@ -13,6 +13,7 @@ const memberSchema = new mongoose.Schema(
     city: { type: String, trim: true, maxlength: 100 },
     district: { type: String, trim: true, maxlength: 100 },
     state: { type: String, trim: true, maxlength: 100 },
+    stateCode: { type: String, index: true }, // like 'uttar-pradesh', chosen from the list on the Join form
     message: { type: String, trim: true, maxlength: 500 },
     status: { type: String, enum: ['pending', 'approved', 'rejected'], default: 'pending' },
     memberNo: { type: String, unique: true, sparse: true },

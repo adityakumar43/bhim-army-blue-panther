@@ -4,4 +4,5 @@ export const ROLE_INFO = {
   editor: { label: 'Content editor', desc: 'Publishes and edits news, events and gallery photos only.' },
   membership: { label: 'Membership manager', desc: 'Approves members and reads contact messages.' },
   finance: { label: 'Finance', desc: 'Sees donations and receipts only.' },
+  stateadmin: { label: 'State admin', desc: 'Approves members and manages leaders of one state only.' },
 }

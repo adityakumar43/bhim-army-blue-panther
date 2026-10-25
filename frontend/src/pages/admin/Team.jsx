@@ -2,10 +2,14 @@ import { useEffect, useState } from 'react'
 import { useOutletContext } from 'react-router-dom'
 import { api } from '../../lib/api.js'
 import { ROLE_INFO } from '../../lib/roles.js'
+import { STATES, stateByCode } from '../../data/states.js'
 import { PageHeader, Notice, Pill } from './ui.jsx'
 import Icon from '../../components/Icon.jsx'
 
-const EMPTY = { name: '', email: '', password: '', role: 'editor' }
+
+const EMPTY = { name: '', email: '', password: '', role: 'editor', state: '' }
+const sortedStates = [...STATES].sort((a, b) => a.en.localeCompare(b.en))
+const stateLabel = (code) => stateByCode(code)?.en || code
 
 // Password box with an eye button to show or hide what was typed
 function PasswordInput({ className = '', ...props }) {
@@ -31,6 +35,7 @@ export default function Team() {
   const [resetFor, setResetFor] = useState(null)
   const [newPw, setNewPw] = useState('')
   const [adding, setAdding] = useState(false)
+  const [statePick, setStatePick] = useState(null) // { id, state } while making someone a State admin
 
   const load = () => api.get('/admins').then(setAdmins).catch((e) => setError(e.message))
   useEffect(() => { load() }, [])
@@ -58,7 +63,17 @@ export default function Team() {
     setBusy(false)
   }
 
-  const setRole = (a, role) => run(() => api.patch(`/admins/${a.id}`, { role }), `${a.name} is now ${ROLE_INFO[role].label}.`)
+  const setRole = (a, role) => {
+    // A State admin needs a state first, so ask for it before saving
+    if (role === 'stateadmin') return setStatePick({ id: a.id, state: a.state || '' })
+    setStatePick(null)
+    run(() => api.patch(`/admins/${a.id}`, { role }), `${a.name} is now ${ROLE_INFO[role].label}.`)
+  }
+  const saveStateAdmin = (a) => run(async () => {
+    await api.patch(`/admins/${a.id}`, { role: 'stateadmin', state: statePick.state })
+    setStatePick(null)
+  }, `${a.name} is now State admin for ${stateLabel(statePick?.state)}.`)
+  const setState = (a, state) => run(() => api.patch(`/admins/${a.id}`, { state }), `${a.name} now looks after ${stateLabel(state)}.`)
   const toggle = (a) => run(() => api.patch(`/admins/${a.id}`, { active: !a.active }), a.active ? `${a.name} was disabled.` : `${a.name} was enabled.`)
   const savePw = (a) => run(async () => {
     await api.patch(`/admins/${a.id}`, { password: newPw })
@@ -106,6 +121,14 @@ export default function Team() {
                 {Object.entries(ROLE_INFO).map(([key, r]) => <option key={key} value={key}>{r.label}</option>)}
               </select>
             </label>
+            {form.role === 'stateadmin' && (
+              <label className="flex flex-col gap-1 font-semibold">📍 State
+                <select required value={form.state} onChange={(e) => setForm({ ...form, state: e.target.value })} className="input">
+                  <option value="">Choose...</option>
+                  {sortedStates.map((s) => <option key={s.code} value={s.code}>{s.en}</option>)}
+                </select>
+              </label>
+            )}
           </div>
           <div className="mt-3 flex flex-wrap items-center justify-between gap-3">
             <p className="text-sm text-navy/65">ℹ️ <b>{ROLE_INFO[form.role].label}:</b> {ROLE_INFO[form.role].desc}</p>
@@ -144,7 +167,7 @@ export default function Team() {
                   </div>
                   <div className="truncate text-sm text-navy/65">✉️ {a.email}</div>
                   <div className="mt-1.5 flex flex-wrap gap-1.5">
-                    <Pill tone="gold">{ROLE_INFO[a.role]?.label || a.role}</Pill>
+                    <Pill tone="gold">{ROLE_INFO[a.role]?.label || a.role}{a.state ? ` · 📍 ${stateLabel(a.state)}` : ''}</Pill>
                     <Pill tone={a.twoFactorEnabled ? 'green' : 'gray'}>{a.twoFactorEnabled ? '🔐 2-step on' : '🔓 2-step off'}</Pill>
                     {!a.active && <Pill tone="red">🚫 Disabled</Pill>}
                   </div>
@@ -159,6 +182,27 @@ export default function Team() {
                     {Object.entries(ROLE_INFO).map(([key, r]) => <option key={key} value={key}>{r.label}</option>)}
                   </select>
                 </label>
+                {a.role === 'stateadmin' && statePick?.id !== a.id && (
+                  <label className="mb-2 flex items-center gap-2 text-sm font-semibold text-navy/70">
+                    State
+                    <select aria-label={`State of ${a.name}`} value={a.state || ''} onChange={(e) => setState(a, e.target.value)}
+                      className="input min-h-9 flex-1 py-1 text-sm">
+                      {sortedStates.map((s) => <option key={s.code} value={s.code}>{s.en}</option>)}
+                    </select>
+                  </label>
+                )}
+                {statePick?.id === a.id && (
+                  <div className="mb-2 flex flex-wrap items-center gap-2 rounded-xl bg-gold/15 p-2 text-sm font-semibold">
+                    📍 Which state?
+                    <select aria-label="Choose state" value={statePick.state} onChange={(e) => setStatePick({ ...statePick, state: e.target.value })}
+                      className="input min-h-9 min-w-40 flex-1 py-1 text-sm">
+                      <option value="">Choose...</option>
+                      {sortedStates.map((s) => <option key={s.code} value={s.code}>{s.en}</option>)}
+                    </select>
+                    <button onClick={() => saveStateAdmin(a)} disabled={!statePick.state} className="abtn-primary min-h-9 px-3">Save</button>
+                    <button onClick={() => setStatePick(null)} className="abtn min-h-9 px-3">Cancel</button>
+                  </div>
+                )}
                 <div className="flex flex-wrap gap-2">
                   <button onClick={() => { setResetFor(resetFor === a.id ? null : a.id); setNewPw('') }} className="abtn min-h-9 px-3">
                     🔑 {self ? 'Change my password' : 'Reset password'}
