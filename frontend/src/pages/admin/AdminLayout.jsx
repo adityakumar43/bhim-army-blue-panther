@@ -2,21 +2,22 @@ import { useEffect, useState } from 'react'
 import { Link, NavLink, Outlet, useLocation, useNavigate } from 'react-router-dom'
 import { api } from '../../lib/api.js'
 import { ROLE_INFO } from '../../lib/roles.js'
+import Icon from '../../components/Icon.jsx'
 
 
 const NAV = [
-  { to: '/admin', label: 'Overview', end: true },
-  { to: '/admin/news', label: 'News', perm: 'content' },
-  { to: '/admin/events', label: 'Events', perm: 'content' },
-  { to: '/admin/gallery', label: 'Gallery', perm: 'content' },
-  { to: '/admin/slides', label: 'Home slider', perm: 'content' },
-  { to: '/admin/leaders', label: 'Leadership', perm: 'content' },
-  { to: '/admin/updates', label: 'Home updates', perm: 'content' },
-  { to: '/admin/members', label: 'Members', perm: 'members', badge: 'members' },
-  { to: '/admin/messages', label: 'Messages', perm: 'messages', badge: 'messages' },
-  { to: '/admin/donations', label: 'Donations', perm: 'donations', badge: 'donations' },
-  { to: '/admin/team', label: 'Team & roles', perm: 'admins' },
-  { to: '/admin/security', label: 'Security' },
+  { to: '/admin', label: 'Overview', icon: 'grid', end: true },
+  { to: '/admin/news', label: 'News', icon: 'news', perm: 'content' },
+  { to: '/admin/events', label: 'Events', icon: 'calendar', perm: 'content' },
+  { to: '/admin/gallery', label: 'Gallery', icon: 'image', perm: 'content' },
+  { to: '/admin/slides', label: 'Home slider', icon: 'layers', perm: 'content' },
+  { to: '/admin/leaders', label: 'Leadership', icon: 'award', perm: 'content' },
+  { to: '/admin/updates', label: 'Home updates', icon: 'bell', perm: 'content' },
+  { to: '/admin/members', label: 'Members', icon: 'userPlus', perm: 'members', badge: 'members' },
+  { to: '/admin/messages', label: 'Messages', icon: 'chat', perm: 'messages', badge: 'messages' },
+  { to: '/admin/donations', label: 'Donations', icon: 'heart', perm: 'donations', badge: 'donations' },
+  { to: '/admin/team', label: 'Team & roles', icon: 'users', perm: 'admins' },
+  { to: '/admin/security', label: 'Security', icon: 'shield' },
 ]
 
 export default function AdminLayout() {
@@ -67,31 +68,45 @@ export default function AdminLayout() {
 
   return (
     <div className="min-h-screen bg-[#F3F6FC]">
-      <header className="sticky top-0 z-40 flex items-center justify-between gap-3 bg-navy px-4 py-3 text-white sm:px-6">
+      <header className="sticky top-0 z-40 flex items-center justify-between gap-3 bg-navy px-4 py-2.5 text-white shadow-md sm:px-6">
         <div className="flex min-w-0 items-center gap-3">
+          <img src="/logo.png" alt="" className="h-9 w-9 shrink-0 rounded-lg object-cover" />
           <strong className="truncate">Bhim Army Blue Panther</strong>
-          <span className="hidden bg-gold px-2 py-0.5 text-xs font-extrabold text-navy sm:inline">ADMIN</span>
+          <span className="hidden rounded-md bg-gold px-2 py-0.5 text-xs font-extrabold text-navy sm:inline">ADMIN</span>
         </div>
-        <div className="flex shrink-0 items-center gap-3 text-sm">
-          <span className="hidden max-w-60 truncate sm:block">{me.name} · {ROLE_INFO[me.role]?.label}</span>
-          <Link to="/" className="underline">View site</Link>
-          <button onClick={logout} className="border border-white/60 px-3 py-1.5 font-semibold">Log out</button>
+        <div className="flex shrink-0 items-center gap-2 text-sm">
+          <div className="hidden items-center gap-2 md:flex">
+            <span aria-hidden="true" className="flex h-9 w-9 items-center justify-center rounded-full bg-brand font-extrabold text-white ring-2 ring-gold/70">
+              {me.name?.[0]?.toUpperCase()}
+            </span>
+            <span className="max-w-48 leading-tight">
+              <span className="block truncate font-semibold">{me.name}</span>
+              <span className="block truncate text-xs text-white/60">{ROLE_INFO[me.role]?.label}</span>
+            </span>
+          </div>
+          <Link to="/" title="View site" className="flex h-9 items-center gap-1.5 rounded-lg px-2.5 font-semibold text-white/85 hover:bg-white/10 hover:text-white">
+            <Icon name="external" size={16} /><span className="hidden sm:inline">View site</span>
+          </Link>
+          <button onClick={logout} title="Log out" className="flex h-9 items-center gap-1.5 rounded-lg border border-white/25 px-3 font-semibold hover:border-red-300 hover:bg-red-500/15">
+            <Icon name="logout" size={16} /><span className="hidden sm:inline">Log out</span>
+          </button>
         </div>
       </header>
 
       <div className="mx-auto flex max-w-350 flex-col lg:flex-row">
         <nav aria-label="Admin" className="border-b border-brand/15 bg-white lg:min-h-[calc(100vh-3.5rem)] lg:w-60 lg:shrink-0 lg:border-r lg:border-b-0">
-          <ul className="flex gap-1 overflow-x-auto p-2 lg:flex-col lg:overflow-visible lg:p-3">
+          <ul className="flex gap-1 overflow-x-auto p-2 lg:sticky lg:gap-0.5 lg:top-14 lg:flex-col lg:overflow-visible lg:p-3">
             {items.map((n) => {
               const count = n.badge ? summary[n.badge] : 0
               return (
                 <li key={n.to} className="shrink-0">
                   <NavLink to={n.to} end={n.end}
                     className={({ isActive }) =>
-                      `flex min-h-11 items-center justify-between gap-3 px-4 font-semibold whitespace-nowrap ${isActive ? 'bg-brand text-white' : 'hover:bg-mist'}`}>
-                    {n.label}
+                      `group flex min-h-10 items-center gap-3 rounded-xl px-3 text-[15px] font-semibold whitespace-nowrap transition ${isActive ? 'bg-brand text-white shadow-md shadow-brand/25' : 'text-navy/75 hover:bg-mist hover:text-brand'}`}>
+                    <Icon name={n.icon} size={18} className="shrink-0" />
+                    <span className="flex-1">{n.label}</span>
                     {count > 0 && (
-                      <span className="rounded-full bg-gold px-2 text-sm font-extrabold text-navy">{count}</span>
+                      <span className="min-w-6 rounded-full bg-gold px-1.5 text-center text-xs leading-6 font-extrabold text-navy">{count}</span>
                     )}
                   </NavLink>
                 </li>
@@ -100,7 +115,7 @@ export default function AdminLayout() {
           </ul>
         </nav>
 
-        <main className="min-w-0 flex-1 p-4 sm:p-6 lg:p-8">
+        <main className="admin-main min-w-0 flex-1 p-4 sm:p-6 lg:px-8">
           {(!locked || pathname === '/admin/security') && <Outlet context={{ me, summary, refresh, refreshMe }} />}
         </main>
       </div>
