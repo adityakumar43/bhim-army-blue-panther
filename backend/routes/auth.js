@@ -9,6 +9,7 @@ import { protect } from '../middleware/auth.js'
 import { ROLES, needsTwoFactor } from '../config/roles.js'
 import { encrypt } from '../config/crypto.js'
 import { verifyCode } from '../services/twofactor.js'
+import { recordLogin } from '../services/loginlog.js'
 
 const router = Router()
 
@@ -62,13 +63,18 @@ router.post('/login', limiter(10), async (req, res) => {
   }
 
   const admin = await Admin.findOne({ email: String(email).toLowerCase() }).select('+password')
-  if (admin && isLocked(admin)) return lockedReply(res)
+  if (admin && isLocked(admin)) {
+    recordLogin(req, { admin, success: false, reason: 'account locked (too many wrong tries)' })
+    return lockedReply(res)
+  }
 
   if (!admin || !(await admin.matchPassword(password))) {
     if (admin) await recordFailure(admin)
+    recordLogin(req, { admin, email, success: false, reason: admin ? 'wrong password' : 'unknown email' })
     return res.status(401).json({ message: 'Wrong email or password' })
   }
   if (admin.active === false) {
+    recordLogin(req, { admin, success: false, reason: 'account disabled' })
     return res.status(403).json({ message: 'This account is disabled. Ask a super admin.' })
   }
   await clearFailures(admin)
@@ -77,6 +83,7 @@ router.post('/login', limiter(10), async (req, res) => {
     const challenge = jwt.sign({ id: admin._id }, challengeSecret(), { expiresIn: '5m' })
     return res.json({ needs2fa: true, challenge })
   }
+  recordLogin(req, { admin, success: true, reason: 'with password' })
   res.json({ token: await sign(admin._id), admin: profile(admin) })
 })
 
@@ -94,15 +101,20 @@ router.post('/login/2fa', limiter(10), async (req, res) => {
 
   const admin = await Admin.findById(id).select('+twoFactorSecret')
   if (!admin || admin.active === false || !admin.twoFactorEnabled) return expired()
-  if (isLocked(admin)) return lockedReply(res)
+  if (isLocked(admin)) {
+    recordLogin(req, { admin, success: false, reason: 'account locked (too many wrong tries)' })
+    return lockedReply(res)
+  }
 
   const step = verifyCode(admin.twoFactorSecret, code, admin.twoFactorLastStep)
   if (step === null) {
     await recordFailure(admin)
+    recordLogin(req, { admin, success: false, reason: 'wrong 2-step code' })
     return res.status(401).json({ message: 'That code is not correct. Try the newest code in your app.' })
   }
 
   await Admin.updateOne({ _id: admin._id }, { $set: { twoFactorLastStep: step, failedLogins: 0 }, $unset: { lockUntil: 1 } })
+  recordLogin(req, { admin, success: true, reason: 'with 2-step code' })
   res.json({ token: await sign(admin._id), admin: profile(admin) })
 })
 

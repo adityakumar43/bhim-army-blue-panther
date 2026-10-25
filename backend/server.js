@@ -15,6 +15,7 @@ import adminRoutes from './routes/admin.js'
 import adminsRoutes from './routes/admins.js'
 import activityRoutes from './routes/activity.js'
 import backupRoutes from './routes/backup.js'
+import loginRoutes from './routes/logins.js'
 import { activityLog } from './middleware/activity.js'
 import { News, Event, Gallery, Slide } from './models/Content.js'
 
@@ -69,6 +70,7 @@ app.use('/api/admin', adminRoutes)
 app.use('/api/admins', adminsRoutes)
 app.use('/api/activity', activityRoutes)
 app.use('/api/backup', backupRoutes)
+app.use('/api/logins', loginRoutes)
 
 app.use((req, res) => res.status(404).json({ message: 'Not found' }))
 app.use((err, req, res, next) => {

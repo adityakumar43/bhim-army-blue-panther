@@ -3,6 +3,7 @@ import { useOutletContext } from 'react-router-dom'
 import { api } from '../../lib/api.js'
 import { PageHeader, Notice, Pill } from './ui.jsx'
 import Icon from '../../components/Icon.jsx'
+import LoginHistory from './LoginHistory.jsx'
 
 export default function Security() {
   const [enabled, setEnabled] = useState(null)
@@ -161,6 +162,12 @@ export default function Security() {
           </aside>
         </div>
       )}
+
+      <section className="mt-6">
+        <h2 className="mb-1 text-lg font-extrabold">🕘 Your recent logins</h2>
+        <p className="mb-3 text-sm text-navy/60">If you see a login you don't recognise, change your password at once and tell a super admin.</p>
+        <LoginHistory mine limit={10} />
+      </section>
     </>
   )
 }

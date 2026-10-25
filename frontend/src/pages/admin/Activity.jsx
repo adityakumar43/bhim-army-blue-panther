@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react'
 import { api } from '../../lib/api.js'
 import { PageHeader, Notice } from './ui.jsx'
+import LoginHistory from './LoginHistory.jsx'
 
 const SECTIONS = [
   ['news', 'News'], ['events', 'Events'], ['gallery', 'Gallery'], ['slides', 'Home slider'],
@@ -35,6 +36,7 @@ export default function Activity() {
   const [section, setSection] = useState('')
   const [error, setError] = useState('')
   const [busy, setBusy] = useState(false)
+  const [tab, setTab] = useState('changes')
 
   const query = (before) => {
     const p = new URLSearchParams()
@@ -73,55 +75,69 @@ export default function Activity() {
 
   return (
     <>
-      <PageHeader title="Activity log" subtitle="Every change made in the admin panel: who did it and when. Kept for one year." />
+      <PageHeader title="Activity log" subtitle="Every change made in the admin panel, and every login: who, what and when." />
 
-      <div className="card mb-5 flex flex-wrap items-center gap-2 p-3 sm:p-3">
-        <select aria-label="Person" value={person} onChange={(e) => setPerson(e.target.value)} className="input min-h-10 min-w-48 flex-1 py-2">
-          <option value="">👤 Everyone</option>
-          {people.map((p) => <option key={p.id} value={p.id}>{p.name}</option>)}
-        </select>
-        <select aria-label="Section" value={section} onChange={(e) => setSection(e.target.value)} className="input min-h-10 min-w-48 flex-1 py-2">
-          <option value="">📂 All sections</option>
-          {SECTIONS.map(([key, label]) => <option key={key} value={key}>{label}</option>)}
-        </select>
-      </div>
-
-      <Notice>{error}</Notice>
-      {!items && !error && <p>Loading...</p>}
-      {items?.length === 0 && <p className="card text-center text-navy/70">📭 Nothing recorded yet. Changes made from now on will appear here.</p>}
-
-      <div className="flex flex-col gap-5">
-        {days.map((day) => (
-          <section key={day.label}>
-            <h2 className="mb-2 text-sm font-bold tracking-wide text-navy/60 uppercase">📅 {day.label}</h2>
-            <ul className="card divide-y divide-brand/10 p-0 sm:p-0">
-              {day.list.map((it) => {
-                const [emoji, tile] = LOOK[it.action] || ['•', 'bg-mist']
-                return (
-                  <li key={it._id} className="flex items-start gap-3 px-4 py-3">
-                    <span aria-hidden="true" className={`flex h-9 w-9 shrink-0 items-center justify-center rounded-xl ${tile}`}>{emoji}</span>
-                    <div className="min-w-0 flex-1">
-                      <p className="text-navy/90">
-                        <b>{it.adminName || 'An admin'}</b> {it.text}
-                        {it.target && <> <b className="text-brand">“{it.target}”</b></>}
-                      </p>
-                      <p className="text-xs text-navy/55">
-                        🕒 {time(it.createdAt)}
-                        {SECTION_NAME[it.section] && <> · {SECTION_NAME[it.section]}</>}
-                      </p>
-                    </div>
-                  </li>
-                )
-              })}
-            </ul>
-          </section>
+      <div role="tablist" className="mb-5 inline-flex gap-1 rounded-2xl border border-brand/10 bg-white p-1 shadow-sm">
+        {[['changes', '📝 Changes'], ['logins', '🔑 Logins']].map(([key, label]) => (
+          <button key={key} role="tab" aria-selected={tab === key} onClick={() => setTab(key)}
+            className={`min-h-10 rounded-xl px-5 text-sm font-semibold transition ${tab === key ? 'bg-brand text-white shadow-md shadow-brand/25' : 'text-navy/70 hover:bg-mist'}`}>
+            {label}
+          </button>
         ))}
       </div>
 
-      {more && (
-        <div className="mt-5 text-center">
-          <button onClick={loadMore} disabled={busy} className="abtn">{busy ? 'Loading...' : '⬇️ Load older activity'}</button>
-        </div>
+      {tab === 'logins' ? <LoginHistory /> : (
+        <>
+
+          <div className="card mb-5 flex flex-wrap items-center gap-2 p-3 sm:p-3">
+            <select aria-label="Person" value={person} onChange={(e) => setPerson(e.target.value)} className="input min-h-10 min-w-48 flex-1 py-2">
+              <option value="">👤 Everyone</option>
+              {people.map((p) => <option key={p.id} value={p.id}>{p.name}</option>)}
+            </select>
+            <select aria-label="Section" value={section} onChange={(e) => setSection(e.target.value)} className="input min-h-10 min-w-48 flex-1 py-2">
+              <option value="">📂 All sections</option>
+              {SECTIONS.map(([key, label]) => <option key={key} value={key}>{label}</option>)}
+            </select>
+          </div>
+
+          <Notice>{error}</Notice>
+          {!items && !error && <p>Loading...</p>}
+          {items?.length === 0 && <p className="card text-center text-navy/70">📭 Nothing recorded yet. Changes made from now on will appear here.</p>}
+
+          <div className="flex flex-col gap-5">
+            {days.map((day) => (
+              <section key={day.label}>
+                <h2 className="mb-2 text-sm font-bold tracking-wide text-navy/60 uppercase">📅 {day.label}</h2>
+                <ul className="card divide-y divide-brand/10 p-0 sm:p-0">
+                  {day.list.map((it) => {
+                    const [emoji, tile] = LOOK[it.action] || ['•', 'bg-mist']
+                    return (
+                      <li key={it._id} className="flex items-start gap-3 px-4 py-3">
+                        <span aria-hidden="true" className={`flex h-9 w-9 shrink-0 items-center justify-center rounded-xl ${tile}`}>{emoji}</span>
+                        <div className="min-w-0 flex-1">
+                          <p className="text-navy/90">
+                            <b>{it.adminName || 'An admin'}</b> {it.text}
+                            {it.target && <> <b className="text-brand">“{it.target}”</b></>}
+                          </p>
+                          <p className="text-xs text-navy/55">
+                            🕒 {time(it.createdAt)}
+                            {SECTION_NAME[it.section] && <> · {SECTION_NAME[it.section]}</>}
+                          </p>
+                        </div>
+                      </li>
+                    )
+                  })}
+                </ul>
+              </section>
+            ))}
+          </div>
+
+          {more && (
+            <div className="mt-5 text-center">
+              <button onClick={loadMore} disabled={busy} className="abtn">{busy ? 'Loading...' : '⬇️ Load older activity'}</button>
+            </div>
+          )}
+        </>
       )}
     </>
   )
