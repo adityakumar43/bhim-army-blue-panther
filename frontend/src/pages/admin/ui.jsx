@@ -5,7 +5,7 @@ import Icon from '../../components/Icon.jsx'
 const PAGE_ICON = {
   '/admin/news': 'news', '/admin/events': 'calendar', '/admin/gallery': 'image', '/admin/slides': 'layers',
   '/admin/leaders': 'award', '/admin/updates': 'bell', '/admin/members': 'userPlus', '/admin/messages': 'chat',
-  '/admin/donations': 'heart', '/admin/team': 'users', '/admin/security': 'shield', '/admin/activity': 'activity',
+  '/admin/donations': 'heart', '/admin/team': 'users', '/admin/security': 'shield', '/admin/activity': 'activity', '/admin/backup': 'download',
 }
 
 // Page title card. The icon is picked from the page address, so pages don't need to pass one.

@@ -32,6 +32,7 @@ import Leaders from './pages/admin/Leaders.jsx'
 import Updates from './pages/admin/Updates.jsx'
 import Security from './pages/admin/Security.jsx'
 import Activity from './pages/admin/Activity.jsx'
+import Backup from './pages/admin/Backup.jsx'
 
 export default function App() {
 
@@ -75,6 +76,7 @@ export default function App() {
             <Route path="donations" element={<Perm perm="donations"><Donations /></Perm>} />
             <Route path="team" element={<Perm perm="admins"><Team /></Perm>} />
             <Route path="activity" element={<Perm perm="admins"><Activity /></Perm>} />
+            <Route path="backup" element={<Perm perm="admins"><Backup /></Perm>} />
             <Route path="security" element={<Security />} />
           </Route>
         </Routes>
