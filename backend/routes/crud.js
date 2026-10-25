@@ -13,23 +13,51 @@ export default function crud(Model, { fields, sort, filterFields = [], requireTi
     return data
   }
 
-  router.get('/', async (req, res) => {
+  // Drafts and posts scheduled for later are hidden from the public website
+  const visible = () => ({ draft: { $ne: true }, $or: [{ publishAt: null }, { publishAt: { $lte: new Date() } }] })
+  // ?all=1 also shows drafts and scheduled posts, but only to staff who can edit content
+  const staffView = (req, res, next) =>
+    req.query.all === '1' ? protect(req, res, () => requirePermission('content')(req, res, next)) : next()
+
+  // Reads "Publish now", "Schedule for later" or "Save as draft" from the form
+  function publishing(body) {
+    const out = {}
+    if (body.draft !== undefined) out.draft = body.draft === 'true' || body.draft === true
+    if (body.publishAt !== undefined) {
+      if (!body.publishAt) out.publishAt = null
+      else {
+        const text = String(body.publishAt)
+        // A time typed in the form has no time zone, so it is Indian time
+        const when = new Date(/[zZ]$|[+-]\d\d:?\d\d$/.test(text) ? text : `${text}+05:30`)
+        if (Number.isNaN(when.getTime())) {
+          const err = new Error('Choose a valid date and time')
+          err.status = 400
+          throw err
+        }
+        out.publishAt = when
+      }
+    }
+    return out
+  }
+
+
+  router.get('/', staffView, async (req, res) => {
     const limit = Math.min(Number(req.query.limit) || 50, 100)
     const skip = Math.max(Number(req.query.skip) || 0, 0)
     // Only the listed fields can be filtered, and only by plain text (so nobody can sneak in a database operator)
-    const filter = {}
+    const filter = req.query.all === '1' ? {} : visible()
     for (const f of filterFields) if (req.query[f]) filter[f] = String(req.query[f])
     res.json(await Model.find(filter).sort(sort).skip(skip).limit(limit))
   })
 
-  router.get('/:id', async (req, res) => {
-    const item = await Model.findById(req.params.id).catch(() => null)
+  router.get('/:id', staffView, async (req, res) => {
+    const item = await Model.findOne({ _id: req.params.id, ...(req.query.all === '1' ? {} : visible()) }).catch(() => null)
     if (!item) return res.status(404).json({ message: 'Not found' })
     res.json(item)
   })
 
   router.post('/', protect, requirePermission('content'), upload.single('image'), async (req, res) => {
-    const data = pick(req.body)
+    const data = { ...pick(req.body), ...publishing(req.body) }
     if (requireTitle && !data.titleHi && !data.titleEn) {
       return res.status(400).json({ message: 'Add a title in Hindi or English' })
     }
@@ -55,6 +83,9 @@ export default function crud(Model, { fields, sort, filterFields = [], requireTi
       if (f === 'date' && v === '') continue
       item.set(f, v)
     }
+
+    for (const [k, v] of Object.entries(publishing(req.body))) item.set(k, v)
+
     if (requireTitle && !item.titleHi && !item.titleEn) {
       return res.status(400).json({ message: 'Add a title in Hindi or English' })
     }

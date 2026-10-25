@@ -34,6 +34,12 @@ KINDS.slides = {
   },
 }
 
+// Publishing: live now, scheduled for later, or a draft (Indian time)
+const toInput = (d) => new Date(d).toLocaleString('sv-SE', { timeZone: 'Asia/Kolkata' }).replace(' ', 'T').slice(0, 16)
+const statusOf = (it) => (it.draft ? 'draft' : it.publishAt && new Date(it.publishAt) > new Date() ? 'scheduled' : 'live')
+const niceTime = (d) => new Date(d).toLocaleString('en-IN', { dateStyle: 'medium', timeStyle: 'short', timeZone: 'Asia/Kolkata' })
+const WHEN = [['now', '🚀 Publish now'], ['later', '🕒 Schedule'], ['draft', '📝 Save as draft']]
+
 const ADD_LABEL = { news: 'Add news', events: 'Add event', gallery: 'Add photo', slides: 'Add slide' }
 
 const LABELS = {
@@ -53,6 +59,8 @@ export default function Content({ kind }) {
   const [formKey, setFormKey] = useState(0)
   const [preview, setPreview] = useState('')
   const [adding, setAdding] = useState(false)
+  const [when, setWhen] = useState('now')
+  const [at, setAt] = useState('')
 
   // Small preview of the photo chosen in the form
   useEffect(() => {
@@ -62,7 +70,7 @@ export default function Content({ kind }) {
     return () => URL.revokeObjectURL(url)
   }, [file])
 
-  const load = () => api.get(`${config.endpoint}?limit=100`).then(setItems).catch((e) => setError(e.message))
+  const load = () => api.get(`${config.endpoint}?limit=100&all=1`).then(setItems).catch((e) => setError(e.message))
   useEffect(() => { load() }, [config.endpoint])
 
   function reset() {
@@ -70,6 +78,8 @@ export default function Content({ kind }) {
     setFile(null)
     setEditing(null)
     setAdding(false)
+    setWhen('now')
+    setAt('')
     setFormKey((k) => k + 1) // remounts the form so the inputs empty out
   }
 
@@ -79,6 +89,9 @@ export default function Content({ kind }) {
       values[f] = f === 'date' && item.date ? item.date.slice(0, 10) : item[f] || ''
     })
     setForm(values)
+    const st = statusOf(item)
+    setWhen(st === 'live' ? 'now' : st === 'scheduled' ? 'later' : 'draft')
+    setAt(item.publishAt ? toInput(item.publishAt) : '')
     setFile(null)
     setEditing(item)
     setError('')
@@ -94,6 +107,9 @@ export default function Content({ kind }) {
       const data = new FormData()
       // Empty values are sent too, so a field can be cleared while editing.
       config.fields.forEach((f) => data.append(f, form[f] ?? ''))
+      if (when === 'later' && !at) throw new Error('Choose the date and time to publish')
+      data.append('draft', String(when === 'draft'))
+      data.append('publishAt', when === 'later' ? at : '')
       // A gallery photo is "general" unless marked Adivasi, and the extra boxes only belong to the Adivasi section
       if (kind === 'gallery') {
         data.set('section', form.section === 'adivasi' ? 'adivasi' : 'general')
@@ -168,6 +184,25 @@ export default function Content({ kind }) {
               )
             })}
             <div className="sm:col-span-2">
+              <p className="mb-1 text-sm font-semibold">When should it go live?</p>
+              <div role="group" aria-label="When should it go live?" className="flex flex-wrap gap-1 rounded-xl bg-mist/60 p-1">
+                {WHEN.map(([key, label]) => (
+                  <button key={key} type="button" onClick={() => { setWhen(key); if (key === 'later' && !at) setAt(toInput(Date.now() + 3600e3)) }}
+                    aria-pressed={when === key}
+                    className={`min-h-9 flex-1 rounded-lg px-3 text-sm font-semibold transition ${when === key ? 'bg-brand text-white shadow-sm' : 'text-navy/65 hover:bg-white hover:text-navy'}`}>
+                    {label}
+                  </button>
+                ))}
+              </div>
+              {when === 'later' && (
+                <label className="mt-2 flex flex-col gap-1 font-semibold">Publish on (Indian time)
+                  <input type="datetime-local" required value={at} min={toInput(Date.now())} onChange={(e) => setAt(e.target.value)} className="input" />
+                </label>
+              )}
+              {when === 'draft' && <p className="mt-1.5 text-xs text-navy/60">Only admins can see drafts. Publish it later by editing it.</p>}
+            </div>
+
+            <div className="sm:col-span-2">
               <p className="mb-1 text-sm font-semibold">
                 {editing ? 'Replace image (leave empty to keep the current one)' : `Image ${config.needImage ? '(required)' : '(optional)'}`}
               </p>
@@ -188,14 +223,14 @@ export default function Content({ kind }) {
           <div className="mt-4 flex justify-end gap-2">
             <button type="button" onClick={reset} className="abtn min-h-11">Cancel</button>
             <button disabled={busy} className="abtn-primary min-h-11 px-6">
-              {busy ? 'Saving...' : editing ? '💾 Save changes' : '✅ Publish'}
+              {busy ? 'Saving...' : when === 'draft' ? '📝 Save draft' : when === 'later' ? '🕒 Schedule' : editing ? '💾 Save changes' : '✅ Publish'}
             </button>
           </div>
         </form>
       )}
 
       {!showForm && <Notice>{error}</Notice>}
-      <h2 className="mb-3 text-lg font-extrabold">📋 Published {items && `(${items.length})`}</h2>
+      <h2 className="mb-3 text-lg font-extrabold">📋 All items {items && `(${items.length})`}</h2>
       {!items && <p>Loading...</p>}
       {items?.length === 0 && <p className="card text-center text-navy/70">📭 Nothing published yet. Click "{ADD_LABEL[kind]}" to add the first one.</p>}
       <ul className="grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
@@ -206,6 +241,8 @@ export default function Content({ kind }) {
               <div className="line-clamp-2 font-bold">{it.titleHi || it.titleEn || config.untitled || '(no title)'}</div>
               {it.titleHi && it.titleEn && <div className="line-clamp-1 text-sm text-navy/60">{it.titleEn}</div>}
               <div className="mt-2 flex flex-wrap gap-1.5 text-xs">
+                {statusOf(it) === 'draft' && <span className="rounded-full bg-navy/10 px-2 py-0.5 font-semibold text-navy">📝 Draft</span>}
+                {statusOf(it) === 'scheduled' && <span className="rounded-full bg-gold/25 px-2 py-0.5 font-semibold text-navy">🕒 Goes live {niceTime(it.publishAt)}</span>}
                 {it.date && <span className="rounded-full bg-mist px-2 py-0.5 font-semibold text-brand">📅 {new Date(it.date).toLocaleDateString('en-IN')}</span>}
                 {it.location && <span className="rounded-full bg-mist px-2 py-0.5 font-semibold text-brand">📍 {it.location}</span>}
                 {it.order != null && <span className="rounded-full bg-mist px-2 py-0.5 font-semibold text-brand">#{it.order}</span>}

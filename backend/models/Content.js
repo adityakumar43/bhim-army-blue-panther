@@ -8,6 +8,8 @@ function makeModel(name, extra = {}) {
       bodyHi: { type: String, trim: true },
       bodyEn: { type: String, trim: true },
       image: { url: String, publicId: String },
+      draft: { type: Boolean, default: false },
+      publishAt: { type: Date, default: null }, // hidden from the public website until this time
       ...extra,
     },
     { timestamps: true }
