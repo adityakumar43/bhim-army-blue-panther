@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react'
 import { useOutletContext } from 'react-router-dom'
 import { api } from '../../lib/api.js'
 import { PageHeader, Notice, Pill } from './ui.jsx'
+import Icon from '../../components/Icon.jsx'
 
 export default function Security() {
   const [enabled, setEnabled] = useState(null)
@@ -46,11 +47,19 @@ export default function Security() {
     })
   }
 
+  const codeBox = 'input text-center text-lg font-bold tracking-[0.4em] placeholder:tracking-[0.4em]'
+  const STEPS = [
+    ['📲', 'Install an authenticator app on your phone (Google Authenticator, Microsoft Authenticator or Authy).'],
+    ['📷', 'In the app, choose to add an account and scan this picture.'],
+    ['🔢', 'Type the 6-digit code the app shows.'],
+  ]
+
   return (
     <>
       <PageHeader title="Security" subtitle="Protect your account so a stolen password is not enough to log in." />
       {me.twoFactorRequired && !enabled && (
-        <p role="alert" className="mb-4 border border-gold bg-gold/20 p-3 font-semibold">
+        <p role="alert" className="mb-4 flex items-start gap-2 rounded-xl border border-gold bg-gold/15 p-3 font-semibold">
+          <span aria-hidden="true">⚠️</span>
           Two-step login is required for your role. Set it up now to continue using the admin panel.
         </p>
       )}
@@ -59,65 +68,98 @@ export default function Security() {
       {enabled === null && !error && <p>Loading...</p>}
 
       {enabled !== null && (
-        <section className="card max-w-2xl">
-          <div className="mb-4 flex flex-wrap items-center gap-3">
-            <h2 className="text-xl font-extrabold">Two-step login</h2>
-            <Pill tone={enabled ? 'green' : 'gold'}>{enabled ? 'ON' : 'OFF'}</Pill>
-          </div>
-
-          {!enabled && !setup && (
-            <>
-              <p className="mb-4">
-                After your password, the site asks for a 6-digit code that changes every 30 seconds and appears only on your phone.
-                Someone who learns your password still cannot log in.
-              </p>
-              <button onClick={start} disabled={busy} className="abtn-primary">Set up two-step login</button>
-            </>
-          )}
-
-          {!enabled && setup && (
-            <form onSubmit={enable} className="flex flex-col gap-4">
-              <ol className="list-decimal pl-5">
-                <li>Install an authenticator app on your phone (Google Authenticator, Microsoft Authenticator or Authy).</li>
-                <li>In the app, choose to add an account and scan this picture.</li>
-                <li>Type the 6-digit code the app shows.</li>
-              </ol>
-              <img src={setup.qr} alt="QR code for your authenticator app" className="h-52 w-52 border border-brand/15" />
-              <p className="text-sm">Cannot scan? Type this key into the app instead: <code className="break-all font-semibold">{setup.secret}</code></p>
-              <label className="flex flex-col gap-1 font-semibold">6-digit code
-                <input inputMode="numeric" autoComplete="one-time-code" required maxLength="7" placeholder="123456"
-                  value={code} onChange={(e) => setCode(e.target.value)} className="input max-w-xs" />
-              </label>
-              <div className="flex gap-3">
-                <button disabled={busy} className="abtn-primary">Turn on</button>
-                <button type="button" onClick={() => { setSetup(null); setCode('') }} className="abtn">Cancel</button>
+        <div className="grid items-start gap-6 lg:grid-cols-[minmax(0,1fr)_18rem]">
+          <section className="card">
+            {/* Status */}
+            <div className={`mb-5 flex items-center gap-4 rounded-2xl p-4 ${enabled ? 'bg-green-50' : 'bg-gold/10'}`}>
+              <span aria-hidden="true" className={`flex h-14 w-14 shrink-0 items-center justify-center rounded-2xl text-white shadow-md ${enabled ? 'bg-green-600' : 'bg-gold'}`}>
+                <Icon name={enabled ? 'shield' : 'lock'} size={28} />
+              </span>
+              <div className="min-w-0 flex-1">
+                <div className="flex flex-wrap items-center gap-2">
+                  <h2 className="text-xl font-extrabold">🔐 Two-step login</h2>
+                  <Pill tone={enabled ? 'green' : 'gold'}>{enabled ? '✅ ON' : '⚠️ OFF'}</Pill>
+                </div>
+                <p className="text-sm text-navy/70">
+                  {enabled ? 'Your account is protected by your password and a code from your phone.' : 'Your account is protected by a password only.'}
+                </p>
               </div>
-            </form>
-          )}
+            </div>
 
+            {!enabled && !setup && (
+              <>
+                <p className="mb-4 text-navy/85">
+                  After your password, the site asks for a 6-digit code that changes every 30 seconds and appears only on your phone.
+                  Someone who learns your password still cannot log in.
+                </p>
+                <button onClick={start} disabled={busy} className="abtn-primary min-h-11 px-5">🚀 Set up two-step login</button>
+              </>
+            )}
 
-          {enabled && me.twoFactorRequired && (
-            <p>Two-step login is required for your role, so it cannot be turned off. If you change phones, ask another super admin to reset it, then set it up again.</p>
-          )}
+            {!enabled && setup && (
+              <form onSubmit={enable} className="grid gap-5 md:grid-cols-[minmax(0,1fr)_auto]">
+                <ol className="flex flex-col gap-2">
+                  {STEPS.map(([emoji, text], i) => (
+                    <li key={i} className="flex items-start gap-3 rounded-xl bg-mist/50 p-3 text-sm">
+                      <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-brand text-xs font-bold text-white">{i + 1}</span>
+                      <span><span aria-hidden="true">{emoji} </span>{text}</span>
+                    </li>
+                  ))}
+                </ol>
+                <div className="flex flex-col items-center gap-2 md:row-span-2">
+                  <img src={setup.qr} alt="QR code for your authenticator app" className="h-48 w-48 rounded-xl border border-brand/15 bg-white p-2 shadow-sm" />
+                  <p className="max-w-48 text-center text-xs text-navy/60">Cannot scan? Type this key into the app instead:</p>
+                  <code className="max-w-48 rounded-lg bg-mist px-2 py-1 text-center text-xs font-semibold break-all">{setup.secret}</code>
+                </div>
+                <div className="flex flex-col gap-3">
+                  <label className="flex flex-col gap-1 text-sm font-semibold">6-digit code
+                    <input inputMode="numeric" autoComplete="one-time-code" required maxLength="7" placeholder="123456"
+                      value={code} onChange={(e) => setCode(e.target.value)} className={`${codeBox} max-w-xs`} />
+                  </label>
+                  <div className="flex gap-3">
+                    <button disabled={busy} className="abtn-primary min-h-11 px-5">✅ Turn on</button>
+                    <button type="button" onClick={() => { setSetup(null); setCode('') }} className="abtn min-h-11">Cancel</button>
+                  </div>
+                </div>
+              </form>
+            )}
 
-          {enabled && !me.twoFactorRequired && (
-            <form onSubmit={disable} className="flex flex-col gap-4">
-              <p>To turn it off, enter your password and the current code from your app.</p>
-              <label className="flex flex-col gap-1 font-semibold">Password
-                <input type="password" required autoComplete="current-password" value={password}
-                  onChange={(e) => setPassword(e.target.value)} className="input max-w-xs" />
-              </label>
-              <label className="flex flex-col gap-1 font-semibold">6-digit code
-                <input inputMode="numeric" autoComplete="one-time-code" required maxLength="7" value={code}
-                  onChange={(e) => setCode(e.target.value)} className="input max-w-xs" />
-              </label>
-              <div><button disabled={busy} className="abtn-danger">Turn off two-step login</button></div>
-              <p className="text-sm text-navy/70">
-                Lost your phone? Another super admin can reset it from the Team &amp; roles page.
+            {enabled && me.twoFactorRequired && (
+              <p className="rounded-xl bg-mist/60 p-3 text-sm text-navy/80">
+                🛡️ Two-step login is required for your role, so it cannot be turned off. If you change phones, ask another super admin to reset it, then set it up again.
               </p>
-            </form>
-          )}
-        </section>
+            )}
+
+            {enabled && !me.twoFactorRequired && (
+              <form onSubmit={disable} className="flex flex-col gap-3">
+                <p className="text-sm text-navy/80">To turn it off, enter your password and the current code from your app.</p>
+                <div className="grid gap-3 sm:grid-cols-2">
+                  <label className="flex flex-col gap-1 font-semibold">Password
+                    <input type="password" required autoComplete="current-password" value={password}
+                      onChange={(e) => setPassword(e.target.value)} className="input" />
+                  </label>
+                  <label className="flex flex-col gap-1 font-semibold">6-digit code
+                    <input inputMode="numeric" autoComplete="one-time-code" required maxLength="7" placeholder="123456" value={code}
+                      onChange={(e) => setCode(e.target.value)} className={codeBox} />
+                  </label>
+                </div>
+                <div><button disabled={busy} className="abtn-danger min-h-11">🔓 Turn off two-step login</button></div>
+                <p className="text-xs text-navy/60">📱 Lost your phone? Another super admin can reset it from the Team &amp; roles page.</p>
+              </form>
+            )}
+          </section>
+
+          {/* Tips */}
+          <aside className="card p-5">
+            <h2 className="mb-3 font-extrabold">💡 Stay safe</h2>
+            <ul className="flex flex-col gap-2.5 text-sm text-navy/80">
+              <li>🔑 Use a long password that you don't use on any other website.</li>
+              <li>🙅 Never share your password or 6-digit code, not even with other admins.</li>
+              <li>💻 Log out when you use a shared or public computer.</li>
+              <li>👤 Each person should have their own account. Logging in somewhere else logs out the old device.</li>
+            </ul>
+          </aside>
+        </div>
       )}
     </>
   )

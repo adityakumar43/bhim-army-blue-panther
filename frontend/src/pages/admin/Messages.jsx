@@ -30,24 +30,34 @@ export default function Messages() {
       <PageHeader title="Messages" subtitle="Messages sent from the Contact page. Unread ones are highlighted." />
       <Notice>{error}</Notice>
       {!items && !error && <p>Loading...</p>}
-      {items?.length === 0 && <p className="text-navy/70">No messages yet.</p>}
-      <ul className="flex flex-col gap-4">
+      {items?.length === 0 && <p className="card text-center text-navy/70">📭 No messages yet.</p>}
+      <ul className="flex flex-col gap-3">
         {items?.map((m) => (
-          <li key={m._id} className={`card ${m.read ? '' : 'border-brand bg-mist'}`}>
-            <div className="flex flex-wrap items-baseline justify-between gap-2">
-              <div className="flex flex-wrap items-center gap-2">
-                <span className="text-lg font-semibold">{m.name}</span>
-                {!m.read && <Pill tone="gold">New</Pill>}
+          <li key={m._id} className={`card p-4 sm:p-5 ${m.read ? '' : 'border-l-4 border-brand bg-mist/50'}`}>
+            <div className="flex items-start gap-3">
+              <span aria-hidden="true" className={`flex h-10 w-10 shrink-0 items-center justify-center rounded-full font-extrabold text-white ${m.read ? 'bg-navy/40' : 'bg-brand'}`}>
+                {m.name?.[0]?.toUpperCase() || '?'}
+              </span>
+              <div className="min-w-0 flex-1">
+                <div className="flex flex-wrap items-center justify-between gap-2">
+                  <div className="flex flex-wrap items-center gap-2">
+                    <span className="text-lg leading-tight font-bold">{m.name}</span>
+                    {!m.read && <Pill tone="gold">🆕 New</Pill>}
+                  </div>
+                  <span className="text-xs text-navy/60">🕒 {new Date(m.createdAt).toLocaleString('en-IN', { dateStyle: 'medium', timeStyle: 'short' })}</span>
+                </div>
+                <div className="mt-0.5 flex flex-wrap gap-x-3 text-sm text-navy/70">
+                  {m.phone && <a href={`tel:${m.phone}`} className="hover:text-brand hover:underline">📞 {m.phone}</a>}
+                  {m.email && <a href={`mailto:${m.email}`} className="break-all hover:text-brand hover:underline">✉️ {m.email}</a>}
+                </div>
+                <p className="mt-3 rounded-xl bg-white px-3 py-2 whitespace-pre-line text-navy/90 ring-1 ring-brand/10">{m.message}</p>
+                <div className="mt-3 flex flex-wrap gap-2">
+                  <button onClick={() => act(() => api.patch(`/contact/${m._id}/read`, { read: !m.read }))} className="abtn min-h-9 px-3">
+                    {m.read ? '↩️ Mark as unread' : '✔️ Mark as read'}
+                  </button>
+                  <button onClick={() => remove(m._id)} className="abtn-danger min-h-9 px-3">🗑️ Delete</button>
+                </div>
               </div>
-              <span className="text-sm text-navy/70">{new Date(m.createdAt).toLocaleString('en-IN')}</span>
-            </div>
-            <div className="text-sm text-navy/80">{[m.phone, m.email].filter(Boolean).join(' · ')}</div>
-            <p className="mt-3 whitespace-pre-line">{m.message}</p>
-            <div className="mt-4 flex gap-2">
-              <button onClick={() => act(() => api.patch(`/contact/${m._id}/read`, { read: !m.read }))} className="abtn">
-                {m.read ? 'Mark as unread' : 'Mark as read'}
-              </button>
-              <button onClick={() => remove(m._id)} className="abtn-danger">Delete</button>
             </div>
           </li>
         ))}
