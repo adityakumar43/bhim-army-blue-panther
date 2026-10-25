@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react'
 import { api } from '../../lib/api.js'
 import { PageHeader, Notice } from './ui.jsx'
+import Icon from '../../components/Icon.jsx'
 
 const KINDS = {
   news: {
@@ -33,6 +34,8 @@ KINDS.slides = {
   },
 }
 
+const ADD_LABEL = { news: 'Add news', events: 'Add event', gallery: 'Add photo', slides: 'Add slide' }
+
 const LABELS = {
   titleHi: 'Title (Hindi)', titleEn: 'Title (English)',
   bodyHi: 'Details (Hindi)', bodyEn: 'Details (English)',
@@ -48,6 +51,16 @@ export default function Content({ kind }) {
   const [error, setError] = useState('')
   const [busy, setBusy] = useState(false)
   const [formKey, setFormKey] = useState(0)
+  const [preview, setPreview] = useState('')
+  const [adding, setAdding] = useState(false)
+
+  // Small preview of the photo chosen in the form
+  useEffect(() => {
+    if (!file) { setPreview(''); return }
+    const url = URL.createObjectURL(file)
+    setPreview(url)
+    return () => URL.revokeObjectURL(url)
+  }, [file])
 
   const load = () => api.get(`${config.endpoint}?limit=100`).then(setItems).catch((e) => setError(e.message))
   useEffect(() => { load() }, [config.endpoint])
@@ -56,6 +69,7 @@ export default function Content({ kind }) {
     setForm({})
     setFile(null)
     setEditing(null)
+    setAdding(false)
     setFormKey((k) => k + 1) // remounts the form so the inputs empty out
   }
 
@@ -108,81 +122,107 @@ export default function Content({ kind }) {
     }
   }
 
+  // Titles, details, section and link take half the row on large screens; short fields take a quarter
+  const wide = (f) => f.startsWith('title') || f.startsWith('body') || ['section', 'link'].includes(f)
+  const thumb = preview || editing?.image?.url
+  const showForm = adding || !!editing
+
   return (
     <>
-      <PageHeader title={config.label} subtitle={config.hint} />
-      <div className="grid items-start gap-6 xl:grid-cols-2">
-        <form key={formKey} onSubmit={submit} className="card flex flex-col gap-4">
-          <h2 className="text-xl font-extrabold">{editing ? 'Edit item' : `Add to ${config.label}`}</h2>
-          {config.fields.map((f) => {
-            // The dance/festival and community boxes only matter for the Adivasi section
-            if (['kind', 'communityEn', 'communityHi'].includes(f) && form.section !== 'adivasi') return null
-            const common = { className: 'input', defaultValue: form[f], onChange: (e) => setForm({ ...form, [f]: e.target.value }) }
-            return (
-              <label key={f} className="flex flex-col gap-1 font-semibold">
-                {config.labels?.[f] || LABELS[f]}
-                {f.startsWith('body') ? <textarea rows="4" {...common} />
-                  : f === 'section' ? (
-                    <select {...common}>
-                      <option value="general">Photos (programs, rallies, general)</option>
-                      <option value="adivasi">Adivasi &amp; tribal culture (dances, festivals)</option>
-                    </select>
-                  ) : f === 'kind' ? (
-                    <select {...common}>
-                      <option value="">Choose...</option>
-                      <option value="dance">Traditional dance</option>
-                      <option value="festival">Festival</option>
-                    </select>
-                  ) : f === 'order' ? <input type="number" min="0" {...common} />
-                    : f === 'date' ? <input type="date" required {...common} />
-                      : <input type="text" {...common} />}
-              </label>
-            )
-          })}
-          <label className="flex flex-col gap-1 font-semibold">
-            {editing ? 'Replace image (leave empty to keep the current one)' : `Image ${config.needImage ? '(required)' : '(optional)'}`}
-            <span className="text-sm font-normal text-navy/70">JPG, PNG or WebP, up to 5 MB</span>
-            {editing?.image?.url && <img src={editing.image.url} alt="" className="h-24 w-24 object-cover" />}
-            <input type="file" accept="image/jpeg,image/png,image/webp" required={config.needImage && !editing}
-              onChange={(e) => setFile(e.target.files[0] || null)} className="font-normal" />
-          </label>
-          <Notice>{error}</Notice>
-          <div className="flex gap-3">
-            <button disabled={busy} className="btn flex-1 bg-brand text-white disabled:opacity-60">
-              {busy ? 'Saving...' : editing ? 'Save changes' : 'Publish'}
+      <PageHeader title={config.label} subtitle={config.hint}>
+        {!showForm && <button onClick={() => { setAdding(true); setError('') }} className="abtn-primary">➕ {ADD_LABEL[kind]}</button>}
+      </PageHeader>
+
+      {showForm && (
+        <form key={formKey} onSubmit={submit} className="card mb-6 border-brand/30">
+          <div className="mb-3 flex items-center justify-between gap-3">
+            <h2 className="text-lg font-extrabold">{editing ? '✏️ Edit item' : `➕ ${ADD_LABEL[kind]}`}</h2>
+            <button type="button" onClick={reset} aria-label="Close" className="flex h-9 w-9 items-center justify-center rounded-lg text-navy/60 hover:bg-mist">
+              <Icon name="close" size={18} />
             </button>
-            {editing && <button type="button" onClick={reset} className="abtn min-h-12">Cancel</button>}
+          </div>
+          <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
+            {config.fields.map((f) => {
+              // The dance/festival and community boxes only matter for the Adivasi section
+              if (['kind', 'communityEn', 'communityHi'].includes(f) && form.section !== 'adivasi') return null
+              const common = { className: 'input', defaultValue: form[f], onChange: (e) => setForm({ ...form, [f]: e.target.value }) }
+              return (
+                <label key={f} className={`flex flex-col gap-1 font-semibold ${wide(f) ? 'xl:col-span-2' : ''}`}>
+                  {config.labels?.[f] || LABELS[f]}
+                  {f.startsWith('body') ? <textarea rows="3" {...common} />
+                    : f === 'section' ? (
+                      <select {...common}>
+                        <option value="general">Photos (programs, rallies, general)</option>
+                        <option value="adivasi">Adivasi &amp; tribal culture (dances, festivals)</option>
+                      </select>
+                    ) : f === 'kind' ? (
+                      <select {...common}>
+                        <option value="">Choose...</option>
+                        <option value="dance">Traditional dance</option>
+                        <option value="festival">Festival</option>
+                      </select>
+                    ) : f === 'order' ? <input type="number" min="0" {...common} />
+                      : f === 'date' ? <input type="date" required {...common} />
+                        : <input type="text" {...common} />}
+                </label>
+              )
+            })}
+            <div className="sm:col-span-2">
+              <p className="mb-1 text-sm font-semibold">
+                {editing ? 'Replace image (leave empty to keep the current one)' : `Image ${config.needImage ? '(required)' : '(optional)'}`}
+              </p>
+              <label className="flex cursor-pointer items-center gap-3 rounded-xl border-2 border-dashed border-brand/25 bg-mist/40 p-2.5 transition hover:border-brand hover:bg-mist">
+                {thumb
+                  ? <img src={thumb} alt="" className="h-12 w-12 shrink-0 rounded-lg object-cover" />
+                  : <span className="flex h-12 w-12 shrink-0 items-center justify-center rounded-lg bg-white text-brand"><Icon name="image" size={22} /></span>}
+                <span className="min-w-0 flex-1 text-sm">
+                  <span className="block truncate font-semibold text-brand">{file ? file.name : 'Choose a photo'}</span>
+                  <span className="text-navy/60">JPG, PNG or WebP, up to 5 MB</span>
+                </span>
+                <input type="file" accept="image/jpeg,image/png,image/webp" required={config.needImage && !editing}
+                  onChange={(e) => setFile(e.target.files[0] || null)} className="sr-only" />
+              </label>
+            </div>
+          </div>
+          {error && <div className="mt-3"><Notice>{error}</Notice></div>}
+          <div className="mt-4 flex justify-end gap-2">
+            <button type="button" onClick={reset} className="abtn min-h-11">Cancel</button>
+            <button disabled={busy} className="abtn-primary min-h-11 px-6">
+              {busy ? 'Saving...' : editing ? '💾 Save changes' : '✅ Publish'}
+            </button>
           </div>
         </form>
+      )}
 
-        <section className="card">
-          <h2 className="mb-4 text-xl font-extrabold">Published {items && `(${items.length})`}</h2>
-          {!items && <p>Loading...</p>}
-          {items?.length === 0 && <p className="text-navy/70">Nothing published yet. Use the form to add the first item.</p>}
-          <ul className="flex flex-col gap-3">
-            {items?.map((it) => (
-              <li key={it._id}
-                className={`flex flex-wrap items-center gap-3 border p-3 ${editing?._id === it._id ? 'border-brand bg-mist' : 'border-brand/15'}`}>
-                {it.image?.url && <img src={it.image.url} alt="" className="h-16 w-16 object-cover" />}
-                <div className="min-w-0 flex-1">
-                  <div className="font-semibold">{it.titleHi || it.titleEn || config.untitled || '(no title)'}</div>
-                  {it.date && <div className="text-sm text-navy/70">{new Date(it.date).toLocaleDateString('en-IN')}</div>}
-                  {it.order != null && <div className="text-sm text-navy/70">Order {it.order}</div>}
-                  {it.section === 'adivasi' && (
-                    <div className="text-sm text-navy/70">
-                      Adivasi culture{it.kind ? ` · ${it.kind}` : ''}{it.communityEn || it.communityHi ? ` · ${it.communityEn || it.communityHi}` : ''}
-                    </div>
-                  )}
-                </div>
-                <div className="flex gap-2">
-                  <button onClick={() => startEdit(it)} className="abtn">Edit</button>
-                  <button onClick={() => remove(it._id)} className="abtn-danger">Delete</button>
-                </div>
-              </li>
-            ))}
-          </ul>
-        </section>
-      </div>
+      {!showForm && <Notice>{error}</Notice>}
+      <h2 className="mb-3 text-lg font-extrabold">📋 Published {items && `(${items.length})`}</h2>
+      {!items && <p>Loading...</p>}
+      {items?.length === 0 && <p className="card text-center text-navy/70">📭 Nothing published yet. Click "{ADD_LABEL[kind]}" to add the first one.</p>}
+      <ul className="grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
+        {items?.map((it) => (
+          <li key={it._id} className={`card flex flex-col overflow-hidden p-0 sm:p-0 ${editing?._id === it._id ? 'ring-2 ring-brand' : ''}`}>
+            {it.image?.url && <img src={it.image.url} alt="" loading="lazy" className="aspect-video w-full rounded-none object-cover" />}
+            <div className="flex flex-1 flex-col p-4">
+              <div className="line-clamp-2 font-bold">{it.titleHi || it.titleEn || config.untitled || '(no title)'}</div>
+              {it.titleHi && it.titleEn && <div className="line-clamp-1 text-sm text-navy/60">{it.titleEn}</div>}
+              <div className="mt-2 flex flex-wrap gap-1.5 text-xs">
+                {it.date && <span className="rounded-full bg-mist px-2 py-0.5 font-semibold text-brand">📅 {new Date(it.date).toLocaleDateString('en-IN')}</span>}
+                {it.location && <span className="rounded-full bg-mist px-2 py-0.5 font-semibold text-brand">📍 {it.location}</span>}
+                {it.order != null && <span className="rounded-full bg-mist px-2 py-0.5 font-semibold text-brand">#{it.order}</span>}
+                {it.section === 'adivasi' && (
+                  <span className="rounded-full bg-gold/20 px-2 py-0.5 font-semibold text-navy">
+                    🪘 Adivasi{it.kind ? ` · ${it.kind}` : ''}{it.communityEn || it.communityHi ? ` · ${it.communityEn || it.communityHi}` : ''}
+                  </span>
+                )}
+              </div>
+              <div className="mt-auto flex gap-2 pt-3">
+                <button onClick={() => startEdit(it)} className="abtn min-h-9 flex-1 px-3">✏️ Edit</button>
+                <button onClick={() => remove(it._id)} className="abtn-danger min-h-9 flex-1 px-3">🗑️ Delete</button>
+              </div>
+            </div>
+          </li>
+        ))}
+      </ul>
     </>
   )
 }
