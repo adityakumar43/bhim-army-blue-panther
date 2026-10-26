@@ -2,7 +2,7 @@ import { useLocation } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
 
 // Pages that open with the dark title band: [heading, optional intro line]
-const BANDS = {
+export const BANDS = {
   '/about': ['about.title'],
   '/campaigns': ['sections.campaigns', 'home.campaignsIntro'],
   '/news': ['sections.news', 'home.newsIntro'],

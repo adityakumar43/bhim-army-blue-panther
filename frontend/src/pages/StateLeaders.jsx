@@ -4,6 +4,7 @@ import { useTranslation } from 'react-i18next'
 import { api } from '../lib/api.js'
 import { stateByCode, stateName } from '../data/states.js'
 import { Band } from '../components/PageBand.jsx'
+import { useSeo } from '../components/Seo.jsx'
 import LeaderCard from '../components/LeaderCard.jsx'
 
 // One state's leadership, at /leadership/states/<code>
@@ -18,6 +19,8 @@ export default function StateLeaders() {
     setLeaders(null)
     api.get(`/leaders?state=${code}`).then(setLeaders).catch(() => setLeaders([]))
   }, [code])
+
+  useSeo({ title: state && `${t('leaders.state')} – ${stateName(state, i18n.language)}` })
 
   const back = <Link to="/leadership/states" className="mb-6 inline-flex items-center gap-1 font-semibold text-brand">← {t('leaders.back')}</Link>
 

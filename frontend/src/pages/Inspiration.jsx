@@ -4,6 +4,7 @@ import { useTranslation } from 'react-i18next'
 import { inspirations, inspirationBySlug } from '../data/inspirations.js'
 import { pickText } from '../lib/text.js'
 import { Band } from '../components/PageBand.jsx'
+import { useSeo } from '../components/Seo.jsx'
 import InspirationCard, { InspirationPhoto, pickList } from '../components/InspirationCard.jsx'
 
 // One inspirational leader's full page, at /inspirations/<slug>
@@ -14,6 +15,12 @@ export default function Inspiration() {
   const person = inspirationBySlug(slug)
 
   useEffect(() => { window.scrollTo(0, 0) }, [slug])
+
+  useSeo({
+    title: person && pickText(person, 'name', lang),
+    description: person && pickText(person, 'short', lang),
+    image: person?.photo,
+  })
 
   const back = <Link to="/inspirations" className="mb-6 inline-flex min-h-11 items-center gap-1 font-semibold text-brand">← {t('inspire.back')}</Link>
 

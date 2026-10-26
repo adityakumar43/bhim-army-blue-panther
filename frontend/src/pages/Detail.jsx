@@ -5,6 +5,7 @@ import { api } from '../lib/api.js'
 import { pickText, formatDate } from '../lib/text.js'
 import ZoomPhoto from '../components/ZoomPhoto.jsx'
 import EventRsvp from '../components/EventRsvp.jsx'
+import { useSeo } from '../components/Seo.jsx'
 
 const SHARE_BASE = (import.meta.env.VITE_API_URL || 'http://localhost:5000/api').replace(/\/api\/?$/, '')
 
@@ -21,6 +22,13 @@ export default function Detail({ kind }) {
         setFailed(false)
         api.get(`/${kind}/${id}`).then(setItem).catch(() => setFailed(true))
     }, [kind, id])
+
+    useSeo({
+        title: item && pickText(item, 'title', lang),
+        description: item && pickText(item, 'body', lang),
+        image: item?.image?.url,
+        type: 'article',
+    })
 
     if (failed) {
         return (
