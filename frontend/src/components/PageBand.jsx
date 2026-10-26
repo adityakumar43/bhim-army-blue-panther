@@ -12,6 +12,7 @@ const BANDS = {
   '/donate': ['donate.title', 'donate.intro'],
   '/leadership/states': ['leaders.statesTitle', 'leaders.statesIntro'],
   '/inspirations': ['inspire.title', 'inspire.intro'],
+  '/membership/status': ['status.title', 'status.intro'],
 }
 
 // Pages with a band get the light grey background. Each state's page draws its own band (with the state's name).

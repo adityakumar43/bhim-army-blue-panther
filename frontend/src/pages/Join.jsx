@@ -1,5 +1,6 @@
 import { useState } from 'react'
 import { useTranslation } from 'react-i18next'
+import { Link } from 'react-router-dom'
 import { api } from '../lib/api.js'
 import { shrinkImage } from '../lib/shrinkImage.js'
 import { STATES, stateName } from '../data/states.js'
@@ -46,6 +47,10 @@ export default function Join() {
 
   return (
     <div className="mx-auto max-w-xl px-5 py-12">
+
+      <Link to="/membership/status" className="mb-4 flex items-center justify-center gap-2 rounded-xl bg-mist px-4 py-3 text-sm font-semibold text-brand hover:bg-brand hover:text-white">
+        🔍 {t('status.link')}
+      </Link>
 
       <form onSubmit={submit} className="panel flex flex-col gap-4 sm:p-8">
         {FIELDS.map((f) => (

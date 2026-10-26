@@ -33,6 +33,7 @@ import Updates from './pages/admin/Updates.jsx'
 import Security from './pages/admin/Security.jsx'
 import Activity from './pages/admin/Activity.jsx'
 import Backup from './pages/admin/Backup.jsx'
+import MemberStatus from './pages/MemberStatus.jsx'
 
 export default function App() {
 
@@ -56,6 +57,7 @@ export default function App() {
           <Route path="/leadership/states/:code" element={<StateLeaders />} />
           <Route path="/inspirations" element={<Inspirations />} />
           <Route path="/inspirations/:slug" element={<Inspiration />} />
+          <Route path="/membership/status" element={<MemberStatus />} />
           <Route path="/campaigns" element={<Campaigns />} />
           <Route path="/contact" element={<Contact />} />
           <Route path="/donate" element={<Donate />} />

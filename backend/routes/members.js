@@ -91,6 +91,36 @@ router.post('/', joinLimiter, upload.single('photo'), async (req, res) => {
   res.status(201).json({ ok: true })
 })
 
+// Public: an applicant checks their own application with their mobile number and date of birth
+const statusLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000,
+  max: 10,
+  message: { message: 'Too many tries. Please wait 15 minutes and try again.' },
+})
+
+router.post('/status', statusLimiter, async (req, res) => {
+  const b = req.body || {}
+  const phone = String(b.phone || '').replace(/\s|-/g, '').replace(/^(\+91|91)(?=\d{10}$)/, '')
+  const dob = parseDob(b.dob)
+  if (!/^[6-9]\d{9}$/.test(phone) || !dob) {
+    return res.status(400).json({ message: 'Enter your 10-digit mobile number and date of birth' })
+  }
+  const m = await Member.findOne({ phone })
+  // The same answer whether the number is unknown or the date is wrong, so nobody can find out who applied
+  if (!m || !m.dob || m.dob.toISOString().slice(0, 10) !== dob.toISOString().slice(0, 10)) {
+    return res.status(404).json({ message: 'We could not find an application with these details.' })
+  }
+  const approved = m.status === 'approved' && m.memberNo
+  res.json({
+    name: m.name,
+    status: m.status,
+    appliedAt: m.createdAt,
+    reviewedAt: m.status === 'pending' ? null : m.reviewedAt,
+    memberNo: approved ? m.memberNo : null,
+    cardToken: approved ? m.cardToken : null,
+  })
+})
+
 
 router.get('/', protect, requirePermission('members'), async (req, res) => {
   const filter = ['pending', 'approved', 'rejected'].includes(req.query.status)

@@ -226,5 +226,27 @@
     "more": "More inspirational leaders",
     "notFound": "This page was not found.",
     "noteTitle": "A note on history"
+  },
+  "status": {
+    "title": "Check your membership",
+    "intro": "Enter the mobile number and date of birth you gave on the Join form.",
+    "phone": "Mobile number",
+    "dob": "Date of birth",
+    "check": "Check status",
+    "checking": "Checking...",
+    "notFound": "We could not find an application with these details. Check the number and date, or apply again.",
+    "hello": "Jai Bhim, {{name}}",
+    "pending": "Under review",
+    "pendingBody": "Your application has reached us. Our team will review it soon.",
+    "approved": "Approved — welcome!",
+    "approvedBody": "You are a member of Bhim Army Blue Panther. Open your membership card below.",
+    "rejected": "Not approved",
+    "rejectedBody": "Your application was not approved. Please contact us if you think this is a mistake.",
+    "appliedOn": "Applied on",
+    "memberNo": "Member number",
+    "openCard": "Open my membership card",
+    "notApplied": "Not applied yet?",
+    "joinNow": "Join now",
+    "link": "Already applied? Check your status"
   }
 }
