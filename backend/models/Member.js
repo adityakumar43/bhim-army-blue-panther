@@ -24,6 +24,7 @@ const memberSchema = new mongoose.Schema(
     reviewedByName: String,
     reviewedById: mongoose.Schema.Types.ObjectId,
     cardEmailedAt: Date,
+    birthdayWishedYear: Number, // the last year a birthday email was sent
   },
   { timestamps: true }
 )

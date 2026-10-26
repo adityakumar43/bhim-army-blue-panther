@@ -25,6 +25,8 @@ import downloadRoutes from './routes/downloads.js'
 import videoRoutes from './routes/videos.js'
 import shareRoutes from './routes/share.js'
 import sitemapRoutes from './routes/sitemap.js'
+import birthdayRoutes from './routes/birthdays.js'
+import { startBirthdayTimer } from './services/birthdays.js'
 
 if (!process.env.JWT_SECRET || !process.env.MONGO_URI) {
   console.error('Missing JWT_SECRET or MONGO_URI in .env')
@@ -79,6 +81,7 @@ app.use('/api/downloads', downloadRoutes)
 app.use('/api/videos', videoRoutes)
 app.use('/share', shareRoutes)
 app.use('/sitemap.xml', sitemapRoutes)
+app.use('/api/birthdays', birthdayRoutes)
 app.use('/api/donations', donationRoutes)
 app.use('/api/admin', adminRoutes)
 app.use('/api/admins', adminsRoutes)
@@ -95,7 +98,10 @@ app.use((err, req, res, next) => {
 })
 
 connectDB()
-  .then(() => app.listen(process.env.PORT || 5000, () => console.log('API running')))
+  .then(() => {
+    app.listen(process.env.PORT || 5000, () => console.log('API running'))
+    startBirthdayTimer()
+  })
   .catch((err) => {
     console.error('Database connection failed:', err.message)
     process.exit(1)
