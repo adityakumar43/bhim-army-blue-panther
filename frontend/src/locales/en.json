@@ -315,5 +315,12 @@
     "thanks": "Thank you for stepping forward!",
     "thanksBody": "Jai Bhim! Our team in your area will contact you soon.",
     "link": "Volunteer"
+  },
+  "dl": {
+    "title": "Downloads",
+    "intro": "Books, pamphlets, posters and forms from Bhim Army Blue Panther. Free to download and share.",
+    "download": "Download",
+    "empty": "Nothing to download yet. Please check back soon.",
+    "link": "Downloads"
   }
 }

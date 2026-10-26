@@ -21,6 +21,7 @@ import { activityLog } from './middleware/activity.js'
 import { News, Event, Gallery, Slide } from './models/Content.js'
 import helpdeskRoutes from './routes/helpdesk.js'
 import volunteerRoutes from './routes/volunteers.js'
+import downloadRoutes from './routes/downloads.js'
 
 if (!process.env.JWT_SECRET || !process.env.MONGO_URI) {
   console.error('Missing JWT_SECRET or MONGO_URI in .env')
@@ -71,6 +72,7 @@ app.use('/api/announcements', announcementRoutes)
 app.use('/api/contact', contactRoutes)
 app.use('/api/helpdesk', helpdeskRoutes)
 app.use('/api/volunteers', volunteerRoutes)
+app.use('/api/downloads', downloadRoutes)
 app.use('/api/donations', donationRoutes)
 app.use('/api/admin', adminRoutes)
 app.use('/api/admins', adminsRoutes)
