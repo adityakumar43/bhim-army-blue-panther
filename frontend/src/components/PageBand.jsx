@@ -14,6 +14,7 @@ const BANDS = {
   '/inspirations': ['inspire.title', 'inspire.intro'],
   '/membership/status': ['status.title', 'status.intro'],
   '/help': ['help.title', 'help.intro'],
+  '/volunteer': ['vol.title', 'vol.intro'],
 }
 
 // Pages with a band get the light grey background. Each state's page draws its own band (with the state's name).

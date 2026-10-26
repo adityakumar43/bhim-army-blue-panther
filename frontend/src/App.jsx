@@ -36,6 +36,8 @@ import Backup from './pages/admin/Backup.jsx'
 import MemberStatus from './pages/MemberStatus.jsx'
 import HelpDesk from './pages/HelpDesk.jsx'
 import HelpDeskAdmin from './pages/admin/HelpDeskAdmin.jsx'
+import Volunteer from './pages/Volunteer.jsx'
+import Volunteers from './pages/admin/Volunteers.jsx'
 
 export default function App() {
 
@@ -61,6 +63,7 @@ export default function App() {
           <Route path="/inspirations/:slug" element={<Inspiration />} />
           <Route path="/membership/status" element={<MemberStatus />} />
           <Route path="/help" element={<HelpDesk />} />
+          <Route path="/volunteer" element={<Volunteer />} />
           <Route path="/campaigns" element={<Campaigns />} />
           <Route path="/contact" element={<Contact />} />
           <Route path="/donate" element={<Donate />} />
@@ -77,6 +80,7 @@ export default function App() {
             <Route path="leaders" element={<Perm perm="leaders"><Leaders /></Perm>} />
             <Route path="updates" element={<Perm perm="content"><Updates /></Perm>} />
             <Route path="members" element={<Perm perm="members"><Members /></Perm>} />
+            <Route path="volunteers" element={<Perm perm="members"><Volunteers /></Perm>} />
             <Route path="helpdesk" element={<Perm perm="helpdesk"><HelpDeskAdmin /></Perm>} />
             <Route path="messages" element={<Perm perm="messages"><Messages /></Perm>} />
             <Route path="donations" element={<Perm perm="donations"><Donations /></Perm>} />

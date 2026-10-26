@@ -297,5 +297,23 @@
     "updatedOn": "Last update",
     "messageFromTeam": "Message from our team",
     "link": "Help desk"
+  },
+  "vol": {
+    "title": "Become a volunteer",
+    "intro": "Give some of your time to the movement. Tell us how you can help, and our team in your area will contact you.",
+    "name": "Your name",
+    "phone": "Mobile number",
+    "email": "Email (optional)",
+    "state": "State",
+    "district": "District / city",
+    "skills": "How can you help? (choose one or more)",
+    "pickSkill": "Choose at least one way you can help.",
+    "availability": "When are you free?",
+    "message": "Anything else you want to tell us? (optional)",
+    "submit": "Join as volunteer",
+    "sending": "Sending...",
+    "thanks": "Thank you for stepping forward!",
+    "thanksBody": "Jai Bhim! Our team in your area will contact you soon.",
+    "link": "Volunteer"
   }
 }

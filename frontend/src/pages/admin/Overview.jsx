@@ -20,6 +20,7 @@ export default function Overview() {
     ['messages', '/admin/messages', 'Unread messages', summary.messages, '✉️', 'bg-amber-100'],
     ['donations', '/admin/donations', 'New donations', summary.donations, '💝', 'bg-rose-100'],
     ['helpdesk', '/admin/helpdesk', 'New help desk cases', summary.helpdesk || 0, '🆘', 'bg-red-100'],
+    ['members', '/admin/volunteers', 'New volunteers', summary.volunteers || 0, '🙋', 'bg-green-100'],
   ].filter(([perm]) => can(perm))
 
   // [permission, link, label, icon]
@@ -59,7 +60,7 @@ export default function Overview() {
       {alerts.length > 0 && (
         <div className="mb-6 grid gap-4 [grid-template-columns:repeat(auto-fit,minmax(15rem,1fr))]">
           {alerts.map(([perm, to, label, n, emoji, tile]) => (
-            <Link key={perm} to={to} className="group flex items-center gap-4 rounded-2xl border border-brand/10 bg-white p-4 shadow-sm transition hover:-translate-y-0.5 hover:border-brand/30 hover:shadow-md">
+            <Link key={to} to={to} className="group flex items-center gap-4 rounded-2xl border border-brand/10 bg-white p-4 shadow-sm transition hover:-translate-y-0.5 hover:border-brand/30 hover:shadow-md">
               <span aria-hidden="true" className={`flex h-12 w-12 shrink-0 items-center justify-center rounded-xl text-2xl ${tile}`}>{emoji}</span>
               <span className="min-w-0 flex-1">
                 <span className="flex items-center gap-2">

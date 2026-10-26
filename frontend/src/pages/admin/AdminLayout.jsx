@@ -15,6 +15,7 @@ const NAV = [
   { to: '/admin/leaders', label: 'Leadership', icon: 'award', perm: 'leaders' },
   { to: '/admin/updates', label: 'Home updates', icon: 'bell', perm: 'content' },
   { to: '/admin/members', label: 'Members', icon: 'userPlus', perm: 'members', badge: 'members' },
+  { to: '/admin/volunteers', label: 'Volunteers', icon: 'hand', perm: 'members', badge: 'volunteers' },
   { to: '/admin/messages', label: 'Messages', icon: 'chat', perm: 'messages', badge: 'messages' },
   { to: '/admin/helpdesk', label: 'Help desk', icon: 'help', perm: 'helpdesk', badge: 'helpdesk' },
   { to: '/admin/donations', label: 'Donations', icon: 'heart', perm: 'donations', badge: 'donations' },
@@ -28,7 +29,7 @@ export default function AdminLayout() {
   const navigate = useNavigate()
   const { pathname } = useLocation()
   const [me, setMe] = useState(null)
-  const [summary, setSummary] = useState({ members: 0, messages: 0, donations: 0, helpdesk: 0 })
+  const [summary, setSummary] = useState({ members: 0, messages: 0, donations: 0, helpdesk: 0, volunteers: 0 })
 
   const refresh = () => api.get('/admin/summary').then(setSummary).catch(() => { })
 
@@ -56,7 +57,7 @@ export default function AdminLayout() {
     }
   }, [pathname, me])
 
-  const total = summary.members + summary.messages + summary.donations + (summary.helpdesk || 0)
+  const total = summary.members + summary.messages + summary.donations + (summary.helpdesk || 0) + (summary.volunteers || 0)
   useEffect(() => {
     document.title = total > 0 ? `(${total}) Admin Panel` : 'Admin Panel'
     return () => { document.title = 'Bhim Army Blue Panther' }
