@@ -3,6 +3,7 @@ import Member from '../models/Member.js'
 import Message from '../models/Message.js'
 import Donation from '../models/Donation.js'
 import Admin from '../models/Admin.js'
+import Complaint from '../models/Complaint.js'
 import { protect, requirePermission, stateScope } from '../middleware/auth.js'
 import { memberStateFilter } from '../config/stateNames.js'
 import { can } from '../config/roles.js'
@@ -15,7 +16,7 @@ router.get('/summary', protect, async (req, res) => {
   const since = req.admin.seenDonationsAt || req.admin.createdAt
   const scope = stateScope(req.admin)
   const mine = scope ? memberStateFilter(scope) : {} // State admins count only their state
-  const [members, messages, donations] = await Promise.all([
+  const [members, messages, donations, helpdesk] = await Promise.all([
     can(role, 'members') ? Member.countDocuments({ status: 'pending', ...mine }) : 0,
     can(role, 'messages') ? Message.countDocuments({ read: false }) : 0,
     can(role, 'donations')
@@ -27,8 +28,9 @@ router.get('/summary', protect, async (req, res) => {
         ],
       })
       : 0,
+    can(role, 'helpdesk') ? Complaint.countDocuments({ status: 'new', ...(scope ? { stateCode: scope } : {}) }) : 0,
   ])
-  res.json({ members, messages, donations })
+  res.json({ members, messages, donations, helpdesk })
 })
 
 router.post('/seen/donations', protect, requirePermission('donations'), async (req, res) => {

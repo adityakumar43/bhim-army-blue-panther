@@ -7,7 +7,7 @@ export default function Footer() {
   let loggedIn = false
   try { loggedIn = !!localStorage.getItem('token') } catch { /* storage blocked */ }
   const links = [['/', t('nav.home')], ['/about', t('nav.about')], ['/leadership/states', t('nav.states')], ['/inspirations', t('nav.inspire')], ['/campaigns', t('nav.campaigns')], ['/news', t('nav.news')],
-  ['/gallery', t('nav.gallery')], ['/join', t('nav.join')], ['/donate', t('cta.donate')]]
+  ['/gallery', t('nav.gallery')], ['/join', t('nav.join')], ['/help', t('help.link')], ['/donate', t('cta.donate')]]
   const path = ['educate', 'organize', 'struggle'].map((k) => t(`about.${k}.title`))
   const head = 'mb-3 border-b border-white/10 pb-2 text-sm font-extrabold tracking-wide uppercase sm:mb-4 sm:pb-3'
 

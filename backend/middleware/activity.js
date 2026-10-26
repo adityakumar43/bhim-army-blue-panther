@@ -8,13 +8,13 @@ import Activity from '../models/Activity.js'
 const COLLECTIONS = {
     news: ['news'], events: ['events'], gallery: ['galleries', 'gallery'], slides: ['slides'],
     members: ['members'], leaders: ['leaders'], announcements: ['announcements'],
-    contact: ['messages', 'contacts', 'contactmessages'], donations: ['donations'], admins: ['admins'],
+    contact: ['messages', 'contacts', 'contactmessages'], helpdesk: ['complaints'], donations: ['donations'], admins: ['admins'],
 }
 
 // What one item is called in each section
 const NOUN = {
     news: 'a news post', events: 'an event', gallery: 'a gallery photo', slides: 'a home slider photo',
-    leaders: 'a leader', announcements: 'a home update',
+    leaders: 'a leader', announcements: 'a home update', helpdesk: 'a help desk case',
 }
 
 const modelFor = (section) => {
@@ -26,7 +26,7 @@ const ROLE_NAMES = { superadmin: 'Super admin', editor: 'Content editor', member
 
 const nameOf = (doc) => {
     if (!doc || typeof doc !== 'object') return ''
-    const name = doc.titleEn || doc.titleHi || doc.nameEn || doc.nameHi || doc.name || doc.textEn || doc.textHi || doc.receiptNo || doc.email || ''
+    const name = doc.refNo || doc.titleEn || doc.titleHi || doc.nameEn || doc.nameHi || doc.name || doc.textEn || doc.textHi || doc.receiptNo || doc.email || ''
     return String(name).slice(0, 100)
 }
 
