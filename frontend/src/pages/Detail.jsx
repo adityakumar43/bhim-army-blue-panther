@@ -6,6 +6,8 @@ import { pickText, formatDate } from '../lib/text.js'
 import ZoomPhoto from '../components/ZoomPhoto.jsx'
 import EventRsvp from '../components/EventRsvp.jsx'
 
+const SHARE_BASE = (import.meta.env.VITE_API_URL || 'http://localhost:5000/api').replace(/\/api\/?$/, '')
+
 // One news item or one event on its own page. kind is "news" or "events".
 export default function Detail({ kind }) {
     const { id } = useParams()
@@ -42,7 +44,7 @@ export default function Detail({ kind }) {
             <p className="text-lg whitespace-pre-line">{pickText(item, 'body', lang)}</p>
             {kind === 'events' && <EventRsvp eventId={item._id} />}
             <a
-                href={`https://wa.me/?text=${encodeURIComponent(`${pickText(item, 'title', lang)}\n${window.location.href}`)}`}
+                href={`https://wa.me/?text=${encodeURIComponent(`${pickText(item, 'title', lang)}\n${SHARE_BASE}/share/${kind}/${item._id}`)}`}
                 target="_blank" rel="noopener noreferrer"
                 className="btn mt-8 border-2 border-brand text-brand"
             >
