@@ -13,6 +13,7 @@ const NAV = [
   { to: '/admin/gallery', label: 'Gallery', icon: 'image', perm: 'content' },
   { to: '/admin/slides', label: 'Home slider', icon: 'layers', perm: 'content' },
   { to: '/admin/leaders', label: 'Leadership', icon: 'award', perm: 'leaders' },
+  { to: '/admin/videos', label: 'Videos', icon: 'video', perm: 'content' },
   { to: '/admin/downloads', label: 'Downloads', icon: 'download', perm: 'content' },
   { to: '/admin/updates', label: 'Home updates', icon: 'bell', perm: 'content' },
   { to: '/admin/members', label: 'Members', icon: 'userPlus', perm: 'members', badge: 'members' },

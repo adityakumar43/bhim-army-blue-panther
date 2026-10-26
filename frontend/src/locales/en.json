@@ -322,5 +322,12 @@
     "download": "Download",
     "empty": "Nothing to download yet. Please check back soon.",
     "link": "Downloads"
+  },
+  "videos": {
+    "title": "Videos",
+    "intro": "Speeches, rallies and events of Bhim Army Blue Panther.",
+    "empty": "No videos yet. Please check back soon.",
+    "onYoutube": "Videos play from YouTube. Subscribe to our channel to see new ones first.",
+    "link": "Videos"
   }
 }

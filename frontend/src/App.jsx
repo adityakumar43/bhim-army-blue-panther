@@ -40,6 +40,8 @@ import Volunteer from './pages/Volunteer.jsx'
 import Volunteers from './pages/admin/Volunteers.jsx'
 import Downloads from './pages/Downloads.jsx'
 import DownloadsAdmin from './pages/admin/DownloadsAdmin.jsx'
+import Videos from './pages/Videos.jsx'
+import VideosAdmin from './pages/admin/VideosAdmin.jsx'
 
 export default function App() {
 
@@ -67,6 +69,7 @@ export default function App() {
           <Route path="/help" element={<HelpDesk />} />
           <Route path="/volunteer" element={<Volunteer />} />
           <Route path="/downloads" element={<Downloads />} />
+          <Route path="/videos" element={<Videos />} />
           <Route path="/campaigns" element={<Campaigns />} />
           <Route path="/contact" element={<Contact />} />
           <Route path="/donate" element={<Donate />} />
@@ -83,6 +86,7 @@ export default function App() {
             <Route path="leaders" element={<Perm perm="leaders"><Leaders /></Perm>} />
             <Route path="updates" element={<Perm perm="content"><Updates /></Perm>} />
             <Route path="members" element={<Perm perm="members"><Members /></Perm>} />
+            <Route path="videos" element={<Perm perm="content"><VideosAdmin /></Perm>} />
             <Route path="downloads" element={<Perm perm="content"><DownloadsAdmin /></Perm>} />
             <Route path="volunteers" element={<Perm perm="members"><Volunteers /></Perm>} />
             <Route path="helpdesk" element={<Perm perm="helpdesk"><HelpDeskAdmin /></Perm>} />
