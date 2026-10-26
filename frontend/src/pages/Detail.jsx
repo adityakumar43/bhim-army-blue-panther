@@ -4,6 +4,7 @@ import { useTranslation } from 'react-i18next'
 import { api } from '../lib/api.js'
 import { pickText, formatDate } from '../lib/text.js'
 import ZoomPhoto from '../components/ZoomPhoto.jsx'
+import EventRsvp from '../components/EventRsvp.jsx'
 
 // One news item or one event on its own page. kind is "news" or "events".
 export default function Detail({ kind }) {
@@ -39,6 +40,7 @@ export default function Detail({ kind }) {
             </div>
             <h1 className="my-2 text-3xl font-extrabold">{pickText(item, 'title', lang)}</h1>
             <p className="text-lg whitespace-pre-line">{pickText(item, 'body', lang)}</p>
+            {kind === 'events' && <EventRsvp eventId={item._id} />}
             <a
                 href={`https://wa.me/?text=${encodeURIComponent(`${pickText(item, 'title', lang)}\n${window.location.href}`)}`}
                 target="_blank" rel="noopener noreferrer"

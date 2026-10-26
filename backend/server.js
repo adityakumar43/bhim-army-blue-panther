@@ -15,6 +15,7 @@ import adminRoutes from './routes/admin.js'
 import adminsRoutes from './routes/admins.js'
 import activityRoutes from './routes/activity.js'
 import backupRoutes from './routes/backup.js'
+import rsvpRoutes from './routes/rsvp.js'
 import loginRoutes from './routes/logins.js'
 import { activityLog } from './middleware/activity.js'
 import { News, Event, Gallery, Slide } from './models/Content.js'
@@ -45,6 +46,7 @@ app.use('/api/events', crud(Event, {
   fields: ['titleHi', 'titleEn', 'bodyHi', 'bodyEn', 'date', 'location'],
   sort: { date: -1 },
 }))
+app.use('/api/rsvp', rsvpRoutes)
 app.use('/api/gallery', crud(Gallery, {
   fields: ['titleHi', 'titleEn', 'section', 'kind', 'communityHi', 'communityEn'],
   filterFields: ['section', 'kind'],

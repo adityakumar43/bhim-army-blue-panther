@@ -248,5 +248,22 @@
     "notApplied": "Not applied yet?",
     "joinNow": "Join now",
     "link": "Already applied? Check your status"
+  },
+  "rsvp": {
+    "title": "Coming to this event?",
+    "coming_one": "{{count}} person is coming",
+    "coming_other": "{{count}} people are coming",
+    "attend": "I will attend",
+    "closed": "Registration for this event has closed.",
+    "done": "You are registered. See you there!",
+    "change": "Change",
+    "name": "Your name",
+    "phone": "Mobile number",
+    "district": "District / city",
+    "people": "How many people (including you)",
+    "submit": "Register",
+    "sending": "Registering...",
+    "cancel": "Cancel",
+    "privacy": "Only our team sees your number, to share event updates."
   }
 }

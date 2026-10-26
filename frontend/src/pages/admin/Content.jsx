@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react'
 import { api } from '../../lib/api.js'
 import { PageHeader, Notice } from './ui.jsx'
 import Icon from '../../components/Icon.jsx'
+import RsvpList from './RsvpList.jsx'
 
 const KINDS = {
   news: {
@@ -60,6 +61,8 @@ export default function Content({ kind }) {
   const [preview, setPreview] = useState('')
   const [adding, setAdding] = useState(false)
   const [when, setWhen] = useState('now')
+  const [rsvps, setRsvps] = useState({}) // people coming to each event
+  const [rsvpFor, setRsvpFor] = useState(null)
   const [at, setAt] = useState('')
 
   // Small preview of the photo chosen in the form
@@ -72,6 +75,8 @@ export default function Content({ kind }) {
 
   const load = () => api.get(`${config.endpoint}?limit=100&all=1`).then(setItems).catch((e) => setError(e.message))
   useEffect(() => { load() }, [config.endpoint])
+  const loadRsvps = () => kind === 'events' && api.get('/rsvp/counts').then(setRsvps).catch(() => { })
+  useEffect(() => { loadRsvps() }, [kind])
 
   function reset() {
     setForm({})
@@ -252,6 +257,11 @@ export default function Content({ kind }) {
                   </span>
                 )}
               </div>
+              {kind === 'events' && (
+                <button onClick={() => setRsvpFor(it)} className="mt-3 flex items-center justify-between rounded-xl bg-mist/60 px-3 py-2 text-sm font-semibold text-brand hover:bg-mist">
+                  <span>🙋 {rsvps[it._id]?.people || 0} coming</span><span className="text-xs">View list →</span>
+                </button>
+              )}
               <div className="mt-auto flex gap-2 pt-3">
                 <button onClick={() => startEdit(it)} className="abtn min-h-9 flex-1 px-3">✏️ Edit</button>
                 <button onClick={() => remove(it._id)} className="abtn-danger min-h-9 flex-1 px-3">🗑️ Delete</button>
@@ -260,6 +270,7 @@ export default function Content({ kind }) {
           </li>
         ))}
       </ul>
+      {rsvpFor && <RsvpList event={rsvpFor} onClose={() => setRsvpFor(null)} onChange={loadRsvps} />}
     </>
   )
 }
