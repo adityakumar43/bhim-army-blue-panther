@@ -329,5 +329,13 @@
     "empty": "No videos yet. Please check back soon.",
     "onYoutube": "Videos play from YouTube. Subscribe to our channel to see new ones first.",
     "link": "Videos"
+  },
+  "pwa": {
+    "title": "Install our app",
+    "text": "Open the website straight from your home screen.",
+    "install": "Install",
+    "later": "Not now",
+    "iosStep1": "Tap the Share button",
+    "iosStep2": "Choose \"Add to Home Screen\""
   }
 }

@@ -4,6 +4,7 @@ import Footer from './components/Footer.jsx'
 import PageBand, { hasBand } from './components/PageBand.jsx'
 import ProtectedRoute from './components/ProtectedRoute.jsx'
 import RouteSeo from './components/Seo.jsx'
+import InstallApp from './components/InstallApp.jsx'
 import Home from './pages/Home.jsx'
 import News from './pages/News.jsx'
 import Detail from './pages/Detail.jsx'
@@ -102,6 +103,7 @@ export default function App() {
         </Routes>
       </main>
       {!isAdmin && <Footer />}
+      {!isAdmin && <InstallApp />}
     </>
   )
 }

@@ -1,0 +1,64 @@
+{
+    "name": "Bhim Army Blue Panther",
+    "short_name": "Blue Panther",
+    "description": "भीम आर्मी ब्लू पैंथर — शिक्षित बनो, संगठित रहो, संघर्ष करो",
+    "lang": "hi",
+    "start_url": "/?source=app",
+    "scope": "/",
+    "display": "standalone",
+    "orientation": "portrait",
+    "background_color": "#0a1a3f",
+    "theme_color": "#0b3c9d",
+    "icons": [
+        {
+            "src": "/icons/icon-192.png",
+            "sizes": "192x192",
+            "type": "image/png",
+            "purpose": "any"
+        },
+        {
+            "src": "/icons/icon-512.png",
+            "sizes": "512x512",
+            "type": "image/png",
+            "purpose": "any"
+        },
+        {
+            "src": "/icons/icon-maskable-512.png",
+            "sizes": "512x512",
+            "type": "image/png",
+            "purpose": "maskable"
+        }
+    ],
+    "shortcuts": [
+        {
+            "name": "सदस्य बनें / Join",
+            "url": "/join",
+            "icons": [
+                {
+                    "src": "/icons/icon-192.png",
+                    "sizes": "192x192"
+                }
+            ]
+        },
+        {
+            "name": "समाचार / News",
+            "url": "/news",
+            "icons": [
+                {
+                    "src": "/icons/icon-192.png",
+                    "sizes": "192x192"
+                }
+            ]
+        },
+        {
+            "name": "हेल्प डेस्क / Help",
+            "url": "/help",
+            "icons": [
+                {
+                    "src": "/icons/icon-192.png",
+                    "sizes": "192x192"
+                }
+            ]
+        }
+    ]
+}
