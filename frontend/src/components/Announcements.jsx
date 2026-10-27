@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { Link } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
 import { api } from '../lib/api.js'
@@ -30,6 +30,7 @@ export default function Announcements({ interval = 6000 }) {
   const [playing, setPlaying] = useState(() => !window.matchMedia?.('(prefers-reduced-motion: reduce)').matches)
   const [hold, setHold] = useState(false) // hovering or using the keyboard inside
   const [hidden, setHidden] = useState(false)
+  const swipe = useRef(null)
   const n = items.length
   const signature = items.map((a) => a._id).join(',')
 
@@ -43,9 +44,11 @@ export default function Announcements({ interval = 6000 }) {
 
   useEffect(() => {
     if (n < 2 || !playing || hold) return
-    const id = setInterval(() => setIndex((i) => (i + 1) % n), interval)
-    return () => clearInterval(id)
-  }, [n, playing, hold, index, interval])
+    // A long update stays longer, so there is time to read it (about a third of a second per word)
+    const words = pickText(items[index] || {}, 'text', lang).split(/\s+/).length
+    const id = setTimeout(() => setIndex((i) => (i + 1) % n), Math.max(interval, words * 350))
+    return () => clearTimeout(id)
+  }, [n, playing, hold, index, interval, lang, items])
 
   if (n === 0 || hidden) return null
 
@@ -64,11 +67,18 @@ export default function Announcements({ interval = 6000 }) {
       onMouseLeave={() => setHold(false)}
       onFocus={(e) => e.target.matches(':focus-visible') && setHold(true)}
       onBlur={() => setHold(false)}
+      // On phones (no arrow buttons): swipe left or right to see the next or previous update
+      onTouchStart={(e) => { swipe.current = e.touches[0].clientX }}
+      onTouchEnd={(e) => {
+        const dx = e.changedTouches[0].clientX - (swipe.current ?? e.changedTouches[0].clientX)
+        if (n > 1 && Math.abs(dx) > 40) go(index + (dx < 0 ? 1 : -1))
+        swipe.current = null
+      }}
       className="relative border-b border-white/10 bg-[linear-gradient(90deg,#0a1a3f_0%,#0b3c9d_50%,#0a1a3f_100%)] text-white"
     >
       <style>{FADE}</style>
       {/* One slim row. On phones the label shrinks to a red dot and long updates show two lines. */}
-      <div className="mx-auto flex max-w-7xl items-center gap-x-2.5 px-4 py-1.5 sm:gap-x-4 sm:px-5 sm:py-2.5 lg:px-16">
+      <div className="mx-auto flex max-w-7xl items-center gap-x-3 px-4 py-2 sm:gap-x-4 sm:px-5 sm:py-2.5 lg:px-16">
         <span className="relative flex h-2 w-2 shrink-0 sm:hidden" aria-hidden="true">
           <span className="absolute inline-flex h-full w-full rounded-full bg-red-500 opacity-75 motion-safe:animate-ping" />
           <span className="relative inline-flex h-2 w-2 rounded-full bg-red-600" />
@@ -80,8 +90,8 @@ export default function Announcements({ interval = 6000 }) {
           </span>
           {t('announce.label')}
         </span>
-        <p key={current._id} className="line-clamp-2 min-w-0 flex-1 text-[13px] leading-snug font-semibold motion-safe:[animation:updateIn_.45s_ease-out] sm:line-clamp-none sm:border-l sm:border-white/20 sm:pl-4 sm:text-[15px]">
-          {current.important && <span className="mr-2 rounded bg-red-600 px-1.5 py-0.5 text-xs font-extrabold tracking-wide uppercase">{t('announce.important')}</span>}
+        <p key={current._id} className="min-w-0 flex-1 text-[13px] leading-snug font-semibold motion-safe:[animation:updateIn_.45s_ease-out] sm:border-l sm:border-white/20 sm:pl-4 sm:text-[15px]">
+          {current.important && <span className="mb-1 block w-fit rounded bg-red-600 px-1.5 py-0.5 text-[11px] leading-none font-extrabold tracking-wide uppercase sm:mr-2 sm:mb-0 sm:inline-block sm:text-xs">{t('announce.important')}</span>}
           {href
             ? href.startsWith('/')
               ? <Link to={href} className={linkClass}><span>{text}</span>{more}</Link>
@@ -91,9 +101,9 @@ export default function Announcements({ interval = 6000 }) {
         <div className="flex shrink-0 items-center sm:gap-0.5">
           {n > 1 && (
             <>
-              <button type="button" onClick={() => go(index - 1)} aria-label={t('announce.prev')} className={small}><Icon d="M15 5l-7 7 7 7" /></button>
-              <span className="hidden min-w-10 text-center text-xs font-semibold text-white/70 tabular-nums sm:inline">{t('announce.counter', { current: index + 1, total: n })}</span>
-              <button type="button" onClick={() => go(index + 1)} aria-label={t('announce.next')} className={small}><Icon d="M9 5l7 7-7 7" /></button>
+              <button type="button" onClick={() => go(index - 1)} aria-label={t('announce.prev')} className={`${small} max-sm:hidden`}><Icon d="M15 5l-7 7 7 7" /></button>
+              <span className="min-w-8 text-center text-[11px] font-semibold text-white/70 tabular-nums sm:min-w-10 sm:text-xs">{t('announce.counter', { current: index + 1, total: n })}</span>
+              <button type="button" onClick={() => go(index + 1)} aria-label={t('announce.next')} className={`${small} max-sm:hidden`}><Icon d="M9 5l7 7-7 7" /></button>
               <span className="mx-1 hidden h-5 w-px bg-white/20 sm:inline" aria-hidden="true" />
             </>
           )}
