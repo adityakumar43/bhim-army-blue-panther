@@ -29,7 +29,7 @@ export default function Birthdays() {
     const shownSoon = showAll ? soon : soon.slice(0, 4)
 
     return (
-        <section className="card mb-6">
+        <section className="card mt-6">
             <div className="mb-3 flex flex-wrap items-center justify-between gap-2">
                 <h2 className="flex items-center gap-2 text-lg font-extrabold">
                     <span aria-hidden="true" className="flex h-9 w-9 items-center justify-center rounded-xl bg-pink-100 text-xl">🎂</span>

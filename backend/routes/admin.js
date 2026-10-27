@@ -5,8 +5,12 @@ import Donation from '../models/Donation.js'
 import Admin from '../models/Admin.js'
 import Complaint from '../models/Complaint.js'
 import Volunteer from '../models/Volunteer.js'
+import Rsvp from '../models/Rsvp.js'
+import Download from '../models/Download.js'
+import Certificate from '../models/Certificate.js'
+import { Event } from '../models/Content.js'
 import { protect, requirePermission, stateScope } from '../middleware/auth.js'
-import { memberStateFilter } from '../config/stateNames.js'
+import { memberStateFilter, codeFromName, stateNameEn } from '../config/stateNames.js'
 import { can } from '../config/roles.js'
 
 const router = Router()
@@ -39,6 +43,18 @@ router.post('/seen/donations', protect, requirePermission('donations'), async (r
   await Admin.updateOne({ _id: req.admin._id }, { seenDonationsAt: new Date() })
   res.json({ ok: true })
 })
+
+// Members grouped by state: by the state chosen from the list, or worked out from what older members typed
+// ("UP", "u.p." and "Uttar Pradesh" all count as Uttar Pradesh). Biggest first.
+function byStateName(rows) {
+  const totals = new Map()
+  for (const { _id, n } of rows) {
+    const code = _id.code || codeFromName(_id.state)
+    const name = code ? stateNameEn(code) : _id.state || 'Not given'
+    totals.set(name, (totals.get(name) || 0) + n)
+  }
+  return [...totals].map(([state, value]) => ({ state, value })).sort((a, b) => b.value - a.value)
+}
 
 // Numbers and charts for the Overview page. Each part is only sent to roles that may see it.
 const TZ = 'Asia/Kolkata'
@@ -77,8 +93,7 @@ router.get('/stats', protect, async (req, res) => {
       Member.aggregate([
         mine,
         { $match: { status: 'approved' } },
-        { $group: { _id: { $trim: { input: { $ifNull: ['$state', ''] } } }, n: { $sum: 1 } } },
-        { $sort: { n: -1 } },
+        { $group: { _id: { code: '$stateCode', state: { $trim: { input: { $ifNull: ['$state', ''] } } } }, n: { $sum: 1 } } },
       ]),
     ])
     const status = Object.fromEntries(statusRows.map((r) => [r._id, r.n]))
@@ -89,7 +104,7 @@ router.get('/stats', protect, async (req, res) => {
       rejected: status.rejected || 0,
       thisMonth: perMonth.at(-1)?.value || 0,
       perMonth,
-      byState: states.map((r) => ({ state: r._id || 'Not given', value: r.n })),
+      byState: byStateName(states),
     }
   }
 
@@ -111,6 +126,58 @@ router.get('/stats', protect, async (req, res) => {
       thisMonth: perMonth.find((m) => m.month === thisMonth)?.value || 0,
       perMonth,
     }
+  }
+
+  // Help desk: open and solved cases, cases per month and by type
+  if (can(role, 'helpdesk')) {
+    const scope = stateScope(req.admin)
+    const mine = { $match: scope ? { stateCode: scope } : {} }
+    const [statusRows, perMonthRows, typeRows] = await Promise.all([
+      Complaint.aggregate([mine, { $group: { _id: '$status', n: { $sum: 1 } } }]),
+      Complaint.aggregate([mine, { $match: { createdAt: { $gte: since } } }, { $group: { _id: byMonth('$createdAt'), n: { $sum: 1 } } }]),
+      Complaint.aggregate([mine, { $group: { _id: '$category', n: { $sum: 1 } } }, { $sort: { n: -1 } }]),
+    ])
+    const st = Object.fromEntries(statusRows.map((r) => [r._id, r.n]))
+    const perMonth = fill(months, perMonthRows)
+    out.helpdesk = {
+      open: (st.new || 0) + (st.in_progress || 0),
+      solved: (st.resolved || 0) + (st.closed || 0),
+      thisMonth: perMonth.at(-1)?.value || 0,
+      perMonth,
+      byType: typeRows.map((r) => ({ key: r._id, value: r.n })),
+    }
+  }
+
+  // Volunteers and certificates: shown to the people who manage members
+  if (can(role, 'members')) {
+    const scope = stateScope(req.admin)
+    const mine = { $match: scope ? { stateCode: scope } : {} }
+    const yearStart = new Date(Date.UTC(Number(thisMonth.slice(0, 4)), 0, 1) - 330 * 60e3)
+    const [volRows, skillRows, certRows] = await Promise.all([
+      Volunteer.aggregate([mine, { $group: { _id: '$status', n: { $sum: 1 } } }]),
+      Volunteer.aggregate([mine, { $match: { status: { $ne: 'inactive' } } }, { $unwind: '$skills' }, { $group: { _id: '$skills', n: { $sum: 1 } } }, { $sort: { n: -1 } }]),
+      Certificate.aggregate([mine, { $match: { status: 'active', createdAt: { $gte: yearStart } } }, { $group: { _id: '$type', n: { $sum: 1 } } }]),
+    ])
+    const vs = Object.fromEntries(volRows.map((r) => [r._id, r.n]))
+    out.volunteers = {
+      total: Object.values(vs).reduce((a, b) => a + b, 0) - (vs.inactive || 0),
+      active: vs.active || 0,
+      bySkill: skillRows.map((r) => ({ key: r._id, value: r.n })),
+    }
+    const cs = Object.fromEntries(certRows.map((r) => [r._id, r.n]))
+    out.certificates = { thisYear: Object.values(cs).reduce((a, b) => a + b, 0), appointments: cs.appointment || 0 }
+  }
+
+  // Events and downloads: shown to content editors
+  if (can(role, 'content')) {
+    const today = new Date(`${new Intl.DateTimeFormat('en-CA', { timeZone: TZ }).format(new Date())}T00:00:00Z`)
+    const upcoming = await Event.find({ date: { $gte: today }, draft: { $ne: true } }).select('_id').lean()
+    const [rsvpRows, dlRows] = await Promise.all([
+      upcoming.length ? Rsvp.aggregate([{ $match: { event: { $in: upcoming.map((e) => e._id) } } }, { $group: { _id: null, people: { $sum: '$people' } } }]) : [],
+      Download.aggregate([{ $group: { _id: null, files: { $sum: 1 }, count: { $sum: '$count' } } }]),
+    ])
+    out.events = { upcoming: upcoming.length, coming: rsvpRows[0]?.people || 0 }
+    out.downloads = { files: dlRows[0]?.files || 0, count: dlRows[0]?.count || 0 }
   }
 
   res.json(out)

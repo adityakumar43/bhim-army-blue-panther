@@ -1,5 +1,7 @@
 import { useEffect, useState } from 'react'
 import { api } from '../../lib/api.js'
+import { categoryOf } from '../../data/helpdesk.js'
+import { skillOf } from '../../data/volunteers.js'
 
 const rupees = (n) => '₹' + Number(n || 0).toLocaleString('en-IN')
 const MONTHS = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec']
@@ -62,19 +64,19 @@ function MonthBars({ title, data, format = (v) => v }) {
   )
 }
 
-// Approved members in each state, biggest first
-function StateBars({ data }) {
+// A list of labelled bars, biggest first (members by state, help desk cases by type...)
+function Bars({ title, data, empty, noun = 'rows' }) {
   const [all, setAll] = useState(false)
   const top = all ? data : data.slice(0, 8)
   const max = Math.max(1, ...data.map((d) => d.value))
   return (
     <figure className="rounded-2xl border border-brand/10 bg-white p-4 shadow-sm sm:p-5">
-      <figcaption className="mb-3 font-extrabold">🗺️ Approved members by state</figcaption>
-      {data.length === 0 && <p className="text-sm text-navy/60">No approved members yet.</p>}
+      <figcaption className="mb-3 font-extrabold">{title}</figcaption>
+      {data.length === 0 && <p className="text-sm text-navy/60">{empty}</p>}
       <ul className="flex flex-col gap-2">
         {top.map((d) => (
-          <li key={d.state} className="grid grid-cols-[minmax(0,9rem)_1fr_auto] items-center gap-2 text-sm" title={`${d.state}: ${d.value}`}>
-            <span className="truncate text-navy/80">{d.state}</span>
+          <li key={d.label} className="grid grid-cols-[minmax(0,13rem)_1fr_auto] items-center gap-2 text-sm" title={`${d.label}: ${d.value}`}>
+            <span className="truncate text-navy/80">{d.label}</span>
             <span className="h-3 rounded-r-[4px] bg-brand/80" style={{ width: `${Math.max(2, (d.value / max) * 100)}%` }} />
             <b className="w-10 text-right text-navy">{d.value}</b>
           </li>
@@ -82,33 +84,46 @@ function StateBars({ data }) {
       </ul>
       {data.length > 8 && (
         <button onClick={() => setAll(!all)} className="mt-3 text-sm font-semibold text-brand hover:underline">
-          {all ? 'Show fewer' : `Show all ${data.length} states`}
+          {all ? 'Show fewer' : `Show all ${data.length} ${noun}`}
         </button>
       )}
     </figure>
   )
 }
 
+const n = (v) => Number(v || 0).toLocaleString('en-IN')
+
 export default function Stats() {
   const [s, setS] = useState(null)
   useEffect(() => { api.get('/admin/stats').then(setS).catch(() => setS({})) }, [])
-  if (!s || (!s.members && !s.donations)) return null
-  const m = s.members
-  const d = s.donations
+  if (!s || Object.keys(s).length === 0) return null
+  const { members: m, donations: d, helpdesk: h, volunteers: v, certificates: c, events: e, downloads: dl } = s
 
   return (
     <section className="mt-8">
       <h2 className="mb-3 text-lg font-extrabold">📊 Numbers at a glance</h2>
-      <div className="mb-4 grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
-        {m && <Tile emoji="👥" tint="bg-blue-100" value={m.approved.toLocaleString('en-IN')} label="Approved members" />}
-        {m && <Tile emoji="🆕" tint="bg-amber-100" value={m.thisMonth.toLocaleString('en-IN')} label="Applications this month" />}
+      <div className="mb-4 grid gap-3 [grid-template-columns:repeat(auto-fill,minmax(12rem,1fr))]">
+        {m && <Tile emoji="👥" tint="bg-blue-100" value={n(m.approved)} label="Approved members" />}
+        {m && <Tile emoji="🆕" tint="bg-amber-100" value={n(m.thisMonth)} label="Applications this month" />}
         {d && <Tile emoji="💰" tint="bg-green-100" value={rupees(d.total)} label={`Donations received (${d.count})`} />}
         {d && <Tile emoji="📅" tint="bg-rose-100" value={rupees(d.thisMonth)} label="Donations this month" />}
+        {h && <Tile emoji="🆘" tint="bg-red-100" value={n(h.open)} label="Help desk cases open" />}
+        {h && <Tile emoji="✅" tint="bg-green-100" value={n(h.solved)} label="Help desk cases solved" />}
+        {v && <Tile emoji="🙋" tint="bg-teal-100" value={n(v.total)} label={`Volunteers (${n(v.active)} active)`} />}
+        {c && <Tile emoji="📜" tint="bg-indigo-100" value={n(c.thisYear)} label="Certificates & letters this year" />}
+        {e && <Tile emoji="🎟️" tint="bg-purple-100" value={n(e.coming)} label={`People coming to ${n(e.upcoming)} upcoming event${e.upcoming === 1 ? '' : 's'}`} />}
+        {dl && <Tile emoji="📥" tint="bg-sky-100" value={n(dl.count)} label={`Downloads of ${n(dl.files)} file${dl.files === 1 ? '' : 's'}`} />}
       </div>
       <div className="grid gap-4 xl:grid-cols-2">
         {m && <MonthBars title="📈 Membership applications per month" data={m.perMonth} />}
-        {m && <StateBars data={m.byState} />}
+        {m && <Bars title="🗺️ Approved members by state" empty="No approved members yet." noun="states"
+          data={m.byState.map((r) => ({ label: r.state, value: r.value }))} />}
         {d && <MonthBars title="💰 Donations per month" data={d.perMonth} format={rupees} />}
+        {h && <MonthBars title="🆘 Help desk cases per month" data={h.perMonth} />}
+        {h && <Bars title="🆘 Help desk cases by type" empty="No cases yet." noun="types"
+          data={h.byType.map((r) => ({ label: `${categoryOf(r.key).emoji} ${categoryOf(r.key).en}`, value: r.value }))} />}
+        {v && <Bars title="🙋 Volunteers by skill" empty="No volunteers yet." noun="skills"
+          data={v.bySkill.map((r) => ({ label: `${skillOf(r.key)?.emoji || ''} ${skillOf(r.key)?.en || r.key}`, value: r.value }))} />}
       </div>
     </section>
   )

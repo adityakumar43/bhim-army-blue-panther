@@ -109,7 +109,9 @@
     "receiptHint": "If you add your email, we will also send the receipt there."
   },
   "footer": {
-    "links": "Quick links"
+    "links": "Quick links",
+    "explore": "Explore",
+    "involved": "Get involved"
   },
   "receipt": {
     "title": "Donation receipt",
