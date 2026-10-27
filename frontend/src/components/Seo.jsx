@@ -11,7 +11,7 @@ import { BANDS } from './PageBand.jsx'
 const DEFAULT_IMAGE = '/og-default.jpg'
 
 // Pages that should never show up in search results
-const PRIVATE = /^\/(admin|receipt|card)(\/|$)/
+const PRIVATE = /^\/(admin|receipt|card|certificate)(\/|$)/
 
 // Pages that set their own title once their content has loaded
 const OWN_SEO = /^\/(news|events|inspirations|leadership\/states)\/[^/]+$/

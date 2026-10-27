@@ -8,6 +8,8 @@ import InstallApp from './components/InstallApp.jsx'
 import Home from './pages/Home.jsx'
 import News from './pages/News.jsx'
 import Detail from './pages/Detail.jsx'
+import Certificate from './pages/Certificate.jsx'
+import Certificates from './pages/admin/Certificates.jsx'
 import Gallery from './pages/Gallery.jsx'
 import Join from './pages/Join.jsx'
 import About from './pages/About.jsx'
@@ -78,6 +80,7 @@ export default function App() {
           <Route path="/donate" element={<Donate />} />
           <Route path="/receipt/:token" element={<Receipt />} />
           <Route path="/card/:token" element={<Card />} />
+          <Route path="/certificate/:token" element={<Certificate />} />
 
           <Route path="/admin/login" element={<Login />} />
           <Route path="/admin" element={<ProtectedRoute><SessionWatch /><AdminLayout /></ProtectedRoute>}>
@@ -92,6 +95,7 @@ export default function App() {
             <Route path="videos" element={<Perm perm="content"><VideosAdmin /></Perm>} />
             <Route path="downloads" element={<Perm perm="content"><DownloadsAdmin /></Perm>} />
             <Route path="volunteers" element={<Perm perm="members"><Volunteers /></Perm>} />
+            <Route path="certificates" element={<Perm perm="members"><Certificates /></Perm>} />
             <Route path="helpdesk" element={<Perm perm="helpdesk"><HelpDeskAdmin /></Perm>} />
             <Route path="messages" element={<Perm perm="messages"><Messages /></Perm>} />
             <Route path="donations" element={<Perm perm="donations"><Donations /></Perm>} />

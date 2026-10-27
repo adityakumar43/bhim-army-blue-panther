@@ -8,7 +8,7 @@ import Activity from '../models/Activity.js'
 const COLLECTIONS = {
     news: ['news'], events: ['events'], gallery: ['galleries', 'gallery'], slides: ['slides'],
     members: ['members'], leaders: ['leaders'], announcements: ['announcements'],
-    contact: ['messages', 'contacts', 'contactmessages'], helpdesk: ['complaints'], volunteers: ['volunteers'], downloads: ['downloads'], videos: ['videos'], donations: ['donations'], admins: ['admins'],
+    contact: ['messages', 'contacts', 'contactmessages'], helpdesk: ['complaints'], volunteers: ['volunteers'], downloads: ['downloads'], videos: ['videos'], certificates: ['certificates'], donations: ['donations'], admins: ['admins'],
 }
 
 // What one item is called in each section
@@ -56,6 +56,15 @@ function describe(section, method, part, body = {}, last = '') {
             if (body.active === true) return ['enable', 'enabled the account of']
             if (body.password) return ['security', 'changed the password of']
             return ['update', 'updated the account of']
+        case 'certificates':
+            if (part === 'signature') return null
+            if (part === 'email') return ['email', 'emailed']
+            if (body.status === 'revoked') return ['disable', 'cancelled']
+            if (body.status === 'active') return ['enable', 'restored']
+            if (method === 'POST') return ['create', 'issued']
+            if (method === 'PATCH') return ['update', 'edited']
+            if (method === 'DELETE') return ['delete', 'deleted']
+            return null
         case 'auth':
             if (last === 'enable') return ['security', 'turned on two-step login', true]
             if (last === 'disable') return ['security', 'turned off two-step login', true]

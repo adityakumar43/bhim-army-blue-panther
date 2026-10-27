@@ -6,7 +6,7 @@ import LoginHistory from './LoginHistory.jsx'
 const SECTIONS = [
   ['news', 'News'], ['events', 'Events'], ['gallery', 'Gallery'], ['slides', 'Home slider'],
   ['leaders', 'Leadership'], ['announcements', 'Home updates'], ['members', 'Members'],
-  ['contact', 'Messages'], ['donations', 'Donations'], ['admins', 'Team & roles'], ['auth', 'Security'],
+  ['contact', 'Messages'], ['certificates', 'Certificates'], ['donations', 'Donations'], ['admins', 'Team & roles'], ['auth', 'Security'],
 ]
 const SECTION_NAME = Object.fromEntries(SECTIONS)
 

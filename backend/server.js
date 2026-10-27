@@ -26,6 +26,7 @@ import videoRoutes from './routes/videos.js'
 import shareRoutes from './routes/share.js'
 import sitemapRoutes from './routes/sitemap.js'
 import birthdayRoutes from './routes/birthdays.js'
+import certificateRoutes from './routes/certificates.js'
 import { startBirthdayTimer } from './services/birthdays.js'
 
 if (!process.env.JWT_SECRET || !process.env.MONGO_URI) {
@@ -82,6 +83,7 @@ app.use('/api/videos', videoRoutes)
 app.use('/share', shareRoutes)
 app.use('/sitemap.xml', sitemapRoutes)
 app.use('/api/birthdays', birthdayRoutes)
+app.use('/api/certificates', certificateRoutes)
 app.use('/api/donations', donationRoutes)
 app.use('/api/admin', adminRoutes)
 app.use('/api/admins', adminsRoutes)
