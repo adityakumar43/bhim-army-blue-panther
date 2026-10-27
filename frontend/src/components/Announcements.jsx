@@ -15,7 +15,7 @@ const Icon = ({ d }) => (
   <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.4"
     strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><path d={d} /></svg>
 )
-const small = 'flex h-7 w-7 items-center justify-center rounded-full sm:h-8 sm:w-8 text-white/80 transition hover:bg-white/15 hover:text-white'
+const small = 'flex h-8 w-8 items-center justify-center rounded-full text-white/80 transition hover:bg-white/15 hover:text-white'
 
 // Each new update slides in gently (skipped for people who asked their device for less motion)
 const FADE = '@keyframes updateIn{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}'
@@ -67,20 +67,16 @@ export default function Announcements({ interval = 6000 }) {
       className="relative border-b border-white/10 bg-[linear-gradient(90deg,#0a1a3f_0%,#0b3c9d_50%,#0a1a3f_100%)] text-white"
     >
       <style>{FADE}</style>
-      {/* One slim row. On phones the label shrinks to a red dot and long updates show two lines. */}
-      <div className="mx-auto flex max-w-7xl items-center gap-x-2.5 px-4 py-1.5 sm:gap-x-4 sm:px-5 sm:py-2.5 lg:px-16">
-        <span className="relative flex h-2 w-2 shrink-0 sm:hidden" aria-hidden="true">
-          <span className="absolute inline-flex h-full w-full rounded-full bg-red-500 opacity-75 motion-safe:animate-ping" />
-          <span className="relative inline-flex h-2 w-2 rounded-full bg-red-600" />
-        </span>
-        <span className="hidden shrink-0 items-center gap-2 rounded-full bg-gold py-1 pr-3 pl-2 text-sm font-extrabold text-navy shadow-sm sm:inline-flex">
+      {/* On phones: label and buttons on the first row, the text across the full width below. From "sm" up: one row. */}
+      <div className="mx-auto flex max-w-7xl flex-wrap items-center gap-x-4 gap-y-1.5 px-5 py-2.5 lg:px-16">
+        <span className="order-1 inline-flex shrink-0 items-center gap-2 rounded-full bg-gold py-1 pr-3 pl-2 text-xs font-extrabold text-navy shadow-sm sm:text-sm">
           <span className="relative flex h-2 w-2" aria-hidden="true">
             <span className="absolute inline-flex h-full w-full rounded-full bg-red-500 opacity-75 motion-safe:animate-ping" />
             <span className="relative inline-flex h-2 w-2 rounded-full bg-red-600" />
           </span>
           {t('announce.label')}
         </span>
-        <p key={current._id} className="line-clamp-2 min-w-0 flex-1 text-[13px] leading-snug font-semibold motion-safe:[animation:updateIn_.45s_ease-out] sm:line-clamp-none sm:border-l sm:border-white/20 sm:pl-4 sm:text-[15px]">
+        <p key={current._id} className="order-3 w-full text-sm leading-snug font-semibold motion-safe:[animation:updateIn_.45s_ease-out] sm:order-2 sm:w-auto sm:min-w-0 sm:flex-1 sm:border-l sm:border-white/20 sm:pl-4 sm:text-[15px]">
           {current.important && <span className="mr-2 rounded bg-red-600 px-1.5 py-0.5 text-xs font-extrabold tracking-wide uppercase">{t('announce.important')}</span>}
           {href
             ? href.startsWith('/')
@@ -88,7 +84,7 @@ export default function Announcements({ interval = 6000 }) {
               : <a href={href} target="_blank" rel="noopener noreferrer" className={linkClass}><span>{text}</span>{more}</a>
             : text}
         </p>
-        <div className="flex shrink-0 items-center sm:gap-0.5">
+        <div className="order-2 ml-auto flex shrink-0 items-center gap-0.5 sm:order-3">
           {n > 1 && (
             <>
               <button type="button" onClick={() => go(index - 1)} aria-label={t('announce.prev')} className={small}><Icon d="M15 5l-7 7 7 7" /></button>
