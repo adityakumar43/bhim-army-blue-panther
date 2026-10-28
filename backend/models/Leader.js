@@ -4,7 +4,7 @@ import { STATE_CODES } from '../config/states.js'
 // A person in the organisation's leadership: national, or for one state / union territory
 const leaderSchema = new mongoose.Schema(
   {
-    level: { type: String, enum: ['national', 'state'], required: true },
+    level: { type: String, enum: ['national', 'state', 'district'], required: true },
     state: { type: String, enum: [...STATE_CODES, null] }, // only for state leaders
     nameHi: { type: String, trim: true, maxlength: 100 },
     nameEn: { type: String, trim: true, maxlength: 100 },

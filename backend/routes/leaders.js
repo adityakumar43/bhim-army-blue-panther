@@ -16,15 +16,17 @@ const view = (l) => ({
 function read(body) {
   const s = (v) => String(v ?? '').trim()
   const level = s(body.level)
-  if (!['national', 'state'].includes(level)) return { error: 'Choose National or State' }
-  const state = level === 'state' ? s(body.state) : null
-  if (level === 'state' && !STATE_CODES.includes(state)) return { error: 'Choose the state' }
+  if (!['national', 'state', 'district'].includes(level)) return { error: 'Choose National, State or District' }
+  const state = level === 'national' ? null : s(body.state)
+  if (level !== 'national' && !STATE_CODES.includes(state)) return { error: 'Choose the state' }
   const data = {
     level, state,
     nameHi: s(body.nameHi), nameEn: s(body.nameEn), roleHi: s(body.roleHi), roleEn: s(body.roleEn),
     areaHi: s(body.areaHi), areaEn: s(body.areaEn), phone: s(body.phone),
   }
   if (!data.nameHi && !data.nameEn) return { error: 'Write the name in Hindi or English' }
+  // A district team member belongs to a district: its name is kept in the area fields
+  if (level === 'district' && !data.areaHi && !data.areaEn) return { error: 'Write the district name in Hindi or English' }
   if (['nameHi', 'nameEn', 'roleHi', 'roleEn', 'areaHi', 'areaEn'].some((k) => data[k].length > 100)) {
     return { error: 'Each text can be up to 100 characters' }
   }
@@ -42,10 +44,10 @@ const OWN_STATE_ONLY = 'You can only manage leaders of your own state'
 // Public: ?level=national or ?state=uttar-pradesh
 router.get('/', async (req, res) => {
   const filter = {}
-  if (['national', 'state'].includes(req.query.level)) filter.level = req.query.level
+  if (['national', 'state', 'district'].includes(req.query.level)) filter.level = req.query.level
   if (req.query.state) {
     if (!STATE_CODES.includes(String(req.query.state))) return res.json([])
-    filter.level = 'state'
+    filter.level = { $in: ['state', 'district'] }
     filter.state = String(req.query.state)
   }
   const items = await Leader.find(filter).sort({ order: 1, createdAt: 1 }).limit(500)
@@ -54,7 +56,7 @@ router.get('/', async (req, res) => {
 
 // Public: how many leaders each state has, for the list of states
 router.get('/counts', async (req, res) => {
-  const rows = await Leader.aggregate([{ $match: { level: 'state' } }, { $group: { _id: '$state', n: { $sum: 1 } } }])
+  const rows = await Leader.aggregate([{ $match: { level: { $in: ['state', 'district'] } } }, { $group: { _id: '$state', n: { $sum: 1 } } }])
   res.json(Object.fromEntries(rows.map((r) => [r._id, r.n])))
 })
 

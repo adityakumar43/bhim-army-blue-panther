@@ -318,6 +318,10 @@
     "empty": "Details will be added soon.",
     "stateEmpty": "The leadership details for this state will be added soon.",
     "back": "All states",
+    "stateTeam": "State team",
+    "districtTeams": "District teams",
+    "districtIntro": "Our teams in {{count}} districts. Tap a district to go to its team.",
+    "district": "District",
     "notFound": "This state was not found."
   },
   "inspire": {

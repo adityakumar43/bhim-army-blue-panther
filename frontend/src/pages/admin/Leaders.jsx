@@ -87,16 +87,24 @@ export default function Leaders() {
     }
   }
 
+  // Districts already used in the chosen state, offered while typing a district name
+  const knownDistricts = (field) => {
+    const seen = new Map() // one spelling per name, ignoring capitals
+    for (const l of items || []) if (l.level === 'district' && l.state === form.state && l[field]) seen.set(l[field].trim().toLowerCase(), l[field].trim())
+    return [...seen.values()].sort()
+  }
+
   const count = (code) => (items || []).filter((l) => (code === 'national' ? l.level === 'national' : l.state === code)).length
   const shown = (items || []).filter((l) => (myState ? l.state === myState
     : show === 'all' || (show === 'national' ? l.level === 'national' : l.state === show)))
-  const where = (l) => (l.level === 'national' ? 'National' : stateByCode(l.state)?.en || l.state)
+  const stateOf = (l) => stateByCode(l.state)?.en || l.state
+  const where = (l) => (l.level === 'national' ? 'National' : l.level === 'district' ? `${l.areaEn || l.areaHi}, ${stateOf(l)}` : stateOf(l))
 
   const showForm = adding || !!editing
 
   return (
     <>
-      <PageHeader title="Leadership" subtitle="National leaders show on the About page. State leaders show on each state's page.">
+      <PageHeader title="Leadership" subtitle="National leaders show on the About page. State and district teams show on each state's page.">
         {!showForm && <button onClick={() => { setAdding(true); setError(''); setNote('') }} className="abtn-primary">➕ Add leader</button>}
       </PageHeader>
       <Notice kind="success">{note}</Notice>
@@ -116,15 +124,14 @@ export default function Leaders() {
             </button>
           </div>
           <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
-            {!myState && (
-              <label className="flex flex-col gap-1 font-semibold">🏛️ Leadership
-                <select value={form.level} onChange={set('level')} className="input">
-                  <option value="national">National</option>
-                  <option value="state">State</option>
-                </select>
-              </label>
-            )}
-            {!myState && form.level === 'state' && (
+            <label className="flex flex-col gap-1 font-semibold">🏛️ Leadership
+              <select value={form.level} onChange={set('level')} className="input">
+                {!myState && <option value="national">National</option>}
+                <option value="state">State team</option>
+                <option value="district">District team</option>
+              </select>
+            </label>
+            {!myState && form.level !== 'national' && (
               <label className="flex flex-col gap-1 font-semibold">📍 State
                 <select required value={form.state} onChange={set('state')} className="input">
                   <option value="">Choose...</option>
@@ -142,6 +149,18 @@ export default function Leaders() {
                 <input value={form[f]} onChange={set(f)} maxLength="100" className="input" />
               </label>
             ))}
+            {/* A district team member: the district's name (Hindi or English, at least one). Same spelling = same district. */}
+            {form.level === 'district' && [['areaHi', '🏘️ District (Hindi), like देवरिया'], ['areaEn', '🏘️ District (English), like Deoria']].map(([f, label]) => (
+              <label key={f} className="flex flex-col gap-1 font-semibold">{label}
+                <input value={form[f]} onChange={set(f)} maxLength="100" list={`districts-${f}`} required={!form.areaHi && !form.areaEn} className="input" />
+                <datalist id={`districts-${f}`}>{knownDistricts(f).map((d) => <option key={d} value={d} />)}</datalist>
+              </label>
+            ))}
+            {form.level === 'district' && (
+              <p className="rounded-lg bg-mist/70 px-3 py-2 text-xs font-normal text-navy/70 sm:col-span-2 xl:col-span-4">
+                💡 People with the same district name are shown together on the state page. Pick the name from the list if the district already has members, so it is spelled the same way.
+              </p>
+            )}
             <label className="flex flex-col gap-1 font-semibold">📞 Public phone (optional)
               <input type="tel" value={form.phone} onChange={set('phone')} className="input" />
             </label>
@@ -195,7 +214,7 @@ export default function Leaders() {
                 <div className="line-clamp-2 leading-tight font-bold">{l.nameEn || l.nameHi}</div>
                 <div className="truncate text-sm text-navy/70">{l.roleEn || l.roleHi}</div>
                 <div className="mt-1.5 flex flex-wrap gap-1.5">
-                  <Pill tone={l.level === 'national' ? 'gold' : 'blue'}>{l.level === 'national' ? '🏛️' : '📍'} {where(l)}</Pill>
+                  <Pill tone={l.level === 'national' ? 'gold' : l.level === 'district' ? 'green' : 'blue'}>{l.level === 'national' ? '🏛️' : l.level === 'district' ? '🏘️' : '📍'} {where(l)}</Pill>
                   {l.order ? <Pill tone="gray">#{l.order}</Pill> : null}
                 </div>
                 {l.phone && <div className="mt-1 text-xs text-navy/60">📞 {l.phone}</div>}
