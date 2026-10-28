@@ -13,12 +13,20 @@ const complaintSchema = new mongoose.Schema(
     stateCode: { type: String, required: true, index: true },
     state: String,
     district: { type: String, trim: true, maxlength: 100 },
+    village: { type: String, trim: true, maxlength: 100 }, // village or locality
+    policeStation: { type: String, trim: true, maxlength: 100 },
     category: { type: String, enum: CATEGORIES, required: true },
     incidentDate: Date,
-    description: { type: String, required: true, trim: true, maxlength: 3000 },
-    photo: { url: String, publicId: String },
+    description: { type: String, trim: true, maxlength: 3000 }, // needed unless they recorded a voice message
+    photo: { url: String, publicId: String }, // older cases: one photo
+    photos: [{ url: String, publicId: String }], // up to 3 photos or documents
+    voice: { url: String, publicId: String, seconds: Number }, // a recorded voice message
     status: { type: String, enum: STATUSES, default: 'new', index: true },
     publicNote: { type: String, trim: true, maxlength: 1000 }, // message the person sees when they track their complaint
+    // Every update the person can see when they track it: the status at that time and the message, if any
+    history: [{ status: String, note: { type: String, maxlength: 1000 }, at: { type: Date, default: Date.now } }],
+    urgent: { type: Boolean, default: false, index: true },
+    assignedTo: { adminId: mongoose.Schema.Types.ObjectId, name: String }, // the team member handling this case
     notes: [{ text: { type: String, maxlength: 2000 }, byName: String, at: { type: Date, default: Date.now } }], // team only
   },
   { timestamps: true }
