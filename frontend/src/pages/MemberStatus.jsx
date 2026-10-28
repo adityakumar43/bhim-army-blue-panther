@@ -97,7 +97,7 @@ export default function MemberStatus() {
           <label className="flex flex-col gap-1.5 font-semibold">{t('status.phone')}
             <span className="relative block">
               <span className="pointer-events-none absolute top-1/2 left-3 -translate-y-1/2 rounded-md bg-mist px-1.5 py-0.5 text-sm font-bold text-brand">+91</span>
-              <input type="tel" inputMode="numeric" required autoComplete="tel-national" maxLength="10" placeholder="98765 43210" value={form.phone}
+              <input type="tel" inputMode="numeric" required autoComplete="tel-national" maxLength="15" placeholder="98765 43210" value={form.phone}
                 onChange={set('phone', (v) => v.replace(/\D/g, '').replace(/^91(?=\d{10}$)/, '').slice(0, 10))}
                 className="input pr-10 pl-14 tracking-wide" />
               {phoneOk && <Svg name="check" className="pointer-events-none absolute top-1/2 right-3 -translate-y-1/2 text-green-600" />}

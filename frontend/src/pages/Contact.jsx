@@ -2,6 +2,7 @@ import { useState } from 'react'
 import { Link } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
 import { api } from '../lib/api.js'
+import Consent from '../components/Consent.jsx'
 
 const PHONE_OK = /^[6-9]\d{9}$/
 const EMAIL_OK = /^\S+@\S+\.\S+$/
@@ -48,6 +49,7 @@ export default function Contact() {
   const [topic, setTopic] = useState('general')
   const [error, setError] = useState('')
   const [busy, setBusy] = useState(false)
+  const [agree, setAgree] = useState(false) // the "I agree" tick box
   const [done, setDone] = useState(false)
   const set = (f, clean = (v) => v) => (e) => setForm((old) => ({ ...old, [f]: clean(e.target.value) }))
 
@@ -61,10 +63,12 @@ export default function Contact() {
     if (form.phone && !phoneOk) return setError(t('join.phoneHint', { defaultValue: '10-digit mobile number starting with 6, 7, 8 or 9' }))
     if (form.email && !emailOk) return setError(t('contact.badEmail', { defaultValue: 'Please check your email address.' }))
     if (!form.phone && !form.email) return setError(t('contact.needOne', { defaultValue: 'Give a mobile number or an email so we can reply to you.' }))
+    if (!agree) return setError(t('privacy.needAgree', { defaultValue: 'Please tick the box to agree before sending.' }))
     setBusy(true)
     try {
-      await api.post('/contact', { ...form, topic, message: form.message.trim() })
+      await api.post('/contact', { ...form, topic, message: form.message.trim(), consent: true })
       setDone(true)
+      setAgree(false)
     } catch (err) {
       setError(err.message)
     } finally {
@@ -171,7 +175,7 @@ export default function Contact() {
                 <label className="flex flex-col gap-1.5 font-semibold">{t('contact.phone')}
                   <span className="relative block">
                     <span className="pointer-events-none absolute top-1/2 left-3 -translate-y-1/2 rounded-md bg-mist px-1.5 py-0.5 text-sm font-bold text-brand">+91</span>
-                    <input type="tel" inputMode="numeric" maxLength="10" placeholder="12345 67890" value={form.phone} autoComplete="tel-national"
+                    <input type="tel" inputMode="numeric" maxLength="15" placeholder="12345 67890" value={form.phone} autoComplete="tel-national"
                       onChange={set('phone', (v) => v.replace(/\D/g, '').replace(/^91(?=\d{10}$)/, '').slice(0, 10))}
                       className="input pr-9 pl-14 tracking-wide" />
                     {phoneOk && <span className="pointer-events-none absolute top-1/2 right-3 -translate-y-1/2 font-bold text-green-600" aria-hidden="true">✓</span>}
@@ -196,6 +200,11 @@ export default function Contact() {
               {/* Hidden from people; bots fill it and their message is dropped */}
               <input type="text" name="website" tabIndex="-1" autoComplete="off" aria-hidden="true" value={form.website}
                 onChange={set('website')} className="absolute -left-2499.75 h-0 w-0 opacity-0" />
+
+              <div className="mt-4">
+                <Consent checked={agree} onChange={(v) => { setAgree(v); setError('') }} error={!!error && !agree}
+                  text={t('privacy.agreeContact', { defaultValue: 'I agree that my details are used to reply to my message, as explained in the Privacy Policy.' })} />
+              </div>
 
               {error && <p role="alert" className="mt-3 flex gap-2 rounded-xl border border-red-200 bg-red-50 p-3 text-sm text-red-800"><span aria-hidden="true">⚠️</span>{error}</p>}
 

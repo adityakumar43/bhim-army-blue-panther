@@ -22,6 +22,7 @@ const PAGES = [
     ['/donate', 'monthly', '0.6'],
     ['/contact', 'monthly', '0.6'],
     ['/membership/status', 'yearly', '0.3'],
+    ['/privacy', 'yearly', '0.2'],
 ]
 
 // Same names as the slugs in frontend/src/data/inspirations.js.

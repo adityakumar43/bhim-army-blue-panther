@@ -17,6 +17,7 @@ export const BANDS = {
   '/volunteer': ['vol.title', 'vol.intro'],
   '/downloads': ['dl.title', 'dl.intro'],
   '/videos': ['videos.title', 'videos.intro'],
+  '/privacy': ['privacy.title', 'privacy.intro'],
 }
 
 // Pages with a band get the light grey background. Each state's page draws its own band (with the state's name).

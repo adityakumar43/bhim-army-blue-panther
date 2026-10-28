@@ -34,7 +34,10 @@ router.post('/', reportLimiter, helpdeskUpload, async (req, res) => {
   if (b.email && !/^\S+@\S+\.\S+$/.test(b.email)) return res.status(400).json({ message: 'Enter a valid email address' })
   if (!STATE_CODES.includes(String(b.stateCode || ''))) return res.status(400).json({ message: 'Choose your state' })
   if (!CATEGORIES.includes(b.category)) return res.status(400).json({ message: 'Choose what the problem is about' })
+  const agreed = b.consent === true || b.consent === 'true' // the "I agree" tick box
+  if (!agreed) return res.status(400).json({ message: 'Please tick the box to agree to the Privacy Policy' })
   const voiceFile = req.files?.voice?.[0]
+
   // A voice message can take the place of the written description
   if (!voiceFile && description.length < 20) return res.status(400).json({ message: 'Please describe what happened (at least 20 letters), or record a voice message' })
   if (description.length > 3000) return res.status(400).json({ message: 'Please keep the description under 3000 letters' })
@@ -59,6 +62,7 @@ router.post('/', reportLimiter, helpdeskUpload, async (req, res) => {
     district: String(b.district || '').trim().slice(0, 100), village: String(b.village || '').trim().slice(0, 100),
     policeStation: String(b.policeStation || '').trim().slice(0, 100), category: b.category, incidentDate, description, photos, voice,
     history: [{ status: 'new' }],
+    consentAt: new Date(),
   }
   // A reference number is random; try again in the rare case it already exists
   for (let i = 0; i < 5; i++) {

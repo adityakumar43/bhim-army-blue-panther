@@ -5,6 +5,8 @@ import Razorpay from 'razorpay'
 import Donation from '../models/Donation.js'
 import { protect, requirePermission } from '../middleware/auth.js'
 import { finalizeDonation, ensureReceipt, emailReceipt } from '../services/donations.js'
+import QRCode from 'qrcode'
+import { ORG } from '../config/org.js'
 
 const router = Router()
 
@@ -17,10 +19,10 @@ const orderLimiter = rateLimit({
 const enabled = () => process.env.RAZORPAY_KEY_ID && process.env.RAZORPAY_KEY_SECRET
 let client
 const razorpay = () =>
-  (client ??= new Razorpay({
-    key_id: process.env.RAZORPAY_KEY_ID,
-    key_secret: process.env.RAZORPAY_KEY_SECRET,
-  }))
+(client ??= new Razorpay({
+  key_id: process.env.RAZORPAY_KEY_ID,
+  key_secret: process.env.RAZORPAY_KEY_SECRET,
+}))
 
 function safeEqual(a, b) {
   const x = Buffer.from(String(a))
@@ -45,7 +47,7 @@ router.post('/order', orderLimiter, async (req, res) => {
   let order
   try {
     order = await razorpay().orders.create({
-      amount: amount * 100, 
+      amount: amount * 100,
       currency: 'INR',
       receipt: `don_${Date.now()}`,
     })
@@ -90,6 +92,9 @@ router.get('/receipt/:token', async (req, res) => {
     name: d.name,
     paidAt: d.paidAt || d.createdAt,
     paymentId: d.paymentId,
+    // A QR code that opens this receipt online, so anyone can check it is real
+    qr: await QRCode.toDataURL(`${process.env.CLIENT_URL}/receipt/${d.receiptToken}`, { margin: 1, width: 240 }),
+    org: { name: ORG.name, address: ORG.address, regNo: ORG.regNo, signature: process.env.RECEIPT_SIGNATURE_URL || process.env.CERT_SIGNATURE_URL || '' },
   })
 })
 

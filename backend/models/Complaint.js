@@ -26,6 +26,7 @@ const complaintSchema = new mongoose.Schema(
     // Every update the person can see when they track it: the status at that time and the message, if any
     history: [{ status: String, note: { type: String, maxlength: 1000 }, at: { type: Date, default: Date.now } }],
     urgent: { type: Boolean, default: false, index: true },
+    consentAt: Date, // when they ticked "I agree" to the Privacy Policy
     assignedTo: { adminId: mongoose.Schema.Types.ObjectId, name: String }, // the team member handling this case
     notes: [{ text: { type: String, maxlength: 2000 }, byName: String, at: { type: Date, default: Date.now } }], // team only
   },

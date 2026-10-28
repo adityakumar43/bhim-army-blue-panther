@@ -4,6 +4,7 @@ import { api } from '../lib/api.js'
 import { shrinkImage } from '../lib/shrinkImage.js'
 import { STATES, stateName } from '../data/states.js'
 import { CATEGORIES, STATUS, categoryOf } from '../data/helpdesk.js'
+import Consent from '../components/Consent.jsx'
 
 const EMPTY = { name: '', phone: '', email: '', stateCode: '', district: '', village: '', policeStation: '', category: '', incidentDate: '', description: '', website: '' }
 const PHONE_OK = /^[6-9]\d{9}$/
@@ -189,6 +190,7 @@ export default function HelpDesk() {
   const [found, setFound] = useState(null)
   const [error, setError] = useState('')
   const [busy, setBusy] = useState(false)
+  const [agree, setAgree] = useState(false) // the "I agree" tick box
 
   const [when, setWhen] = useState({ day: '', month: '', year: '' }) // date of the incident, from three dropdowns
   const set = (f, clean = (v) => v) => (e) => setForm((old) => ({ ...old, [f]: clean(e.target.value) }))
@@ -225,10 +227,12 @@ export default function HelpDesk() {
     if ((when.day || when.month || when.year) && !incidentDate) return setError(t('help.fullDate', { defaultValue: 'Choose the day, month and year of the incident, or leave all three empty.' }))
     if (incidentDate && new Date(`${incidentDate}T00:00:00Z`).toISOString().slice(0, 10) !== incidentDate) return setError(t('join.badDate', { defaultValue: 'This date does not exist. Please check the day and month.' }))
     if (incidentDate > new Date().toLocaleDateString('en-CA')) return setError(t('help.futureDate', { defaultValue: 'The date of the incident cannot be in the future.' }))
+    if (!agree) return setError(t('privacy.needAgree', { defaultValue: 'Please tick the box to agree before sending.' }))
     setBusy(true)
     try {
       const data = new FormData()
       Object.entries({ ...form, incidentDate }).forEach(([k, v]) => v && data.append(k, v))
+      data.append('consent', 'true')
       for (const [i, f] of photos.entries()) data.append('photos', await shrinkImage(f), `photo-${i + 1}.jpg`)
       if (voice) {
         const ext = voice.blob.type.includes('mp4') ? 'm4a' : voice.blob.type.includes('ogg') ? 'ogg' : 'webm'
@@ -238,6 +242,7 @@ export default function HelpDesk() {
       const r = await api.post('/helpdesk', data)
       const mine = { refNo: r.refNo, phone: form.phone }
       setSent(mine)
+      setAgree(false)
       save(mine)
       setTrack(mine)
       setForm(EMPTY)
@@ -429,7 +434,7 @@ export default function HelpDesk() {
               <label className="flex flex-col gap-1.5 font-semibold"><span>{t('help.phone')}<Req /></span>
                 <span className="relative block">
                   <span className="pointer-events-none absolute top-1/2 left-3 -translate-y-1/2 rounded-md bg-mist px-1.5 py-0.5 text-sm font-bold text-brand">+91</span>
-                  <input required type="tel" inputMode="numeric" maxLength="10" placeholder="12345 67890" autoComplete="tel-national" value={form.phone}
+                  <input required type="tel" inputMode="numeric" maxLength="15" placeholder="12345 67890" autoComplete="tel-national" value={form.phone}
                     onChange={set('phone', cleanPhone)} className="input pr-9 pl-14 tracking-wide" />
                   {phoneOk && <span className="pointer-events-none absolute top-1/2 right-3 -translate-y-1/2 font-bold text-green-600" aria-hidden="true">✓</span>}
                 </span>
@@ -445,6 +450,9 @@ export default function HelpDesk() {
 
           {/* Hidden trap for bots */}
           <input type="text" name="website" tabIndex="-1" autoComplete="off" aria-hidden="true" value={form.website} onChange={set('website')} className="absolute -left-[9999px] h-0 w-0 opacity-0" />
+
+          <Consent checked={agree} onChange={(v) => { setAgree(v); setError('') }} error={!!error && !agree}
+            text={t('privacy.agreeHelp', { defaultValue: 'I agree that the details I give, including photos and voice messages, are used by the team to help me, as explained in the Privacy Policy.' })} />
 
           {error && <p role="alert" className="flex gap-2 rounded-xl border border-red-200 bg-red-50 p-3 text-sm text-red-800"><span aria-hidden="true">⚠️</span>{error}</p>}
           <button disabled={busy} className="btn w-full gap-2 bg-brand text-white shadow-md hover:bg-navy disabled:opacity-60">{busy ? t('help.sending') : `📤 ${t('help.submit')}`}</button>
@@ -468,7 +476,7 @@ export default function HelpDesk() {
               <label className="flex flex-col gap-1.5 font-semibold"><span>📱 {t('help.phone')}<Req /></span>
                 <span className="relative block">
                   <span className="pointer-events-none absolute top-1/2 left-3 -translate-y-1/2 rounded-md bg-mist px-1.5 py-0.5 text-sm font-bold text-brand">+91</span>
-                  <input required type="tel" inputMode="numeric" maxLength="10" value={track.phone} onChange={(e) => setTrack({ ...track, phone: cleanPhone(e.target.value) })} className="input pl-14 tracking-wide" />
+                  <input required type="tel" inputMode="numeric" maxLength="15" value={track.phone} onChange={(e) => setTrack({ ...track, phone: cleanPhone(e.target.value) })} className="input pl-14 tracking-wide" />
                 </span>
               </label>
             </div>

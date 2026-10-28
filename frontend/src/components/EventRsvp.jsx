@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { api } from '../lib/api.js'
+import { Link } from 'react-router-dom'
 
 // "I will attend" box on an event's own page
 export default function EventRsvp({ eventId }) {
@@ -76,7 +77,7 @@ export default function EventRsvp({ eventId }) {
             <button disabled={busy} className="btn flex-1 bg-brand text-white disabled:opacity-60">{busy ? t('rsvp.sending') : t('rsvp.submit')}</button>
             <button type="button" onClick={() => setOpenForm(false)} className="btn border-2 border-navy/20">{t('rsvp.cancel')}</button>
           </div>
-          <p className="text-xs text-navy/60 sm:col-span-2">{t('rsvp.privacy')}</p>
+          <p className="text-xs text-navy/60 sm:col-span-2">  {t('rsvp.privacy')} <Link to="/privacy" className="font-semibold text-brand underline">{t('privacy.title', { defaultValue: 'Privacy Policy' })}</Link></p>
         </form>
       )}
     </section>

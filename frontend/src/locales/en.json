@@ -83,6 +83,7 @@
     "why2": "Invitations to meetings, rallies and events",
     "why3": "News and campaigns first",
     "why4": "Be part of the movement in your state",
+    "tooYoung": "You must be 18 or older to become a member.",
     "why5": "Support when you face injustice"
   },
   "about": {
@@ -185,6 +186,22 @@
     "failed": "The payment did not go through. Please try again.",
     "doneTitle": "Thank you! Jai Bhim",
     "doneBody": "Your donation has been received.",
+    "badAmount": "Enter an amount between ₹10 and ₹5,00,000.",
+    "whyTitle": "Your support moves our work forward",
+    "whyBody": "Every rupee helps us stand with people who face injustice and discrimination.",
+    "use_legal": "Legal help for victims of injustice",
+    "use_education": "Education and free tuition",
+    "use_helpdesk": "Help desk for people in trouble",
+    "use_awareness": "Awareness programmes and events",
+    "safeTitle": "Safe payment",
+    "safeBody": "Payments are handled by Razorpay. We never see your card or bank details.",
+    "waysTitle": "Pay your way",
+    "waysBody": "UPI, debit or credit card, or net banking.",
+    "receiptTitle": "Instant receipt",
+    "receiptBody": "You get a receipt right after paying. You can print it or save it as PDF.",
+    "detailsTitle": "Details for your receipt",
+    "detailsHint": "You can leave these empty to donate without your name.",
+    "secure": "Secure payment by Razorpay",
     "receiptHint": "If you add your email, we will also send the receipt there."
   },
   "footer": {
@@ -204,6 +221,7 @@
     "home": "Home page",
     "anonymous": "Anonymous",
     "pending": "Your payment is being confirmed. Please refresh this page in a moment.",
+    "pdfHint": "For a PDF, choose \"Save as PDF\" as the printer.",
     "note": "This receipt confirms that we have received your donation."
   },
   "slider": {
@@ -454,11 +472,25 @@
     "skills": "How can you help? (choose one or more)",
     "pickSkill": "Choose at least one way you can help.",
     "availability": "When are you free?",
-    "message": "Anything else you want to tell us? (optional)",
+    "message": "Anything else you want to tell us?",
     "submit": "Join as volunteer",
     "sending": "Sending...",
     "thanks": "Thank you for stepping forward!",
     "thanksBody": "Jai Bhim! Our team in your area will contact you soon.",
+    "skillsTitle": "How can you help?",
+    "skillsHint": "Choose one or more.",
+    "chosen": "{{count}} chosen",
+    "aboutTitle": "About you",
+    "messageHint": "For example your work, your experience, or a time that suits you.",
+    "privacy": "Your details are only used by our team to contact you.",
+    "updated": "You had already signed up with this number. We have updated your details.",
+    "nextTitle": "What happens next",
+    "next1": "Our team in your area will call you.",
+    "next2": "We will tell you about work and events near you that match how you can help.",
+    "next3": "You choose when you can take part.",
+    "invite": "Invite friends on WhatsApp",
+    "inviteText": "Volunteer with Bhim Army Blue Panther and help our community. Join here:",
+    "becomeMember": "Also become a member",
     "link": "Volunteer"
   },
   "dl": {
@@ -482,5 +514,20 @@
     "later": "Not now",
     "iosStep1": "Tap the Share button",
     "iosStep2": "Choose \"Add to Home Screen\""
+  },
+  "privacy": {
+    "title": "Privacy Policy",
+    "intro": "How we collect, use and protect your personal information.",
+    "updated": "Last updated",
+    "contents": "Contents",
+    "useContact": "Use our Contact page",
+    "reply": "We will reply as soon as we can.",
+    "read": "Read the Privacy Policy",
+    "needAgree": "Please tick the box to agree before sending.",
+    "agreeJoin": "I am 18 or older. I agree that my details and photo are used for my membership (my card shows my name, photo and state), as explained in the Privacy Policy.",
+    "agreeHelp": "I agree that the details I give, including photos and voice messages, are used by the team to help me, as explained in the Privacy Policy.",
+    "agreeVol": "I agree that my details are used by the team to contact me about volunteer work, as explained in the Privacy Policy.",
+    "agreeContact": "I agree that my details are used to reply to my message, as explained in the Privacy Policy.",
+    "byDonating": "By donating, you agree to our"
   }
 }

@@ -21,6 +21,8 @@ router.post('/', limiter, async (req, res) => {
   if (!name) return res.status(400).json({ message: 'Please enter your name' })
   if (!message) return res.status(400).json({ message: 'Please write your message' })
   const topic = ['general', 'membership', 'event', 'media', 'other'].includes(b.topic) ? b.topic : 'general'
+  const agreed = b.consent === true || b.consent === 'true' // the "I agree" tick box
+  if (!agreed) return res.status(400).json({ message: 'Please tick the box to agree to the Privacy Policy' })
   if (!b.phone && !b.email) {
     return res.status(400).json({ message: 'Give a phone number or email so we can reply' })
   }
@@ -29,7 +31,7 @@ router.post('/', limiter, async (req, res) => {
   }
 
   try {
-    await Message.create({ name, phone: b.phone, email: b.email, message, topic })
+    await Message.create({ name, phone: b.phone, email: b.email, message, topic, consentAt: new Date() })
   } catch (err) {
     if (err.name === 'ValidationError') {
       return res.status(400).json({ message: 'Your message is too long. Please shorten it.' })

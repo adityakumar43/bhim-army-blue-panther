@@ -56,6 +56,8 @@ export default function Footer() {
       <div className="border-t border-white/10 px-5 py-4 text-center text-sm text-white/60">
         © {new Date().getFullYear()} {t('org')}
         <span className="mx-2 opacity-40">·</span>
+        <Link to="/privacy" className="hover:text-white hover:underline">{t('privacy.title', { defaultValue: 'Privacy Policy' })}</Link>
+        <span className="mx-2 opacity-40">·</span>
         <Link to={loggedIn ? '/admin' : '/admin/login'} className="opacity-60 hover:opacity-100 hover:underline">
           {loggedIn ? 'Admin panel' : 'Staff login'}
         </Link>

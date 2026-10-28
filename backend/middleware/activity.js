@@ -34,7 +34,12 @@ const nameOf = (doc) => {
 function describe(section, method, part, body = {}, last = '') {
     switch (section) {
         case 'members':
-            if (part === 'status') return body.status === 'approved' ? ['approve', 'approved the membership of'] : ['reject', 'rejected the membership of']
+            if (part === 'status') return {
+                approved: ['approve', 'approved the membership of'],
+                rejected: ['reject', 'rejected the membership of'],
+                cancelled: ['reject', 'ended the membership of'],
+                pending: ['update', 'moved back to pending the application of'],
+            }[body.status] || null
             if (part === 'send-card') return ['email', 'emailed the membership card to']
             if (method === 'DELETE') return ['delete', 'deleted the application of']
             return null

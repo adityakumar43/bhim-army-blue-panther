@@ -16,6 +16,7 @@ const volunteerSchema = new mongoose.Schema(
     skills: [{ type: String, enum: SKILLS }],
     availability: { type: String, enum: AVAILABILITY, default: 'anytime' },
     message: { type: String, trim: true, maxlength: 500 },
+    consentAt: Date, // when they ticked "I agree" to the Privacy Policy
     status: { type: String, enum: VOL_STATUSES, default: 'new', index: true },
     note: { type: String, trim: true, maxlength: 1000 }, // team only
   },

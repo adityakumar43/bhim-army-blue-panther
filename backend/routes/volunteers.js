@@ -22,11 +22,14 @@ router.post('/', limiter, async (req, res) => {
   if (b.email && !/^\S+@\S+\.\S+$/.test(b.email)) return res.status(400).json({ message: 'Enter a valid email address' })
   if (!STATE_CODES.includes(String(b.stateCode || ''))) return res.status(400).json({ message: 'Choose your state' })
   if (!skills.length) return res.status(400).json({ message: 'Choose at least one way you can help' })
+  const agreed = b.consent === true || b.consent === 'true' // the "I agree" tick box
+  if (!agreed) return res.status(400).json({ message: 'Please tick the box to agree to the Privacy Policy' })
   const data = {
     name: name.slice(0, 100), email: b.email || undefined, stateCode: b.stateCode, state: stateNameEn(b.stateCode),
     district: String(b.district || '').trim().slice(0, 100), skills,
     availability: AVAILABILITY.includes(b.availability) ? b.availability : 'anytime',
     message: String(b.message || '').trim().slice(0, 500),
+    consentAt: new Date(),
   }
   const existing = await Volunteer.findOne({ phone })
   if (existing) {

@@ -23,6 +23,12 @@ function parseConstituency(value) {
   return /^\d{1,3}$/.test(s) && Number(s) > 0 ? Number(s) : null
 }
 
+// Members must be 18 or older: born on or before this day, 18 years ago (Indian date)
+function isAdult(dob) {
+  const [y, m, d] = new Intl.DateTimeFormat('en-CA', { timeZone: 'Asia/Kolkata' }).format(new Date()).split('-')
+  return dob.toISOString().slice(0, 10) <= `${Number(y) - 18}-${m}-${d}`
+}
+
 // "2001-05-17" becomes a real date in the past, otherwise null
 function parseDob(value) {
   const s = String(value || '').trim()
@@ -58,6 +64,9 @@ router.post('/', joinLimiter, upload.single('photo'), async (req, res) => {
 
   const dob = parseDob(b.dob)
   if (!dob) return res.status(400).json({ message: 'Enter your date of birth' })
+  if (!isAdult(dob)) return res.status(400).json({ message: 'You must be 18 or older to become a member' })
+  const agreed = b.consent === true || b.consent === 'true' // the "I agree" tick box
+  if (!agreed) return res.status(400).json({ message: 'Please tick the box to agree to the Privacy Policy' })
   const assemblyNo = parseConstituency(b.assemblyNo)
   const lokSabhaNo = parseConstituency(b.lokSabhaNo)
   if (assemblyNo === null) return res.status(400).json({ message: 'Assembly constituency number must be a number, like 12' })
@@ -76,6 +85,7 @@ router.post('/', joinLimiter, upload.single('photo'), async (req, res) => {
     await Member.create({
       name, phone, dob, photo, assemblyNo, lokSabhaNo,
       email: b.email, city: b.city, district: b.district, state, stateCode: stateCode || undefined, message: b.message,
+      consentAt: new Date(),
     })
   } catch (err) {
     await deleteImage(photo.publicId) // do not leave a photo behind for an application that was not saved

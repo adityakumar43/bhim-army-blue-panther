@@ -3,6 +3,7 @@ import { useTranslation } from 'react-i18next'
 import { Link } from 'react-router-dom'
 import { api } from '../lib/api.js'
 import { shrinkImage } from '../lib/shrinkImage.js'
+import Consent from '../components/Consent.jsx'
 import { STATES, stateName } from '../data/states.js'
 
 // Small line icons shown inside the boxes
@@ -77,6 +78,7 @@ export default function Join() {
   const [error, setError] = useState('')
   const [busy, setBusy] = useState(false)
   const [done, setDone] = useState(false)
+  const [agree, setAgree] = useState(false)
 
   const set = (f, clean = (v) => v) => (e) => setForm((old) => ({ ...old, [f]: clean(e.target.value) }))
   const blur = (f) => () => setTouched((old) => ({ ...old, [f]: true }))
@@ -96,7 +98,12 @@ export default function Join() {
   const { dobDay = '', dobMonth = '', dobYear = '' } = form
   const dob = dobDay && dobMonth && dobYear ? `${dobYear}-${pad(dobMonth)}-${pad(dobDay)}` : ''
   const dobReal = dob && new Date(`${dob}T00:00:00Z`).toISOString().slice(0, 10) === dob
-  const dobProblem = dob && !dobReal ? t('join.badDate', { defaultValue: 'This date does not exist. Please check the day and month.' }) : ''
+  // Members must be 18 or older: born on or before this day, 18 years ago
+  const now = new Date()
+  const adultCutoff = `${now.getFullYear() - 18}-${pad(now.getMonth() + 1)}-${pad(now.getDate())}`
+  const adult = !!dobReal && dob <= adultCutoff
+  const dobProblem = dob && !dobReal ? t('join.badDate', { defaultValue: 'This date does not exist. Please check the day and month.' })
+    : dobReal && !adult ? t('join.tooYoung', { defaultValue: 'You must be 18 or older to become a member.' }) : ''
 
   const phone = form.phone || ''
   const phoneOk = PHONE_OK.test(phone)
@@ -114,26 +121,29 @@ export default function Join() {
     return () => clearTimeout(timer)
   }, [phone, phoneOk])
 
-  const required = [!!form.name?.trim(), phoneOk && !applied, emailOk, !!dobReal, !!form.stateCode, !!photo]
+  const required = [!!form.name?.trim(), phoneOk && !applied, emailOk, adult, !!form.stateCode, !!photo]
   const filled = required.filter(Boolean).length
   const total = required.length
 
   const months = useMemo(() => Array.from({ length: 12 }, (_, i) =>
     new Date(Date.UTC(2000, i, 1)).toLocaleDateString(lang === 'hi' ? 'hi-IN' : 'en-IN', { month: 'long', timeZone: 'UTC' })), [lang])
   const thisYear = new Date().getFullYear()
-  const years = Array.from({ length: thisYear - 1920 }, (_, i) => thisYear - 1 - i)
+  const years = Array.from({ length: thisYear - 18 - 1920 + 1 }, (_, i) => thisYear - 18 - i) // members are 18 or older
 
   async function submit(e) {
     e.preventDefault()
     setError('')
     if (!photo) return setError(t('join.photoNeeded'))
     if (!dobReal) return setError(dobProblem || t('join.badDate', { defaultValue: 'Please choose your date of birth' }))
+    if (!adult) return setError(dobProblem)
+    if (!agree) return setError(t('privacy.needAgree', { defaultValue: 'Please tick the box to agree before sending.' }))
     setBusy(true)
     try {
       const data = new FormData()
       const fields = Object.entries(form).filter(([k]) => !k.startsWith('dob')) // the three date lists become one date
         ;[...fields, ['dob', dob]].forEach(([k, v]) => v && data.append(k, v))
       data.append('photo', await shrinkImage(photo), 'photo.jpg')
+      data.append('consent', 'true')
       await api.post('/members', data)
       dropDraft()
       setDone(true)
@@ -208,7 +218,7 @@ export default function Join() {
               <input type="text" required autoComplete="name" value={form.name || ''} onChange={set('name')} className={`${input} pr-10`} />
             </Field>
             <Field label={t('join.phone')} prefix="+91" required ok={phoneOk && !applied} problem={phoneProblem}>
-              <input type="tel" inputMode="numeric" required autoComplete="tel-national" maxLength="10" placeholder="98765 43210"
+              <input type="tel" inputMode="numeric" required autoComplete="tel-national" maxLength="15" placeholder="98765 43210"
                 value={phone} onChange={set('phone', (v) => v.replace(/\D/g, '').replace(/^91(?=\d{10}$)/, '').slice(0, 10))}
                 onBlur={blur('phone')} className="input pr-10 pl-14 tracking-wide" />
             </Field>
@@ -306,6 +316,9 @@ export default function Join() {
         {/* Hidden trap for bots. Real visitors never see or fill this. */}
         <input type="text" name="website" tabIndex="-1" autoComplete="off" aria-hidden="true"
           onChange={set('website')} className="absolute -left-2499.75 h-0 w-0 opacity-0" />
+
+        <Consent checked={agree} onChange={(v) => { setAgree(v); setError('') }} error={!!error && !agree}
+          text={t('privacy.agreeJoin', { defaultValue: 'I am 18 or older. I agree that my details and photo are used for my membership (my card shows my name, photo and state), as explained in the Privacy Policy.' })} />
 
         {error && <p role="alert" className="flex gap-2 rounded-xl border border-red-200 bg-red-50 p-3 text-red-800"><span aria-hidden="true">⚠️</span>{error}</p>}
 

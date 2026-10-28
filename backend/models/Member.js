@@ -15,6 +15,7 @@ const memberSchema = new mongoose.Schema(
     state: { type: String, trim: true, maxlength: 100 },
     stateCode: { type: String, index: true }, // like 'uttar-pradesh', chosen from the list on the Join form
     message: { type: String, trim: true, maxlength: 500 },
+    consentAt: Date, // when they ticked "I agree" to the Privacy Policy
     status: { type: String, enum: ['pending', 'approved', 'rejected', 'cancelled'], default: 'pending' },
     memberNo: { type: String, unique: true, sparse: true },
 
