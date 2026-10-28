@@ -98,6 +98,14 @@ const statusLimiter = rateLimit({
   message: { message: 'Too many tries. Please wait 15 minutes and try again.' },
 })
 
+// Join form: has this mobile number already applied? (Sending the form would say the same, this only says it sooner.)
+const checkLimiter = rateLimit({ windowMs: 15 * 60 * 1000, max: 30, message: { message: 'Too many tries. Please try again later.' } })
+router.get('/check', checkLimiter, async (req, res) => {
+  const phone = String(req.query.phone || '').replace(/\s|-/g, '').replace(/^(\+91|91)(?=\d{10}$)/, '')
+  if (!/^[6-9]\d{9}$/.test(phone)) return res.json({ applied: false })
+  res.json({ applied: !!(await Member.exists({ phone })) })
+})
+
 router.post('/status', statusLimiter, async (req, res) => {
   const b = req.body || {}
   const phone = String(b.phone || '').replace(/\s|-/g, '').replace(/^(\+91|91)(?=\d{10}$)/, '')
@@ -123,7 +131,7 @@ router.post('/status', statusLimiter, async (req, res) => {
 
 
 router.get('/', protect, requirePermission('members'), async (req, res) => {
-  const filter = ['pending', 'approved', 'rejected'].includes(req.query.status)
+  const filter = ['pending', 'approved', 'rejected', 'cancelled'].includes(req.query.status)
     ? { status: req.query.status }
     : {}
   const scope = stateScope(req.admin)
@@ -132,8 +140,8 @@ router.get('/', protect, requirePermission('members'), async (req, res) => {
 })
 
 router.patch('/:id/status', protect, requirePermission('members'), async (req, res) => {
-  const { status } = req.body || {}
-  if (!['pending', 'approved', 'rejected'].includes(status)) {
+  const { status, reason } = req.body || {}
+  if (!['pending', 'approved', 'rejected', 'cancelled'].includes(status)) {
     return res.status(400).json({ message: 'Invalid status' })
   }
 
@@ -142,7 +150,9 @@ router.patch('/:id/status', protect, requirePermission('members'), async (req, r
     : { reviewedAt: new Date(), reviewedByName: req.admin.name, reviewedById: req.admin._id }
   const found = await Member.findById(req.params.id).catch(() => null)
   if (!found || !inMyState(req, found)) return res.status(404).json({ message: 'Not found' })
-  const member = await Member.findByIdAndUpdate(found._id, { status, ...who }, { new: true })
+  if (status === 'cancelled' && !found.memberNo) return res.status(400).json({ message: 'Only an approved member can have their membership ended' })
+  const endReason = status === 'cancelled' ? String(reason || '').trim().slice(0, 300) : null
+  const member = await Member.findByIdAndUpdate(found._id, { status, endReason, ...who }, { new: true })
   if (status === 'approved') {
 
     const { member: issued, isNew } = await issueCard(member._id)
@@ -163,28 +173,22 @@ router.delete('/:id', protect, requirePermission('members'), async (req, res) =>
 
 router.get('/card/:token', async (req, res) => {
   const m = await Member.findOne({ cardToken: req.params.token })
-  if (!m || m.status !== 'approved' || !m.memberNo) return res.status(404).json({ message: 'Card not found' })
+  if (!m || !m.memberNo) return res.status(404).json({ message: 'Card not found' })
+  res.set('Cache-Control', 'no-store') // always check the latest status
   const url = `${process.env.CLIENT_URL}/card/${m.cardToken}`
-  res.json({
+  const base = {
     memberNo: m.memberNo,
     name: m.name,
-    photo: m.photo?.url,
+    state: stateNameEn(m.stateCode) || m.state || '',
     since: m.approvedAt || m.createdAt,
     qr: await QRCode.toDataURL(url, { margin: 1, width: 240 }),
-  })
+  }
+  // Left or removed: the old card still opens, but says it is NOT valid (no photo shown)
+  if (m.status !== 'approved') return res.json({ ...base, valid: false, endedAt: m.reviewedAt })
+  res.json({ ...base, valid: true, photo: m.photo?.url })
 })
 
-// For staff who scan a card: every detail, whatever the status. Needs a login with the members permission.
-router.get('/verify/:token', protect, requirePermission('members'), async (req, res) => {
-  const m = await Member.findOne({ cardToken: req.params.token })
-  if (!m) return res.status(404).json({ message: 'Card not found' })
-  if (!inMyState(req, m)) return res.status(403).json({ message: `This member belongs to ${m.state || 'another state'}, not your state.` })
-  res.json({
-    name: m.name, memberNo: m.memberNo, status: m.status, phone: m.phone, email: m.email, dob: m.dob,
-    city: m.city, district: m.district, state: m.state, assemblyNo: m.assemblyNo, lokSabhaNo: m.lokSabhaNo, photo: m.photo?.url,
-    appliedAt: m.createdAt, since: m.approvedAt, reviewedAt: m.reviewedAt, reviewedByName: m.reviewedByName,
-  })
-})
+
 
 
 router.post('/:id/send-card', protect, requirePermission('members'), async (req, res) => {

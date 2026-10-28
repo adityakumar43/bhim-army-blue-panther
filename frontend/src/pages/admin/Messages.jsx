@@ -3,6 +3,10 @@ import { useOutletContext } from 'react-router-dom'
 import { api } from '../../lib/api.js'
 import { PageHeader, Notice, Pill } from './ui.jsx'
 
+
+
+const TOPICS = { general: '💬 General', membership: '🪪 Membership', event: '📅 Event', media: '📰 Media', other: '✏️ Other' }
+
 export default function Messages() {
   const { refresh } = useOutletContext()
   const [items, setItems] = useState(null)
@@ -12,6 +16,7 @@ export default function Messages() {
   const [replyFor, setReplyFor] = useState(null)
   const [replyText, setReplyText] = useState('')
   const [sending, setSending] = useState(false)
+  const [topic, setTopic] = useState('')
 
   const openReply = (m) => { setReplyFor(m._id); setReplyText(`Jai Bhim ${m.name},\n\n`); setNote(''); setError('') }
 
@@ -56,8 +61,21 @@ export default function Messages() {
       <Notice kind="success">{note}</Notice>
       {!items && !error && <p>Loading...</p>}
       {items?.length === 0 && <p className="card text-center text-navy/70">📭 No messages yet.</p>}
+      {items?.length > 0 && (
+        <div role="group" aria-label="Filter by topic" className="mb-4 flex flex-wrap gap-1.5">
+          {[['', '📬 All'], ...Object.entries(TOPICS)].map(([key, label]) => {
+            const n = key ? items.filter((m) => (m.topic || 'general') === key).length : items.length
+            return (
+              <button key={key || 'all'} onClick={() => setTopic(key)} aria-pressed={topic === key}
+                className={`min-h-9 rounded-full border px-3 text-sm font-semibold transition ${topic === key ? 'border-brand bg-brand text-white' : 'border-brand/15 bg-white text-navy/75 hover:bg-mist'}`}>
+                {label} <span className="opacity-70">({n})</span>
+              </button>
+            )
+          })}
+        </div>
+      )}
       <ul className="flex flex-col gap-3">
-        {items?.map((m) => (
+        {items?.filter((m) => !topic || (m.topic || 'general') === topic).map((m) => (
           <li key={m._id} className={`card p-4 sm:p-5 ${m.read ? '' : 'border-l-4 border-brand bg-mist/50'}`}>
             <div className="flex items-start gap-3">
               <span aria-hidden="true" className={`flex h-10 w-10 shrink-0 items-center justify-center rounded-full font-extrabold text-white ${m.read ? 'bg-navy/40' : 'bg-brand'}`}>
@@ -68,6 +86,7 @@ export default function Messages() {
                   <div className="flex flex-wrap items-center gap-2">
                     <span className="text-lg leading-tight font-bold">{m.name}</span>
                     {!m.read && <Pill tone="gold">🆕 New</Pill>}
+                    {m.topic && m.topic !== 'general' && <Pill tone="blue">{TOPICS[m.topic] || m.topic}</Pill>}
                   </div>
                   <span className="text-xs text-navy/60">🕒 {new Date(m.createdAt).toLocaleString('en-IN', { dateStyle: 'medium', timeStyle: 'short' })}</span>
                 </div>

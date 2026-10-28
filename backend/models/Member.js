@@ -15,7 +15,7 @@ const memberSchema = new mongoose.Schema(
     state: { type: String, trim: true, maxlength: 100 },
     stateCode: { type: String, index: true }, // like 'uttar-pradesh', chosen from the list on the Join form
     message: { type: String, trim: true, maxlength: 500 },
-    status: { type: String, enum: ['pending', 'approved', 'rejected'], default: 'pending' },
+    status: { type: String, enum: ['pending', 'approved', 'rejected', 'cancelled'], default: 'pending' },
     memberNo: { type: String, unique: true, sparse: true },
 
     cardToken: { type: String, unique: true, sparse: true, default: () => crypto.randomBytes(16).toString('hex') },
@@ -23,6 +23,7 @@ const memberSchema = new mongoose.Schema(
     reviewedAt: Date,
     reviewedByName: String,
     reviewedById: mongoose.Schema.Types.ObjectId,
+    endReason: String, // why the membership was ended
     cardEmailedAt: Date,
     birthdayWishedYear: Number, // the last year a birthday email was sent
   },

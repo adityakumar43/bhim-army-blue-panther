@@ -8,7 +8,7 @@ import { upload } from '../middleware/upload.js'
 import { uploadImage, deleteImage } from '../config/cloudinary.js'
 import { STATE_CODES } from '../config/states.js'
 import { stateNameEn } from '../config/stateNames.js'
-import { notifyAdmin } from '../services/mailer.js'
+import { notifyAdmin, sendMail } from '../services/mailer.js'
 
 const router = Router()
 
@@ -51,6 +51,19 @@ router.post('/', reportLimiter, upload.single('photo'), async (req, res) => {
     try {
       const c = await Complaint.create({ ...data, refNo: newRef() })
       notifyAdmin(`New help desk case ${c.refNo}`, `${c.category} in ${c.district ? c.district + ', ' : ''}${c.state}\nFrom ${name} (${phone})\n\n${description.slice(0, 400)}`)
+      // If they gave an email, send them their reference number so they don't lose it
+      if (c.email) {
+        const text = `Jai Bhim ${name},\n\nWe have received your complaint.\nYour reference number: ${c.refNo}\n\nUse this number with your mobile number on the Help desk page to check progress.\nIn an emergency, call 112.\n\n— Bhim Army Blue Panther`
+        const html = `<div style="font-family:Arial,sans-serif;font-size:15px;color:#0a1a3f;line-height:1.6">
+          <p>जय भीम <b>${name.replace(/[<>&"]/g, '')}</b>,</p>
+          <p>आपकी शिकायत हमें मिल गई है। / We have received your complaint.</p>
+          <p>संदर्भ संख्या / Reference number:<br><b style="font-size:22px;letter-spacing:2px;color:#0b3c9d">${c.refNo}</b></p>
+          <p>इस संख्या और अपने मोबाइल नंबर से सहायता केंद्र पेज पर प्रगति देखें।<br>Use this number with your mobile number on the Help desk page to check progress.</p>
+          <p style="color:#b91c1c">आपात स्थिति में 112 पर कॉल करें। / In an emergency, call 112.</p>
+          <p>— Bhim Army Blue Panther</p></div>`
+        sendMail({ to: c.email, subject: `Your complaint reference number: ${c.refNo}`, text, html })
+          .catch((err) => console.error('Help desk email failed:', err.message))
+      }
       return res.status(201).json({ refNo: c.refNo })
     } catch (err) {
       if (err.code !== 11000) {

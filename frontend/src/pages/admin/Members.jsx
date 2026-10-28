@@ -6,9 +6,9 @@ import { PageHeader, Notice, Pill } from './ui.jsx'
 import Icon from '../../components/Icon.jsx'
 import { stateByCode } from '../../data/states.js'
 
-const FILTERS = [['pending', '⏳ Pending'], ['approved', '✅ Approved'], ['rejected', '❌ Rejected']]
-const TONE = { pending: 'gold', approved: 'green', rejected: 'red' }
-const STATUS_LABEL = { pending: '⏳ Pending', approved: '✅ Approved', rejected: '❌ Rejected' }
+const FILTERS = [['pending', '⏳ Pending'], ['approved', '✅ Approved'], ['rejected', '❌ Rejected'], ['cancelled', '🚫 Ended']]
+const TONE = { pending: 'gold', approved: 'green', rejected: 'red', cancelled: 'red' }
+const STATUS_LABEL = { pending: '⏳ Pending', approved: '✅ Approved', rejected: '❌ Rejected', cancelled: '🚫 Membership ended' }
 const when = (d) => new Date(d).toLocaleString('en-IN', { dateStyle: 'medium', timeStyle: 'short' })
 
 function downloadCsv(rows) {
@@ -122,6 +122,12 @@ export default function Members() {
     }
   }
 
+  function endMembership(m) {
+    const reason = window.prompt(`End the membership of ${m.name} (${m.memberNo})?\n\nTheir card will show "NOT VALID" when scanned. You can restore it later.\n\nReason (optional):`, '')
+    if (reason === null) return // pressed Cancel
+    act(() => api.patch(`/members/${m._id}/status`, { status: 'cancelled', reason }))
+  }
+
   const remove = (id) => {
     if (window.confirm('Delete this application permanently?')) act(() => api.del(`/members/${id}`))
   }
@@ -218,7 +224,8 @@ export default function Members() {
 
             {m.reviewedAt && m.status !== 'pending' && (
               <div className="mt-3 rounded-xl bg-mist/60 px-3 py-2 text-sm font-semibold text-navy/80">
-                {m.status === 'approved' ? '✅ Approved' : '❌ Rejected'} by {m.reviewedByName || 'an admin'} on {when(m.reviewedAt)}
+                {{ approved: '✅ Approved', rejected: '❌ Rejected', cancelled: '🚫 Membership ended' }[m.status]} by {m.reviewedByName || 'an admin'} on {when(m.reviewedAt)}
+                {m.status === 'cancelled' && m.endReason && <div className="mt-1 font-normal">Reason: {m.endReason}</div>}
               </div>
             )}
             {m.message && <p className="mt-3 rounded-xl border-l-4 border-gold bg-gold/5 px-3 py-2 text-sm text-navy/80">💬 {m.message}</p>}
@@ -243,11 +250,17 @@ export default function Members() {
               </div>
             )}
 
-            <div className="mt-auto flex flex-wrap gap-2 pt-4">
-              {m.status !== 'approved' && (
+            <div className="flex flex-wrap gap-2 pt-3">
+              {m.status === 'approved' && (
+                <button onClick={() => endMembership(m)} className="abtn min-h-9 border-red-200 px-3 text-red-700 hover:border-red-400 hover:text-red-800">🚫 End membership</button>
+              )}
+              {m.status === 'cancelled' && (
+                <button onClick={() => act(() => api.patch(`/members/${m._id}/status`, { status: 'approved' }))} className="abtn-primary min-h-9 px-3">♻️ Restore membership</button>
+              )}
+              {(m.status === 'pending' || m.status === 'rejected') && (
                 <button onClick={() => act(() => api.patch(`/members/${m._id}/status`, { status: 'approved' }))} className="abtn-primary min-h-9 px-3">✅ Approve</button>
               )}
-              {m.status !== 'rejected' && (
+              {m.status === 'pending' && (
                 <button onClick={() => act(() => api.patch(`/members/${m._id}/status`, { status: 'rejected' }))} className="abtn min-h-9 px-3">❌ Reject</button>
               )}
               <button onClick={() => remove(m._id)} className="abtn-danger min-h-9 px-3">🗑️ Delete</button>
@@ -263,7 +276,7 @@ export default function Members() {
           {!progress && status !== 'approved' && (
             <button onClick={() => bulk('approved')} className="abtn min-h-9 border-0 bg-green-500 px-4 text-white hover:bg-green-600 hover:text-white">✅ Approve all</button>
           )}
-          {!progress && status !== 'rejected' && (
+          {!progress && status === 'pending' && (
             <button onClick={() => bulk('rejected')} className="abtn min-h-9 border-0 bg-white/15 px-4 text-white hover:bg-red-500 hover:text-white">❌ Reject all</button>
           )}
           {!progress && <button onClick={() => setPicked([])} className="min-h-9 px-2 text-sm text-white/70 underline hover:text-white">Clear</button>}

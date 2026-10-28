@@ -69,7 +69,6 @@ router.post('/', protect, requirePermission('leaders'), upload.single('photo'), 
 router.put('/:id', protect, requirePermission('leaders'), upload.single('photo'), async (req, res) => {
   const leader = await Leader.findById(req.params.id).catch(() => null)
   if (!leader || notMyState(req, leader.state)) return res.status(404).json({ message: 'Not found' })
-  if (error) return res.status(400).json({ message: error })
   const { data, error } = read(req.body || {})
   if (error) return res.status(400).json({ message: error })
   Object.assign(leader, data)

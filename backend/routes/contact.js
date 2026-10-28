@@ -20,6 +20,7 @@ router.post('/', limiter, async (req, res) => {
   const message = String(b.message || '').trim()
   if (!name) return res.status(400).json({ message: 'Please enter your name' })
   if (!message) return res.status(400).json({ message: 'Please write your message' })
+  const topic = ['general', 'membership', 'event', 'media', 'other'].includes(b.topic) ? b.topic : 'general'
   if (!b.phone && !b.email) {
     return res.status(400).json({ message: 'Give a phone number or email so we can reply' })
   }
@@ -28,14 +29,26 @@ router.post('/', limiter, async (req, res) => {
   }
 
   try {
-    await Message.create({ name, phone: b.phone, email: b.email, message })
+    await Message.create({ name, phone: b.phone, email: b.email, message, topic })
   } catch (err) {
     if (err.name === 'ValidationError') {
       return res.status(400).json({ message: 'Your message is too long. Please shorten it.' })
     }
     throw err
   }
-  notifyAdmin('New contact message', `From ${name}${b.phone ? ' (' + b.phone + ')' : ''}:\n\n${message.slice(0, 300)}`)
+  notifyAdmin(`New contact message${topic === 'general' ? '' : ` (${topic})`}`, `From ${name}${b.phone ? ' (' + b.phone + ')' : ''}:\n\n${message.slice(0, 300)}`)
+
+  // Send the person a "we got your message" email (only if they gave an email)
+  if (b.email) {
+    const text = `Jai Bhim ${name},\n\nWe have received your message. Our team will get back to you soon.\n\nYour message:\n${message}\n\n— Bhim Army Blue Panther`
+    const html = `<div style="font-family:Arial,sans-serif;font-size:15px;color:#0a1a3f;line-height:1.6">
+      <p>जय भीम <b>${escape(name)}</b>,</p>
+      <p>आपका संदेश हमें मिल गया है। हमारी टीम जल्द ही आपसे संपर्क करेगी।<br>We have received your message. Our team will get back to you soon.</p>
+      <p style="background:#eef3fb;border-left:4px solid #0b3c9d;padding:10px 12px;white-space:pre-line">${escape(message)}</p>
+      <p>— Bhim Army Blue Panther</p></div>`
+    sendMail({ to: b.email, subject: 'We received your message – Bhim Army Blue Panther', text, html })
+      .catch((err) => console.error('Contact confirmation email failed:', err.message))
+  }
   res.status(201).json({ ok: true })
 })
 
