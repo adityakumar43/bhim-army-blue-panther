@@ -7,6 +7,9 @@ export default function Footer() {
   let loggedIn = false
   try { loggedIn = !!localStorage.getItem('token') } catch { /* storage blocked */ }
 
+  // Opened as the installed app: there is no address bar to type /admin/login, so the team needs a link
+  const installed = typeof window !== 'undefined' && (window.matchMedia?.('(display-mode: standalone)').matches || window.navigator.standalone === true)
+
   // Two short lists instead of one long one
   const explore = [['/', t('nav.home')], ['/about', t('nav.about')], ['/leadership/states', t('nav.states')], ['/inspirations', t('nav.inspire')],
   ['/campaigns', t('nav.campaigns')], ['/news', t('nav.news')], ['/gallery', t('nav.gallery')], ['/videos', t('videos.link')]]
@@ -53,15 +56,18 @@ export default function Footer() {
         </div>
       </div>
 
-      {/* One short line: © and the Privacy Policy. "Admin Panel" shows only on a device where someone from the team is logged in. */}
+      {/* One short line: © and the Privacy Policy. "Admin Panel" shows only where someone from the team is logged in,
+          and "Staff Login" only inside the installed app (in a browser, the team opens /admin/login). */}
       <div className="flex flex-wrap items-center justify-center gap-x-2 gap-y-1 border-t border-white/10 px-4 py-4 text-center text-xs text-white/60 sm:text-sm">
         <span className="whitespace-nowrap">© {new Date().getFullYear()} {t('org')}</span>
         <span className="opacity-40">·</span>
         <Link to="/privacy" className="whitespace-nowrap hover:text-white hover:underline">{t('privacy.title', { defaultValue: 'Privacy Policy' })}</Link>
-        {loggedIn && (
+        {(loggedIn || installed) && (
           <>
             <span className="opacity-40">·</span>
-            <Link to="/admin" className="whitespace-nowrap opacity-60 hover:opacity-100 hover:underline">Admin Panel</Link>
+            <Link to={loggedIn ? '/admin' : '/admin/login'} className="whitespace-nowrap opacity-60 hover:opacity-100 hover:underline">
+              {loggedIn ? 'Admin Panel' : 'Staff Login'}
+            </Link>
           </>
         )}
       </div>
