@@ -32,7 +32,19 @@ export async function protect(req, res, next) {
 
 // A State admin only sees and changes their own state's members and leaders.
 // Gives their state code, or null for everyone else (no limit).
-export const stateScope = (admin) => (admin?.role === 'stateadmin' ? admin.state || 'none' : null)
+export const stateScope = (admin) => (['stateadmin', 'districtadmin'].includes(admin?.role) ? admin.state || 'none' : null)
+
+// A District admin only sees their own district. Gives { state, district } for them, or null for everyone else.
+export const districtScope = (admin) => (admin?.role === 'districtadmin' ? { state: admin.state || 'none', district: admin.district || 'none' } : null)
+
+// Database condition for a district name, ignoring capitals and spaces around it ("lucknow " is Lucknow)
+export const sameDistrict = (district) => new RegExp(`^\\s*${String(district).replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}\\s*$`, 'i')
+
+// Lets the request through when the role has any one of these permissions
+export const requireAny = (...permissions) => (req, res, next) =>
+  permissions.some((p) => can(req.admin.role, p))
+    ? next()
+    : res.status(403).json({ message: 'You do not have permission to do this' })
 
 export const requirePermission = (permission) => (req, res, next) =>
   can(req.admin.role, permission)

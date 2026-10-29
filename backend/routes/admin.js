@@ -9,7 +9,7 @@ import Rsvp from '../models/Rsvp.js'
 import Download from '../models/Download.js'
 import Certificate from '../models/Certificate.js'
 import { Event } from '../models/Content.js'
-import { protect, requirePermission, stateScope } from '../middleware/auth.js'
+import { protect, requirePermission, requireAny, stateScope, districtScope, sameDistrict } from '../middleware/auth.js'
 import { memberStateFilter, codeFromName, stateNameEn } from '../config/stateNames.js'
 import { can } from '../config/roles.js'
 
@@ -21,8 +21,11 @@ router.get('/summary', protect, async (req, res) => {
   const since = req.admin.seenDonationsAt || req.admin.createdAt
   const scope = stateScope(req.admin)
   const mine = scope ? memberStateFilter(scope) : {} // State admins count only their state
+  const area = districtScope(req.admin) // District admins count only their district
+  const inArea = area ? { district: sameDistrict(area.district) } : {}
+  const sees = (p) => can(role, p) || can(role, 'district')
   const [members, messages, donations, helpdesk, volunteers] = await Promise.all([
-    can(role, 'members') ? Member.countDocuments({ status: 'pending', ...mine }) : 0,
+    sees('members') ? Member.countDocuments({ status: 'pending', ...mine, ...inArea }) : 0,
     can(role, 'messages') ? Message.countDocuments({ read: false }) : 0,
     can(role, 'donations')
       ? Donation.countDocuments({
@@ -33,8 +36,8 @@ router.get('/summary', protect, async (req, res) => {
         ],
       })
       : 0,
-    can(role, 'helpdesk') ? Complaint.countDocuments({ status: 'new', ...(scope ? { stateCode: scope } : {}) }) : 0,
-    can(role, 'members') ? Volunteer.countDocuments({ status: 'new', ...(scope ? { stateCode: scope } : {}) }) : 0,
+    sees('helpdesk') ? Complaint.countDocuments({ status: 'new', ...(scope ? { stateCode: scope } : {}), ...inArea }) : 0,
+    sees('members') ? Volunteer.countDocuments({ status: 'new', ...(scope ? { stateCode: scope } : {}), ...inArea }) : 0,
   ])
   res.json({ members, messages, donations, helpdesk, volunteers })
 })

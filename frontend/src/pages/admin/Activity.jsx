@@ -4,9 +4,9 @@ import { PageHeader, Notice } from './ui.jsx'
 import LoginHistory from './LoginHistory.jsx'
 
 const SECTIONS = [
-  ['news', 'News'], ['events', 'Events'], ['gallery', 'Gallery'], ['slides', 'Home slider'],
-  ['leaders', 'Leadership'], ['announcements', 'Home updates'], ['members', 'Members'],
-  ['contact', 'Messages'], ['certificates', 'Certificates'], ['donations', 'Donations'], ['admins', 'Team & roles'], ['auth', 'Security'],
+  ['news', 'News'], ['events', 'Events'], ['gallery', 'Gallery'], ['slides', 'Home Slider'],
+  ['leaders', 'Leadership'], ['announcements', 'Home Updates'], ['members', 'Members'],
+  ['contact', 'Messages'], ['certificates', 'Certificates'], ['donations', 'Donations'], ['admins', 'Team & Roles'], ['auth', 'Security'],
 ]
 const SECTION_NAME = Object.fromEntries(SECTIONS)
 
@@ -75,7 +75,7 @@ export default function Activity() {
 
   return (
     <>
-      <PageHeader title="Activity log" subtitle="Every change made in the admin panel, and every login: who, what and when." />
+      <PageHeader title="Activity Log" subtitle="Every change made in the admin panel, and every login: who, what and when." />
 
       <div role="tablist" className="mb-5 inline-flex gap-1 rounded-2xl border border-brand/10 bg-white p-1 shadow-sm">
         {[['changes', '📝 Changes'], ['logins', '🔑 Logins']].map(([key, label]) => (

@@ -5,11 +5,14 @@ import { ROLE_INFO } from '../../lib/roles.js'
 import { STATES, stateByCode } from '../../data/states.js'
 import { PageHeader, Notice, Pill } from './ui.jsx'
 import Icon from '../../components/Icon.jsx'
+import DistrictSelect from '../../components/DistrictSelect.jsx'
 
 
-const EMPTY = { name: '', email: '', password: '', role: 'editor', state: '' }
+const EMPTY = { name: '', email: '', password: '', role: 'editor', state: '', district: '' }
 const sortedStates = [...STATES].sort((a, b) => a.en.localeCompare(b.en))
 const stateLabel = (code) => stateByCode(code)?.en || code
+const hasState = (role) => role === 'stateadmin' || role === 'districtadmin'
+const areaLabel = (a) => [a.district, a.state && stateLabel(a.state)].filter(Boolean).join(', ')
 
 // Password box with an eye button to show or hide what was typed
 function PasswordInput({ className = '', ...props }) {
@@ -27,15 +30,19 @@ function PasswordInput({ className = '', ...props }) {
 
 export default function Team() {
   const { me } = useOutletContext()
+  // A State admin manages only the District admins of their own state
+  const limited = !me.permissions.includes('admins')
+  const roleChoices = Object.entries(ROLE_INFO).filter(([key]) => !limited || key === 'districtadmin')
+  const fresh = () => (limited ? { ...EMPTY, role: 'districtadmin', state: me.state } : EMPTY)
   const [admins, setAdmins] = useState(null)
-  const [form, setForm] = useState(EMPTY)
+  const [form, setForm] = useState(fresh)
   const [error, setError] = useState('')
   const [note, setNote] = useState('')
   const [busy, setBusy] = useState(false)
   const [resetFor, setResetFor] = useState(null)
   const [newPw, setNewPw] = useState('')
   const [adding, setAdding] = useState(false)
-  const [statePick, setStatePick] = useState(null) // { id, state } while making someone a State admin
+  const [pick, setPick] = useState(null) // { id, role, state, district } while choosing the area of a State or District admin
 
   const load = () => api.get('/admins').then(setAdmins).catch((e) => setError(e.message))
   useEffect(() => { load() }, [])
@@ -57,23 +64,25 @@ export default function Team() {
     setBusy(true)
     await run(async () => {
       await api.post('/admins', form)
-      setForm(EMPTY)
+      setForm(fresh())
       setAdding(false)
-    }, 'Team member added. Share the password with them privately.')
+    }, form.role === 'districtadmin'
+      ? 'District admin added. Share the password with them privately.'
+      : 'Team member added. Share the password with them privately.')
     setBusy(false)
   }
 
   const setRole = (a, role) => {
-    // A State admin needs a state first, so ask for it before saving
-    if (role === 'stateadmin') return setStatePick({ id: a.id, state: a.state || '' })
-    setStatePick(null)
+    // State and District admins need their area first, so ask for it before saving
+    if (hasState(role)) return setPick({ id: a.id, role, state: a.state || '', district: role === 'districtadmin' ? a.district || '' : '' })
+    setPick(null)
     run(() => api.patch(`/admins/${a.id}`, { role }), `${a.name} is now ${ROLE_INFO[role].label}.`)
   }
-  const saveStateAdmin = (a) => run(async () => {
-    await api.patch(`/admins/${a.id}`, { role: 'stateadmin', state: statePick.state })
-    setStatePick(null)
-  }, `${a.name} is now State admin for ${stateLabel(statePick?.state)}.`)
-  const setState = (a, state) => run(() => api.patch(`/admins/${a.id}`, { state }), `${a.name} now looks after ${stateLabel(state)}.`)
+  const savePick = (a) => run(async () => {
+    await api.patch(`/admins/${a.id}`, { role: pick.role, state: pick.state, district: pick.district })
+    setPick(null)
+  }, `${a.name} is now ${ROLE_INFO[pick?.role]?.label} for ${areaLabel(pick || {})}.`)
+  const pickReady = pick && pick.state && (pick.role !== 'districtadmin' || pick.district)
   const toggle = (a) => run(() => api.patch(`/admins/${a.id}`, { active: !a.active }), a.active ? `${a.name} was disabled.` : `${a.name} was enabled.`)
   const savePw = (a) => run(async () => {
     await api.patch(`/admins/${a.id}`, { password: newPw })
@@ -91,8 +100,8 @@ export default function Team() {
 
   return (
     <>
-      <PageHeader title="Team & roles" subtitle="Give each person only the access they need.">
-        {!adding && <button onClick={() => { setAdding(true); setNote('') }} className="abtn-primary">➕ Add team member</button>}
+      <PageHeader title="Team & Roles" subtitle={limited ? `Add and manage the District admins of ${stateLabel(me.state)}.` : 'Give each person only the access they need.'}>
+        {!adding && <button onClick={() => { setAdding(true); setNote('') }} className="abtn-primary">➕ Add {limited ? 'District admin' : 'team member'}</button>}
       </PageHeader>
       <Notice>{error}</Notice>
       <Notice kind="success">{note}</Notice>
@@ -100,8 +109,8 @@ export default function Team() {
       {adding && (
         <form onSubmit={create} className="card mb-5">
           <div className="mb-3 flex items-center justify-between gap-3">
-            <h2 className="text-lg font-extrabold">➕ Add a team member</h2>
-            <button type="button" onClick={() => { setAdding(false); setForm(EMPTY) }} aria-label="Close" className="flex h-9 w-9 items-center justify-center rounded-lg text-navy/60 hover:bg-mist">
+            <h2 className="text-lg font-extrabold">➕ Add {limited ? 'a District admin' : 'a team member'}</h2>
+            <button type="button" onClick={() => { setAdding(false); setForm(fresh()) }} aria-label="Close" className="flex h-9 w-9 items-center justify-center rounded-lg text-navy/60 hover:bg-mist">
               <Icon name="close" size={18} />
             </button>
           </div>
@@ -117,24 +126,29 @@ export default function Team() {
                 onChange={(e) => setForm({ ...form, password: e.target.value })} />
             </label>
             <label className="flex flex-col gap-1 font-semibold">🎭 Role
-              <select value={form.role} onChange={(e) => setForm({ ...form, role: e.target.value })} className="input">
-                {Object.entries(ROLE_INFO).map(([key, r]) => <option key={key} value={key}>{r.label}</option>)}
+              <select value={form.role} disabled={limited} onChange={(e) => setForm({ ...form, role: e.target.value, district: '' })} className="input disabled:opacity-70">
+                {roleChoices.map(([key, r]) => <option key={key} value={key}>{r.label}</option>)}
               </select>
             </label>
-            {form.role === 'stateadmin' && (
+            {hasState(form.role) && (
               <label className="flex flex-col gap-1 font-semibold">📍 State
-                <select required value={form.state} onChange={(e) => setForm({ ...form, state: e.target.value })} className="input">
+                <select required value={form.state} disabled={limited} onChange={(e) => setForm({ ...form, state: e.target.value, district: '' })} className="input disabled:opacity-70">
                   <option value="">Choose...</option>
                   {sortedStates.map((s) => <option key={s.code} value={s.code}>{s.en}</option>)}
                 </select>
+              </label>
+            )}
+            {form.role === 'districtadmin' && (
+              <label className="flex flex-col gap-1 font-semibold">🏘️ District
+                <DistrictSelect english required stateCode={form.state} value={form.district} onChange={(district) => setForm((f) => ({ ...f, district }))} />
               </label>
             )}
           </div>
           <div className="mt-3 flex flex-wrap items-center justify-between gap-3">
             <p className="text-sm text-navy/65">ℹ️ <b>{ROLE_INFO[form.role].label}:</b> {ROLE_INFO[form.role].desc}</p>
             <div className="flex gap-2">
-              <button type="button" onClick={() => { setAdding(false); setForm(EMPTY) }} className="abtn">Cancel</button>
-              <button disabled={busy} className="abtn-primary">{busy ? 'Adding...' : '✅ Add team member'}</button>
+              <button type="button" onClick={() => { setAdding(false); setForm(fresh()) }} className="abtn">Cancel</button>
+              <button disabled={busy} className="abtn-primary">{busy ? 'Adding...' : `✅ Add ${limited ? 'District admin' : 'team member'}`}</button>
             </div>
           </div>
         </form>
@@ -143,7 +157,7 @@ export default function Team() {
       <details className="card mb-5 py-3 sm:py-3">
         <summary className="cursor-pointer font-bold text-brand">ℹ️ What each role can do</summary>
         <dl className="mt-3 grid gap-3 text-sm sm:grid-cols-2">
-          {Object.entries(ROLE_INFO).map(([key, r]) => (
+          {roleChoices.map(([key, r]) => (
             <div key={key}><dt className="font-semibold text-brand">{r.label}</dt><dd className="text-navy/80">{r.desc}</dd></div>
           ))}
         </dl>
@@ -167,7 +181,7 @@ export default function Team() {
                   </div>
                   <div className="truncate text-sm text-navy/65">✉️ {a.email}</div>
                   <div className="mt-1.5 flex flex-wrap gap-1.5">
-                    <Pill tone="gold">{ROLE_INFO[a.role]?.label || a.role}{a.state ? ` · 📍 ${stateLabel(a.state)}` : ''}</Pill>
+                    <Pill tone="gold">{ROLE_INFO[a.role]?.label || a.role}{a.state ? ` · 📍 ${areaLabel(a)}` : ''}</Pill>
                     <Pill tone={a.twoFactorEnabled ? 'green' : 'gray'}>{a.twoFactorEnabled ? '🔐 2-step on' : '🔓 2-step off'}</Pill>
                     {!a.active && <Pill tone="red">🚫 Disabled</Pill>}
                   </div>
@@ -175,32 +189,36 @@ export default function Team() {
               </div>
 
               <div className="mt-4 border-t border-brand/10 pt-3">
-                <label className="mb-2 flex items-center gap-2 text-sm font-semibold text-navy/70">
-                  Role
-                  <select aria-label={`Role of ${a.name}`} value={a.role} disabled={self}
-                    onChange={(e) => setRole(a, e.target.value)} className="input min-h-9 flex-1 py-1 text-sm disabled:opacity-60">
-                    {Object.entries(ROLE_INFO).map(([key, r]) => <option key={key} value={key}>{r.label}</option>)}
-                  </select>
-                </label>
-                {a.role === 'stateadmin' && statePick?.id !== a.id && (
+                {!limited && (
                   <label className="mb-2 flex items-center gap-2 text-sm font-semibold text-navy/70">
-                    State
-                    <select aria-label={`State of ${a.name}`} value={a.state || ''} onChange={(e) => setState(a, e.target.value)}
-                      className="input min-h-9 flex-1 py-1 text-sm">
-                      {sortedStates.map((s) => <option key={s.code} value={s.code}>{s.en}</option>)}
+                    Role
+                    <select aria-label={`Role of ${a.name}`} value={pick?.id === a.id ? pick.role : a.role} disabled={self}
+                      onChange={(e) => setRole(a, e.target.value)} className="input min-h-9 flex-1 py-1 text-sm disabled:opacity-60">
+                      {roleChoices.map(([key, r]) => <option key={key} value={key}>{r.label}</option>)}
                     </select>
                   </label>
                 )}
-                {statePick?.id === a.id && (
+                {hasState(a.role) && pick?.id !== a.id && (
+                  <div className="mb-2 flex items-center gap-2 text-sm font-semibold text-navy/70">
+                    <span className="min-w-0 flex-1 truncate">📍 {areaLabel(a) || 'No area chosen'}</span>
+                    <button onClick={() => setPick({ id: a.id, role: a.role, state: a.state || '', district: a.district || '' })} className="abtn min-h-9 px-3">Change</button>
+                  </div>
+                )}
+                {pick?.id === a.id && (
                   <div className="mb-2 flex flex-wrap items-center gap-2 rounded-xl bg-gold/15 p-2 text-sm font-semibold">
-                    📍 Which state?
-                    <select aria-label="Choose state" value={statePick.state} onChange={(e) => setStatePick({ ...statePick, state: e.target.value })}
-                      className="input min-h-9 min-w-40 flex-1 py-1 text-sm">
+                    📍 {pick.role === 'districtadmin' ? 'Which district?' : 'Which state?'}
+                    <select aria-label="Choose state" value={pick.state} disabled={limited} onChange={(e) => setPick({ ...pick, state: e.target.value, district: '' })}
+                      className="input min-h-9 min-w-40 flex-1 py-1 text-sm disabled:opacity-70">
                       <option value="">Choose...</option>
                       {sortedStates.map((s) => <option key={s.code} value={s.code}>{s.en}</option>)}
                     </select>
-                    <button onClick={() => saveStateAdmin(a)} disabled={!statePick.state} className="abtn-primary min-h-9 px-3">Save</button>
-                    <button onClick={() => setStatePick(null)} className="abtn min-h-9 px-3">Cancel</button>
+                    {pick.role === 'districtadmin' && (
+                      <span className="min-w-40 flex-1">
+                        <DistrictSelect english stateCode={pick.state} value={pick.district} onChange={(district) => setPick((p) => ({ ...p, district }))} className="input min-h-9 py-1 text-sm" />
+                      </span>
+                    )}
+                    <button onClick={() => savePick(a)} disabled={!pickReady} className="abtn-primary min-h-9 px-3">Save</button>
+                    <button onClick={() => setPick(null)} className="abtn min-h-9 px-3">Cancel</button>
                   </div>
                 )}
                 <div className="flex flex-wrap gap-2">

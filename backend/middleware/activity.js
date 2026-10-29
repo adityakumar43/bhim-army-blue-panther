@@ -22,7 +22,7 @@ const modelFor = (section) => {
     return Object.values(mongoose.models).find((m) => names.includes(m.collection?.name))
 }
 
-const ROLE_NAMES = { superadmin: 'Super admin', editor: 'Content editor', membership: 'Membership manager', finance: 'Finance', stateadmin: 'State admin' }
+const ROLE_NAMES = { superadmin: 'Super Admin', editor: 'Content Editor', membership: 'Membership Manager', finance: 'Finance', stateadmin: 'State Admin', districtadmin: 'District Admin' }
 
 const nameOf = (doc) => {
     if (!doc || typeof doc !== 'object') return ''
@@ -41,6 +41,7 @@ function describe(section, method, part, body = {}, last = '') {
                 pending: ['update', 'moved back to pending the application of'],
             }[body.status] || null
             if (part === 'send-card') return ['email', 'emailed the membership card to']
+            if (part === 'recommend') return ['update', body.verdict === 'concern' ? 'raised a concern about the application of' : 'recommended the application of']
             if (method === 'DELETE') return ['delete', 'deleted the application of']
             return null
         case 'contact':
@@ -59,7 +60,7 @@ function describe(section, method, part, body = {}, last = '') {
             if (method === 'POST' && part === 'reset-2fa') return ['security', 'reset two-step login for']
             if (method === 'POST') return ['create', 'added the team member']
             if (method === 'DELETE') return ['delete', 'deleted the account of']
-            if (body.state && !body.role) return ['role', 'changed the state of']
+            if ((body.state || body.district) && !body.role) return ['role', 'changed the area of']
             if (body.role) return ['role', `changed the role to ${ROLE_NAMES[body.role] || 'another role'} for`]
             if (body.active === false) return ['disable', 'disabled the account of']
             if (body.active === true) return ['enable', 'enabled the account of']

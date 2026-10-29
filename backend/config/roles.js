@@ -1,9 +1,10 @@
 export const ROLES = {
-  superadmin: ['content', 'leaders', 'members', 'messages', 'donations', 'helpdesk', 'admins'],
+  superadmin: ['content', 'leaders', 'members', 'messages', 'donations', 'helpdesk', 'admins', 'team'],
   editor: ['content', 'leaders'],
   membership: ['members', 'messages', 'helpdesk'],
   finance: ['donations'],
-  stateadmin: ['members', 'leaders', 'helpdesk'], // only for their own state (see stateScope in middleware/auth.js)
+  stateadmin: ['members', 'leaders', 'helpdesk', 'team'], // only for their own state (see stateScope in middleware/auth.js); 'team' = their District admins
+  districtadmin: ['district'], // only their own district: sees members and volunteers, recommends applications, handles help desk cases
 }
 export const can = (role, permission) => !!ROLES[role]?.includes(permission)
 

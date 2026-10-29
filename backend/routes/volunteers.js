@@ -1,7 +1,7 @@
 import { Router } from 'express'
 import rateLimit from 'express-rate-limit'
 import Volunteer, { SKILLS, AVAILABILITY, VOL_STATUSES } from '../models/Volunteer.js'
-import { protect, requirePermission, stateScope } from '../middleware/auth.js'
+import { protect, requirePermission, requireAny, stateScope, districtScope, sameDistrict } from '../middleware/auth.js'
 import { STATE_CODES } from '../config/states.js'
 import { stateNameEn } from '../config/stateNames.js'
 import { canonicalDistrict } from '../config/districts.js'
@@ -46,9 +46,13 @@ router.post('/', limiter, async (req, res) => {
 })
 
 // ----- Team (membership managers, state admins for their state, super admins) -----
-const scoped = (req) => { const s = stateScope(req.admin); return s ? { stateCode: s } : {} }
+const scoped = (req) => {
+  const s = stateScope(req.admin)
+  const area = districtScope(req.admin) // District admins: only their district
+  return area ? { stateCode: area.state, district: sameDistrict(area.district) } : s ? { stateCode: s } : {}
+}
 
-router.get('/', protect, requirePermission('members'), async (req, res) => {
+router.get('/', protect, requireAny('members', 'district'), async (req, res) => {
   const filter = { ...scoped(req) }
   if (VOL_STATUSES.includes(req.query.status)) filter.status = req.query.status
   if (SKILLS.includes(req.query.skill)) filter.skills = req.query.skill

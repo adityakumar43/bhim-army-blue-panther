@@ -10,7 +10,7 @@ const STALE_DAYS = 3 // an open case with no update for this long gets a warning
 const when = (d) => new Date(d).toLocaleString('en-IN', { dateStyle: 'medium', timeStyle: 'short' })
 const day = (d) => new Date(d).toLocaleDateString('en-IN', { dateStyle: 'medium' })
 const clock = (s) => `${Math.floor(s / 60)}:${String(s % 60).padStart(2, '0')}`
-const ROLE = { superadmin: 'Super admin', membership: 'Membership', stateadmin: 'State admin' }
+const ROLE = { superadmin: 'Super Admin', membership: 'Membership', stateadmin: 'State Admin', districtadmin: 'District Admin' }
 
 // When the person last heard from us: the newest line in their timeline (older cases: when the case last changed)
 const lastUpdate = (c) => new Date(c.history?.at(-1)?.at || c.updatedAt || c.createdAt)
@@ -146,7 +146,7 @@ function Case({ c, team, canDelete, onSaved, onDelete }) {
                             <option value="">— Nobody yet —</option>
                             {team.map((a) => (
                                 <option key={a._id} value={a._id} disabled={a.role === 'stateadmin' && a.state !== c.stateCode}>
-                                    {a.name} ({ROLE[a.role] || a.role}{a.state ? ` – ${stateByCode(a.state)?.en || a.state}` : ''})
+                                    {a.name} ({ROLE[a.role] || a.role}{a.district ? ` – ${a.district}` : a.state ? ` – ${stateByCode(a.state)?.en || a.state}` : ''})
                                 </option>
                             ))}
                         </select>
@@ -190,7 +190,7 @@ export default function HelpDeskAdmin() {
     const [team, setTeam] = useState([])
     const [saved, setSaved] = useState(null) // the case just updated, to offer a WhatsApp message
     const [error, setError] = useState('')
-    const myState = me.role === 'stateadmin' ? stateByCode(me.state) : null
+    const myState = ['stateadmin', 'districtadmin'].includes(me.role) ? stateByCode(me.state) : null
 
     const load = () => {
         const p = new URLSearchParams()
@@ -216,8 +216,8 @@ export default function HelpDeskAdmin() {
 
     return (
         <>
-            <PageHeader title="Help desk" subtitle="Problems reported by people through the Help desk page." />
-            {myState && <p className="mb-4 rounded-xl bg-mist px-4 py-2.5 text-sm font-semibold text-brand">📍 You are seeing only cases from {myState.en}.</p>}
+            <PageHeader title="Help Desk" subtitle="Problems reported by people through the Help desk page." />
+            {myState && <p className="mb-4 rounded-xl bg-mist px-4 py-2.5 text-sm font-semibold text-brand">📍 You are seeing only cases from {me.district ? `${me.district} district, ` : ''}{myState.en}.</p>}
 
             <div className="mb-3 flex flex-wrap items-center gap-2">
                 <div role="group" aria-label="Filter by status" className="flex flex-wrap gap-1 rounded-2xl border border-brand/10 bg-white p-1 shadow-sm">

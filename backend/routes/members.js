@@ -1,7 +1,7 @@
 import { Router } from 'express'
 import rateLimit from 'express-rate-limit'
 import Member from '../models/Member.js'
-import { protect, requirePermission, stateScope } from '../middleware/auth.js'
+import { protect, requirePermission, requireAny, stateScope, districtScope, sameDistrict } from '../middleware/auth.js'
 import { STATE_CODES } from '../config/states.js'
 import { stateNameEn, codeFromName, memberInState, memberStateFilter } from '../config/stateNames.js'
 import { canonicalDistrict } from '../config/districts.js'
@@ -154,13 +154,31 @@ router.post('/status', statusLimiter, async (req, res) => {
 })
 
 
-router.get('/', protect, requirePermission('members'), async (req, res) => {
+router.get('/', protect, requireAny('members', 'district'), async (req, res) => {
   const filter = ['pending', 'approved', 'rejected', 'cancelled'].includes(req.query.status)
     ? { status: req.query.status }
     : {}
   const scope = stateScope(req.admin)
   if (scope) Object.assign(filter, memberStateFilter(scope))
+  const area = districtScope(req.admin)
+  if (area) filter.district = sameDistrict(area.district) // District admins: only their district
   res.json(await Member.find(filter).sort({ createdAt: -1 }).limit(1000).populate('referredBy', 'name memberNo'))
+})
+
+// A District admin's word on an application from their district: they know the person, or they have a concern.
+// The State admin still decides. Each District admin has one recommendation per application (the newest).
+router.post('/:id/recommend', protect, requirePermission('district'), async (req, res) => {
+  const verdict = req.body?.verdict
+  const note = String(req.body?.note || '').trim().slice(0, 300)
+  if (!['good', 'concern'].includes(verdict)) return res.status(400).json({ message: 'Choose "I know this person" or "I have a concern"' })
+  if (verdict === 'concern' && !note) return res.status(400).json({ message: 'Please write what the concern is' })
+  const area = districtScope(req.admin)
+  const m = await Member.findOne({ _id: req.params.id, ...memberStateFilter(area.state), district: sameDistrict(area.district) }).catch(() => null)
+  if (!m) return res.status(404).json({ message: 'Not found' })
+  m.recommendations = (m.recommendations || []).filter((r) => String(r.byId) !== String(req.admin._id))
+  m.recommendations.push({ verdict, note, byId: req.admin._id, byName: req.admin.name, at: new Date() })
+  await m.save()
+  res.json({ ok: true, recommendations: m.recommendations, name: m.name })
 })
 
 router.patch('/:id/status', protect, requirePermission('members'), async (req, res) => {

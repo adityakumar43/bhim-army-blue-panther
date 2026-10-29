@@ -66,7 +66,7 @@ export default function Growth() {
 
     return (
         <>
-            <PageHeader title="Member growth" subtitle="Where our members are, how fast we are growing, and who brings in new members." />
+            <PageHeader title="Member Growth" subtitle="Where our members are, how fast we are growing, and who brings in new members." />
             <Notice>{error}</Notice>
 
             <div className="mb-5 flex flex-wrap items-center gap-2">

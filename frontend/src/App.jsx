@@ -113,15 +113,15 @@ export default function App() {
               <Route path="slides" element={<Perm perm="content"><Content key="slides" kind="slides" /></Perm>} />
               <Route path="leaders" element={<Perm perm="leaders"><Leaders /></Perm>} />
               <Route path="updates" element={<Perm perm="content"><Updates /></Perm>} />
-              <Route path="members" element={<Perm perm="members"><Members /></Perm>} />
+              <Route path="members" element={<Perm perm={['members', 'district']}><Members /></Perm>} />
               <Route path="videos" element={<Perm perm="content"><VideosAdmin /></Perm>} />
               <Route path="downloads" element={<Perm perm="content"><DownloadsAdmin /></Perm>} />
-              <Route path="volunteers" element={<Perm perm="members"><Volunteers /></Perm>} />
+              <Route path="volunteers" element={<Perm perm={['members', 'district']}><Volunteers /></Perm>} />
               <Route path="certificates" element={<Perm perm="members"><Certificates /></Perm>} />
-              <Route path="helpdesk" element={<Perm perm="helpdesk"><HelpDeskAdmin /></Perm>} />
+              <Route path="helpdesk" element={<Perm perm={['helpdesk', 'district']}><HelpDeskAdmin /></Perm>} />
               <Route path="messages" element={<Perm perm="messages"><Messages /></Perm>} />
               <Route path="donations" element={<Perm perm="donations"><Donations /></Perm>} />
-              <Route path="team" element={<Perm perm="admins"><Team /></Perm>} />
+              <Route path="team" element={<Perm perm="team"><Team /></Perm>} />
               <Route path="activity" element={<Perm perm="admins"><Activity /></Perm>} />
               <Route path="backup" element={<Perm perm="admins"><Backup /></Perm>} />
               <Route path="mailouts" element={<Perm perm="members"><Mailouts /></Perm>} />

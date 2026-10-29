@@ -28,7 +28,8 @@ export default function Volunteers() {
     const [q, setQ] = useState('')
     const [items, setItems] = useState(null)
     const [error, setError] = useState('')
-    const myState = me.role === 'stateadmin' ? stateByCode(me.state) : null
+    const myState = ['stateadmin', 'districtadmin'].includes(me.role) ? stateByCode(me.state) : null
+    const viewOnly = me.role === 'districtadmin' // District admins can see their volunteers, not change them
 
     const load = () => {
         const p = new URLSearchParams()
@@ -61,7 +62,7 @@ export default function Volunteers() {
             <PageHeader title="Volunteers" subtitle="People who offered to help, and what they can do.">
                 {shown.length > 0 && <button onClick={() => downloadCsv(shown)} className="abtn">📥 Download Excel ({shown.length})</button>}
             </PageHeader>
-            {myState && <p className="mb-4 rounded-xl bg-mist px-4 py-2.5 text-sm font-semibold text-brand">📍 You are seeing only volunteers from {myState.en}.</p>}
+            {myState && <p className="mb-4 rounded-xl bg-mist px-4 py-2.5 text-sm font-semibold text-brand">📍 You are seeing only volunteers from {me.district ? `${me.district} district, ` : ''}{myState.en}.</p>}
 
             <div role="group" aria-label="Filter by status" className="mb-3 flex flex-wrap gap-1 rounded-2xl border border-brand/10 bg-white p-1 shadow-sm sm:inline-flex">
                 {TABS.map(([key, label]) => (
@@ -103,11 +104,13 @@ export default function Volunteers() {
                             <a href={`tel:${v.phone}`} className="abtn min-h-9 px-3">📞</a>
                             <a href={`https://wa.me/91${v.phone}?text=${encodeURIComponent(`Jai Bhim ${v.name}, thank you for volunteering with Bhim Army Blue Panther!`)}`}
                                 target="_blank" rel="noreferrer" className="abtn min-h-9 border-green-300 px-3 text-green-800">💬</a>
-                            <select aria-label={`Status of ${v.name}`} value={v.status} onChange={(e) => update(v, { status: e.target.value })} className="input min-h-9 w-auto flex-1 py-1 text-sm">
-                                {TABS.filter(([k]) => k).map(([k, label]) => <option key={k} value={k}>{label}</option>)}
-                            </select>
-                            <button onClick={() => editNote(v)} aria-label="Team note" className="abtn min-h-9 px-3">🗒️</button>
-                            <button onClick={() => remove(v)} aria-label={`Remove ${v.name}`} className="abtn-danger min-h-9 px-3">🗑️</button>
+                            {!viewOnly && <>
+                                <select aria-label={`Status of ${v.name}`} value={v.status} onChange={(e) => update(v, { status: e.target.value })} className="input min-h-9 w-auto flex-1 py-1 text-sm">
+                                    {TABS.filter(([k]) => k).map(([k, label]) => <option key={k} value={k}>{label}</option>)}
+                                </select>
+                                <button onClick={() => editNote(v)} aria-label="Team note" className="abtn min-h-9 px-3">🗒️</button>
+                                <button onClick={() => remove(v)} aria-label={`Remove ${v.name}`} className="abtn-danger min-h-9 px-3">🗑️</button>
+                            </>}
                         </div>
                     </li>
                 ))}

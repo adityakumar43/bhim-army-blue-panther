@@ -25,7 +25,7 @@ const KINDS = {
 }
 
 KINDS.slides = {
-  label: 'Home slider',
+  label: 'Home Slider',
   hint: 'Big pictures that slide automatically at the top of the Home page. 3 to 6 wide photos work best (about 1600 x 700 pixels).',
   endpoint: '/slides', needImage: true, untitled: '(no caption)',
   fields: ['titleHi', 'titleEn', 'link', 'order'],

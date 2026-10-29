@@ -74,7 +74,7 @@ export default function Mailouts() {
 
     return (
         <>
-            <PageHeader title="Email members" subtitle="Send an announcement by email to all members, one state or one district." />
+            <PageHeader title="Email Members" subtitle="Send an announcement by email to all members, one state or one district." />
             <Notice>{error}</Notice>
             <Notice kind="success">{note}</Notice>
 

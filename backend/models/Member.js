@@ -29,6 +29,8 @@ const memberSchema = new mongoose.Schema(
     birthdayWishedYear: Number, // the last year a birthday email was sent
     emailOptOut: { type: Boolean, default: false }, // said "stop" to announcement emails
     referredBy: { type: mongoose.Schema.Types.ObjectId, ref: 'Member', index: true }, // the member whose invite link they joined with
+    // District admins' word on the application: they know the person ('good'), or they have a concern
+    recommendations: [{ verdict: String, note: String, byId: mongoose.Schema.Types.ObjectId, byName: String, at: Date }],
     detailsUpdatedAt: Date, // the last time the member changed their own details
     // "Update my details": the code emailed to them, and the pass they get after typing it (both kept scrambled)
     editCodeHash: { type: String, select: false },

@@ -3,7 +3,7 @@ import crypto from 'crypto'
 import rateLimit from 'express-rate-limit'
 import Complaint, { CATEGORIES, STATUSES } from '../models/Complaint.js'
 import Admin from '../models/Admin.js'
-import { protect, requirePermission, stateScope } from '../middleware/auth.js'
+import { protect, requirePermission, requireAny, stateScope, districtScope, sameDistrict } from '../middleware/auth.js'
 import { can, ROLES } from '../config/roles.js'
 import { helpdeskUpload } from '../middleware/upload.js'
 import { uploadImage, uploadAudio, deleteImage } from '../config/cloudinary.js'
@@ -68,10 +68,20 @@ router.post('/', reportLimiter, helpdeskUpload, async (req, res) => {
     history: [{ status: 'new' }],
     consentAt: new Date(),
   }
+  // A case from a district that has a District admin goes straight to them
+  const owner = district ? await Admin.findOne({ role: 'districtadmin', state: b.stateCode, district, active: true }).sort({ createdAt: 1 }) : null
+
   // A reference number is random; try again in the rare case it already exists
   for (let i = 0; i < 5; i++) {
     try {
-      const c = await Complaint.create({ ...data, refNo: newRef() })
+      const c = await Complaint.create({ ...data, assignedTo: owner ? { adminId: owner._id, name: owner.name } : undefined, refNo: newRef() })
+      if (owner?.email) {
+        sendMail({
+          to: owner.email,
+          subject: `New help desk case ${c.refNo} in ${district}`,
+          text: `A new help desk case from ${district} has been given to you.\n\n${c.refNo} · ${c.category}\nFrom ${name} (${phone})\n\n${description.slice(0, 400)}\n\nOpen the help desk: ${(process.env.CLIENT_URL || '').replace(/\/+$/, '')}/admin/helpdesk`,
+        }).catch((err) => console.error('District case email failed:', err.message))
+      }
       notifyAdmin(`New help desk case ${c.refNo}`, `${c.category} in ${c.district ? c.district + ', ' : ''}${c.state}\nFrom ${name} (${phone})\n\n${description.slice(0, 400)}`)
       // If they gave an email, send them their reference number so they don't lose it
       if (c.email) {
@@ -121,9 +131,13 @@ router.post('/track', trackLimiter, async (req, res) => {
 // ----- Team -----
 
 // State admins only see their own state
-const scoped = (req) => { const s = stateScope(req.admin); return s ? { stateCode: s } : {} }
+const scoped = (req) => {
+  const s = stateScope(req.admin)
+  const area = districtScope(req.admin) // District admins: only their district
+  return area ? { stateCode: area.state, district: sameDistrict(area.district) } : s ? { stateCode: s } : {}
+}
 
-router.get('/', protect, requirePermission('helpdesk'), async (req, res) => {
+router.get('/', protect, requireAny('helpdesk', 'district'), async (req, res) => {
   const filter = { ...scoped(req) }
   if (STATUSES.includes(req.query.status)) filter.status = req.query.status
   if (CATEGORIES.includes(req.query.category)) filter.category = req.query.category
@@ -133,15 +147,18 @@ router.get('/', protect, requirePermission('helpdesk'), async (req, res) => {
 })
 
 // Team members a case can be given to. A state admin only sees the admins of their own state.
-const canHelp = Object.keys(ROLES).filter((r) => ROLES[r].includes('helpdesk'))
-router.get('/team', protect, requirePermission('helpdesk'), async (req, res) => {
+// A District admin sees only themselves (they can take a case); a State admin sees their state's State and District admins
+const canHelp = [...Object.keys(ROLES).filter((r) => ROLES[r].includes('helpdesk')), 'districtadmin']
+router.get('/team', protect, requireAny('helpdesk', 'district'), async (req, res) => {
   const scope = stateScope(req.admin)
-  const filter = scope ? { role: 'stateadmin', state: scope, active: true } : { role: { $in: canHelp }, active: true }
-  const team = await Admin.find(filter).select('name role state').sort({ name: 1 })
-  res.json(team.map((a) => ({ _id: a._id, name: a.name, role: a.role, state: a.state })))
+  const filter = districtScope(req.admin) ? { _id: req.admin._id }
+    : scope ? { role: { $in: ['stateadmin', 'districtadmin'] }, state: scope, active: true }
+      : { role: { $in: canHelp }, active: true }
+  const team = await Admin.find(filter).select('name role state district').sort({ name: 1 })
+  res.json(team.map((a) => ({ _id: a._id, name: a.name, role: a.role, state: a.state, district: a.district || null })))
 })
 
-router.patch('/:id', protect, requirePermission('helpdesk'), async (req, res) => {
+router.patch('/:id', protect, requireAny('helpdesk', 'district'), async (req, res) => {
   const c = await Complaint.findOne({ _id: req.params.id, ...scoped(req) }).catch(() => null)
   if (!c) return res.status(404).json({ message: 'Not found' })
   const { status, publicNote, note, urgent, assignedTo } = req.body || {}
@@ -152,7 +169,10 @@ router.patch('/:id', protect, requirePermission('helpdesk'), async (req, res) =>
     if (!assignedTo) c.assignedTo = undefined
     else {
       const a = await Admin.findById(assignedTo).catch(() => null)
-      if (!a || !a.active || !can(a.role, 'helpdesk')) return res.status(400).json({ message: 'This team member cannot handle help desk cases' })
+      // A District admin can only handle cases of their own district
+      const ofThisDistrict = a?.role === 'districtadmin' && a.state === c.stateCode && !!c.district && sameDistrict(a.district).test(c.district)
+      if (!a || !a.active || !(can(a.role, 'helpdesk') || ofThisDistrict)) return res.status(400).json({ message: 'This team member cannot handle this case' })
+      if (districtScope(req.admin) && !a._id.equals(req.admin._id)) return res.status(403).json({ message: 'You can only take a case yourself' })
       if (a.role === 'stateadmin' && a.state !== c.stateCode) return res.status(400).json({ message: `${a.name} looks after another state` })
       const scope = stateScope(req.admin)
       if (scope && a.state !== scope) return res.status(403).json({ message: 'You can only give cases to admins of your state' })

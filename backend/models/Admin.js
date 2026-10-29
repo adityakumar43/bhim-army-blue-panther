@@ -10,6 +10,7 @@ const adminSchema = new mongoose.Schema(
     role: { type: String, enum: Object.keys(ROLES), default: 'editor' },
     active: { type: Boolean, default: true },
     state: { type: String, default: null }, // for State admins: the state they look after, like 'uttar-pradesh'
+    district: { type: String, default: null }, // for District admins: the district they look after (they have a state too)
     sessionId: { type: String, select: false }, // only the newest login stays valid
     failedLogins: { type: Number, default: 0 },
     lockUntil: Date,

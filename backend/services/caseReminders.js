@@ -66,14 +66,18 @@ export async function sendCaseReminders(now = new Date()) {
         if (!waiting.length) return { cases: 0, emails: 0 }
 
         // Who gets which cases
-        const admins = await Admin.find({ active: true }).select('name email role state').lean()
+        const admins = await Admin.find({ active: true }).select('name email role state district').lean()
         const byId = new Map(admins.map((a) => [String(a._id), a]))
         const inbox = new Map() // email -> cases
         const add = (email, c) => { if (!email) return; const k = email.toLowerCase(); if (!inbox.has(k)) inbox.set(k, []); inbox.get(k).push(c) }
         for (const c of waiting) {
             const owner = c.assignedTo?.adminId && byId.get(String(c.assignedTo.adminId))
-            if (owner && can(owner.role, 'helpdesk')) add(owner.email, c)
-            else admins.filter((a) => a.role === 'stateadmin' && a.state === c.stateCode && can(a.role, 'helpdesk')).forEach((a) => add(a.email, c))
+            if (owner && (can(owner.role, 'helpdesk') || owner.role === 'districtadmin')) add(owner.email, c)
+            else {
+                // Nobody has it: the state admins of its state, and the district admins of its district
+                const sameArea = (a) => a.role === 'districtadmin' && a.state === c.stateCode && a.district && c.district && a.district.toLowerCase() === c.district.trim().toLowerCase()
+                admins.filter((a) => (a.role === 'stateadmin' && a.state === c.stateCode) || sameArea(a)).forEach((a) => add(a.email, c))
+            }
             add(process.env.ADMIN_NOTIFY_EMAIL, c)
         }
         if (!inbox.size) return { cases: waiting.length, emails: 0 }

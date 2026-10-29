@@ -6,33 +6,33 @@ import Birthdays from './Birthdays.jsx'
 
 const greeting = () => {
   const h = new Date().getHours()
-  return h < 12 ? 'Good morning' : h < 17 ? 'Good afternoon' : 'Good evening'
+  return h < 12 ? 'Good Morning' : h < 17 ? 'Good Afternoon' : 'Good Evening'
 }
 
 export default function Overview() {
   const { me, summary } = useOutletContext()
-  const can = (p) => me.permissions.includes(p)
+  const can = (p) => [].concat(p).some((x) => me.permissions.includes(x)) // any one of the permissions
   const role = ROLE_INFO[me.role]
   const today = new Date().toLocaleDateString('en-IN', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' })
 
   // [permission, link, label, count, emoji, tile colour]
   const alerts = [
-    ['members', '/admin/members', 'Membership applications waiting', summary.members, '📝', 'bg-blue-100'],
+    [['members', 'district'], '/admin/members', 'Membership applications waiting', summary.members, '📝', 'bg-blue-100'],
     ['messages', '/admin/messages', 'Unread messages', summary.messages, '✉️', 'bg-amber-100'],
     ['donations', '/admin/donations', 'New donations', summary.donations, '💝', 'bg-rose-100'],
-    ['helpdesk', '/admin/helpdesk', 'New help desk cases', summary.helpdesk || 0, '🆘', 'bg-red-100'],
-    ['members', '/admin/volunteers', 'New volunteers', summary.volunteers || 0, '🙋', 'bg-green-100'],
+    [['helpdesk', 'district'], '/admin/helpdesk', 'New help desk cases', summary.helpdesk || 0, '🆘', 'bg-red-100'],
+    [['members', 'district'], '/admin/volunteers', 'New volunteers', summary.volunteers || 0, '🙋', 'bg-green-100'],
   ].filter(([perm]) => can(perm))
 
   // [permission, link, label, icon]
   const actions = [
-    ['content', '/admin/news', 'Publish news', 'news'],
-    ['content', '/admin/events', 'Add an event', 'calendar'],
-    ['content', '/admin/gallery', 'Upload photos', 'image'],
-    ['content', '/admin/slides', 'Home slider', 'layers'],
-    ['content', '/admin/updates', 'Home updates', 'bell'],
+    ['content', '/admin/news', 'Publish News', 'news'],
+    ['content', '/admin/events', 'Add an Event', 'calendar'],
+    ['content', '/admin/gallery', 'Upload Photos', 'image'],
+    ['content', '/admin/slides', 'Home Slider', 'layers'],
+    ['content', '/admin/updates', 'Home Updates', 'bell'],
     ['leaders', '/admin/leaders', 'Leadership', 'award'],
-    ['admins', '/admin/team', 'Team & roles', 'users'],
+    ['team', '/admin/team', 'Team & Roles', 'users'],
   ].filter(([perm, to]) => can(perm) && !(to === '/admin/leaders' && can('content'))) // content editors reach Leadership from the sidebar
 
   return (
@@ -78,7 +78,7 @@ export default function Overview() {
 
       {actions.length > 0 && (
         <>
-          <h2 className="mb-3 text-lg font-extrabold">⚡ Quick actions</h2>
+          <h2 className="mb-3 text-lg font-extrabold">⚡ Quick Actions</h2>
           <div className="grid grid-cols-2 gap-3 md:grid-cols-3 xl:grid-cols-6">
             {actions.map(([perm, to, label, icon]) => (
               <Link key={to} to={to} className="group flex items-center gap-3 rounded-2xl border border-brand/10 bg-white p-3 shadow-sm transition hover:-translate-y-0.5 hover:border-brand hover:shadow-md">
@@ -92,7 +92,7 @@ export default function Overview() {
         </>
       )}
       {can('members') && <Birthdays />}
-      <Stats />
+      {!can('district') && <Stats />}
     </>
   )
 }

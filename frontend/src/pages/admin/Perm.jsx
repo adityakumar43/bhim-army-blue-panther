@@ -3,7 +3,7 @@ import { Link, useOutletContext } from 'react-router-dom'
 // Shows the page only if the signed-in role may use it. The server checks again on every request.
 export default function Perm({ perm, children }) {
   const { me } = useOutletContext()
-  if (me.permissions.includes(perm)) return children
+  if ([].concat(perm).some((p) => me.permissions.includes(p))) return children
   return (
     <div className="card">
       <h1 className="mb-2 text-2xl font-extrabold">No access</h1>

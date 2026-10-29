@@ -69,7 +69,7 @@ export default function Updates() {
 
   return (
     <>
-      <PageHeader title="Home updates" subtitle='Short notices shown in the "Latest updates" bar at the top of the Home page.'>
+      <PageHeader title="Home Updates" subtitle='Short notices shown in the "Latest updates" bar at the top of the Home page.'>
         {!showForm && <button onClick={() => { setAdding(true); setError(''); setNote('') }} className="abtn-primary">➕ Add update</button>}
       </PageHeader>
       <Notice kind="success">{note}</Notice>

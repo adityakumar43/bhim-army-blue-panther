@@ -11,21 +11,21 @@ const NAV = [
   { to: '/admin/news', label: 'News', icon: 'news', perm: 'content' },
   { to: '/admin/events', label: 'Events', icon: 'calendar', perm: 'content' },
   { to: '/admin/gallery', label: 'Gallery', icon: 'image', perm: 'content' },
-  { to: '/admin/slides', label: 'Home slider', icon: 'layers', perm: 'content' },
+  { to: '/admin/slides', label: 'Home Slider', icon: 'layers', perm: 'content' },
   { to: '/admin/leaders', label: 'Leadership', icon: 'award', perm: 'leaders' },
   { to: '/admin/videos', label: 'Videos', icon: 'video', perm: 'content' },
   { to: '/admin/downloads', label: 'Downloads', icon: 'download', perm: 'content' },
-  { to: '/admin/updates', label: 'Home updates', icon: 'bell', perm: 'content' },
-  { to: '/admin/members', label: 'Members', icon: 'userPlus', perm: 'members', badge: 'members' },
-  { to: '/admin/growth', label: 'Member growth', icon: 'trend', perm: 'members' },
-  { to: '/admin/volunteers', label: 'Volunteers', icon: 'hand', perm: 'members', badge: 'volunteers' },
-  { to: '/admin/mailouts', label: 'Email members', icon: 'mail', perm: 'members' },
+  { to: '/admin/updates', label: 'Home Updates', icon: 'bell', perm: 'content' },
+  { to: '/admin/members', label: 'Members', icon: 'userPlus', perm: ['members', 'district'], badge: 'members' },
+  { to: '/admin/growth', label: 'Member Growth', icon: 'trend', perm: 'members' },
+  { to: '/admin/volunteers', label: 'Volunteers', icon: 'hand', perm: ['members', 'district'], badge: 'volunteers' },
+  { to: '/admin/mailouts', label: 'Email Members', icon: 'mail', perm: 'members' },
   { to: '/admin/certificates', label: 'Certificates', icon: 'award', perm: 'members' },
   { to: '/admin/messages', label: 'Messages', icon: 'chat', perm: 'messages', badge: 'messages' },
-  { to: '/admin/helpdesk', label: 'Help desk', icon: 'help', perm: 'helpdesk', badge: 'helpdesk' },
+  { to: '/admin/helpdesk', label: 'Help Desk', icon: 'help', perm: ['helpdesk', 'district'], badge: 'helpdesk' },
   { to: '/admin/donations', label: 'Donations', icon: 'heart', perm: 'donations', badge: 'donations' },
-  { to: '/admin/team', label: 'Team & roles', icon: 'users', perm: 'admins' },
-  { to: '/admin/activity', label: 'Activity log', icon: 'activity', perm: 'admins' },
+  { to: '/admin/team', label: 'Team & Roles', icon: 'users', perm: 'team' },
+  { to: '/admin/activity', label: 'Activity Log', icon: 'activity', perm: 'admins' },
   { to: '/admin/backup', label: 'Backup', icon: 'download', perm: 'admins' },
   { to: '/admin/security', label: 'Security', icon: 'shield' },
 ]
@@ -123,7 +123,7 @@ export default function AdminLayout() {
   }
 
   if (!me) return <AdminLoading />
-  const items = NAV.filter((n) => (locked ? n.to === '/admin/security' : !n.perm || me.permissions.includes(n.perm)))
+  const items = NAV.filter((n) => (locked ? n.to === '/admin/security' : !n.perm || [].concat(n.perm).some((p) => me.permissions.includes(p))))
 
   return (
     <div className="min-h-screen bg-[#F3F6FC]">
@@ -140,7 +140,7 @@ export default function AdminLayout() {
             </span>
             <span className="max-w-48 leading-tight">
               <span className="block truncate font-semibold">{me.name}</span>
-              <span className="block truncate text-xs text-white/60">{ROLE_INFO[me.role]?.label}{me.state ? ` · ${stateByCode(me.state)?.en}` : ''}</span>
+              <span className="block truncate text-xs text-white/60">{ROLE_INFO[me.role]?.label}{me.district ? ` · ${me.district}` : ''}{me.state ? ` · ${stateByCode(me.state)?.en}` : ''}</span>
             </span>
           </div>
           <Link to="/" title="View site" className="flex h-9 items-center gap-1.5 rounded-lg px-2.5 font-semibold text-white/85 hover:bg-white/10 hover:text-white">
