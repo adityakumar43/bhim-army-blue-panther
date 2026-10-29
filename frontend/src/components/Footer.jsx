@@ -53,15 +53,17 @@ export default function Footer() {
         </div>
       </div>
 
-      {/* Each part stays whole: on phones the © line sits on top and the two links share the line below */}
-      <div className="flex flex-wrap items-center justify-center gap-x-2 gap-y-1 border-t border-white/10 px-5 py-4 text-center text-sm text-white/60">
-        <span className="w-full whitespace-nowrap sm:w-auto">© {new Date().getFullYear()} {t('org')}</span>
-        <span className="hidden opacity-40 sm:inline">·</span>
-        <Link to="/privacy" className="whitespace-nowrap hover:text-white hover:underline">{t('privacy.title', { defaultValue: 'Privacy Policy' })}</Link>
+      {/* One short line: © and the Privacy Policy. "Admin Panel" shows only on a device where someone from the team is logged in. */}
+      <div className="flex flex-wrap items-center justify-center gap-x-2 gap-y-1 border-t border-white/10 px-4 py-4 text-center text-xs text-white/60 sm:text-sm">
+        <span className="whitespace-nowrap">© {new Date().getFullYear()} {t('org')}</span>
         <span className="opacity-40">·</span>
-        <Link to={loggedIn ? '/admin' : '/admin/login'} className="whitespace-nowrap opacity-60 hover:opacity-100 hover:underline">
-          {loggedIn ? 'Admin Panel' : 'Staff Login'}
-        </Link>
+        <Link to="/privacy" className="whitespace-nowrap hover:text-white hover:underline">{t('privacy.title', { defaultValue: 'Privacy Policy' })}</Link>
+        {loggedIn && (
+          <>
+            <span className="opacity-40">·</span>
+            <Link to="/admin" className="whitespace-nowrap opacity-60 hover:opacity-100 hover:underline">Admin Panel</Link>
+          </>
+        )}
       </div>
     </footer>
   )
