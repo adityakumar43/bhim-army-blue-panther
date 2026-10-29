@@ -5,6 +5,7 @@ import { shrinkImage } from '../lib/shrinkImage.js'
 import { STATES, stateName } from '../data/states.js'
 import { CATEGORIES, STATUS, categoryOf } from '../data/helpdesk.js'
 import Consent from '../components/Consent.jsx'
+import DistrictSelect from '../components/DistrictSelect.jsx'
 
 const EMPTY = { name: '', phone: '', email: '', stateCode: '', district: '', village: '', policeStation: '', category: '', incidentDate: '', description: '', website: '' }
 const PHONE_OK = /^[6-9]\d{9}$/
@@ -351,7 +352,7 @@ export default function HelpDesk() {
                 </select>
               </label>
               <label className="flex flex-col gap-1.5 font-semibold">🏘️ {t('help.district')}
-                <input maxLength="100" value={form.district} onChange={set('district')} className="input" />
+                <DistrictSelect stateCode={form.stateCode} value={form.district} onChange={(v) => setForm((old) => ({ ...old, district: v }))} />
               </label>
               <label className="flex flex-col gap-1.5 font-semibold">🏡 {t('help.village', { defaultValue: 'Village / locality' })}
                 <input maxLength="100" value={form.village} onChange={set('village')} className="input" />

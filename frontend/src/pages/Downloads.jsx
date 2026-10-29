@@ -3,6 +3,7 @@ import { useTranslation } from 'react-i18next'
 import { api } from '../lib/api.js'
 import { pickText } from '../lib/text.js'
 import { DL_CATEGORIES, dlCategory, fileSize } from '../data/downloads.js'
+import Loading from '../components/Loading.jsx'
 
 const BASE = import.meta.env.VITE_API_URL || 'http://localhost:5000/api'
 
@@ -32,7 +33,7 @@ export default function Downloads() {
                 </div>
             )}
             {error && <p role="alert" className="text-red-700">{error}</p>}
-            {!items && !error && <p>{t('loading')}</p>}
+            {!items && !error && <Loading />}
             {items?.length === 0 && <p className="panel text-center text-navy/70">{t('dl.empty')}</p>}
 
             <ul className="grid gap-5 sm:grid-cols-2 lg:grid-cols-3">

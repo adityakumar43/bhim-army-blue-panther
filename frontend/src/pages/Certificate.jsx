@@ -3,6 +3,7 @@ import { createPortal } from 'react-dom'
 import { useParams } from 'react-router-dom'
 import { api } from '../lib/api.js'
 import { certType, RELATION_HI, ORG_HI, day } from '../data/certificates.js'
+import Loading from '../components/Loading.jsx'
 
 // /certificate/<token>: an appointment letter, certificate or general letter, ready to print or save as PDF.
 // The same link (and the QR code printed on it) shows anyone whether it is genuine or cancelled.
@@ -355,7 +356,7 @@ export default function Certificate() {
             </div>
         )
     }
-    if (!c) return <p className="px-5 py-16 text-center">Loading...</p>
+    if (!c) return <Loading page />
 
     const landscape = isCertificate(c)
     return (

@@ -218,6 +218,8 @@ export default function Members() {
                     </div>
                   )}
                   <div>🗓️ Applied {when(m.createdAt)}</div>
+                  {m.referredBy?.name && <div>🤝 Invited by {m.referredBy.name}{m.referredBy.memberNo ? ` (${m.referredBy.memberNo})` : ''}</div>}
+                  {m.detailsUpdatedAt && <div>✏️ Updated own details {when(m.detailsUpdatedAt)}</div>}
                 </div>
               </div>
             </div>

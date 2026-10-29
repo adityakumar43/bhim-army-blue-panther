@@ -6,6 +6,7 @@ import { pickText, formatDate } from '../lib/text.js'
 import ZoomPhoto from '../components/ZoomPhoto.jsx'
 import EventRsvp from '../components/EventRsvp.jsx'
 import { useSeo } from '../components/Seo.jsx'
+import Loading from '../components/Loading.jsx'
 
 const SHARE_BASE = (import.meta.env.VITE_API_URL || 'http://localhost:5000/api').replace(/\/api\/?$/, '')
 
@@ -38,7 +39,7 @@ export default function Detail({ kind }) {
             </div>
         )
     }
-    if (!item) return <p className="px-5 py-16 text-center">{t('loading')}</p>
+    if (!item) return <Loading page />
 
     const date = kind === 'events' ? item.date : item.createdAt
     return (

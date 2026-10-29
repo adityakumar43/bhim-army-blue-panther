@@ -29,6 +29,9 @@ import birthdayRoutes from './routes/birthdays.js'
 import certificateRoutes from './routes/certificates.js'
 import mailoutRoutes from './routes/mailouts.js'
 import { startBirthdayTimer } from './services/birthdays.js'
+import memberUpdateRoutes from './routes/memberUpdate.js'
+import growthRoutes from './routes/growth.js'
+import { startCaseReminderTimer } from './services/caseReminders.js'
 
 if (!process.env.JWT_SECRET || !process.env.MONGO_URI) {
   console.error('Missing JWT_SECRET or MONGO_URI in .env')
@@ -73,6 +76,8 @@ app.use('/api/slides', crud(Slide, {
 }))
 
 app.use('/api/members', memberRoutes)
+app.use('/api/member-update', memberUpdateRoutes)
+app.use('/api/growth', growthRoutes)
 app.use('/api/leaders', leaderRoutes)
 app.use('/api/announcements', announcementRoutes)
 
@@ -105,6 +110,7 @@ connectDB()
   .then(() => {
     app.listen(process.env.PORT || 5000, () => console.log('API running'))
     startBirthdayTimer()
+    startCaseReminderTimer()
   })
   .catch((err) => {
     console.error('Database connection failed:', err.message)

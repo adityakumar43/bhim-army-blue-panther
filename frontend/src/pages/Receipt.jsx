@@ -4,6 +4,7 @@ import { Link, useParams } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
 import { api } from '../lib/api.js'
 import { ORG_HI } from '../data/certificates.js'
+import Loading from '../components/Loading.jsx'
 
 // Sizes are in "cqw" (1/100 of the paper's width), so the receipt looks the same on a phone, a laptop and paper
 const cq = (n) => `${n}cqw`
@@ -178,7 +179,7 @@ export default function Receipt() {
   const print = () => (document.fonts?.ready || Promise.resolve()).then(() => window.print())
 
   if (error) return <p role="alert" className="px-5 py-16 text-center text-red-700">{error}</p>
-  if (!data) return <p className="px-5 py-16 text-center">{t('loading')}</p>
+  if (!data) return <Loading page />
   if (data.pending) {
     return (
       <div className="mx-auto max-w-md px-5 py-16 text-center" role="status">

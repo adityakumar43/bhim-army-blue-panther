@@ -4,6 +4,7 @@ import { useTranslation } from 'react-i18next'
 import { api } from '../lib/api.js'
 import ZoomPhoto from '../components/ZoomPhoto.jsx'
 import { pickText, formatDate } from '../lib/text.js'
+import Loading from '../components/Loading.jsx'
 
 export default function News() {
   const { t, i18n } = useTranslation()
@@ -19,7 +20,7 @@ export default function News() {
   }, [])
 
   if (error) return <p className="px-5 py-16 text-center text-red-700">{error}</p>
-  if (!news) return <p className="px-5 py-16 text-center">{t('loading')}</p>
+  if (!news) return <Loading page />
 
   return (
     <div className="mx-auto max-w-4xl px-5 py-12 lg:px-16">

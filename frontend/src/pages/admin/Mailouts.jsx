@@ -45,7 +45,7 @@ export default function Mailouts() {
         api.get(`/mailouts/count?${q}`).then((r) => setCount(r.count)).catch(() => { })
     }, [state, district])
 
-    const who = district ? `members in ${district} district` : state ? `members in ${stateByCode(state)?.en}` : 'all members'
+    const who = district ? `members in ${district} district` : state ? `members in ${stateByCode(state)?.en}` : 'members in every state'
     const ready = subject.trim() && body.trim().length >= 10
 
     async function test() {

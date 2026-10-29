@@ -79,8 +79,9 @@ router.get('/stats', protect, async (req, res) => {
   const thisMonth = months.at(-1)
   const byMonth = (dateField) => ({ $dateToString: { format: '%Y-%m', date: dateField, timezone: TZ } })
   const out = {}
+  const jobs = [] // each part runs at the same time, so the page waits for the slowest part, not the sum of all
 
-  if (can(role, 'members')) {
+  if (can(role, 'members')) jobs.push((async () => {
     const scope = stateScope(req.admin)
     const mine = { $match: scope ? memberStateFilter(scope) : {} } // State admins see only their state
     const [statusRows, joins, states] = await Promise.all([
@@ -106,9 +107,9 @@ router.get('/stats', protect, async (req, res) => {
       perMonth,
       byState: byStateName(states),
     }
-  }
+  })())
 
-  if (can(role, 'donations')) {
+  if (can(role, 'donations')) jobs.push((async () => {
     const paidDate = { $ifNull: ['$paidAt', '$createdAt'] }
     const [total, perMonthRows] = await Promise.all([
       Donation.aggregate([{ $match: { status: 'paid' } }, { $group: { _id: null, amount: { $sum: '$amount' }, n: { $sum: 1 } } }]),
@@ -126,10 +127,10 @@ router.get('/stats', protect, async (req, res) => {
       thisMonth: perMonth.find((m) => m.month === thisMonth)?.value || 0,
       perMonth,
     }
-  }
+  })())
 
   // Help desk: open and solved cases, cases per month and by type
-  if (can(role, 'helpdesk')) {
+  if (can(role, 'helpdesk')) jobs.push((async () => {
     const scope = stateScope(req.admin)
     const mine = { $match: scope ? { stateCode: scope } : {} }
     const [statusRows, perMonthRows, typeRows] = await Promise.all([
@@ -146,10 +147,10 @@ router.get('/stats', protect, async (req, res) => {
       perMonth,
       byType: typeRows.map((r) => ({ key: r._id, value: r.n })),
     }
-  }
+  })())
 
   // Volunteers and certificates: shown to the people who manage members
-  if (can(role, 'members')) {
+  if (can(role, 'members')) jobs.push((async () => {
     const scope = stateScope(req.admin)
     const mine = { $match: scope ? { stateCode: scope } : {} }
     const yearStart = new Date(Date.UTC(Number(thisMonth.slice(0, 4)), 0, 1) - 330 * 60e3)
@@ -166,10 +167,10 @@ router.get('/stats', protect, async (req, res) => {
     }
     const cs = Object.fromEntries(certRows.map((r) => [r._id, r.n]))
     out.certificates = { thisYear: Object.values(cs).reduce((a, b) => a + b, 0), appointments: cs.appointment || 0 }
-  }
+  })())
 
   // Events and downloads: shown to content editors
-  if (can(role, 'content')) {
+  if (can(role, 'content')) jobs.push((async () => {
     const today = new Date(`${new Intl.DateTimeFormat('en-CA', { timeZone: TZ }).format(new Date())}T00:00:00Z`)
     const upcoming = await Event.find({ date: { $gte: today }, draft: { $ne: true } }).select('_id').lean()
     const [rsvpRows, dlRows] = await Promise.all([
@@ -178,8 +179,9 @@ router.get('/stats', protect, async (req, res) => {
     ])
     out.events = { upcoming: upcoming.length, coming: rsvpRows[0]?.people || 0 }
     out.downloads = { files: dlRows[0]?.files || 0, count: dlRows[0]?.count || 0 }
-  }
+  })())
 
+  await Promise.all(jobs)
   res.json(out)
 })
 

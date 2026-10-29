@@ -146,4 +146,65 @@
   .split-scroll {
     @apply -mr-2 flex min-h-0 flex-1 flex-col gap-2 overflow-y-auto pr-2;
   }
+
+
+  /* Admin side menu: a thin, rounded scrollbar in the brand colour that gets darker when you point at the menu */
+  .admin-nav {
+    scrollbar-width: thin;
+    scrollbar-color: rgb(11 60 157 / 0.18) transparent;
+    scrollbar-gutter: stable;
+  }
+
+  .admin-nav:hover,
+  .admin-nav:focus-within {
+    scrollbar-color: rgb(11 60 157 / 0.45) transparent;
+  }
+
+  /* Older browsers that do not know scrollbar-color */
+  .admin-nav::-webkit-scrollbar {
+    width: 6px;
+    height: 6px;
+  }
+
+  .admin-nav::-webkit-scrollbar-track {
+    background: transparent;
+  }
+
+  .admin-nav::-webkit-scrollbar-thumb {
+    background: rgb(11 60 157 / 0.18);
+    border-radius: 999px;
+  }
+
+  .admin-nav:hover::-webkit-scrollbar-thumb {
+    background: rgb(11 60 157 / 0.45);
+  }
+
+
+  /* Every page: the page's own scrollbar (on the right) and the scrolling lists in admin match the side menu */
+  html,
+  .admin-main .split-scroll,
+  .admin-main .split-form {
+    scrollbar-width: thin;
+    scrollbar-color: rgb(11 60 157 / 0.35) transparent;
+  }
+
+  html::-webkit-scrollbar,
+  .admin-main .split-scroll::-webkit-scrollbar,
+  .admin-main .split-form::-webkit-scrollbar {
+    width: 8px;
+  }
+
+  html::-webkit-scrollbar-track,
+  .admin-main .split-scroll::-webkit-scrollbar-track,
+  .admin-main .split-form::-webkit-scrollbar-track {
+    background: transparent;
+  }
+
+  html::-webkit-scrollbar-thumb,
+  .admin-main .split-scroll::-webkit-scrollbar-thumb,
+  .admin-main .split-form::-webkit-scrollbar-thumb {
+    background: rgb(11 60 157 / 0.35);
+    border-radius: 999px;
+  }
+
 }

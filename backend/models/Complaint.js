@@ -28,6 +28,7 @@ const complaintSchema = new mongoose.Schema(
     urgent: { type: Boolean, default: false, index: true },
     consentAt: Date, // when they ticked "I agree" to the Privacy Policy
     assignedTo: { adminId: mongoose.Schema.Types.ObjectId, name: String }, // the team member handling this case
+    remindedAt: Date, // the last reminder email to the team about this case
     notes: [{ text: { type: String, maxlength: 2000 }, byName: String, at: { type: Date, default: Date.now } }], // team only
   },
   { timestamps: true }

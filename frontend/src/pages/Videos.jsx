@@ -4,6 +4,7 @@ import { api } from '../lib/api.js'
 import { pickText } from '../lib/text.js'
 import YouTubeLite from '../components/YouTubeLite.jsx'
 import { VIDEO_CATEGORIES, videoCategory } from '../data/videos.js'
+import Loading from '../components/Loading.jsx'
 
 // Public page: speeches, rallies and events on YouTube
 export default function Videos() {
@@ -31,7 +32,7 @@ export default function Videos() {
                 </div>
             )}
             {error && <p role="alert" className="text-red-700">{error}</p>}
-            {!items && !error && <p>{t('loading')}</p>}
+            {!items && !error && <Loading />}
             {items?.length === 0 && <p className="panel text-center text-navy/70">{t('videos.empty')}</p>}
 
             <ul className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">

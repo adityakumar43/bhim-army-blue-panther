@@ -84,12 +84,15 @@ router.post('/', joinLimiter, upload.single('photo'), async (req, res) => {
   // The district comes from the state's list, and is saved in the list's spelling
   const district = canonicalDistrict(stateCode, b.district)
   if (!district) return res.status(400).json({ message: 'Please choose your district from the list' })
+  // Joined through a member's invite link (/join?ref=BBP-00012): remember who invited them
+  const refNo = String(b.ref || '').trim().toUpperCase()
+  const inviter = /^[A-Z]{2,5}-\d{1,8}$/.test(refNo) ? await Member.findOne({ memberNo: refNo, status: 'approved' }).select('_id') : null
 
   const photo = await uploadImage(req.file.buffer, 'bluepanther/members')
   try {
     await Member.create({
       name, phone, dob, photo, assemblyNo, lokSabhaNo,
-      email: b.email, city: b.city, district, state, stateCode: stateCode || undefined, message: b.message,
+      email: b.email, city: b.city, district, state, stateCode: stateCode || undefined, message: b.message, referredBy: inviter?._id,
       consentAt: new Date(),
     })
   } catch (err) {
@@ -134,6 +137,10 @@ router.post('/status', statusLimiter, async (req, res) => {
     return res.status(404).json({ message: 'We could not find an application with these details.' })
   }
   const approved = m.status === 'approved' && m.memberNo
+  // How many people joined with their invite link
+  const [joined, joinedApproved] = approved
+    ? await Promise.all([Member.countDocuments({ referredBy: m._id }), Member.countDocuments({ referredBy: m._id, status: 'approved' })])
+    : [0, 0]
   res.json({
     name: m.name,
     status: m.status,
@@ -141,6 +148,8 @@ router.post('/status', statusLimiter, async (req, res) => {
     reviewedAt: m.status === 'pending' ? null : m.reviewedAt,
     memberNo: approved ? m.memberNo : null,
     cardToken: approved ? m.cardToken : null,
+    invites: approved ? { joined, approved: joinedApproved } : null,
+    canUpdate: ['pending', 'approved'].includes(m.status), // may change their own details
   })
 })
 
@@ -151,7 +160,7 @@ router.get('/', protect, requirePermission('members'), async (req, res) => {
     : {}
   const scope = stateScope(req.admin)
   if (scope) Object.assign(filter, memberStateFilter(scope))
-  res.json(await Member.find(filter).sort({ createdAt: -1 }).limit(1000))
+  res.json(await Member.find(filter).sort({ createdAt: -1 }).limit(1000).populate('referredBy', 'name memberNo'))
 })
 
 router.patch('/:id/status', protect, requirePermission('members'), async (req, res) => {
@@ -185,6 +194,12 @@ router.delete('/:id', protect, requirePermission('members'), async (req, res) =>
   res.json({ ok: true })
 })
 
+// Join form opened with an invite link: the name of the member who sent it
+router.get('/ref/:no', checkLimiter, async (req, res) => {
+  const m = await Member.findOne({ memberNo: String(req.params.no).trim().toUpperCase(), status: 'approved' }).select('name')
+  if (!m) return res.status(404).json({ message: 'Invite link not found' })
+  res.json({ name: m.name })
+})
 
 router.get('/card/:token', async (req, res) => {
   const m = await Member.findOne({ cardToken: req.params.token })

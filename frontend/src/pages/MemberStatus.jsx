@@ -47,6 +47,36 @@ function Steps({ status, t }) {
   )
 }
 
+// An approved member's own invite link, to share on WhatsApp, and how many joined with it
+function InviteBox({ memberNo, invites, t }) {
+  const [copied, setCopied] = useState(false)
+  const link = `${window.location.origin}/join?ref=${memberNo}`
+  const text = t('invite.message', { link, defaultValue: 'Jai Bhim! Join Bhim Army Blue Panther with me. Become a member here: {{link}}' })
+  async function copy() {
+    try { await navigator.clipboard.writeText(link); setCopied(true); setTimeout(() => setCopied(false), 2500) } catch { /* the link can still be selected in the box */ }
+  }
+  return (
+    <div className="mt-5 rounded-2xl border border-brand/15 bg-white p-4 text-left sm:p-5">
+      <h3 className="flex items-center gap-2 text-lg font-extrabold">🤝 {t('invite.title', { defaultValue: 'Invite your friends' })}</h3>
+      <p className="mt-1 text-sm text-navy/75">{t('invite.body', { defaultValue: 'Share your own link. Everyone who joins with it is counted as invited by you.' })}</p>
+      <input readOnly value={link} onFocus={(e) => e.target.select()} aria-label={t('invite.title', { defaultValue: 'Invite your friends' })}
+        className="input mt-3 bg-mist/40 text-sm" />
+      <div className="mt-2 grid grid-cols-2 gap-2">
+        <a href={`https://wa.me/?text=${encodeURIComponent(text)}`} target="_blank" rel="noreferrer"
+          className="btn min-h-11 gap-2 bg-[#25d366] px-3 text-sm text-white hover:bg-[#1da851]">📲 WhatsApp</a>
+        <button type="button" onClick={copy} className="btn min-h-11 gap-2 border-2 border-brand bg-white px-3 text-sm text-brand">
+          {copied ? `✅ ${t('invite.copied', { defaultValue: 'Copied' })}` : `📋 ${t('invite.copy', { defaultValue: 'Copy link' })}`}
+        </button>
+      </div>
+      <p className="mt-3 rounded-xl bg-mist px-3 py-2 text-sm font-semibold text-brand">
+        {invites.joined
+          ? t('invite.count', { joined: invites.joined, approved: invites.approved, defaultValue: '{{joined}} joined with your link · {{approved}} approved' })
+          : t('invite.none', { defaultValue: 'Nobody has joined with your link yet.' })}
+      </p>
+    </div>
+  )
+}
+
 // Applicants check their own application with their mobile number and date of birth
 export default function MemberStatus() {
   const { t, i18n } = useTranslation()
@@ -155,6 +185,12 @@ export default function MemberStatus() {
               <Svg name="card" /> {t('status.openCard')}
             </Link>
           )}
+          {result.canUpdate && (
+            <Link to="/membership/update" state={{ phone: form.phone, dob }} className="btn mt-3 w-full gap-2 border-2 border-brand bg-white text-brand">
+              ✏️ {t('upd.link', { defaultValue: 'Update my details' })}
+            </Link>
+          )}
+          {result.invites && <InviteBox memberNo={result.memberNo} invites={result.invites} t={t} />}
           {(result.status === 'rejected' || result.status === 'cancelled') && (
             <Link to="/contact" className="btn mt-5 w-full gap-2 border-2 border-brand bg-white text-brand">✉️ {t('nav.contact')}</Link>
           )}

@@ -6,6 +6,7 @@ import { pickText } from '../lib/text.js'
 import { cdn } from '../lib/img.js'
 import Lightbox from '../components/Lightbox.jsx'
 import ZoomBadge from '../components/ZoomBadge.jsx'
+import Loading from '../components/Loading.jsx'
 
 const PAGE = 100
 
@@ -95,7 +96,7 @@ export default function Gallery() {
       )}
 
       {error && <p role="alert" className="py-8 text-red-700">{error}</p>}
-      {!items && !error && <p className="py-8">{t('loading')}</p>}
+      {!items && !error && <Loading />}
       {items && items.length === 0 && <p className="text-navy/70">{t('empty')}</p>}
       {items && items.length > 0 && shown.length === 0 && <p className="text-navy/70">{t('gallery.noMatch')}</p>}
 

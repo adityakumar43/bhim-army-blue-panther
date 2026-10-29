@@ -4,6 +4,7 @@ import Volunteer, { SKILLS, AVAILABILITY, VOL_STATUSES } from '../models/Volunte
 import { protect, requirePermission, stateScope } from '../middleware/auth.js'
 import { STATE_CODES } from '../config/states.js'
 import { stateNameEn } from '../config/stateNames.js'
+import { canonicalDistrict } from '../config/districts.js'
 import { notifyAdmin } from '../services/mailer.js'
 
 const router = Router()
@@ -22,11 +23,14 @@ router.post('/', limiter, async (req, res) => {
   if (b.email && !/^\S+@\S+\.\S+$/.test(b.email)) return res.status(400).json({ message: 'Enter a valid email address' })
   if (!STATE_CODES.includes(String(b.stateCode || ''))) return res.status(400).json({ message: 'Choose your state' })
   if (!skills.length) return res.status(400).json({ message: 'Choose at least one way you can help' })
+  // The district is optional, but must come from the state's list (saved in the list's spelling)
+  const district = b.district ? canonicalDistrict(b.stateCode, b.district) : ''
+  if (district === null) return res.status(400).json({ message: 'Please choose your district from the list' })
   const agreed = b.consent === true || b.consent === 'true' // the "I agree" tick box
   if (!agreed) return res.status(400).json({ message: 'Please tick the box to agree to the Privacy Policy' })
   const data = {
     name: name.slice(0, 100), email: b.email || undefined, stateCode: b.stateCode, state: stateNameEn(b.stateCode),
-    district: String(b.district || '').trim().slice(0, 100), skills,
+    district, skills,
     availability: AVAILABILITY.includes(b.availability) ? b.availability : 'anytime',
     message: String(b.message || '').trim().slice(0, 500),
     consentAt: new Date(),

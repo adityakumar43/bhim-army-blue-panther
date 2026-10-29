@@ -4,6 +4,7 @@ import { useTranslation } from 'react-i18next'
 import { api } from '../lib/api.js'
 import Icon from './Icon.jsx'
 import LeaderCard from './LeaderCard.jsx'
+import Loading from './Loading.jsx'
 
 // The Leadership part of the About page: national leaders, then the way into state leadership
 export default function Leadership() {
@@ -17,7 +18,7 @@ export default function Leadership() {
   return (
     <>
       <h3 className="mb-4 text-2xl font-extrabold">{t('leaders.national')}</h3>
-      {national === null && <p className="mb-10">{t('loading')}</p>}
+      {national === null && <Loading />}
       {national?.length === 0 && <p className="mb-10 text-navy/70">{t('leaders.empty')}</p>}
       {national?.length > 0 && (
         <div className="mb-12 grid grid-cols-2 gap-4 sm:grid-cols-3 sm:gap-5">

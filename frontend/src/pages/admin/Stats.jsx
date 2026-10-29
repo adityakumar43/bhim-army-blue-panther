@@ -10,7 +10,7 @@ const monthName = (key, long) => {
   return long ? `${MONTHS[m - 1]} ${y}` : MONTHS[m - 1]
 }
 
-function Tile({ emoji, tint, value, label }) {
+export function Tile({ emoji, tint, value, label }) {
   return (
     <div className="flex items-center gap-3 rounded-2xl border border-brand/10 bg-white p-4 shadow-sm">
       <span aria-hidden="true" className={`flex h-11 w-11 shrink-0 items-center justify-center rounded-xl text-xl ${tint}`}>{emoji}</span>
@@ -23,7 +23,7 @@ function Tile({ emoji, tint, value, label }) {
 }
 
 // One bar per month. Hover or tap a bar to see its exact value.
-function MonthBars({ title, data, format = (v) => v }) {
+export function MonthBars({ title, data, format = (v) => v }) {
   const [active, setActive] = useState(null)
   const max = Math.max(1, ...data.map((d) => d.value))
   const last = data.at(-1)
@@ -96,7 +96,17 @@ const n = (v) => Number(v || 0).toLocaleString('en-IN')
 export default function Stats() {
   const [s, setS] = useState(null)
   useEffect(() => { api.get('/admin/stats').then(setS).catch(() => setS({})) }, [])
-  if (!s || Object.keys(s).length === 0) return null
+  // While the numbers load: grey boxes in their place, so the page does not jump when they arrive
+  if (!s) return (
+    <section className="mt-8" aria-busy="true">
+      <h2 className="mb-3 text-lg font-extrabold">📊 Numbers at a glance</h2>
+      <div className="grid gap-3 [grid-template-columns:repeat(auto-fill,minmax(12rem,1fr))]">
+        {Array.from({ length: 4 }, (_, i) => <div key={i} className="h-[74px] animate-pulse rounded-2xl border border-brand/10 bg-white" />)}
+      </div>
+      <p className="mt-2 text-sm text-navy/50">Loading the numbers…</p>
+    </section>
+  )
+  if (Object.keys(s).length === 0) return null
   const { members: m, donations: d, helpdesk: h, volunteers: v, certificates: c, events: e, downloads: dl } = s
 
   return (

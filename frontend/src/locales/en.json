@@ -85,6 +85,7 @@
     "why4": "Be part of the movement in your state",
     "tooYoung": "You must be 18 or older to become a member.",
     "stateFirst": "Choose your state first",
+    "invitedBy": "{{name}} has invited you to join Bhim Army Blue Panther.",
     "why5": "Support when you face injustice"
   },
   "about": {
@@ -395,7 +396,7 @@
     "phone": "Mobile number",
     "email": "Email",
     "state": "State",
-    "district": "District / city",
+    "district": "District",
     "category": "What is it about?",
     "date": "Date it happened",
     "description": "What happened?",
@@ -473,7 +474,7 @@
     "phone": "Mobile number",
     "email": "Email",
     "state": "State",
-    "district": "District / city",
+    "district": "District",
     "skills": "How can you help? (choose one or more)",
     "pickSkill": "Choose at least one way you can help.",
     "availability": "When are you free?",
@@ -541,5 +542,36 @@
     "button": "Yes, stop these emails",
     "doneTitle": "Done",
     "doneBody": "You will not get announcement emails any more. You are still a member."
+  },
+  "invite": {
+    "title": "Invite your friends",
+    "body": "Share your own link. Everyone who joins with it is counted as invited by you.",
+    "message": "Jai Bhim! Join Bhim Army Blue Panther with me. Become a member here: {{link}}",
+    "copy": "Copy link",
+    "copied": "Copied",
+    "count": "{{joined}} joined with your link · {{approved}} approved",
+    "none": "Nobody has joined with your link yet."
+  },
+  "upd": {
+    "link": "Update my details",
+    "title": "Update my details",
+    "intro": "Change your mobile number, email, address or photo. We send a code to your email to make sure it is you.",
+    "findTitle": "Find your membership",
+    "sendCode": "Send me a code",
+    "codeNote": "The code goes to the email address on your membership.",
+    "codeTitle": "Type the code from your email",
+    "codeSent": "We sent a 6-digit code to {{email}}. Check your inbox (and the spam folder).",
+    "checkCode": "Continue",
+    "resend": "Send a new code",
+    "back": "Back",
+    "email": "Email",
+    "nameNote": "To change your name or date of birth, please contact us.",
+    "newPhoto": "Choose a new photo",
+    "keepPhoto": "Keep my old photo",
+    "save": "Save my details",
+    "saving": "Saving…",
+    "doneTitle": "Your details are updated",
+    "doneBody": "Thank you. Our team has been told about the change.",
+    "noChange": "Nothing was changed."
   }
 }

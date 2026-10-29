@@ -5,6 +5,7 @@ import { useTranslation } from 'react-i18next'
 import { api } from '../lib/api.js'
 import { formatDate } from '../lib/text.js'
 import { portrait } from '../lib/img.js'
+import Loading from '../components/Loading.jsx'
 
 
 
@@ -96,7 +97,7 @@ export default function Card() {
     api.get(`/members/card/${token}`).then(setCard).catch(() => { }).finally(() => setDone(true))
   }, [token])
 
-  if (!done) return <p className="px-5 py-16 text-center">{t('loading')}</p>
+  if (!done) return <Loading page />
   if (!card) return <p role="alert" className="px-5 py-16 text-center text-lg">{t('card.invalid')}</p>
 
   // The person is no longer a member (left, or removed by the team): say so clearly, no print or share

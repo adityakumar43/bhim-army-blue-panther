@@ -9,6 +9,7 @@ import { helpdeskUpload } from '../middleware/upload.js'
 import { uploadImage, uploadAudio, deleteImage } from '../config/cloudinary.js'
 import { STATE_CODES } from '../config/states.js'
 import { stateNameEn } from '../config/stateNames.js'
+import { canonicalDistrict } from '../config/districts.js'
 import { notifyAdmin, sendMail } from '../services/mailer.js'
 
 const router = Router()
@@ -34,6 +35,9 @@ router.post('/', reportLimiter, helpdeskUpload, async (req, res) => {
   if (b.email && !/^\S+@\S+\.\S+$/.test(b.email)) return res.status(400).json({ message: 'Enter a valid email address' })
   if (!STATE_CODES.includes(String(b.stateCode || ''))) return res.status(400).json({ message: 'Choose your state' })
   if (!CATEGORIES.includes(b.category)) return res.status(400).json({ message: 'Choose what the problem is about' })
+  // The district is optional, but must come from the state's list (saved in the list's spelling)
+  const district = b.district ? canonicalDistrict(b.stateCode, b.district) : ''
+  if (district === null) return res.status(400).json({ message: 'Please choose your district from the list' })
   const agreed = b.consent === true || b.consent === 'true' // the "I agree" tick box
   if (!agreed) return res.status(400).json({ message: 'Please tick the box to agree to the Privacy Policy' })
   const voiceFile = req.files?.voice?.[0]
@@ -59,7 +63,7 @@ router.post('/', reportLimiter, helpdeskUpload, async (req, res) => {
   }
   const data = {
     name: name.slice(0, 100), phone, email: b.email || undefined, stateCode: b.stateCode, state: stateNameEn(b.stateCode),
-    district: String(b.district || '').trim().slice(0, 100), village: String(b.village || '').trim().slice(0, 100),
+    district, village: String(b.village || '').trim().slice(0, 100),
     policeStation: String(b.policeStation || '').trim().slice(0, 100), category: b.category, incidentDate, description, photos, voice,
     history: [{ status: 'new' }],
     consentAt: new Date(),

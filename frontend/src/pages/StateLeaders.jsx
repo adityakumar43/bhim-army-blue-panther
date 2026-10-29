@@ -7,6 +7,7 @@ import { pickText } from '../lib/text.js'
 import { Band } from '../components/PageBand.jsx'
 import { useSeo } from '../components/Seo.jsx'
 import LeaderCard from '../components/LeaderCard.jsx'
+import Loading from '../components/Loading.jsx'
 
 // A district's id for the page (used for the "jump to" links)
 const slug = (s) => 'district-' + s.toLowerCase().replace(/[^a-z0-9ऀ-ॿ]+/g, '-').replace(/^-|-$/g, '')
@@ -64,7 +65,7 @@ export default function StateLeaders() {
       <Band kicker={t('leaders.state')} title={stateName(state, i18n.language)} />
       <div className="mx-auto max-w-7xl px-5 py-10 lg:px-16">
         {back}
-        {leaders === null && <p>{t('loading')}</p>}
+        {leaders === null && <Loading />}
         {leaders?.length === 0 && <p className="panel text-navy/70">{t('leaders.stateEmpty')}</p>}
 
         {stateTeam.length > 0 && (

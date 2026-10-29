@@ -4,6 +4,7 @@ import Member from '../models/Member.js'
 import { protect, requirePermission, stateScope } from '../middleware/auth.js'
 import { memberStateFilter } from '../config/stateNames.js'
 import { indiaNow, sendBirthdayWishes, FROM_HOUR } from '../services/birthdays.js'
+import { sendCaseReminders } from '../services/caseReminders.js'
 
 const router = Router()
 const DAY = 864e5
@@ -21,7 +22,9 @@ router.get('/run', async (req, res) => {
     const key = req.get('x-cron-key') || req.query.key
     if (!secret || !key || !sameKey(key, secret)) return res.status(404).json({ message: 'Not found' })
     if (indiaNow().hour < FROM_HOUR) return res.json({ skipped: `Too early. Wishes go out after ${FROM_HOUR} AM.` })
-    res.json(await sendBirthdayWishes())
+    // The same wake-up call also sends the help desk reminders
+    const [wishes, reminders] = await Promise.all([sendBirthdayWishes(), sendCaseReminders()])
+    res.json({ ...wishes, reminders })
 })
 
 const isLeap = (y) => (y % 4 === 0 && y % 100 !== 0) || y % 400 === 0

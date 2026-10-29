@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useState } from 'react'
 import { useTranslation } from 'react-i18next'
-import { Link } from 'react-router-dom'
+import { Link, useSearchParams } from 'react-router-dom'
 import { api } from '../lib/api.js'
 import { shrinkImage } from '../lib/shrinkImage.js'
 import Consent from '../components/Consent.jsx'
@@ -71,7 +71,7 @@ export default function Join() {
   const lang = i18n.language
   const [draft] = useState(readDraft) // what this visitor typed last time, if anything
   const [form, setForm] = useState(() => draft || {})
-  const [restored, setRestored] = useState(() => !!draft && Object.values(draft).some(Boolean))
+  const [restored, setRestored] = useState(() => !!draft && Object.entries(draft).some(([k, v]) => k !== 'ref' && v))
   const [touched, setTouched] = useState({})
   const [photo, setPhoto] = useState(null)
   const [preview, setPreview] = useState('')
@@ -80,12 +80,26 @@ export default function Join() {
   const [busy, setBusy] = useState(false)
   const [done, setDone] = useState(false)
   const [agree, setAgree] = useState(false)
+  const [params] = useSearchParams()
+  const [inviter, setInviter] = useState('') // the member whose invite link they opened
 
   const set = (f, clean = (v) => v) => (e) => setForm((old) => ({ ...old, [f]: clean(e.target.value) }))
   const blur = (f) => () => setTouched((old) => ({ ...old, [f]: true }))
 
   // Keep what they type, so a dropped connection or a reload does not lose it (the photo cannot be kept)
   useEffect(() => { if (!done) saveDraft(form) }, [form, done])
+
+  // Opened with an invite link (/join?ref=BBP-00012): keep it with the form, and show who invited them
+  useEffect(() => {
+    const ref = (params.get('ref') || '').trim().toUpperCase()
+    if (ref) setForm((old) => ({ ...old, ref }))
+  }, [params])
+  useEffect(() => {
+    setInviter('')
+    if (!form.ref) return
+    api.get(`/members/ref/${encodeURIComponent(form.ref)}`).then((r) => setInviter(r.name))
+      .catch(() => setForm(({ ref, ...rest }) => rest)) // not a real member number: forget it
+  }, [form.ref])
 
   // Show the chosen photo, and free the memory when it changes
   useEffect(() => {
@@ -164,7 +178,7 @@ export default function Join() {
 
   function startOver() {
     dropDraft()
-    setForm({})
+    setForm(form.ref ? { ref: form.ref } : {}) // keep the invite
     setTouched({})
     setRestored(false)
   }
@@ -198,6 +212,13 @@ export default function Join() {
         <Link to="/membership/status" className="flex items-center justify-center gap-2 rounded-xl border border-brand/15 bg-mist px-4 py-3 text-sm font-semibold text-brand hover:bg-brand hover:text-white">
           🔍 {t('status.link')}
         </Link>
+
+        {inviter && (
+          <p className="flex items-center gap-3 rounded-xl border border-green-200 bg-green-50 px-4 py-3 text-sm text-green-900">
+            <span className="text-2xl" aria-hidden="true">🤝</span>
+            <span>{t('join.invitedBy', { name: inviter, defaultValue: '{{name}} has invited you to join Bhim Army Blue Panther.' })}</span>
+          </p>
+        )}
 
         {restored && (
           <div className="flex flex-wrap items-center gap-x-3 gap-y-1 rounded-xl border border-gold/60 bg-gold/10 px-4 py-3 text-sm">

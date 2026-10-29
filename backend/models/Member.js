@@ -28,6 +28,14 @@ const memberSchema = new mongoose.Schema(
     cardEmailedAt: Date,
     birthdayWishedYear: Number, // the last year a birthday email was sent
     emailOptOut: { type: Boolean, default: false }, // said "stop" to announcement emails
+    referredBy: { type: mongoose.Schema.Types.ObjectId, ref: 'Member', index: true }, // the member whose invite link they joined with
+    detailsUpdatedAt: Date, // the last time the member changed their own details
+    // "Update my details": the code emailed to them, and the pass they get after typing it (both kept scrambled)
+    editCodeHash: { type: String, select: false },
+    editCodeExpires: { type: Date, select: false },
+    editCodeTries: { type: Number, select: false },
+    editTokenHash: { type: String, select: false },
+    editTokenExpires: { type: Date, select: false },
   },
   { timestamps: true }
 )

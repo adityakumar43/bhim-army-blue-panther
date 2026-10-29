@@ -71,3 +71,6 @@ export function canonicalDistrict(stateCode, name) {
     const other = Object.entries(OTHER_NAMES[stateCode] || {}).find(([name]) => key(name) === k)
     return other ? other[1] : null
 }
+
+// The English names of one state's districts
+export const districtsOfState = (stateCode) => (DISTRICTS[stateCode] || []).map(([en]) => en)

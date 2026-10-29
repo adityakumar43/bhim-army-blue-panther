@@ -9,6 +9,7 @@ import InstallApp from './components/InstallApp.jsx'
 import Home from './pages/Home.jsx'
 import SessionWatch from './pages/admin/SessionWatch.jsx'
 import Perm from './pages/admin/Perm.jsx'
+import Loading from './components/Loading.jsx'
 
 
 // Pages other than Home load only when someone opens them, so the first visit downloads much less.
@@ -61,6 +62,8 @@ const VideosAdmin = page(() => import('./pages/admin/VideosAdmin.jsx'))
 const Privacy = page(() => import('./pages/Privacy.jsx'))
 const Unsubscribe = page(() => import('./pages/Unsubscribe.jsx'))
 const Mailouts = page(() => import('./pages/admin/Mailouts.jsx'))
+const Growth = page(() => import('./pages/admin/Growth.jsx'))
+const UpdateDetails = page(() => import('./pages/UpdateDetails.jsx'))
 
 export default function App() {
 
@@ -73,7 +76,7 @@ export default function App() {
       {!isAdmin && <Navbar />}
       <main className={hasBand(pathname) ? 'bg-[#f3f6fb]' : undefined}>
         {!isAdmin && <PageBand />}
-        <Suspense fallback={<p className="px-5 py-16 text-center text-navy/60">…</p>}>
+        <Suspense fallback={<Loading page />}>
           <Routes>
             <Route path="/" element={<Home />} />
             <Route path="/news" element={<News />} />
@@ -87,6 +90,7 @@ export default function App() {
             <Route path="/inspirations" element={<Inspirations />} />
             <Route path="/inspirations/:slug" element={<Inspiration />} />
             <Route path="/membership/status" element={<MemberStatus />} />
+            <Route path="/membership/update" element={<UpdateDetails />} />
             <Route path="/help" element={<HelpDesk />} />
             <Route path="/volunteer" element={<Volunteer />} />
             <Route path="/downloads" element={<Downloads />} />
@@ -121,6 +125,7 @@ export default function App() {
               <Route path="activity" element={<Perm perm="admins"><Activity /></Perm>} />
               <Route path="backup" element={<Perm perm="admins"><Backup /></Perm>} />
               <Route path="mailouts" element={<Perm perm="members"><Mailouts /></Perm>} />
+              <Route path="growth" element={<Perm perm="members"><Growth /></Perm>} />
               <Route path="security" element={<Security />} />
             </Route>
           </Routes>

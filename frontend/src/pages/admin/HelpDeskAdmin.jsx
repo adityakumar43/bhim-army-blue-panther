@@ -6,7 +6,7 @@ import { CATEGORIES, STATUS, categoryOf } from '../../data/helpdesk.js'
 import { stateByCode } from '../../data/states.js'
 
 const TABS = [['new', '🆕 New'], ['in_progress', '🔄 In progress'], ['resolved', '✅ Resolved'], ['closed', '📁 Closed'], ['', 'All']]
-const STALE_DAYS = 7 // an open case with no update for this long gets a warning
+const STALE_DAYS = 3 // an open case with no update for this long gets a warning
 const when = (d) => new Date(d).toLocaleString('en-IN', { dateStyle: 'medium', timeStyle: 'short' })
 const day = (d) => new Date(d).toLocaleDateString('en-IN', { dateStyle: 'medium' })
 const clock = (s) => `${Math.floor(s / 60)}:${String(s % 60).padStart(2, '0')}`
@@ -185,6 +185,7 @@ export default function HelpDeskAdmin() {
     const [category, setCategory] = useState('')
     const [mine, setMine] = useState(false)
     const [urgentOnly, setUrgentOnly] = useState(false)
+    const [district, setDistrict] = useState('')
     const [items, setItems] = useState(null)
     const [team, setTeam] = useState([])
     const [saved, setSaved] = useState(null) // the case just updated, to offer a WhatsApp message
@@ -207,7 +208,10 @@ export default function HelpDeskAdmin() {
         try { await api.del(`/helpdesk/${c._id}`); await load(); refresh() } catch (e) { setError(e.message) }
     }
 
-    const staleCount = items?.filter((c) => ['new', 'in_progress'].includes(c.status) && daysSince(lastUpdate(c)) >= STALE_DAYS).length || 0
+    // Districts of the cases loaded, to show one district's cases
+    const districts = [...new Set((items || []).map((c) => c.district).filter(Boolean))].sort()
+    const shown = district ? items?.filter((c) => c.district === district) : items
+    const staleCount = shown?.filter((c) => ['new', 'in_progress'].includes(c.status) && daysSince(lastUpdate(c)) >= STALE_DAYS).length || 0
     const toggle = (on) => `min-h-10 rounded-xl border px-3 text-sm font-semibold transition ${on ? 'border-brand bg-brand text-white' : 'border-brand/15 bg-white text-navy/75 hover:bg-mist'}`
 
     return (
@@ -226,6 +230,12 @@ export default function HelpDeskAdmin() {
                     <option value="">📂 All types</option>
                     {CATEGORIES.map((c) => <option key={c.key} value={c.key}>{c.emoji} {c.en}</option>)}
                 </select>
+                {districts.length > 0 && (
+                    <select aria-label="District" value={district} onChange={(e) => setDistrict(e.target.value)} className="input min-h-10 w-auto py-2 text-sm">
+                        <option value="">🏘️ All districts</option>
+                        {districts.map((d) => <option key={d} value={d}>{d}</option>)}
+                    </select>
+                )}
             </div>
             <div className="mb-5 flex flex-wrap gap-2">
                 <button onClick={() => setMine((v) => !v)} aria-pressed={mine} className={toggle(mine)}>🙋 My cases</button>
@@ -250,9 +260,9 @@ export default function HelpDeskAdmin() {
 
             <Notice>{error}</Notice>
             {!items && !error && <p>Loading...</p>}
-            {items?.length === 0 && <p className="card text-center text-navy/70">📭 No cases here.</p>}
+            {shown?.length === 0 && <p className="card text-center text-navy/70">📭 No cases here.</p>}
             <ul className="grid gap-4 xl:grid-cols-2">
-                {items?.map((c) => (
+                {shown?.map((c) => (
                     <Case key={c._id + c.updatedAt} c={c} team={team} canDelete={me.permissions.includes('admins')}
                         onSaved={(updated, tell) => { setSaved(tell ? updated : null); load(); refresh() }} onDelete={remove} />
                 ))}
