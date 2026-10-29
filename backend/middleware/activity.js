@@ -48,6 +48,10 @@ function describe(section, method, part, body = {}, last = '') {
             if (part === 'read') return ['read', body.read ? 'marked as read the message from' : 'marked as unread the message from']
             if (method === 'DELETE') return ['delete', 'deleted the message from']
             return null
+        case 'mailouts':
+            if (method === 'POST' && !part) return ['email', `emailed members: "${String(body.subject || '').slice(0, 80)}"`, true]
+            if (part === 'stop') return ['update', 'stopped an announcement email', true]
+            return null
         case 'donations':
             if (part === 'resend') return ['email', 'emailed the receipt to']
             return null

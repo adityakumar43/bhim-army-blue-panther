@@ -18,6 +18,7 @@ const NAV = [
   { to: '/admin/updates', label: 'Home updates', icon: 'bell', perm: 'content' },
   { to: '/admin/members', label: 'Members', icon: 'userPlus', perm: 'members', badge: 'members' },
   { to: '/admin/volunteers', label: 'Volunteers', icon: 'hand', perm: 'members', badge: 'volunteers' },
+  { to: '/admin/mailouts', label: 'Email members', icon: 'mail', perm: 'members' },
   { to: '/admin/certificates', label: 'Certificates', icon: 'award', perm: 'members' },
   { to: '/admin/messages', label: 'Messages', icon: 'chat', perm: 'messages', badge: 'messages' },
   { to: '/admin/helpdesk', label: 'Help desk', icon: 'help', perm: 'helpdesk', badge: 'helpdesk' },

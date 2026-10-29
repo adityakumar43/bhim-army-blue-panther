@@ -59,6 +59,8 @@ const DownloadsAdmin = page(() => import('./pages/admin/DownloadsAdmin.jsx'))
 const Videos = page(() => import('./pages/Videos.jsx'))
 const VideosAdmin = page(() => import('./pages/admin/VideosAdmin.jsx'))
 const Privacy = page(() => import('./pages/Privacy.jsx'))
+const Unsubscribe = page(() => import('./pages/Unsubscribe.jsx'))
+const Mailouts = page(() => import('./pages/admin/Mailouts.jsx'))
 
 export default function App() {
 
@@ -96,6 +98,7 @@ export default function App() {
             <Route path="/card/:token" element={<Card />} />
             <Route path="/certificate/:token" element={<Certificate />} />
             <Route path="/privacy" element={<Privacy />} />
+            <Route path="/unsubscribe/:token" element={<Unsubscribe />} />
 
             <Route path="/admin/login" element={<Login />} />
             <Route path="/admin" element={<ProtectedRoute><SessionWatch /><AdminLayout /></ProtectedRoute>}>
@@ -117,6 +120,7 @@ export default function App() {
               <Route path="team" element={<Perm perm="admins"><Team /></Perm>} />
               <Route path="activity" element={<Perm perm="admins"><Activity /></Perm>} />
               <Route path="backup" element={<Perm perm="admins"><Backup /></Perm>} />
+              <Route path="mailouts" element={<Perm perm="members"><Mailouts /></Perm>} />
               <Route path="security" element={<Security />} />
             </Route>
           </Routes>

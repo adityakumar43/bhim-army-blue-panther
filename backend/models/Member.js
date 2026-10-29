@@ -27,6 +27,7 @@ const memberSchema = new mongoose.Schema(
     endReason: String, // why the membership was ended
     cardEmailedAt: Date,
     birthdayWishedYear: Number, // the last year a birthday email was sent
+    emailOptOut: { type: Boolean, default: false }, // said "stop" to announcement emails
   },
   { timestamps: true }
 )

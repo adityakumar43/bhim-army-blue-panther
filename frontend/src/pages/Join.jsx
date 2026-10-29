@@ -5,6 +5,7 @@ import { api } from '../lib/api.js'
 import { shrinkImage } from '../lib/shrinkImage.js'
 import Consent from '../components/Consent.jsx'
 import { STATES, stateName } from '../data/states.js'
+import { districtsOf, districtName } from '../data/districts.js'
 
 // Small line icons shown inside the boxes
 const ICONS = {
@@ -121,7 +122,13 @@ export default function Join() {
     return () => clearTimeout(timer)
   }, [phone, phoneOk])
 
-  const required = [!!form.name?.trim(), phoneOk && !applied, emailOk, adult, !!form.stateCode, !!photo]
+  // Districts of the chosen state, from a list, so every member of a district is spelled the same
+  const districts = useMemo(() => districtsOf(form.stateCode)
+    .map((d) => ({ en: d[0], label: districtName(d, lang) }))
+    .sort((a, b) => a.label.localeCompare(b.label, lang)), [form.stateCode, lang])
+  const district = districts.some((d) => d.en === form.district) ? form.district : '' // an old typed draft is dropped
+
+  const required = [!!form.name?.trim(), phoneOk && !applied, emailOk, adult, !!form.stateCode, !!district, !!photo]
   const filled = required.filter(Boolean).length
   const total = required.length
 
@@ -140,8 +147,8 @@ export default function Join() {
     setBusy(true)
     try {
       const data = new FormData()
-      const fields = Object.entries(form).filter(([k]) => !k.startsWith('dob')) // the three date lists become one date
-        ;[...fields, ['dob', dob]].forEach(([k, v]) => v && data.append(k, v))
+      const fields = Object.entries(form).filter(([k]) => !k.startsWith('dob') && k !== 'district') // the three date lists become one date
+        ;[...fields, ['dob', dob], ['district', district]].forEach(([k, v]) => v && data.append(k, v))
       data.append('photo', await shrinkImage(photo), 'photo.jpg')
       data.append('consent', 'true')
       await api.post('/members', data)
@@ -253,17 +260,12 @@ export default function Join() {
           </div>
         </Section>
 
-        <Section emoji="📍" title={t('join.secPlace', { defaultValue: 'Where you live' })} done={!!form.stateCode}>
+        <Section emoji="📍" title={t('join.secPlace', { defaultValue: 'Where you live' })} done={!!form.stateCode && !!district}>
           <div className="grid gap-4 sm:grid-cols-2 sm:items-end">
-            <Field label={t('join.city')} icon="home">
-              <input type="text" autoComplete="address-level3" value={form.city || ''} onChange={set('city')} className={input} />
-            </Field>
-            <Field label={t('join.district')} icon="pin">
-              <input type="text" autoComplete="address-level2" value={form.district || ''} onChange={set('district')} className={input} />
-            </Field>
+
             {/* State from a list, so each application reaches the right state team */}
-            <Field label={t('join.state')} icon="map" required className="sm:col-span-2">
-              <select required value={form.stateCode || ''} onChange={set('stateCode')} className={input}>
+            <Field label={t('join.state')} icon="map" required>
+              <select required value={form.stateCode || ''} onChange={(e) => setForm((old) => ({ ...old, stateCode: e.target.value, district: '' }))} className={input}>
                 <option value="" disabled>—</option>
                 {[['state', t('join.states')], ['ut', t('join.uts')]].map(([type, groupLabel]) => (
                   <optgroup key={type} label={groupLabel}>
@@ -273,6 +275,15 @@ export default function Join() {
                   </optgroup>
                 ))}
               </select>
+            </Field>
+            <Field label={t('join.district')} icon="pin" required>
+              <select required value={district} onChange={set('district')} disabled={!form.stateCode} className={`${input} disabled:opacity-60`}>
+                <option value="" disabled>{form.stateCode ? '—' : t('join.stateFirst', { defaultValue: 'Choose your state first' })}</option>
+                {districts.map((d) => <option key={d.en} value={d.en}>{d.label}</option>)}
+              </select>
+            </Field>
+            <Field label={t('join.city')} icon="home" className="sm:col-span-2">
+              <input type="text" autoComplete="address-level3" value={form.city || ''} onChange={set('city')} className={input} />
             </Field>
             {[['assemblyNo', 'join.assemblyNo'], ['lokSabhaNo', 'join.lokSabhaNo']].map(([f, label]) => (
               <Field key={f} label={t(label)} icon="vote">

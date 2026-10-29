@@ -84,6 +84,7 @@
     "why3": "News and campaigns first",
     "why4": "Be part of the movement in your state",
     "tooYoung": "You must be 18 or older to become a member.",
+    "stateFirst": "Choose your state first",
     "why5": "Support when you face injustice"
   },
   "about": {
@@ -533,5 +534,12 @@
     "agreeVol": "I agree that my details are used by the team to contact me about volunteer work, as explained in the Privacy Policy.",
     "agreeContact": "I agree that my details are used to reply to my message, as explained in the Privacy Policy.",
     "byDonating": "By donating, you agree to our"
+  },
+  "unsub": {
+    "title": "Stop announcement emails?",
+    "body": "You will stop getting announcement emails from Bhim Army Blue Panther. Your membership stays the same.",
+    "button": "Yes, stop these emails",
+    "doneTitle": "Done",
+    "doneBody": "You will not get announcement emails any more. You are still a member."
   }
 }

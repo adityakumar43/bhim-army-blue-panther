@@ -8,7 +8,8 @@
     "dev": "nodemon server.js",
     "start": "node server.js",
     "create-admin": "node scripts/createAdmin.js",
-    "reset-2fa": "node scripts/reset2fa.js"
+    "reset-2fa": "node scripts/reset2fa.js",
+    "fix-districts": "node scripts/fixDistricts.js"
   },
   "keywords": [],
   "author": "",

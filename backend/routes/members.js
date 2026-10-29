@@ -4,6 +4,7 @@ import Member from '../models/Member.js'
 import { protect, requirePermission, stateScope } from '../middleware/auth.js'
 import { STATE_CODES } from '../config/states.js'
 import { stateNameEn, codeFromName, memberInState, memberStateFilter } from '../config/stateNames.js'
+import { canonicalDistrict } from '../config/districts.js'
 import { notifyAdmin } from '../services/mailer.js'
 import QRCode from 'qrcode'
 import { upload } from '../middleware/upload.js'
@@ -80,11 +81,15 @@ router.post('/', joinLimiter, upload.single('photo'), async (req, res) => {
   const stateCode = STATE_CODES.includes(String(b.stateCode || '')) ? String(b.stateCode) : codeFromName(b.state)
   const state = stateCode ? stateNameEn(stateCode) : b.state
 
+  // The district comes from the state's list, and is saved in the list's spelling
+  const district = canonicalDistrict(stateCode, b.district)
+  if (!district) return res.status(400).json({ message: 'Please choose your district from the list' })
+
   const photo = await uploadImage(req.file.buffer, 'bluepanther/members')
   try {
     await Member.create({
       name, phone, dob, photo, assemblyNo, lokSabhaNo,
-      email: b.email, city: b.city, district: b.district, state, stateCode: stateCode || undefined, message: b.message,
+      email: b.email, city: b.city, district, state, stateCode: stateCode || undefined, message: b.message,
       consentAt: new Date(),
     })
   } catch (err) {
