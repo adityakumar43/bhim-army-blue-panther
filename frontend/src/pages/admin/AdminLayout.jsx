@@ -223,8 +223,11 @@ export default function AdminLayout() {
       <header className="sticky top-0 z-40 flex items-center justify-between gap-3 bg-navy px-4 py-2.5 text-white shadow-md sm:px-6">
         <div className="flex min-w-0 items-center gap-3">
           <img src="/logo.png" alt="" className="h-9 w-9 shrink-0 rounded-lg object-cover" />
-          <strong className="truncate">Bhim Army Blue Panther</strong>
-          <span className="hidden rounded-md bg-gold px-2 py-0.5 text-xs font-extrabold text-navy sm:inline">ADMIN</span>
+          {/* Phones: the role in small gold letters under the name; bigger screens: a gold badge beside it */}
+          <div className="min-w-0 leading-tight sm:flex sm:items-center sm:gap-3">
+            <strong className="block truncate">Bhim Army Blue Panther</strong>
+            <span className="block truncate text-xs font-bold text-gold sm:shrink-0 sm:rounded-md sm:bg-gold sm:px-2 sm:py-0.5 sm:font-extrabold sm:text-navy">{ROLE_INFO[me.role]?.label || 'Admin'}</span>
+          </div>
         </div>
         <div className="flex shrink-0 items-center gap-2 text-sm">
           <div className="hidden items-center gap-2 md:flex">
