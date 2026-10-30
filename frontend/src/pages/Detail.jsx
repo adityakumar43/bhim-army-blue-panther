@@ -9,6 +9,7 @@ import { useSeo } from '../components/Seo.jsx'
 import Loading from '../components/Loading.jsx'
 import EventActions from '../components/EventActions.jsx'
 import { timeText } from '../lib/calendar.js'
+import SharePoster from '../components/SharePoster.jsx'
 
 const SHARE_BASE = (import.meta.env.VITE_API_URL || 'http://localhost:5000/api').replace(/\/api\/?$/, '')
 
@@ -55,13 +56,17 @@ export default function Detail({ kind }) {
             <p className="text-lg whitespace-pre-line">{pickText(item, 'body', lang)}</p>
             {kind === 'events' && <EventActions event={item} className="mt-5" />}
             {kind === 'events' && <EventRsvp eventId={item._id} />}
-            <a
-                href={`https://wa.me/?text=${encodeURIComponent(`${pickText(item, 'title', lang)}\n${SHARE_BASE}/share/${kind}/${item._id}`)}`}
-                target="_blank" rel="noopener noreferrer"
-                className="btn mt-8 border-2 border-brand text-brand"
-            >
-                {t('detail.share')}
-            </a>
+            {/* Share: as a poster picture, or as a link */}
+            <div className="mt-8 flex flex-wrap items-start gap-3">
+                <SharePoster item={item} kind={kind} link={`${SHARE_BASE}/share/${kind}/${item._id}`} />
+                <a
+                    href={`https://wa.me/?text=${encodeURIComponent(`${pickText(item, 'title', lang)}\n${SHARE_BASE}/share/${kind}/${item._id}`)}`}
+                    target="_blank" rel="noopener noreferrer"
+                    className="btn border-2 border-brand text-brand"
+                >
+                    {t('detail.share')}
+                </a>
+            </div>
         </article>
     )
 }

@@ -69,6 +69,7 @@ const Notifications = page(() => import('./pages/admin/Notifications.jsx'))
 const Events = page(() => import('./pages/Events.jsx'))
 const Visitors = page(() => import('./pages/admin/Visitors.jsx'))
 const PrintCards = page(() => import('./pages/admin/PrintCards.jsx'))
+const CheckIn = page(() => import('./pages/admin/CheckIn.jsx'))
 const UpdateDetails = page(() => import('./pages/UpdateDetails.jsx'))
 
 export default function App() {
@@ -137,6 +138,8 @@ export default function App() {
               <Route path="notifications" element={<Perm perm="content"><Notifications /></Perm>} />
               <Route path="visitors" element={<Perm perm={['content', 'members']}><Visitors /></Perm>} />
               <Route path="print-cards" element={<Perm perm={['members', 'district']}><PrintCards /></Perm>} />
+              <Route path="checkin" element={<Perm perm={['members', 'content', 'district']}><CheckIn /></Perm>} />
+              <Route path="checkin/:eventId" element={<Perm perm={['members', 'content', 'district']}><CheckIn /></Perm>} />
               <Route path="security" element={<Security />} />
             </Route>
           </Routes>

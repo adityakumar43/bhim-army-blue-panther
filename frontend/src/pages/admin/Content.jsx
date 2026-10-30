@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react'
+import { Link } from 'react-router-dom'
 import { api } from '../../lib/api.js'
 import { PageHeader, Notice, ListLoading } from './ui.jsx'
 import Icon from '../../components/Icon.jsx'
@@ -266,9 +267,14 @@ export default function Content({ kind }) {
                 )}
               </div>
               {kind === 'events' && (
-                <button onClick={() => setRsvpFor(it)} className="mt-3 flex items-center justify-between rounded-xl bg-mist/60 px-3 py-2 text-sm font-semibold text-brand hover:bg-mist">
-                  <span>🙋 {rsvps[it._id]?.people || 0} coming</span><span className="text-xs">View list →</span>
-                </button>
+                <>
+                  <button onClick={() => setRsvpFor(it)} className="mt-3 flex items-center justify-between rounded-xl bg-mist/60 px-3 py-2 text-sm font-semibold text-brand hover:bg-mist">
+                    <span>🙋 {rsvps[it._id]?.people || 0} coming</span><span className="text-xs">View list →</span>
+                  </button>
+                  <Link to={`/admin/checkin/${it._id}`} className="mt-1.5 flex items-center justify-between rounded-xl bg-purple-50 px-3 py-2 text-sm font-semibold text-purple-800 hover:bg-purple-100">
+                    <span>📷 Check-in at the gate</span><span className="text-xs">Open →</span>
+                  </Link>
+                </>
               )}
               <div className="mt-auto flex gap-2 pt-3">
                 <button onClick={() => startEdit(it)} className="abtn min-h-9 flex-1 px-3">✏️ Edit</button>

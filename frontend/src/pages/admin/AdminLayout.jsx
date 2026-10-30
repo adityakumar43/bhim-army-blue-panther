@@ -11,6 +11,7 @@ const NAV = [
   { to: '/admin', label: 'Overview', icon: 'grid', end: true },
   { to: '/admin/news', label: 'News', icon: 'news', perm: 'content' },
   { to: '/admin/events', label: 'Events', icon: 'calendar', perm: 'content' },
+  { to: '/admin/checkin', label: 'Event Check-in', icon: 'ticket', perm: ['members', 'content', 'district'] },
   { to: '/admin/gallery', label: 'Gallery', icon: 'image', perm: 'content' },
   { to: '/admin/slides', label: 'Home Slider', icon: 'layers', perm: 'content' },
   { to: '/admin/leaders', label: 'Leadership', icon: 'award', perm: 'leaders' },
@@ -37,8 +38,8 @@ const NAV = [
 const NavIcon = ({ name, on, size }) => (on ? <BoxIcon name={name} size={size - 1} className="shrink-0" /> : <Icon name={name} size={size} className="shrink-0" />)
 
 // On phones these sit in the bar at the bottom (the first 4 a person can open); the rest are under "More"
-const PHONE_TABS = ['/admin', '/admin/members', '/admin/helpdesk', '/admin/events', '/admin/messages', '/admin/news', '/admin/team', '/admin/security']
-const SHORT = { '/admin': 'Home', '/admin/helpdesk': 'Help Desk', '/admin/members': 'Members', '/admin/team': 'Team' }
+const PHONE_TABS = ['/admin', '/admin/members', '/admin/helpdesk', '/admin/events', '/admin/checkin', '/admin/messages', '/admin/news', '/admin/team', '/admin/security']
+const SHORT = { '/admin': 'Home', '/admin/helpdesk': 'Help Desk', '/admin/members': 'Members', '/admin/team': 'Team', '/admin/checkin': 'Check-in' }
 
 // The bar at the bottom of the screen on phones, like an app
 function PhoneTabs({ tabs, more, summary, moreOpen, setMoreOpen }) {

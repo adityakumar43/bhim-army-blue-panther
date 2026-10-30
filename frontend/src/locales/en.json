@@ -10,6 +10,20 @@
     "notFound": "This page was not found.",
     "share": "Share on WhatsApp"
   },
+  "poster": {
+    "button": "Share as a poster",
+    "making": "Making poster…",
+    "event": "Event",
+    "news": "News",
+    "share": "Share",
+    "forWhatsapp": "Save for WhatsApp",
+    "download": "Download",
+    "close": "Close",
+    "saved": "Poster saved. Open WhatsApp, tap the 📎 (attach) button and choose this picture.",
+    "ready": "Your poster is ready",
+    "hint": "Share it in WhatsApp groups and Status, or download it to print.",
+    "failed": "Could not make the poster. Please try again."
+  },
   "nav": {
     "home": "Home",
     "about": "About",
