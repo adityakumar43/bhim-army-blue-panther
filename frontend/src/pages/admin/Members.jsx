@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState } from 'react'
-import { useOutletContext } from 'react-router-dom'
+import { useNavigate, useOutletContext } from 'react-router-dom'
 import { api } from '../../lib/api.js'
 import { portrait } from '../../lib/img.js'
 import { PageHeader, Notice, ListLoading, Pill } from './ui.jsx'
@@ -103,6 +103,12 @@ export default function Members() {
   const { refresh, me } = useOutletContext()
   const myState = ['stateadmin', 'districtadmin'].includes(me.role) ? stateByCode(me.state) : null
   const viewOnly = me.role === 'districtadmin' // District admins see and recommend; the state team decides
+  const navigate = useNavigate()
+  // Print membership cards: the ticked members, or everyone shown when nobody is ticked
+  const printCards = (ids) => {
+    try { sessionStorage.setItem('printCards', JSON.stringify(ids.slice(0, 200))) } catch { /* storage blocked */ }
+    navigate('/admin/print-cards')
+  }
   const [status, setStatus] = useState('pending')
   const [items, setItems] = useState(null)
   const [error, setError] = useState('')
@@ -194,9 +200,16 @@ export default function Members() {
 
   return (
     <>
+
       <PageHeader title="Members" subtitle="Review the applications that come from the Join page.">
         {shown.length > 0 && !viewOnly && (
           <button onClick={() => downloadCsv(shown)} className="abtn">📥 Download Excel ({shown.length})</button>
+        )}
+        {status === 'approved' && shown.length > 0 && (
+          <button onClick={() => printCards((picked.length ? picked : shown.map((m) => m._id)))} className="abtn"
+            title={shown.length > 200 && !picked.length ? 'The first 200 are printed. Use the filters to choose fewer.' : undefined}>
+            🖨️ Print cards ({Math.min(picked.length || shown.length, 200)})
+          </button>
         )}
       </PageHeader>
 
@@ -338,6 +351,9 @@ export default function Members() {
           <span className="mr-auto font-semibold">☑️ {progress || `${picked.length} selected`}</span>
           {!progress && status !== 'approved' && (
             <button onClick={() => bulk('approved')} className="abtn min-h-9 border-0 bg-green-500 px-4 text-white hover:bg-green-600 hover:text-white">✅ Approve all</button>
+          )}
+          {!progress && status === 'approved' && (
+            <button onClick={() => printCards(picked)} className="abtn min-h-9 border-0 bg-gold px-4 text-navy hover:bg-white">🖨️ Print cards</button>
           )}
           {!progress && status === 'pending' && (
             <button onClick={() => bulk('rejected')} className="abtn min-h-9 border-0 bg-white/15 px-4 text-white hover:bg-red-500 hover:text-white">❌ Reject all</button>

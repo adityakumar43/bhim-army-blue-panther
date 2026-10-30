@@ -24,7 +24,7 @@ export default function News() {
 
   return (
     <div className="mx-auto max-w-4xl px-5 py-12 lg:px-16">
-      
+
       {news.length === 0 && <p className="text-navy/70">{t('empty')}</p>}
       <div className="flex flex-col gap-8">
         {news.map((n) => (
@@ -39,7 +39,10 @@ export default function News() {
         ))}
       </div>
 
-      <h2 className="mt-16 mb-6 text-3xl font-extrabold">{t('sections.events')}</h2>
+      <div className="mt-16 mb-6 flex flex-wrap items-center justify-between gap-3">
+        <h2 className="text-3xl font-extrabold">{t('sections.events')}</h2>
+        <Link to="/events" className="inline-flex min-h-10 items-center gap-2 rounded-xl border border-brand/20 bg-white px-4 font-semibold text-brand hover:bg-mist">📅 {t('cal.open')}</Link>
+      </div>
       {events.length === 0 && <p className="text-navy/70">{t('empty')}</p>}
       <div className="flex flex-col gap-6">
         {events.map((ev) => (

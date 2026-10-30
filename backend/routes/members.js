@@ -219,6 +219,25 @@ router.get('/ref/:no', checkLimiter, async (req, res) => {
   res.json({ name: m.name })
 })
 
+// Many cards at once, for printing on A4 sheets (approved members only, up to 200)
+router.post('/cards', protect, requireAny('members', 'district'), async (req, res) => {
+  const ids = [...new Set([].concat(req.body?.ids || []).map(String))].filter((id) => /^[a-f0-9]{24}$/i.test(id)).slice(0, 200)
+  if (!ids.length) return res.status(400).json({ message: 'Choose the members whose cards you want to print' })
+  const filter = { _id: { $in: ids }, status: 'approved', memberNo: { $nin: [null, ''] } }
+  const scope = stateScope(req.admin)
+  if (scope) Object.assign(filter, memberStateFilter(scope))
+  const area = districtScope(req.admin)
+  if (area) filter.district = sameDistrict(area.district)
+  const members = await Member.find(filter).select('name memberNo stateCode state district photo approvedAt createdAt cardToken').lean()
+  const cards = await Promise.all(members.map(async (m) => ({
+    _id: m._id, memberNo: m.memberNo, name: m.name,
+    state: [m.district, stateNameEn(m.stateCode) || m.state].filter(Boolean).join(', '), since: m.approvedAt || m.createdAt,
+    photo: m.photo?.url || '', qr: await QRCode.toDataURL(`${process.env.CLIENT_URL}/card/${m.cardToken}`, { margin: 1, width: 240 })
+  })))
+  cards.sort((a, b) => String(a.memberNo).localeCompare(String(b.memberNo)))
+  res.json(cards)
+})
+
 router.get('/card/:token', async (req, res) => {
   const m = await Member.findOne({ cardToken: req.params.token })
   if (!m || !m.memberNo) return res.status(404).json({ message: 'Card not found' })

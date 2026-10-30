@@ -9,6 +9,7 @@ const router = Router()
 const PAGES = [
     ['/', 'daily', '1.0'],
     ['/news', 'daily', '0.9'],
+    ['/events', 'daily', '0.8'],
     ['/about', 'monthly', '0.8'],
     ['/join', 'monthly', '0.9'],
     ['/campaigns', 'weekly', '0.8'],

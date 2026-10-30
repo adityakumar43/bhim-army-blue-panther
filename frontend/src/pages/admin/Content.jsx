@@ -3,6 +3,7 @@ import { api } from '../../lib/api.js'
 import { PageHeader, Notice, ListLoading } from './ui.jsx'
 import Icon from '../../components/Icon.jsx'
 import RsvpList from './RsvpList.jsx'
+import { STATES } from '../../data/states.js'
 
 const KINDS = {
   news: {
@@ -11,7 +12,7 @@ const KINDS = {
   },
   events: {
     label: 'Events', hint: 'Programs and meetings, shown on the News page.', endpoint: '/events', needImage: false,
-    fields: ['titleHi', 'titleEn', 'bodyHi', 'bodyEn', 'date', 'location'],
+    fields: ['titleHi', 'titleEn', 'bodyHi', 'bodyEn', 'date', 'time', 'location', 'stateCode'],
   },
   gallery: {
     label: 'Gallery', hint: 'Photos shown on the Gallery page. Choose "Adivasi & tribal culture" for traditional dances and festivals.',
@@ -46,7 +47,7 @@ const ADD_LABEL = { news: 'Add news', events: 'Add event', gallery: 'Add photo',
 const LABELS = {
   titleHi: 'Title (Hindi)', titleEn: 'Title (English)',
   bodyHi: 'Details (Hindi)', bodyEn: 'Details (English)',
-  date: 'Date', location: 'Location',
+  date: 'Date', location: 'Location', time: 'Time (optional)', stateCode: 'State (optional, for the calendar)',
 }
 
 export default function Content({ kind }) {
@@ -184,7 +185,14 @@ export default function Content({ kind }) {
                       </select>
                     ) : f === 'order' ? <input type="number" min="0" {...common} />
                       : f === 'date' ? <input type="date" required {...common} />
-                        : <input type="text" {...common} />}
+                        : f === 'time' ? <input type="time" {...common} />
+                          : f === 'stateCode' ? (
+                            <select {...common}>
+                              <option value="">All India / not one state</option>
+                              {[...STATES].sort((a, b) => a.en.localeCompare(b.en)).map((s) => <option key={s.code} value={s.code}>{s.en}</option>)}
+                            </select>
+                          )
+                            : <input type="text" {...common} />}
                 </label>
               )
             })}

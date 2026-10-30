@@ -1,4 +1,4 @@
-import { lazy, Suspense } from 'react'
+import { lazy, Suspense, useEffect } from 'react'
 import { Routes, Route, useLocation } from 'react-router-dom'
 import Navbar from './components/Navbar.jsx'
 import Footer from './components/Footer.jsx'
@@ -7,6 +7,7 @@ import ProtectedRoute from './components/ProtectedRoute.jsx'
 import RouteSeo from './components/Seo.jsx'
 import InstallApp from './components/InstallApp.jsx'
 import { NotifyPrompt } from './components/Notify.jsx'
+import { countVisit } from './lib/track.js'
 import Home from './pages/Home.jsx'
 import SessionWatch from './pages/admin/SessionWatch.jsx'
 import Perm from './pages/admin/Perm.jsx'
@@ -65,12 +66,16 @@ const Unsubscribe = page(() => import('./pages/Unsubscribe.jsx'))
 const Mailouts = page(() => import('./pages/admin/Mailouts.jsx'))
 const Growth = page(() => import('./pages/admin/Growth.jsx'))
 const Notifications = page(() => import('./pages/admin/Notifications.jsx'))
+const Events = page(() => import('./pages/Events.jsx'))
+const Visitors = page(() => import('./pages/admin/Visitors.jsx'))
+const PrintCards = page(() => import('./pages/admin/PrintCards.jsx'))
 const UpdateDetails = page(() => import('./pages/UpdateDetails.jsx'))
 
 export default function App() {
 
   const { pathname } = useLocation()
   const isAdmin = pathname.startsWith('/admin')
+  useEffect(() => { if (!isAdmin) countVisit(pathname) }, [pathname, isAdmin]) // visitor numbers
 
   return (
     <>
@@ -83,6 +88,7 @@ export default function App() {
             <Route path="/" element={<Home />} />
             <Route path="/news" element={<News />} />
             <Route path="/news/:id" element={<Detail kind="news" />} />
+            <Route path="/events" element={<Events />} />
             <Route path="/events/:id" element={<Detail kind="events" />} />
             <Route path="/gallery" element={<Gallery />} />
             <Route path="/join" element={<Join />} />
@@ -129,6 +135,8 @@ export default function App() {
               <Route path="mailouts" element={<Perm perm="members"><Mailouts /></Perm>} />
               <Route path="growth" element={<Perm perm="members"><Growth /></Perm>} />
               <Route path="notifications" element={<Perm perm="content"><Notifications /></Perm>} />
+              <Route path="visitors" element={<Perm perm={['content', 'members']}><Visitors /></Perm>} />
+              <Route path="print-cards" element={<Perm perm={['members', 'district']}><PrintCards /></Perm>} />
               <Route path="security" element={<Security />} />
             </Route>
           </Routes>

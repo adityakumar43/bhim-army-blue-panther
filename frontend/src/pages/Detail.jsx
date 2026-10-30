@@ -7,6 +7,8 @@ import ZoomPhoto from '../components/ZoomPhoto.jsx'
 import EventRsvp from '../components/EventRsvp.jsx'
 import { useSeo } from '../components/Seo.jsx'
 import Loading from '../components/Loading.jsx'
+import EventActions from '../components/EventActions.jsx'
+import { timeText } from '../lib/calendar.js'
 
 const SHARE_BASE = (import.meta.env.VITE_API_URL || 'http://localhost:5000/api').replace(/\/api\/?$/, '')
 
@@ -47,10 +49,11 @@ export default function Detail({ kind }) {
             <Link to="/news" className="font-semibold text-brand">← {t('detail.back')}</Link>
             {item.image?.url && <ZoomPhoto item={item} width={1200} buttonClassName="mt-6" className="max-h-112 w-full object-cover" />}
             <div className="mt-6 font-semibold text-brand">
-                {formatDate(date, lang)}{item.location ? `, ${item.location}` : ''}
+                {formatDate(date, lang)}{item.time ? `, ${timeText(item.time, lang)}` : ''}{item.location ? `, ${item.location}` : ''}
             </div>
             <h1 className="my-2 text-3xl font-extrabold">{pickText(item, 'title', lang)}</h1>
             <p className="text-lg whitespace-pre-line">{pickText(item, 'body', lang)}</p>
+            {kind === 'events' && <EventActions event={item} className="mt-5" />}
             {kind === 'events' && <EventRsvp eventId={item._id} />}
             <a
                 href={`https://wa.me/?text=${encodeURIComponent(`${pickText(item, 'title', lang)}\n${SHARE_BASE}/share/${kind}/${item._id}`)}`}

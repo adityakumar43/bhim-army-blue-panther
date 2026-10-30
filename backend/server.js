@@ -32,6 +32,8 @@ import { startBirthdayTimer } from './services/birthdays.js'
 import memberUpdateRoutes from './routes/memberUpdate.js'
 import growthRoutes from './routes/growth.js'
 import pushRoutes from './routes/push.js'
+import calendarRoutes from './routes/calendar.js'
+import visitRoutes from './routes/visits.js'
 import { startCaseReminderTimer } from './services/caseReminders.js'
 
 if (!process.env.JWT_SECRET || !process.env.MONGO_URI) {
@@ -57,7 +59,7 @@ app.use('/api/news', crud(News, {
   sort: { createdAt: -1 },
 }))
 app.use('/api/events', crud(Event, {
-  fields: ['titleHi', 'titleEn', 'bodyHi', 'bodyEn', 'date', 'location'],
+  fields: ['titleHi', 'titleEn', 'bodyHi', 'bodyEn', 'date', 'time', 'location', 'stateCode'],
   sort: { date: -1 },
 }))
 app.use('/api/rsvp', rsvpRoutes)
@@ -80,6 +82,8 @@ app.use('/api/members', memberRoutes)
 app.use('/api/member-update', memberUpdateRoutes)
 app.use('/api/growth', growthRoutes)
 app.use('/api/push', pushRoutes)
+app.use('/api/calendar', calendarRoutes)
+app.use('/api/visits', visitRoutes)
 app.use('/api/leaders', leaderRoutes)
 app.use('/api/announcements', announcementRoutes)
 

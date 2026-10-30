@@ -23,7 +23,7 @@ const PRINT = `.card-print{display:none}
   .card-print .id-card{width:85.6mm;box-shadow:none;border:0.2mm solid #cbd5e1}
 }`
 
-function IdCard({ card, t, lang, ended }) {
+export function IdCard({ card, t, lang, ended }) {
   return (
     <article className="id-card relative w-full overflow-hidden rounded-[3.5cqw] bg-white text-[#0a1a3f] shadow-xl [-webkit-print-color-adjust:exact] [print-color-adjust:exact]"
       style={{ containerType: 'inline-size', aspectRatio: '85.6 / 54' }}>

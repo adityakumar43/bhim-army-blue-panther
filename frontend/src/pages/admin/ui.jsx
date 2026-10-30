@@ -5,7 +5,7 @@ import Icon from '../../components/Icon.jsx'
 const PAGE_ICON = {
   '/admin/news': 'news', '/admin/events': 'calendar', '/admin/gallery': 'image', '/admin/slides': 'layers',
   '/admin/leaders': 'award', '/admin/updates': 'bell', '/admin/members': 'userPlus', '/admin/messages': 'chat',
-  '/admin/donations': 'heart', '/admin/team': 'users', '/admin/security': 'shield', '/admin/activity': 'activity', '/admin/backup': 'download', '/admin/helpdesk': 'help', '/admin/volunteers': 'hand', '/admin/downloads': 'download', '/admin/videos': 'video', '/admin/certificates': 'award', '/admin/mailouts': 'mail', '/admin/growth': 'trend', '/admin/notifications': 'phone',
+  '/admin/donations': 'heart', '/admin/team': 'users', '/admin/security': 'shield', '/admin/activity': 'activity', '/admin/backup': 'download', '/admin/helpdesk': 'help', '/admin/volunteers': 'hand', '/admin/downloads': 'download', '/admin/videos': 'video', '/admin/certificates': 'award', '/admin/mailouts': 'mail', '/admin/growth': 'trend', '/admin/notifications': 'phone', '/admin/visitors': 'eye', '/admin/print-cards': 'userPlus',
 }
 
 // Page title card. The icon is picked from the page address, so pages don't need to pass one.
@@ -25,7 +25,7 @@ export function PageHeader({ title, subtitle, children }) {
           {subtitle && <p className="mt-0.5 text-sm text-navy/65">{subtitle}</p>}
         </div>
       </div>
-      {children}
+      {children && <div className="flex flex-wrap items-center gap-2">{children}</div>}
     </div>
   )
 }

@@ -13,7 +13,7 @@ export default function Footer() {
 
   // Two short lists instead of one long one
   const explore = [['/', t('nav.home')], ['/about', t('nav.about')], ['/leadership/states', t('nav.states')], ['/inspirations', t('nav.inspire')],
-  ['/campaigns', t('nav.campaigns')], ['/news', t('nav.news')], ['/gallery', t('nav.gallery')], ['/videos', t('videos.link')]]
+  ['/campaigns', t('nav.campaigns')], ['/news', t('nav.news')], ['/events', t('cal.link')], ['/gallery', t('nav.gallery')], ['/videos', t('videos.link')]]
   const involved = [['/join', t('nav.join')], ['/volunteer', t('vol.link')], ['/donate', t('cta.donate')], ['/help', t('help.link')], ['/downloads', t('dl.link')]]
   const path = ['educate', 'organize', 'struggle'].map((k) => t(`about.${k}.title`))
   const head = 'mb-3 text-sm font-extrabold tracking-wide text-gold uppercase'

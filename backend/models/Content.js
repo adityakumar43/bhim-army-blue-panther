@@ -20,7 +20,9 @@ function makeModel(name, extra = {}) {
 export const News = makeModel('News')
 export const Event = makeModel('Event', {
   date: { type: Date, required: true },
+  time: { type: String, trim: true, match: [/^([01]\d|2[0-3]):[0-5]\d$/, 'Time must be like 10:30'] }, // start time, optional
   location: { type: String, trim: true },
+  stateCode: { type: String, trim: true }, // the state it is in, optional (for the calendar's state filter)
 })
 
 // "general" photos, or "adivasi" for traditional dances and festivals of tribal and Adivasi communities

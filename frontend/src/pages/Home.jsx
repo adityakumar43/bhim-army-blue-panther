@@ -104,7 +104,7 @@ export default function Home() {
       {events.length > 0 && (
         <section className="bg-white">
           <div className={wrap}>
-            <SectionHead title={t('sections.events')} intro={t('home.eventsIntro')} to="/news" label={t('viewAll')} />
+            <SectionHead title={t('sections.events')} intro={t('home.eventsIntro')} to="/events" label={t('cal.open')}/>
             <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
               {events.map((ev) => (
                 <Link key={ev._id} to={`/events/${ev._id}`} className={cardBox}>
