@@ -3,7 +3,7 @@ import { useOutletContext } from 'react-router-dom'
 import { api } from '../../lib/api.js'
 import { ROLE_INFO } from '../../lib/roles.js'
 import { STATES, stateByCode } from '../../data/states.js'
-import { PageHeader, Notice, Pill } from './ui.jsx'
+import { PageHeader, Notice, ListLoading, Pill } from './ui.jsx'
 import Icon from '../../components/Icon.jsx'
 import DistrictSelect from '../../components/DistrictSelect.jsx'
 
@@ -164,7 +164,7 @@ export default function Team() {
       </details>
 
       <h2 className="mb-3 text-lg font-extrabold">👥 Team {admins && `(${admins.length})`}</h2>
-      {!admins && <p>Loading...</p>}
+      {!admins && <ListLoading />}
       <ul className="grid gap-4 lg:grid-cols-2">
         {admins?.map((a) => {
           const self = a.id === me.id

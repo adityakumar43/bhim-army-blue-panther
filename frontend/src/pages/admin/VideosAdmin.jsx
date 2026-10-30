@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react'
 import { api } from '../../lib/api.js'
-import { PageHeader, Notice } from './ui.jsx'
+import { PageHeader, Notice, ListLoading } from './ui.jsx'
 import Icon from '../../components/Icon.jsx'
 import { VIDEO_CATEGORIES, videoCategory, youtubeId, thumb } from '../../data/videos.js'
 
@@ -93,7 +93,7 @@ export default function VideosAdmin() {
 
             {!showForm && <Notice>{error}</Notice>}
             <h2 className="mb-3 text-lg font-extrabold">🎞️ All videos {items && `(${items.length})`}</h2>
-            {!items && <p>Loading...</p>}
+            {!items && <ListLoading />}
             {items?.length === 0 && <p className="card text-center text-navy/70">📭 No videos yet. Click "Add video" to add the first one.</p>}
             <ul className="grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
                 {items?.map((v) => (

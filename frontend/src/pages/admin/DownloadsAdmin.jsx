@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react'
 import { api } from '../../lib/api.js'
-import { PageHeader, Notice } from './ui.jsx'
+import { PageHeader, Notice, ListLoading } from './ui.jsx'
 import Icon from '../../components/Icon.jsx'
 import { DL_CATEGORIES, dlCategory, fileSize } from '../../data/downloads.js'
 
@@ -94,7 +94,7 @@ export default function DownloadsAdmin() {
 
             {!showForm && <Notice>{error}</Notice>}
             <h2 className="mb-3 text-lg font-extrabold">📂 All files {items && `(${items.length})`}</h2>
-            {!items && <p>Loading...</p>}
+            {!items && <ListLoading />}
             {items?.length === 0 && <p className="card text-center text-navy/70">📭 No files yet. Click "Add file" to upload the first one.</p>}
             <ul className="grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
                 {items?.map((d) => {

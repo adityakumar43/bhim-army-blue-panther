@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react'
 import { api } from '../../lib/api.js'
 import { STATES } from '../../data/states.js'
-import { PageHeader, Notice } from './ui.jsx'
+import { PageHeader, Notice, ListLoading } from './ui.jsx'
 import { Tile, MonthBars } from './Stats.jsx'
 
 const sortedStates = [...STATES].sort((a, b) => a.en.localeCompare(b.en))
@@ -79,7 +79,7 @@ export default function Growth() {
                 {state && !data?.locked && <button onClick={() => setState('')} className="text-sm font-semibold text-brand underline">← All of India</button>}
             </div>
 
-            {!data && !error && <p>Loading...</p>}
+            {!data && !error && <ListLoading />}
             {data && (
                 <>
                     <div className="mb-4 grid gap-3 [grid-template-columns:repeat(auto-fill,minmax(12rem,1fr))]">

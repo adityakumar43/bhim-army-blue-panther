@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useState } from 'react'
 import { useOutletContext } from 'react-router-dom'
 import { api } from '../../lib/api.js'
-import { PageHeader, Notice, Pill } from './ui.jsx'
+import { PageHeader, Notice, ListLoading, Pill } from './ui.jsx'
 import Icon from '../../components/Icon.jsx'
 import { STATES, stateByCode } from '../../data/states.js'
 import { CERT_TYPES, certType, RELATIONS, day } from '../../data/certificates.js'
@@ -349,7 +349,7 @@ export default function Certificates() {
                 <input value={q} onChange={(e) => setQ(e.target.value)} placeholder="🔎 Search name, ref no, mobile..." className="input ml-auto min-h-10 max-w-xs py-2" />
             </div>
 
-            {!items && <p>Loading...</p>}
+            {!items && <ListLoading />}
             {items?.length === 0 && <p className="card text-center text-navy/70">📭 Nothing issued yet. Click "Issue new" to make the first one.</p>}
             {items?.length > 0 && shown.length === 0 && <p className="card text-center text-navy/70">No match.</p>}
 

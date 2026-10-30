@@ -1,6 +1,7 @@
 import { Link } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
 import { ORG } from '../lib/orgInfo.js'
+import { NotifyButton } from './Notify.jsx'
 
 export default function Footer() {
   const { t } = useTranslation()
@@ -29,6 +30,7 @@ export default function Footer() {
           <p className="mb-4 max-w-sm text-sm leading-relaxed text-white/75">{t('footerText', { defaultValue: t('mission') })}</p>
           <p className="text-sm font-semibold text-white/90">{path.join(' · ')}</p>
           <p className="mt-1 text-sm font-semibold text-gold">{t('greeting')}</p>
+          <NotifyButton />
         </div>
 
         <nav aria-label={t('footer.explore')}>

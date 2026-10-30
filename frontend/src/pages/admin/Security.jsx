@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react'
 import { useOutletContext } from 'react-router-dom'
 import { api } from '../../lib/api.js'
-import { PageHeader, Notice, Pill } from './ui.jsx'
+import { PageHeader, Notice, ListLoading, Pill } from './ui.jsx'
 import Icon from '../../components/Icon.jsx'
 import LoginHistory from './LoginHistory.jsx'
 
@@ -66,7 +66,7 @@ export default function Security() {
       )}
       <Notice>{error}</Notice>
       <Notice kind="success">{note}</Notice>
-      {enabled === null && !error && <p>Loading...</p>}
+      {enabled === null && !error && <ListLoading />}
 
       {enabled !== null && (
         <div className="grid items-start gap-6 lg:grid-cols-[minmax(0,1fr)_18rem]">

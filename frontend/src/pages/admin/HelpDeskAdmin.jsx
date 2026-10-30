@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react'
 import { useOutletContext } from 'react-router-dom'
 import { api } from '../../lib/api.js'
-import { PageHeader, Notice, Pill } from './ui.jsx'
+import { PageHeader, Notice, ListLoading, Pill } from './ui.jsx'
 import { CATEGORIES, STATUS, categoryOf } from '../../data/helpdesk.js'
 import { stateByCode } from '../../data/states.js'
 
@@ -259,7 +259,7 @@ export default function HelpDeskAdmin() {
             )}
 
             <Notice>{error}</Notice>
-            {!items && !error && <p>Loading...</p>}
+            {!items && !error && <ListLoading />}
             {shown?.length === 0 && <p className="card text-center text-navy/70">📭 No cases here.</p>}
             <ul className="grid gap-4 xl:grid-cols-2">
                 {shown?.map((c) => (

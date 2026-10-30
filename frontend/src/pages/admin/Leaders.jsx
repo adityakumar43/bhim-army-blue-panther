@@ -3,7 +3,7 @@ import { useOutletContext } from 'react-router-dom'
 import { api } from '../../lib/api.js'
 import { portrait } from '../../lib/img.js'
 import { STATES, stateByCode } from '../../data/states.js'
-import { PageHeader, Notice, Pill } from './ui.jsx'
+import { PageHeader, Notice, ListLoading, Pill } from './ui.jsx'
 import Icon from '../../components/Icon.jsx'
 
 const EMPTY = { level: 'national', state: '', nameHi: '', nameEn: '', roleHi: '', roleEn: '', areaHi: '', areaEn: '', phone: '', order: '' }
@@ -201,7 +201,7 @@ export default function Leaders() {
           {sortedStates.map((s) => <option key={s.code} value={s.code}>{s.en} ({count(s.code)})</option>)}
         </select>}
       </div>
-      {!items && <p>Loading...</p>}
+      {!items && <ListLoading />}
       {items && shown.length === 0 && <p className="card text-center text-navy/70">📭 No leaders here yet. Click "Add leader" to add one.</p>}
       <ul className="grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
         {shown.map((l) => (

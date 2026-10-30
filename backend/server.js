@@ -31,6 +31,7 @@ import mailoutRoutes from './routes/mailouts.js'
 import { startBirthdayTimer } from './services/birthdays.js'
 import memberUpdateRoutes from './routes/memberUpdate.js'
 import growthRoutes from './routes/growth.js'
+import pushRoutes from './routes/push.js'
 import { startCaseReminderTimer } from './services/caseReminders.js'
 
 if (!process.env.JWT_SECRET || !process.env.MONGO_URI) {
@@ -78,6 +79,7 @@ app.use('/api/slides', crud(Slide, {
 app.use('/api/members', memberRoutes)
 app.use('/api/member-update', memberUpdateRoutes)
 app.use('/api/growth', growthRoutes)
+app.use('/api/push', pushRoutes)
 app.use('/api/leaders', leaderRoutes)
 app.use('/api/announcements', announcementRoutes)
 

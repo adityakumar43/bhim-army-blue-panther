@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react'
 import { api } from '../../lib/api.js'
-import { PageHeader, Notice } from './ui.jsx'
+import { PageHeader, Notice, ListLoading } from './ui.jsx'
 
 const BASE = import.meta.env.VITE_API_URL || 'http://localhost:5000/api'
 const today = () => new Intl.DateTimeFormat('en-CA', { timeZone: 'Asia/Kolkata' }).format(new Date())

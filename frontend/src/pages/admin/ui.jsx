@@ -5,7 +5,7 @@ import Icon from '../../components/Icon.jsx'
 const PAGE_ICON = {
   '/admin/news': 'news', '/admin/events': 'calendar', '/admin/gallery': 'image', '/admin/slides': 'layers',
   '/admin/leaders': 'award', '/admin/updates': 'bell', '/admin/members': 'userPlus', '/admin/messages': 'chat',
-  '/admin/donations': 'heart', '/admin/team': 'users', '/admin/security': 'shield', '/admin/activity': 'activity', '/admin/backup': 'download', '/admin/helpdesk': 'help', '/admin/volunteers': 'hand', '/admin/downloads': 'download', '/admin/videos': 'video', '/admin/certificates': 'award', '/admin/mailouts': 'mail', '/admin/growth': 'trend',
+  '/admin/donations': 'heart', '/admin/team': 'users', '/admin/security': 'shield', '/admin/activity': 'activity', '/admin/backup': 'download', '/admin/helpdesk': 'help', '/admin/volunteers': 'hand', '/admin/downloads': 'download', '/admin/videos': 'video', '/admin/certificates': 'award', '/admin/mailouts': 'mail', '/admin/growth': 'trend', '/admin/notifications': 'phone',
 }
 
 // Page title card. The icon is picked from the page address, so pages don't need to pass one.
@@ -52,4 +52,24 @@ const TONES = {
 
 export function Pill({ tone = 'blue', children }) {
   return <span className={`inline-block rounded-full px-2.5 py-0.5 text-xs font-bold ${TONES[tone]}`}>{children}</span>
+}
+
+
+// Grey boxes in the shape of a list while it loads, so the page does not look empty
+export function ListLoading({ rows = 3 }) {
+  return (
+    <div role="status" aria-live="polite" className="grid gap-4">
+      <span className="sr-only">Loading…</span>
+      {Array.from({ length: rows }, (_, i) => (
+        <div key={i} aria-hidden="true" className="card flex animate-pulse items-start gap-4 p-4 motion-reduce:animate-none sm:p-5">
+          <span className="h-12 w-12 shrink-0 rounded-xl bg-navy/[0.07]" />
+          <span className="flex flex-1 flex-col gap-2.5 pt-1">
+            <span className="h-4 w-2/5 rounded bg-navy/[0.08]" />
+            <span className="h-3 w-4/5 rounded bg-navy/[0.06]" />
+            <span className="h-3 w-3/5 rounded bg-navy/[0.06]" />
+          </span>
+        </div>
+      ))}
+    </div>
+  )
 }

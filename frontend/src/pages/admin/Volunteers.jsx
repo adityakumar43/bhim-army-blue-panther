@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useState } from 'react'
 import { useOutletContext } from 'react-router-dom'
 import { api } from '../../lib/api.js'
-import { PageHeader, Notice, Pill } from './ui.jsx'
+import { PageHeader, Notice, ListLoading, Pill } from './ui.jsx'
 import { SKILLS, AVAILABILITY, skillOf } from '../../data/volunteers.js'
 import { stateByCode } from '../../data/states.js'
 
@@ -79,7 +79,7 @@ export default function Volunteers() {
             </div>
 
             <Notice>{error}</Notice>
-            {!items && !error && <p>Loading...</p>}
+            {!items && !error && <ListLoading />}
             {items && shown.length === 0 && <p className="card text-center text-navy/70">📭 No volunteers here.</p>}
             <ul className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
                 {shown.map((v) => (

@@ -6,6 +6,7 @@ import PageBand, { hasBand } from './components/PageBand.jsx'
 import ProtectedRoute from './components/ProtectedRoute.jsx'
 import RouteSeo from './components/Seo.jsx'
 import InstallApp from './components/InstallApp.jsx'
+import { NotifyPrompt } from './components/Notify.jsx'
 import Home from './pages/Home.jsx'
 import SessionWatch from './pages/admin/SessionWatch.jsx'
 import Perm from './pages/admin/Perm.jsx'
@@ -63,6 +64,7 @@ const Privacy = page(() => import('./pages/Privacy.jsx'))
 const Unsubscribe = page(() => import('./pages/Unsubscribe.jsx'))
 const Mailouts = page(() => import('./pages/admin/Mailouts.jsx'))
 const Growth = page(() => import('./pages/admin/Growth.jsx'))
+const Notifications = page(() => import('./pages/admin/Notifications.jsx'))
 const UpdateDetails = page(() => import('./pages/UpdateDetails.jsx'))
 
 export default function App() {
@@ -126,6 +128,7 @@ export default function App() {
               <Route path="backup" element={<Perm perm="admins"><Backup /></Perm>} />
               <Route path="mailouts" element={<Perm perm="members"><Mailouts /></Perm>} />
               <Route path="growth" element={<Perm perm="members"><Growth /></Perm>} />
+              <Route path="notifications" element={<Perm perm="content"><Notifications /></Perm>} />
               <Route path="security" element={<Security />} />
             </Route>
           </Routes>
@@ -133,6 +136,7 @@ export default function App() {
       </main>
       {!isAdmin && <Footer />}
       {!isAdmin && <InstallApp />}
+      {!isAdmin && <NotifyPrompt />}
     </>
   )
 }

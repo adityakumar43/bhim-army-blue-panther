@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react'
 import { useOutletContext } from 'react-router-dom'
 import { api } from '../../lib/api.js'
 import { STATES, stateByCode } from '../../data/states.js'
-import { PageHeader, Notice, Pill } from './ui.jsx'
+import { PageHeader, Notice, ListLoading, Pill } from './ui.jsx'
 
 const sortedStates = [...STATES].sort((a, b) => a.en.localeCompare(b.en))
 const when = (d) => new Date(d).toLocaleString('en-IN', { dateStyle: 'medium', timeStyle: 'short' })
@@ -142,7 +142,7 @@ export default function Mailouts() {
 
             {/* Sent before */}
             <h2 className="mt-8 mb-3 text-lg font-extrabold">🗂️ Sent announcements</h2>
-            {!history && <p>Loading...</p>}
+            {!history && <ListLoading />}
             {history?.length === 0 && <p className="card text-center text-navy/70">📭 Nothing sent yet.</p>}
             <ul className="grid gap-3 xl:grid-cols-2">
                 {history?.map((m) => {

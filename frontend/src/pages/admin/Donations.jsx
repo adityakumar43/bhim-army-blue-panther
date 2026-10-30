@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react'
 import { api } from '../../lib/api.js'
-import { PageHeader, Notice, Pill } from './ui.jsx'
+import { PageHeader, Notice, ListLoading, Pill } from './ui.jsx'
 
 const rupees = (n) => '₹' + Number(n).toLocaleString('en-IN')
 
@@ -29,7 +29,7 @@ export default function Donations() {
       <PageHeader title="Donations" subtitle="Payments received through the Donate page." />
       <Notice>{error}</Notice>
       <Notice kind="success">{note}</Notice>
-      {!data && !error && <p>Loading...</p>}
+      {!data && !error && <ListLoading />}
       {data && (
         <>
           <div className="mb-5 grid gap-4 sm:grid-cols-2">

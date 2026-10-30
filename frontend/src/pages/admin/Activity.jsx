@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react'
 import { api } from '../../lib/api.js'
-import { PageHeader, Notice } from './ui.jsx'
+import { PageHeader, Notice, ListLoading } from './ui.jsx'
 import LoginHistory from './LoginHistory.jsx'
 
 const SECTIONS = [
@@ -101,7 +101,7 @@ export default function Activity() {
           </div>
 
           <Notice>{error}</Notice>
-          {!items && !error && <p>Loading...</p>}
+          {!items && !error && <ListLoading />}
           {items?.length === 0 && <p className="card text-center text-navy/70">📭 Nothing recorded yet. Changes made from now on will appear here.</p>}
 
           <div className="flex flex-col gap-5">

@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react'
 import { api } from '../../lib/api.js'
-import { Notice } from './ui.jsx'
+import { Notice, ListLoading } from './ui.jsx'
 import Icon from '../../components/Icon.jsx'
 
 // Pop-up list of everyone who registered for one event, with Excel download
@@ -50,7 +50,7 @@ export default function RsvpList({ event, onClose, onChange }) {
         </div>
         <div className="overflow-y-auto p-5">
           <Notice>{error}</Notice>
-          {!items && !error && <p>Loading...</p>}
+          {!items && !error && <ListLoading />}
           {items?.length === 0 && <p className="text-center text-navy/70">📭 Nobody has registered yet.</p>}
           {items?.length > 0 && (
             <ul className="divide-y divide-brand/10">

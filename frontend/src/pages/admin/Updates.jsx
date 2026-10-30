@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react'
 import { api } from '../../lib/api.js'
-import { PageHeader, Notice, Pill } from './ui.jsx'
+import { PageHeader, Notice, ListLoading, Pill } from './ui.jsx'
 import Icon from '../../components/Icon.jsx'
 
 const EMPTY = { textHi: '', textEn: '', link: '', important: false, startsAt: '', endsAt: '' }
@@ -119,7 +119,7 @@ export default function Updates() {
 
       {!showForm && <Notice>{error}</Notice>}
       <h2 className="mb-3 text-lg font-extrabold">📢 All updates {items && `(${items.length})`}</h2>
-      {!items && <p>Loading...</p>}
+      {!items && <ListLoading />}
       {items?.length === 0 && <p className="card text-center text-navy/70">📭 No updates yet. Click "Add update" to add the first one.</p>}
       <ul className="grid gap-4 md:grid-cols-2">
         {items?.map((a) => {

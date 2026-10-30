@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react'
 import { useOutletContext } from 'react-router-dom'
 import { api } from '../../lib/api.js'
-import { PageHeader, Notice, Pill } from './ui.jsx'
+import { PageHeader, Notice, ListLoading, Pill } from './ui.jsx'
 
 
 
@@ -59,7 +59,7 @@ export default function Messages() {
       <PageHeader title="Messages" subtitle="Messages sent from the Contact page. Unread ones are highlighted." />
       <Notice>{error}</Notice>
       <Notice kind="success">{note}</Notice>
-      {!items && !error && <p>Loading...</p>}
+      {!items && !error && <ListLoading />}
       {items?.length === 0 && <p className="card text-center text-navy/70">📭 No messages yet.</p>}
       {items?.length > 0 && (
         <div role="group" aria-label="Filter by topic" className="mb-4 flex flex-wrap gap-1.5">

@@ -67,3 +67,31 @@ self.addEventListener('fetch', (event) => {
         )
     }
 })
+
+
+// Phone notifications sent from the admin panel ("Phone notifications" page)
+self.addEventListener('push', (event) => {
+    let data = {}
+    try { data = event.data ? event.data.json() : {} } catch { data = { body: event.data ? event.data.text() : '' } }
+    event.waitUntil(
+        self.registration.showNotification(data.title || 'भीम आर्मी ब्लू पैंथर', {
+            body: data.body || '',
+            icon: '/icons/icon-192.png',
+            tag: data.tag || undefined, // the same notification sent twice shows once
+            data: { url: data.url || '/' },
+        })
+    )
+})
+
+// Tapping a notification opens its page: in the open app or website if there is one, otherwise in a new window
+self.addEventListener('notificationclick', (event) => {
+    event.notification.close()
+    const url = new URL(event.notification.data?.url || '/', self.location.origin).href
+    event.waitUntil(
+        self.clients.matchAll({ type: 'window', includeUncontrolled: true }).then((open) => {
+            const mine = open.find((c) => c.url.startsWith(self.location.origin))
+            if (mine) return mine.focus().then((c) => (c.navigate ? c.navigate(url) : c))
+            return self.clients.openWindow(url)
+        })
+    )
+})

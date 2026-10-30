@@ -2,7 +2,7 @@ import { useEffect, useMemo, useState } from 'react'
 import { useOutletContext } from 'react-router-dom'
 import { api } from '../../lib/api.js'
 import { portrait } from '../../lib/img.js'
-import { PageHeader, Notice, Pill } from './ui.jsx'
+import { PageHeader, Notice, ListLoading, Pill } from './ui.jsx'
 import Icon from '../../components/Icon.jsx'
 import { stateByCode } from '../../data/states.js'
 
@@ -246,7 +246,7 @@ export default function Members() {
           Select all {shown.length} shown
         </label>
       )}
-      {!items && !error && <p>Loading...</p>}
+      {!items && !error && <ListLoading />}
       {items?.length === 0 && <p className="card text-center text-navy/70">📭 No {status} applications.</p>}
       {items?.length > 0 && shown.length === 0 && (
         <p className="card text-center text-navy/70">🔍 No one matches your search. <button onClick={clearFilters} className="font-semibold text-brand underline">Clear search</button></p>

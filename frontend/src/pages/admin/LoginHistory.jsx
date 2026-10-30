@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react'
 import { api } from '../../lib/api.js'
+import { ListLoading } from './ui.jsx'
 
 const when = (d) => new Date(d).toLocaleString('en-IN', { dateStyle: 'medium', timeStyle: 'short' })
 const deviceEmoji = (d = '') => (/iPhone|Android|iPad/.test(d) ? '📱' : '💻')
@@ -36,7 +37,7 @@ export default function LoginHistory({ mine = false, limit = 100 }) {
         </div>
       )}
       {error && <p className="text-sm text-red-700">{error}</p>}
-      {!items && !error && <p>Loading...</p>}
+      {!items && !error && <ListLoading />}
       {items?.length === 0 && <p className="card text-center text-navy/70">📭 No logins recorded yet.</p>}
       {items?.length > 0 && (
         <ul className="card divide-y divide-brand/10 p-0 sm:p-0">
