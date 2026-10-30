@@ -3,6 +3,7 @@ import { Link } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
 import { api } from '../lib/api.js'
 import Consent from '../components/Consent.jsx'
+import Icon from '../components/Icon.jsx'
 
 const PHONE_OK = /^[6-9]\d{9}$/
 const EMAIL_OK = /^\S+@\S+\.\S+$/
@@ -95,7 +96,7 @@ export default function Contact() {
         <aside className="order-2 flex flex-col gap-5 lg:order-1">
           <section className="rounded-2xl border border-navy/10 bg-white p-5 shadow-sm sm:p-6">
             <h2 className="mb-4 flex items-center gap-3 text-lg font-extrabold">
-              <span className="flex h-10 w-10 items-center justify-center rounded-xl bg-mist text-xl" aria-hidden="true">🏢</span>
+              <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-mist text-brand" aria-hidden="true"><Icon name="building" size={20} /></span>
               {t('contact.offices', { defaultValue: 'Our offices' })}
             </h2>
             <ul className="flex flex-col gap-4">
@@ -136,7 +137,7 @@ export default function Contact() {
         <div className="order-1 lg:sticky lg:top-24 lg:order-2 lg:self-start">
           {done ? (
             <section aria-live="polite" className="flex flex-col items-center justify-center rounded-2xl border border-green-300 bg-green-50 p-8 text-center shadow-sm lg:min-h-[28rem]">
-              <span className="text-5xl" aria-hidden="true">✅</span>
+              <span className="mx-auto flex h-16 w-16 items-center justify-center rounded-full bg-green-100 text-green-700" aria-hidden="true"><Icon name="check" size={32} /></span>
               <h2 className="mt-3 text-2xl font-extrabold text-green-900">{t('contact.doneTitle')}</h2>
               <p className="mt-2 text-navy/80">{t('contact.doneBody')}</p>
               {form.email && <p className="mt-1 text-sm text-navy/65">📧 {t('contact.doneEmail', { defaultValue: 'We have also sent a confirmation to your email.' })}</p>}
@@ -147,7 +148,7 @@ export default function Contact() {
           ) : (
             <form onSubmit={submit} className="rounded-2xl border border-navy/10 bg-white p-5 shadow-sm sm:p-8">
               <h2 className="mb-1 flex items-center gap-3 text-lg font-extrabold">
-                <span className="flex h-10 w-10 items-center justify-center rounded-xl bg-mist text-xl" aria-hidden="true">✉️</span>
+                <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-mist text-brand" aria-hidden="true"><Icon name="mail" size={20} /></span>
                 {t('contact.formTitle', { defaultValue: 'Send us a message' })}
               </h2>
               <p className="mb-5 text-sm text-navy/60">{t('contact.formIntro', { defaultValue: 'We read every message and reply on your mobile or email.' })}</p>

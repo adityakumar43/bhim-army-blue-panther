@@ -25,13 +25,13 @@ export default function Overview() {
   const closeTip = () => { try { localStorage.setItem(TIP_KEY, String(Date.now() + 7 * 864e5)) } catch { /* storage blocked */ } setHideTip(true) }
   const today = new Date().toLocaleDateString('en-IN', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' })
 
-  // [permission, link, label, count, emoji, tile colour]
+  // [permission, link, label, count, icon, tile colours]
   const alerts = [
-    [['members', 'district'], '/admin/members', 'Membership applications waiting', summary.members, '📝', 'bg-blue-100'],
-    ['messages', '/admin/messages', 'Unread messages', summary.messages, '✉️', 'bg-amber-100'],
-    ['donations', '/admin/donations', 'New donations', summary.donations, '💝', 'bg-rose-100'],
-    [['helpdesk', 'district'], '/admin/helpdesk', 'New help desk cases', summary.helpdesk || 0, '🆘', 'bg-red-100'],
-    [['members', 'district'], '/admin/volunteers', 'New volunteers', summary.volunteers || 0, '🙋', 'bg-green-100'],
+    [['members', 'district'], '/admin/members', 'Membership applications waiting', summary.members, 'userPlus', 'bg-blue-100 text-blue-700'],
+    ['messages', '/admin/messages', 'Unread messages', summary.messages, 'chat', 'bg-amber-100 text-amber-700'],
+    ['donations', '/admin/donations', 'New donations', summary.donations, 'heart', 'bg-rose-100 text-rose-700'],
+    [['helpdesk', 'district'], '/admin/helpdesk', 'New help desk cases', summary.helpdesk || 0, 'help', 'bg-red-100 text-red-700'],
+    [['members', 'district'], '/admin/volunteers', 'New volunteers', summary.volunteers || 0, 'hand', 'bg-green-100 text-green-700'],
   ].filter(([perm]) => can(perm))
     .sort((a, b) => (b[3] > 0) - (a[3] > 0)) // the ones with something new come first
 
@@ -81,12 +81,12 @@ export default function Overview() {
       {/* What needs attention: 2 across on phones, the ones with something new first */}
       {alerts.length > 0 && (
         <div className="mb-6 grid grid-cols-2 gap-3 sm:gap-4 md:[grid-template-columns:repeat(auto-fit,minmax(15rem,1fr))]">
-          {alerts.map(([perm, to, label, n, emoji, tile]) => (
+          {alerts.map(([perm, to, label, n, icon, tile]) => (
             <Link key={to} to={to}
               className={`group flex flex-col gap-2 rounded-2xl border p-3 shadow-sm max-md:last:odd:col-span-2 transition hover:-translate-y-0.5 hover:shadow-md md:flex-row md:items-center md:gap-4 md:p-4
                 ${n > 0 ? 'border-brand/15 bg-white hover:border-brand/30' : 'border-navy/5 bg-white/60 hover:bg-white'}`}>
               <span className="flex items-center justify-between gap-2 md:contents">
-                <span aria-hidden="true" className={`flex h-10 w-10 shrink-0 items-center justify-center rounded-xl text-xl md:h-12 md:w-12 md:text-2xl ${tile} ${n > 0 ? '' : 'opacity-60 grayscale'}`}>{emoji}</span>
+                <span aria-hidden="true" className={`flex h-10 w-10 shrink-0 items-center justify-center rounded-xl md:h-12 md:w-12 ${tile} ${n > 0 ? '' : 'opacity-60 grayscale'}`}><Icon name={icon} size={22} className="md:h-6 md:w-6" /></span>
                 {n > 0 && <span className="rounded-full bg-red-500 px-2 py-0.5 text-[11px] font-bold text-white md:hidden">New</span>}
               </span>
               <span className="min-w-0 flex-1">

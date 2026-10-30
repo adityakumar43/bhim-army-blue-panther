@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react'
 import { api } from '../../lib/api.js'
 import { PageHeader, Notice, ListLoading, Pill } from './ui.jsx'
+import Icon from '../../components/Icon.jsx'
 
 const rupees = (n) => '₹' + Number(n).toLocaleString('en-IN')
 
@@ -34,14 +35,14 @@ export default function Donations() {
         <>
           <div className="mb-5 grid gap-4 sm:grid-cols-2">
             <div className="card flex items-center gap-4 p-4 sm:p-5">
-              <span aria-hidden="true" className="flex h-12 w-12 items-center justify-center rounded-xl bg-green-100 text-2xl">💰</span>
+              <span aria-hidden="true" className="flex h-12 w-12 items-center justify-center rounded-xl bg-green-100 text-green-700"><Icon name="rupee" size={24} /></span>
               <div>
                 <div className="text-3xl leading-none font-extrabold text-brand">{rupees(data.total)}</div>
                 <div className="mt-1 text-sm font-semibold text-navy/70">Total received</div>
               </div>
             </div>
             <div className="card flex items-center gap-4 p-4 sm:p-5">
-              <span aria-hidden="true" className="flex h-12 w-12 items-center justify-center rounded-xl bg-rose-100 text-2xl">💝</span>
+              <span aria-hidden="true" className="flex h-12 w-12 items-center justify-center rounded-xl bg-rose-100 text-rose-700"><Icon name="heart" size={24} /></span>
               <div>
                 <div className="text-3xl leading-none font-extrabold text-brand">{data.items.length}</div>
                 <div className="mt-1 text-sm font-semibold text-navy/70">Donations</div>

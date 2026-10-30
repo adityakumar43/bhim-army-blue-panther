@@ -106,10 +106,10 @@ export default function Visitors() {
             {data && (
                 <>
                     <div className="mb-4 grid gap-3 [grid-template-columns:repeat(auto-fill,minmax(12rem,1fr))]">
-                        <Tile emoji="👥" tint="bg-blue-100" value={n(data.visitors)} label={`Visitors (${RANGES.find(([d]) => d === days)[1].toLowerCase()})`} />
-                        <Tile emoji="📄" tint="bg-amber-100" value={n(data.views)} label={`Pages opened (${perVisitor} per visitor)`} />
-                        <Tile emoji="☀️" tint="bg-green-100" value={n(data.today.visitors)} label={`Visitors today (${n(data.today.views)} pages)`} />
-                        <Tile emoji="📲" tint="bg-purple-100" value={`${appShare}%`} label="Came through the installed app" />
+                        <Tile icon="users" tint="bg-blue-100 text-blue-700" value={n(data.visitors)} label={`Visitors (${RANGES.find(([d]) => d === days)[1].toLowerCase()})`} />
+                        <Tile icon="news" tint="bg-amber-100 text-amber-700" value={n(data.views)} label={`Pages opened (${perVisitor} per visitor)`} />
+                        <Tile icon="sun" tint="bg-green-100 text-green-700" value={n(data.today.visitors)} label={`Visitors today (${n(data.today.views)} pages)`} />
+                        <Tile icon="phone" tint="bg-purple-100 text-purple-700" value={`${appShare}%`} label="Came through the installed app" />
                     </div>
 
                     <div className="grid gap-4 xl:grid-cols-2">

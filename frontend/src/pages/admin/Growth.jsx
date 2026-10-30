@@ -83,11 +83,11 @@ export default function Growth() {
             {data && (
                 <>
                     <div className="mb-4 grid gap-3 [grid-template-columns:repeat(auto-fill,minmax(12rem,1fr))]">
-                        <Tile emoji="👥" tint="bg-blue-100" value={n(data.approved)} label={`Members in ${place}`} />
-                        <Tile emoji="🆕" tint="bg-green-100" value={n(data.thisMonth)}
+                        <Tile icon="users" tint="bg-blue-100 text-blue-700" value={n(data.approved)} label={`Members in ${place}`} />
+                        <Tile icon="userPlus" tint="bg-green-100 text-green-700" value={n(data.thisMonth)}
                             label={`Joined this month (${change === 0 ? 'same as' : change > 0 ? `${n(change)} more than` : `${n(-change)} fewer than`} last month)`} />
-                        <Tile emoji="⏳" tint="bg-amber-100" value={n(data.pending)} label="Applications waiting" />
-                        {data.state && <Tile emoji="🏘️" tint="bg-teal-100" value={`${n(covered)} / ${n(data.districtCount)}`} label="Districts with members" />}
+                        <Tile icon="clock" tint="bg-amber-100 text-amber-700" value={n(data.pending)} label="Applications waiting" />
+                        {data.state && <Tile icon="pin" tint="bg-teal-100 text-teal-700" value={`${n(covered)} / ${n(data.districtCount)}`} label="Districts with members" />}
                     </div>
 
                     <div className="grid gap-4 xl:grid-cols-2">

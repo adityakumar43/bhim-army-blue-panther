@@ -8,6 +8,7 @@ import { Band } from '../components/PageBand.jsx'
 import { useSeo } from '../components/Seo.jsx'
 import LeaderCard from '../components/LeaderCard.jsx'
 import Loading from '../components/Loading.jsx'
+import Icon from '../components/Icon.jsx'
 
 // A district's id for the page (used for the "jump to" links)
 const slug = (s) => 'district-' + s.toLowerCase().replace(/[^a-z0-9ऀ-ॿ]+/g, '-').replace(/^-|-$/g, '')
@@ -95,7 +96,7 @@ export default function StateLeaders() {
               {districts.map((d) => (
                 <section key={d.key} id={slug(d.key)} className="scroll-mt-28 rounded-2xl border border-navy/10 bg-white p-5 shadow-sm sm:p-6">
                   <h3 className="mb-4 flex items-center gap-2 text-xl font-extrabold">
-                    <span className="flex h-9 w-9 items-center justify-center rounded-xl bg-mist text-lg" aria-hidden="true">📍</span>
+                    <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-mist text-brand" aria-hidden="true"><Icon name="pin" size={18} /></span>
                     {d.name}
                     <span className="text-base font-semibold text-navy/50">· {t('leaders.district', { defaultValue: 'District' })}</span>
                   </h3>

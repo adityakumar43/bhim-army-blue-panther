@@ -5,6 +5,7 @@ import { api } from '../lib/api.js'
 import { shrinkImage } from '../lib/shrinkImage.js'
 import { STATES, stateName } from '../data/states.js'
 import DistrictSelect from '../components/DistrictSelect.jsx'
+import Icon from '../components/Icon.jsx'
 
 const PHONE_OK = /^[6-9]\d{9}$/
 const EMAIL_OK = /^\S+@\S+\.\S+$/
@@ -12,11 +13,11 @@ const pad = (n) => String(n).padStart(2, '0')
 const onlyPhone = (v) => v.replace(/\D/g, '').replace(/^91(?=\d{10}$)/, '').slice(0, 10)
 
 // A step of the page: a white box with an emoji and a title
-function Box({ emoji, title, children }) {
+function Box({ icon, title, children }) {
     return (
         <section className="rounded-2xl border border-navy/10 bg-white p-5 shadow-sm sm:p-8">
             <h2 className="mb-5 flex items-center gap-3 text-lg font-extrabold">
-                <span className="flex h-10 w-10 items-center justify-center rounded-xl bg-mist text-xl" aria-hidden="true">{emoji}</span>
+                <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-mist text-brand" aria-hidden="true"><Icon name={icon} size={20} /></span>
                 {title}
             </h2>
             {children}
@@ -126,7 +127,7 @@ export default function UpdateDetails() {
 
             {step === 'find' && (
                 <form onSubmit={sendCode}>
-                    <Box emoji="🔍" title={t('upd.findTitle', { defaultValue: 'Find your membership' })}>
+                    <Box icon="search" title={t('upd.findTitle', { defaultValue: 'Find your membership' })}>
                         <label className="flex flex-col gap-1.5 font-semibold">{t('status.phone')}
                             {phoneBox(who.phone, setWhoField('phone', onlyPhone))}
                         </label>
@@ -158,7 +159,7 @@ export default function UpdateDetails() {
 
             {step === 'code' && (
                 <form onSubmit={checkCode}>
-                    <Box emoji="📧" title={t('upd.codeTitle', { defaultValue: 'Type the code from your email' })}>
+                    <Box icon="mail" title={t('upd.codeTitle', { defaultValue: 'Type the code from your email' })}>
                         <p className="text-navy/80">{t('upd.codeSent', { email: sentTo, defaultValue: 'We sent a 6-digit code to {{email}}. Check your inbox (and the spam folder).' })}</p>
                         <input inputMode="numeric" autoComplete="one-time-code" required maxLength="6" pattern="[0-9]{6}" value={code} autoFocus
                             onChange={(e) => setCode(e.target.value.replace(/\D/g, '').slice(0, 6))} aria-label={t('upd.codeTitle', { defaultValue: 'Type the code from your email' })}
@@ -177,7 +178,7 @@ export default function UpdateDetails() {
 
             {step === 'edit' && (
                 <form onSubmit={save} className="flex flex-col gap-5">
-                    <Box emoji="👤" title={form.name}>
+                    <Box icon="user" title={form.name}>
                         {form.memberNo && <p className="-mt-3 mb-4 text-sm font-semibold text-navy/60">🪪 {form.memberNo}</p>}
                         <div className="grid gap-4 sm:grid-cols-2">
                             <label className="flex flex-col gap-1.5 font-semibold">{t('join.phone')}
@@ -207,7 +208,7 @@ export default function UpdateDetails() {
                         <p className="mt-4 rounded-xl bg-mist px-3 py-2 text-xs text-navy/70">ℹ️ {t('upd.nameNote', { defaultValue: 'To change your name or date of birth, please contact us.' })}</p>
                     </Box>
 
-                    <Box emoji="📸" title={t('join.photo')}>
+                    <Box icon="camera" title={t('join.photo')}>
                         <div className="flex flex-wrap items-center gap-4">
                             {(preview || form.photo) && <img src={preview || form.photo} alt="" className="h-28 w-24 rounded-xl border border-navy/10 object-cover" />}
                             <label className="btn min-h-11 cursor-pointer gap-2 border-2 border-brand bg-white px-4 text-sm text-brand focus-within:ring-4 focus-within:ring-brand/20">
@@ -228,7 +229,7 @@ export default function UpdateDetails() {
 
             {step === 'done' && (
                 <section aria-live="polite" className="rounded-2xl border border-green-200 bg-white p-8 text-center shadow-sm">
-                    <div className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-green-100 text-3xl" aria-hidden="true">✅</div>
+                    <div className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-green-100 text-green-700" aria-hidden="true"><Icon name="check" size={32} /></div>
                     <h2 className="mb-2 text-2xl font-extrabold text-brand">{t('upd.doneTitle', { defaultValue: 'Your details are updated' })}</h2>
                     <p className="text-navy/80">{result?.changed?.length
                         ? t('upd.doneBody', { defaultValue: 'Thank you. Our team has been told about the change.' })

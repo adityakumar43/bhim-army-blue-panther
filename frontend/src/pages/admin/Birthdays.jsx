@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react'
 import { api } from '../../lib/api.js'
 import { Pill } from './ui.jsx'
+import Icon from '../../components/Icon.jsx'
 
 // Overview card: members with a birthday today and this week.
 // Emails go out by themselves each morning; members without email can be wished on WhatsApp from here.
@@ -32,7 +33,7 @@ export default function Birthdays() {
         <section className="card mt-6">
             <div className="mb-3 flex flex-wrap items-center justify-between gap-2">
                 <h2 className="flex items-center gap-2 text-lg font-extrabold">
-                    <span aria-hidden="true" className="flex h-9 w-9 items-center justify-center rounded-xl bg-pink-100 text-xl">🎂</span>
+                    <span aria-hidden="true" className="flex h-9 w-9 items-center justify-center rounded-xl bg-pink-100 text-pink-700"><Icon name="cake" size={20} /></span>
                     Birthdays
                 </h2>
                 <span className="text-xs text-navy/60">

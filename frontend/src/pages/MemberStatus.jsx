@@ -2,6 +2,7 @@ import { useMemo, useState } from 'react'
 import { Link } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
 import { api } from '../lib/api.js'
+import Icon from '../components/Icon.jsx'
 
 const ICONS = {
   search: 'M11 19a8 8 0 1 0 0-16 8 8 0 0 0 0 16zM21 21l-4.3-4.3',
@@ -120,7 +121,7 @@ export default function MemberStatus() {
       {!result && (
         <form onSubmit={submit} className="rounded-2xl border border-navy/10 bg-white p-5 shadow-sm sm:p-8">
           <h2 className="mb-5 flex items-center gap-3 text-lg font-extrabold">
-            <span className="flex h-10 w-10 items-center justify-center rounded-xl bg-mist text-xl" aria-hidden="true">🔍</span>
+            <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-mist text-brand" aria-hidden="true"><Icon name="search" size={20} /></span>
             {t('status.lookup', { defaultValue: 'Find your application' })}
           </h2>
 

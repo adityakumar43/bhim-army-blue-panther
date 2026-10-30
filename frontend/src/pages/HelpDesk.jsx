@@ -6,6 +6,7 @@ import { STATES, stateName } from '../data/states.js'
 import { CATEGORIES, STATUS, categoryOf } from '../data/helpdesk.js'
 import Consent from '../components/Consent.jsx'
 import DistrictSelect from '../components/DistrictSelect.jsx'
+import Icon from '../components/Icon.jsx'
 
 const EMPTY = { name: '', phone: '', email: '', stateCode: '', district: '', village: '', policeStation: '', category: '', incidentDate: '', description: '', website: '' }
 const PHONE_OK = /^[6-9]\d{9}$/
@@ -36,7 +37,7 @@ function Rights({ t }) {
   return (
     <details className="group mb-6 rounded-2xl border border-brand/15 bg-white shadow-sm open:shadow-md">
       <summary className="flex min-h-14 cursor-pointer list-none items-center gap-3 px-5 py-3 [&::-webkit-details-marker]:hidden">
-        <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-mist text-xl" aria-hidden="true">⚖️</span>
+        <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-mist text-brand" aria-hidden="true"><Icon name="scale" size={20} /></span>
         <span className="flex-1">
           <span className="block font-extrabold">{t('help.rightsTitle', { defaultValue: 'Know your rights' })}</span>
           <span className="block text-sm text-navy/60">{t('help.rightsIntro', { defaultValue: 'What the police and the law must do for you' })}</span>
@@ -309,7 +310,7 @@ export default function HelpDesk() {
       {/* After sending: the reference number, big and easy to keep */}
       {tab === 'report' && sent && (
         <section role="status" className="rounded-2xl border border-green-300 bg-green-50 p-6 text-center shadow-sm sm:p-8">
-          <p className="text-5xl" aria-hidden="true">✅</p>
+          <span className="mx-auto flex h-16 w-16 items-center justify-center rounded-full bg-green-100 text-green-700" aria-hidden="true"><Icon name="check" size={32} /></span>
           <h2 className="mt-2 text-2xl font-extrabold text-green-900">{t('help.thanks')}</h2>
           <p className="mt-2 text-navy/75">{t('help.yourRef')}</p>
           <div className="my-3 flex flex-wrap items-center justify-center gap-2">
@@ -465,7 +466,7 @@ export default function HelpDesk() {
         <>
           <form onSubmit={lookUp} className="rounded-2xl border border-navy/10 bg-white p-5 shadow-sm sm:p-7">
             <h2 className="mb-1 flex items-center gap-3 text-lg font-extrabold">
-              <span className="flex h-10 w-10 items-center justify-center rounded-xl bg-mist text-xl" aria-hidden="true">🔍</span>
+              <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-mist text-brand" aria-hidden="true"><Icon name="search" size={20} /></span>
               {t('help.trackTitle', { defaultValue: 'Check your complaint' })}
             </h2>
             <p className="mb-5 text-sm text-navy/60">{t('help.trackIntro', { defaultValue: 'Enter the reference number you got and the mobile number you gave.' })}</p>

@@ -4,6 +4,7 @@ import { Link, useSearchParams } from 'react-router-dom'
 import { api } from '../lib/api.js'
 import { shrinkImage } from '../lib/shrinkImage.js'
 import Consent from '../components/Consent.jsx'
+import Icon from '../components/Icon.jsx'
 import { STATES, stateName } from '../data/states.js'
 import { districtsOf, districtName } from '../data/districts.js'
 
@@ -43,12 +44,12 @@ function Field({ label, icon, prefix, required, ok, problem, hint, className = '
   )
 }
 
-function Section({ emoji, title, done, children }) {
+function Section({ icon, title, done, children }) {
   return (
     <fieldset className="rounded-2xl border border-navy/10 bg-white p-5 shadow-sm sm:p-6">
       <legend className="sr-only">{title}</legend>
       <h2 className="mb-4 flex items-center gap-2.5 text-lg font-extrabold" aria-hidden="true">
-        <span className="flex h-9 w-9 items-center justify-center rounded-xl bg-mist text-xl">{emoji}</span>
+        <span className="flex h-9 w-9 items-center justify-center rounded-xl bg-mist text-brand" aria-hidden="true"><Icon name={icon} size={19} /></span>
         <span className="flex-1">{title}</span>
         {done && <span className="flex h-6 w-6 items-center justify-center rounded-full bg-green-600 text-white"><Svg name="check" size={14} /></span>}
       </h2>
@@ -187,7 +188,7 @@ export default function Join() {
     return (
       <div className="mx-auto max-w-xl px-5 py-16">
         <div className="rounded-2xl border border-green-200 bg-white p-8 text-center shadow-sm">
-          <div className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-green-100 text-3xl" aria-hidden="true">✅</div>
+          <div className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-green-100 text-green-700" aria-hidden="true"><Icon name="check" size={32} /></div>
           <h1 className="mb-2 text-2xl font-extrabold text-brand sm:text-3xl">{t('join.doneTitle')}</h1>
           <p className="text-lg text-navy/80">{t('join.doneBody')}</p>
           <Link to="/membership/status" className="btn mt-6 gap-2 bg-mist text-brand hover:bg-brand hover:text-white">🔍 {t('status.link')}</Link>
@@ -198,11 +199,11 @@ export default function Join() {
 
   const input = 'input pl-11'
   const why = [
-    ['🪪', t('join.why1', { defaultValue: 'A membership card with your own member number' })],
-    ['📅', t('join.why2', { defaultValue: 'Invitations to meetings, rallies and events' })],
-    ['📢', t('join.why3', { defaultValue: 'News and campaigns first' })],
-    ['🤝', t('join.why4', { defaultValue: 'Be part of the movement in your state' })],
-    ['⚖️', t('join.why5', { defaultValue: 'Support when you face injustice' })],
+    ['idCard', t('join.why1', { defaultValue: 'A membership card with your own member number' })],
+    ['calendar', t('join.why2', { defaultValue: 'Invitations to meetings, rallies and events' })],
+    ['megaphone', t('join.why3', { defaultValue: 'News and campaigns first' })],
+    ['users', t('join.why4', { defaultValue: 'Be part of the movement in your state' })],
+    ['scale', t('join.why5', { defaultValue: 'Support when you face injustice' })],
   ]
   const photoButton = 'btn min-h-11 cursor-pointer gap-2 px-4 py-2 text-sm focus-within:ring-4 focus-within:ring-brand/20 sm:text-base'
 
@@ -240,7 +241,7 @@ export default function Join() {
           </div>
         </div>
 
-        <Section emoji="👤" title={t('join.secAbout', { defaultValue: 'About you' })} done={required[0] && required[1] && required[2] && required[3]}>
+        <Section icon="user" title={t('join.secAbout', { defaultValue: 'About you' })} done={required[0] && required[1] && required[2] && required[3]}>
           <div className="grid gap-4 sm:grid-cols-2">
             <Field label={t('join.name')} icon="user" required ok={!!form.name?.trim()} className="sm:col-span-2">
               <input type="text" required autoComplete="name" value={form.name || ''} onChange={set('name')} className={`${input} pr-10`} />
@@ -281,7 +282,7 @@ export default function Join() {
           </div>
         </Section>
 
-        <Section emoji="📍" title={t('join.secPlace', { defaultValue: 'Where you live' })} done={!!form.stateCode && !!district}>
+        <Section icon="pin" title={t('join.secPlace', { defaultValue: 'Where you live' })} done={!!form.stateCode && !!district}>
           <div className="grid gap-4 sm:grid-cols-2 sm:items-end">
 
             {/* State from a list, so each application reaches the right state team */}
@@ -316,7 +317,7 @@ export default function Join() {
           <p className="mt-3 flex gap-2 rounded-lg bg-mist/70 p-3 text-sm text-navy/70"><span aria-hidden="true">💡</span>{t('join.constituencyHint')}</p>
         </Section>
 
-        <Section emoji="📸" title={t('join.photo')} done={!!photo}>
+        <Section icon="camera" title={t('join.photo')} done={!!photo}>
           <div className="flex flex-wrap items-center gap-4">
             <div className="flex h-24 w-24 shrink-0 items-center justify-center overflow-hidden rounded-full border-4 border-mist bg-mist text-brand/50">
               {preview ? <img src={preview} alt="" className="h-full w-full object-cover" /> : <Svg name="user" size={40} />}
@@ -340,7 +341,7 @@ export default function Join() {
           </div>
         </Section>
 
-        <Section emoji="💬" title={t('join.message')}>
+        <Section icon="chat" title={t('join.message')}>
           <textarea rows="3" maxLength="500" value={form.message || ''} onChange={set('message')} className="input" />
           <p className="mt-1 text-right text-xs text-navy/50">{(form.message || '').length}/500</p>
         </Section>
@@ -370,9 +371,9 @@ export default function Join() {
             <img src="/logo.png" alt="" className="mb-3 h-16 w-16 object-contain" />
             <h2 className="text-xl font-extrabold">{t('join.whyTitle', { defaultValue: 'Why join?' })}</h2>
             <ul className="mt-4 flex flex-col gap-3">
-              {why.map(([emoji, text]) => (
-                <li key={emoji} className="flex items-start gap-3 text-sm leading-snug text-white/90">
-                  <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-white/10 text-base" aria-hidden="true">{emoji}</span>
+              {why.map(([icon, text]) => (
+                <li key={icon} className="flex items-start gap-3 text-sm leading-snug text-white/90">
+                  <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-white/10 text-gold" aria-hidden="true"><Icon name={icon} size={17} /></span>
                   <span className="pt-1.5">{text}</span>
                 </li>
               ))}

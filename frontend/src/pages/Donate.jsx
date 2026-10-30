@@ -2,6 +2,7 @@ import { useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
 import { api } from '../lib/api.js'
+import Icon from '../components/Icon.jsx'
 
 const PRESETS = [100, 500, 1000, 2500, 5000]
 const MIN = 10, MAX = 500000
@@ -130,7 +131,7 @@ export default function Donate() {
       <form onSubmit={pay} noValidate className="order-1 flex flex-col gap-5 rounded-2xl border border-navy/10 bg-white p-5 shadow-sm sm:p-8 lg:sticky lg:top-24 lg:order-2 lg:self-start">
         <fieldset>
           <legend className="mb-3 flex items-center gap-3 text-lg font-extrabold">
-            <span className="flex h-10 w-10 items-center justify-center rounded-xl bg-mist text-xl" aria-hidden="true">💰</span>
+            <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-mist text-brand" aria-hidden="true"><Icon name="rupee" size={20} /></span>
             {t('donate.amount')}
           </legend>
           <div className="grid grid-cols-3 gap-2 sm:grid-cols-5">
@@ -155,7 +156,7 @@ export default function Donate() {
 
         <div className="border-t border-navy/10 pt-5">
           <h2 className="mb-1 flex items-center gap-3 text-lg font-extrabold">
-            <span className="flex h-10 w-10 items-center justify-center rounded-xl bg-mist text-xl" aria-hidden="true">🧾</span>
+            <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-mist text-brand" aria-hidden="true"><Icon name="receipt" size={20} /></span>
             {t('donate.detailsTitle', { defaultValue: 'Details for your receipt' })}
           </h2>
           <p className="mb-4 text-sm text-navy/60">{t('donate.detailsHint', { defaultValue: 'You can leave these empty to donate without your name.' })}</p>

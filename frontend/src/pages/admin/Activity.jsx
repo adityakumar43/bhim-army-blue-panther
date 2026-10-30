@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react'
 import { api } from '../../lib/api.js'
+import Icon from '../../components/Icon.jsx'
 import { PageHeader, Notice, ListLoading } from './ui.jsx'
 import LoginHistory from './LoginHistory.jsx'
 
@@ -10,12 +11,12 @@ const SECTIONS = [
 ]
 const SECTION_NAME = Object.fromEntries(SECTIONS)
 
-// Emoji and colour for each kind of change
+// Icon and colours for each kind of change
 const LOOK = {
-  create: ['➕', 'bg-green-100'], update: ['✏️', 'bg-blue-100'], delete: ['🗑️', 'bg-red-100'],
-  approve: ['✅', 'bg-green-100'], reject: ['❌', 'bg-red-100'], email: ['📧', 'bg-blue-100'],
-  read: ['👁️', 'bg-mist'], role: ['🎭', 'bg-gold/30'], disable: ['🚫', 'bg-red-100'],
-  enable: ['▶️', 'bg-green-100'], security: ['🔐', 'bg-gold/30'],
+  create: ['plus', 'bg-green-100 text-green-700'], update: ['edit', 'bg-blue-100 text-blue-700'], delete: ['trash', 'bg-red-100 text-red-700'],
+  approve: ['check', 'bg-green-100 text-green-700'], reject: ['xCircle', 'bg-red-100 text-red-700'], email: ['mail', 'bg-blue-100 text-blue-700'],
+  read: ['eye', 'bg-mist text-brand'], role: ['users', 'bg-gold/30 text-navy'], disable: ['ban', 'bg-red-100 text-red-700'],
+  enable: ['play', 'bg-green-100 text-green-700'], security: ['lock', 'bg-gold/30 text-navy'],
 }
 
 const dayLabel = (d) => {
@@ -110,10 +111,10 @@ export default function Activity() {
                 <h2 className="mb-2 text-sm font-bold tracking-wide text-navy/60 uppercase">📅 {day.label}</h2>
                 <ul className="card divide-y divide-brand/10 p-0 sm:p-0">
                   {day.list.map((it) => {
-                    const [emoji, tile] = LOOK[it.action] || ['•', 'bg-mist']
+                    const [icon, tile] = LOOK[it.action] || ['activity', 'bg-mist text-brand']
                     return (
                       <li key={it._id} className="flex items-start gap-3 px-4 py-3">
-                        <span aria-hidden="true" className={`flex h-9 w-9 shrink-0 items-center justify-center rounded-xl ${tile}`}>{emoji}</span>
+                        <span aria-hidden="true" className={`flex h-9 w-9 shrink-0 items-center justify-center rounded-xl ${tile}`}><Icon name={icon} size={18} /></span>
                         <div className="min-w-0 flex-1">
                           <p className="text-navy/90">
                             <b>{it.adminName || 'An admin'}</b> {it.text}

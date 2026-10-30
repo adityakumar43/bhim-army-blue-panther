@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react'
 import { api } from '../../lib/api.js'
+import Icon from '../../components/Icon.jsx'
 import { categoryOf } from '../../data/helpdesk.js'
 import { skillOf } from '../../data/volunteers.js'
 
@@ -10,10 +11,10 @@ const monthName = (key, long) => {
   return long ? `${MONTHS[m - 1]} ${y}` : MONTHS[m - 1]
 }
 
-export function Tile({ emoji, tint, value, label }) {
+export function Tile({ icon, tint, value, label }) {
   return (
     <div className="flex items-center gap-3 rounded-2xl border border-brand/10 bg-white p-4 shadow-sm">
-      <span aria-hidden="true" className={`flex h-11 w-11 shrink-0 items-center justify-center rounded-xl text-xl ${tint}`}>{emoji}</span>
+      <span aria-hidden="true" className={`flex h-11 w-11 shrink-0 items-center justify-center rounded-xl ${tint}`}><Icon name={icon} size={22} /></span>
       <div className="min-w-0">
         <div className="text-2xl leading-none font-extrabold text-navy">{value}</div>
         <div className="mt-1 text-sm font-semibold text-navy/65">{label}</div>
@@ -113,16 +114,16 @@ export default function Stats() {
     <section className="mt-8">
       <h2 className="mb-3 text-lg font-extrabold">📊 Numbers at a glance</h2>
       <div className="mb-4 grid gap-3 [grid-template-columns:repeat(auto-fill,minmax(12rem,1fr))]">
-        {m && <Tile emoji="👥" tint="bg-blue-100" value={n(m.approved)} label="Approved members" />}
-        {m && <Tile emoji="🆕" tint="bg-amber-100" value={n(m.thisMonth)} label="Applications this month" />}
-        {d && <Tile emoji="💰" tint="bg-green-100" value={rupees(d.total)} label={`Donations received (${d.count})`} />}
-        {d && <Tile emoji="📅" tint="bg-rose-100" value={rupees(d.thisMonth)} label="Donations this month" />}
-        {h && <Tile emoji="🆘" tint="bg-red-100" value={n(h.open)} label="Help desk cases open" />}
-        {h && <Tile emoji="✅" tint="bg-green-100" value={n(h.solved)} label="Help desk cases solved" />}
-        {v && <Tile emoji="🙋" tint="bg-teal-100" value={n(v.total)} label={`Volunteers (${n(v.active)} active)`} />}
-        {c && <Tile emoji="📜" tint="bg-indigo-100" value={n(c.thisYear)} label="Certificates & letters this year" />}
-        {e && <Tile emoji="🎟️" tint="bg-purple-100" value={n(e.coming)} label={`People coming to ${n(e.upcoming)} upcoming event${e.upcoming === 1 ? '' : 's'}`} />}
-        {dl && <Tile emoji="📥" tint="bg-sky-100" value={n(dl.count)} label={`Downloads of ${n(dl.files)} file${dl.files === 1 ? '' : 's'}`} />}
+        {m && <Tile icon="users" tint="bg-blue-100 text-blue-700" value={n(m.approved)} label="Approved members" />}
+        {m && <Tile icon="userPlus" tint="bg-amber-100 text-amber-700" value={n(m.thisMonth)} label="Applications this month" />}
+        {d && <Tile icon="rupee" tint="bg-green-100 text-green-700" value={rupees(d.total)} label={`Donations received (${d.count})`} />}
+        {d && <Tile icon="calendar" tint="bg-rose-100 text-rose-700" value={rupees(d.thisMonth)} label="Donations this month" />}
+        {h && <Tile icon="help" tint="bg-red-100 text-red-700" value={n(h.open)} label="Help desk cases open" />}
+        {h && <Tile icon="check" tint="bg-green-100 text-green-700" value={n(h.solved)} label="Help desk cases solved" />}
+        {v && <Tile icon="hand" tint="bg-teal-100 text-teal-700" value={n(v.total)} label={`Volunteers (${n(v.active)} active)`} />}
+        {c && <Tile icon="award" tint="bg-indigo-100 text-indigo-700" value={n(c.thisYear)} label="Certificates & letters this year" />}
+        {e && <Tile icon="ticket" tint="bg-purple-100 text-purple-700" value={n(e.coming)} label={`People coming to ${n(e.upcoming)} upcoming event${e.upcoming === 1 ? '' : 's'}`} />}
+        {dl && <Tile icon="download" tint="bg-sky-100 text-sky-700" value={n(dl.count)} label={`Downloads of ${n(dl.files)} file${dl.files === 1 ? '' : 's'}`} />}
       </div>
       <div className="grid gap-4 xl:grid-cols-2">
         {m && <MonthBars title="📈 Membership applications per month" data={m.perMonth} />}
