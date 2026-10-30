@@ -32,6 +32,92 @@ const NAV = [
   { to: '/admin/security', label: 'Security', icon: 'shield' },
 ]
 
+// On phones these sit in the bar at the bottom (the first 4 a person can open); the rest are under "More"
+const PHONE_TABS = ['/admin', '/admin/members', '/admin/helpdesk', '/admin/events', '/admin/messages', '/admin/news', '/admin/team', '/admin/security']
+const SHORT = { '/admin': 'Home', '/admin/helpdesk': 'Help Desk', '/admin/members': 'Members', '/admin/team': 'Team' }
+
+// The bar at the bottom of the screen on phones, like an app
+function PhoneTabs({ tabs, more, summary, moreOpen, setMoreOpen }) {
+  const moreCount = more.reduce((s, n) => s + (n.badge ? summary[n.badge] || 0 : 0), 0)
+  const tab = 'relative flex min-h-14 flex-1 flex-col items-center justify-center gap-0.5 text-[11px] font-bold transition'
+  const dot = (n) => n > 0 && <span className="absolute top-1.5 left-1/2 ml-1.5 min-w-5 rounded-full bg-red-500 px-1 text-center text-[10px] leading-5 text-white ring-2 ring-white">{n > 99 ? '99+' : n}</span>
+  return (
+    <nav aria-label="Admin" className="fixed inset-x-0 bottom-0 z-40 border-t border-navy/10 bg-white/95 pb-[env(safe-area-inset-bottom)] shadow-[0_-4px_20px_rgba(11,31,77,0.08)] backdrop-blur lg:hidden">
+      <ul className="mx-auto flex max-w-xl">
+        {tabs.map((n) => (
+          <li key={n.to} className="flex flex-1">
+            <NavLink to={n.to} end={n.end} onClick={() => setMoreOpen(false)}
+              className={({ isActive }) => `${tab} ${isActive && !moreOpen ? 'text-brand' : 'text-navy/55'}`}>
+              {({ isActive }) => (
+                <>
+                  <span className={`flex h-7 w-12 items-center justify-center rounded-full transition ${isActive && !moreOpen ? 'bg-brand/12' : ''}`}><Icon name={n.icon} size={20} /></span>
+                  <span className="max-w-full truncate px-0.5">{SHORT[n.to] || n.label}</span>
+                  {dot(n.badge ? summary[n.badge] : 0)}
+                </>
+              )}
+            </NavLink>
+          </li>
+        ))}
+        <li className="flex flex-1">
+          <button type="button" onClick={() => setMoreOpen(!moreOpen)} aria-expanded={moreOpen} className={`${tab} ${moreOpen ? 'text-brand' : 'text-navy/55'}`}>
+            <span className={`flex h-7 w-12 items-center justify-center rounded-full transition ${moreOpen ? 'bg-brand/12' : ''}`}><Icon name={moreOpen ? 'close' : 'menu'} size={20} /></span>
+            <span>More</span>
+            {!moreOpen && dot(moreCount)}
+          </button>
+        </li>
+      </ul>
+    </nav>
+  )
+}
+
+// "More" on phones: every other page as a tile, plus who is logged in, View site and Log out
+function MoreSheet({ me, items, summary, onClose, logout }) {
+  useEffect(() => {
+    const key = (e) => e.key === 'Escape' && onClose()
+    document.addEventListener('keydown', key)
+    document.body.style.overflow = 'hidden'
+    return () => { document.removeEventListener('keydown', key); document.body.style.overflow = '' }
+  }, [])
+  return (
+    <div className="fixed inset-0 z-30 lg:hidden" role="dialog" aria-modal="true" aria-label="All admin pages">
+      <button type="button" aria-label="Close" onClick={onClose} className="absolute inset-0 bg-navy/40 backdrop-blur-[2px]" />
+      <div className="absolute inset-x-0 bottom-0 max-h-[80vh] overflow-y-auto overscroll-contain rounded-t-3xl bg-[#F3F6FC] px-4 pt-3 pb-[calc(4.5rem+env(safe-area-inset-bottom))] shadow-2xl">
+        <span aria-hidden="true" className="mx-auto mb-3 block h-1.5 w-10 rounded-full bg-navy/15" />
+        <div className="mb-4 flex items-center gap-3 rounded-2xl bg-white p-3 shadow-sm">
+          <span aria-hidden="true" className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full bg-brand text-lg font-extrabold text-white ring-2 ring-gold/70">{me.name?.[0]?.toUpperCase()}</span>
+          <span className="min-w-0 flex-1 leading-tight">
+            <b className="block truncate">{me.name}</b>
+            <span className="block truncate text-xs text-navy/60">{ROLE_INFO[me.role]?.label}{me.district ? ` · ${me.district}` : ''}{me.state ? ` · ${stateByCode(me.state)?.en}` : ''}</span>
+          </span>
+          <button onClick={logout} className="flex h-10 shrink-0 items-center gap-1.5 rounded-xl border border-red-200 px-3 text-sm font-bold text-red-700 hover:bg-red-50">
+            <Icon name="logout" size={16} />Log out
+          </button>
+        </div>
+        <ul className="grid grid-cols-3 gap-2 sm:grid-cols-4">
+          {items.map((n) => {
+            const count = n.badge ? summary[n.badge] : 0
+            return (
+              <li key={n.to}>
+                <NavLink to={n.to} end={n.end} onClick={onClose}
+                  className={({ isActive }) => `relative flex h-full min-h-22 flex-col items-center justify-center gap-1.5 rounded-2xl p-2 text-center text-xs leading-tight font-bold shadow-sm transition ${isActive ? 'bg-brand text-white' : 'bg-white text-navy/80 active:bg-mist'}`}>
+                  <Icon name={n.icon} size={22} />
+                  <span>{n.label}</span>
+                  {count > 0 && <span className="absolute top-1.5 right-1.5 min-w-5 rounded-full bg-red-500 px-1 text-center text-[10px] leading-5 text-white">{count}</span>}
+                </NavLink>
+              </li>
+            )
+          })}
+          <li>
+            <Link to="/" className="flex h-full min-h-22 flex-col items-center justify-center gap-1.5 rounded-2xl bg-white p-2 text-center text-xs font-bold text-navy/80 shadow-sm">
+              <Icon name="external" size={22} /><span>View site</span>
+            </Link>
+          </li>
+        </ul>
+      </div>
+    </div>
+  )
+}
+
 // Shown while the admin panel finds out who is logged in: the panel's own shape in grey,
 // so it feels like the page is already there and only the details are coming
 function AdminLoading() {
@@ -85,6 +171,8 @@ export default function AdminLayout() {
   const navigate = useNavigate()
   const { pathname } = useLocation()
   const [me, setMe] = useState(null)
+  const [moreOpen, setMoreOpen] = useState(false)
+  useEffect(() => setMoreOpen(false), [pathname])
   const [summary, setSummary] = useState({ members: 0, messages: 0, donations: 0, helpdesk: 0, volunteers: 0 })
 
   const refresh = () => api.get('/admin/summary').then(setSummary).catch(() => { })
@@ -126,6 +214,9 @@ export default function AdminLayout() {
 
   if (!me) return <AdminLoading />
   const items = NAV.filter((n) => (locked ? n.to === '/admin/security' : !n.perm || [].concat(n.perm).some((p) => me.permissions.includes(p))))
+  // Phones: up to 4 main pages in the bottom bar; the rest, and Log out, are under "More"
+  const tabs = items.length <= 4 ? items : PHONE_TABS.map((to) => items.find((n) => n.to === to)).filter(Boolean).slice(0, 4)
+  const more = items.filter((n) => !tabs.includes(n))
 
   return (
     <div className="min-h-screen bg-[#F3F6FC]">
@@ -145,22 +236,22 @@ export default function AdminLayout() {
               <span className="block truncate text-xs text-white/60">{ROLE_INFO[me.role]?.label}{me.district ? ` · ${me.district}` : ''}{me.state ? ` · ${stateByCode(me.state)?.en}` : ''}</span>
             </span>
           </div>
-          <Link to="/" title="View site" className="flex h-9 items-center gap-1.5 rounded-lg px-2.5 font-semibold text-white/85 hover:bg-white/10 hover:text-white">
+          <Link to="/" title="View site" className="flex h-9 items-center gap-1.5 rounded-lg px-2.5 max-lg:hidden font-semibold text-white/85 hover:bg-white/10 hover:text-white">
             <Icon name="external" size={16} /><span className="hidden sm:inline">View site</span>
           </Link>
-          <button onClick={logout} title="Log out" className="flex h-9 items-center gap-1.5 rounded-lg border border-white/25 px-3 font-semibold hover:border-red-300 hover:bg-red-500/15">
+          <button onClick={logout} title="Log out" className="hidden h-9 lg:flex items-center gap-1.5 rounded-lg border border-white/25 px-3 font-semibold hover:border-red-300 hover:bg-red-500/15">
             <Icon name="logout" size={16} /><span className="hidden sm:inline">Log out</span>
           </button>
         </div>
       </header>
 
       <div className="mx-auto flex max-w-350 flex-col lg:flex-row">
-        <nav aria-label="Admin" className="border-b border-brand/15 bg-white lg:min-h-[calc(100vh-3.5rem)] lg:w-60 lg:shrink-0 lg:border-r lg:border-b-0">
-          <ul className="admin-nav flex gap-1 overflow-x-auto p-2 lg:sticky lg:top-14 lg:max-h-[calc(100vh-3.5rem)] lg:flex-col lg:gap-0.5 lg:overflow-x-visible lg:overflow-y-auto lg:overscroll-contain lg:p-3">
+        <nav aria-label="Admin pages" className="hidden border-r border-brand/15 bg-white lg:block lg:min-h-[calc(100vh-3.5rem)] lg:w-60 lg:shrink-0">
+          <ul className="admin-nav sticky top-14 flex max-h-[calc(100vh-3.5rem)] flex-col gap-0.5 overflow-y-auto overscroll-contain p-3">
             {items.map((n) => {
               const count = n.badge ? summary[n.badge] : 0
               return (
-                <li key={n.to} className="shrink-0">
+                <li key={n.to}>
                   <NavLink to={n.to} end={n.end}
                     className={({ isActive }) =>
                       `group flex min-h-10 items-center gap-3 rounded-xl px-3 text-[15px] font-semibold whitespace-nowrap transition ${isActive ? 'bg-brand text-white shadow-md shadow-brand/25' : 'text-navy/75 hover:bg-mist hover:text-brand'}`}>
@@ -176,10 +267,13 @@ export default function AdminLayout() {
           </ul>
         </nav>
 
-        <main className="admin-main min-w-0 flex-1 p-4 sm:p-6 lg:px-8">
+        <main className="admin-main min-w-0 flex-1 p-4 pb-[calc(5.5rem+env(safe-area-inset-bottom))] sm:p-6 sm:pb-[calc(6rem+env(safe-area-inset-bottom))] lg:px-8 lg:pb-6">
           {(!locked || pathname === '/admin/security') && <Outlet context={{ me, summary, refresh, refreshMe }} />}
         </main>
       </div>
+
+      {moreOpen && <MoreSheet me={me} items={more} summary={summary} onClose={() => setMoreOpen(false)} logout={logout} />}
+      <PhoneTabs tabs={tabs} more={more} summary={summary} moreOpen={moreOpen} setMoreOpen={setMoreOpen} />
     </div>
   )
 }
