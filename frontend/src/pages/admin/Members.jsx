@@ -4,6 +4,7 @@ import { api } from '../../lib/api.js'
 import { portrait } from '../../lib/img.js'
 import { PageHeader, Notice, ListLoading, Pill } from './ui.jsx'
 import Icon from '../../components/Icon.jsx'
+import BoxIcon from '../../components/BoxIcon.jsx'
 import { stateByCode } from '../../data/states.js'
 
 const FILTERS = [['pending', '⏳ Pending'], ['approved', '✅ Approved'], ['rejected', '❌ Rejected'], ['cancelled', '🚫 Ended']]
@@ -273,7 +274,7 @@ export default function Members() {
                 className="mt-1 h-5 w-5 shrink-0 cursor-pointer accent-brand" />}
               {m.photo?.url
                 ? <img src={portrait(m.photo.url, 120)} alt="" className="h-20 w-16 shrink-0 object-cover shadow-sm" />
-                : <span aria-hidden="true" className="flex h-20 w-16 shrink-0 items-center justify-center rounded-lg bg-mist text-brand/50"><Icon name="user" size={28} /></span>}
+                : <span aria-hidden="true" className="flex h-20 w-16 shrink-0 items-center justify-center rounded-lg bg-mist text-brand/50"><BoxIcon name="user" size={28} /></span>}
               <div className="min-w-0 flex-1">
                 <div className="flex flex-wrap items-start justify-between gap-2">
                   <div className="text-lg leading-tight font-bold">{m.name}</div>

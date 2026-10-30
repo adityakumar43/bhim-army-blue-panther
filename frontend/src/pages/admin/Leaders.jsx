@@ -5,6 +5,7 @@ import { portrait } from '../../lib/img.js'
 import { STATES, stateByCode } from '../../data/states.js'
 import { PageHeader, Notice, ListLoading, Pill } from './ui.jsx'
 import Icon from '../../components/Icon.jsx'
+import BoxIcon from '../../components/BoxIcon.jsx'
 
 const EMPTY = { level: 'national', state: '', nameHi: '', nameEn: '', roleHi: '', roleEn: '', areaHi: '', areaEn: '', phone: '', order: '' }
 const TEXTS = [
@@ -209,7 +210,7 @@ export default function Leaders() {
             <div className="flex items-start gap-3">
               {l.photo
                 ? <img src={portrait(l.photo, 120)} alt="" className="h-20 w-15 shrink-0 object-cover shadow-sm" />
-                : <span className="flex h-20 w-15 shrink-0 items-center justify-center rounded-lg bg-mist text-brand/50" aria-hidden="true"><Icon name="user" size={28} /></span>}
+                : <span className="flex h-20 w-15 shrink-0 items-center justify-center rounded-lg bg-mist text-brand/50" aria-hidden="true"><BoxIcon name="user" size={28} /></span>}
               <div className="min-w-0 flex-1">
                 <div className="line-clamp-2 leading-tight font-bold">{l.nameEn || l.nameHi}</div>
                 <div className="truncate text-sm text-navy/70">{l.roleEn || l.roleHi}</div>

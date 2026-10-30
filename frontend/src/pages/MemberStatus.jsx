@@ -2,7 +2,7 @@ import { useMemo, useState } from 'react'
 import { Link } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
 import { api } from '../lib/api.js'
-import Icon from '../components/Icon.jsx'
+import Icon from '../components/BoxIcon.jsx' // two-tone icons for the coloured boxes
 
 const ICONS = {
   search: 'M11 19a8 8 0 1 0 0-16 8 8 0 0 0 0 16zM21 21l-4.3-4.3',

@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react'
 import { api } from '../../lib/api.js'
-import Icon from '../../components/Icon.jsx'
+import Icon from '../../components/BoxIcon.jsx' // two-tone icons for the coloured boxes
 import { PageHeader, Notice, ListLoading } from './ui.jsx'
 import LoginHistory from './LoginHistory.jsx'
 

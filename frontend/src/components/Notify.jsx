@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import Icon from './Icon.jsx'
+import BoxIcon from './BoxIcon.jsx'
 import { pushState, turnOn, turnOff, isInstalledApp, isIphone } from '../lib/push.js'
 
 // Turns phone notifications on or off for this device, and says what happened
@@ -87,7 +88,7 @@ export function NotifyPrompt() {
     return (
         <div role="dialog" aria-label={t('push.title')} className="fixed inset-x-3 bottom-3 z-50 mx-auto max-w-md rounded-2xl border border-white/10 bg-navy p-4 text-white shadow-2xl sm:bottom-5">
             <div className="flex items-start gap-3">
-                <span className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-gold text-navy" aria-hidden="true"><Icon name="bell" size={24} /></span>
+                <span className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-gold text-navy" aria-hidden="true"><BoxIcon name="bell" size={24} /></span>
                 <div className="min-w-0 flex-1">
                     <p className="leading-tight font-extrabold">{t('push.title')}</p>
                     <p className="text-sm text-white/75">{note === 'done' ? `✅ ${t('push.done')}` : t('push.text')}</p>

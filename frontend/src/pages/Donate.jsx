@@ -2,7 +2,7 @@ import { useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
 import { api } from '../lib/api.js'
-import Icon from '../components/Icon.jsx'
+import Icon from '../components/BoxIcon.jsx' // two-tone icons for the coloured boxes
 
 const PRESETS = [100, 500, 1000, 2500, 5000]
 const MIN = 10, MAX = 500000

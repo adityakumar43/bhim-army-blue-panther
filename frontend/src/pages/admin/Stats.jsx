@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react'
 import { api } from '../../lib/api.js'
-import Icon from '../../components/Icon.jsx'
+import Icon from '../../components/BoxIcon.jsx' // two-tone icons for the coloured boxes
 import { categoryOf } from '../../data/helpdesk.js'
 import { skillOf } from '../../data/volunteers.js'
 

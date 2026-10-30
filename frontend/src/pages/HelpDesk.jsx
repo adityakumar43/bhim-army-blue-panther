@@ -6,7 +6,7 @@ import { STATES, stateName } from '../data/states.js'
 import { CATEGORIES, STATUS, categoryOf } from '../data/helpdesk.js'
 import Consent from '../components/Consent.jsx'
 import DistrictSelect from '../components/DistrictSelect.jsx'
-import Icon from '../components/Icon.jsx'
+import Icon from '../components/BoxIcon.jsx' // two-tone icons for the coloured boxes
 
 const EMPTY = { name: '', phone: '', email: '', stateCode: '', district: '', village: '', policeStation: '', category: '', incidentDate: '', description: '', website: '' }
 const PHONE_OK = /^[6-9]\d{9}$/

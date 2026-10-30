@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react'
 import { api } from '../../lib/api.js'
 import { Pill } from './ui.jsx'
-import Icon from '../../components/Icon.jsx'
+import Icon from '../../components/BoxIcon.jsx' // two-tone icons for the coloured boxes
 
 // Overview card: members with a birthday today and this week.
 // Emails go out by themselves each morning; members without email can be wished on WhatsApp from here.

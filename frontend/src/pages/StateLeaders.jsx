@@ -8,7 +8,7 @@ import { Band } from '../components/PageBand.jsx'
 import { useSeo } from '../components/Seo.jsx'
 import LeaderCard from '../components/LeaderCard.jsx'
 import Loading from '../components/Loading.jsx'
-import Icon from '../components/Icon.jsx'
+import Icon from '../components/BoxIcon.jsx' // two-tone icons for the coloured boxes
 
 // A district's id for the page (used for the "jump to" links)
 const slug = (s) => 'district-' + s.toLowerCase().replace(/[^a-z0-9ऀ-ॿ]+/g, '-').replace(/^-|-$/g, '')

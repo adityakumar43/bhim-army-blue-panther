@@ -3,7 +3,7 @@ import { Link } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
 import { api } from '../lib/api.js'
 import Consent from '../components/Consent.jsx'
-import Icon from '../components/Icon.jsx'
+import Icon from '../components/BoxIcon.jsx' // two-tone icons for the coloured boxes
 
 const PHONE_OK = /^[6-9]\d{9}$/
 const EMAIL_OK = /^\S+@\S+\.\S+$/

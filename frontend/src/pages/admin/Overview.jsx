@@ -2,6 +2,7 @@ import { useState } from 'react'
 import { Link, useOutletContext } from 'react-router-dom'
 import { ROLE_INFO } from '../../lib/roles.js'
 import Icon from '../../components/Icon.jsx'
+import BoxIcon from '../../components/BoxIcon.jsx'
 import Stats from './Stats.jsx'
 import Birthdays from './Birthdays.jsx'
 
@@ -86,7 +87,7 @@ export default function Overview() {
               className={`group flex flex-col gap-2 rounded-2xl border p-3 shadow-sm max-md:last:odd:col-span-2 transition hover:-translate-y-0.5 hover:shadow-md md:flex-row md:items-center md:gap-4 md:p-4
                 ${n > 0 ? 'border-brand/15 bg-white hover:border-brand/30' : 'border-navy/5 bg-white/60 hover:bg-white'}`}>
               <span className="flex items-center justify-between gap-2 md:contents">
-                <span aria-hidden="true" className={`flex h-10 w-10 shrink-0 items-center justify-center rounded-xl md:h-12 md:w-12 ${tile} ${n > 0 ? '' : 'opacity-60 grayscale'}`}><Icon name={icon} size={22} className="md:h-6 md:w-6" /></span>
+                <span aria-hidden="true" className={`flex h-10 w-10 shrink-0 items-center justify-center rounded-xl md:h-12 md:w-12 ${tile} ${n > 0 ? '' : 'opacity-60 grayscale'}`}><BoxIcon name={icon} size={22} className="md:h-7 md:w-7" /></span>
                 {n > 0 && <span className="rounded-full bg-red-500 px-2 py-0.5 text-[11px] font-bold text-white md:hidden">New</span>}
               </span>
               <span className="min-w-0 flex-1">
@@ -109,7 +110,7 @@ export default function Overview() {
             {actions.map(([perm, to, label, icon]) => (
               <Link key={to} to={to} className="group flex items-center gap-3 rounded-2xl border border-brand/10 bg-white p-3 shadow-sm transition hover:-translate-y-0.5 hover:border-brand hover:shadow-md">
                 <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-mist text-brand transition group-hover:bg-brand group-hover:text-white">
-                  <Icon name={icon} size={20} />
+                  <BoxIcon name={icon} size={20} />
                 </span>
                 <span className="text-sm leading-tight font-bold">{label}</span>
               </Link>

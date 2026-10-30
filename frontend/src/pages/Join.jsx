@@ -4,7 +4,7 @@ import { Link, useSearchParams } from 'react-router-dom'
 import { api } from '../lib/api.js'
 import { shrinkImage } from '../lib/shrinkImage.js'
 import Consent from '../components/Consent.jsx'
-import Icon from '../components/Icon.jsx'
+import Icon from '../components/BoxIcon.jsx' // two-tone icons for the coloured boxes
 import { STATES, stateName } from '../data/states.js'
 import { districtsOf, districtName } from '../data/districts.js'
 

@@ -3,6 +3,7 @@ import { Link, NavLink, Outlet, useLocation, useNavigate } from 'react-router-do
 import { api } from '../../lib/api.js'
 import { ROLE_INFO } from '../../lib/roles.js'
 import Icon from '../../components/Icon.jsx'
+import BoxIcon from '../../components/BoxIcon.jsx'
 import { stateByCode } from '../../data/states.js'
 
 
@@ -32,6 +33,9 @@ const NAV = [
   { to: '/admin/security', label: 'Security', icon: 'shield' },
 ]
 
+// Menu icons: thin when not chosen, two-tone for the page you are on
+const NavIcon = ({ name, on, size }) => (on ? <BoxIcon name={name} size={size - 1} className="shrink-0" /> : <Icon name={name} size={size} className="shrink-0" />)
+
 // On phones these sit in the bar at the bottom (the first 4 a person can open); the rest are under "More"
 const PHONE_TABS = ['/admin', '/admin/members', '/admin/helpdesk', '/admin/events', '/admin/messages', '/admin/news', '/admin/team', '/admin/security']
 const SHORT = { '/admin': 'Home', '/admin/helpdesk': 'Help Desk', '/admin/members': 'Members', '/admin/team': 'Team' }
@@ -50,7 +54,7 @@ function PhoneTabs({ tabs, more, summary, moreOpen, setMoreOpen }) {
               className={({ isActive }) => `${tab} ${isActive && !moreOpen ? 'text-brand' : 'text-navy/55'}`}>
               {({ isActive }) => (
                 <>
-                  <span className={`flex h-7 w-12 items-center justify-center rounded-full transition ${isActive && !moreOpen ? 'bg-brand/12' : ''}`}><Icon name={n.icon} size={20} /></span>
+                  <span className={`flex h-7 w-12 items-center justify-center rounded-full transition ${isActive && !moreOpen ? 'bg-brand/12' : ''}`}><NavIcon name={n.icon} on={isActive && !moreOpen} size={20} /></span>
                   <span className="max-w-full truncate px-0.5">{SHORT[n.to] || n.label}</span>
                   {dot(n.badge ? summary[n.badge] : 0)}
                 </>
@@ -100,9 +104,13 @@ function MoreSheet({ me, items, summary, onClose, logout }) {
               <li key={n.to}>
                 <NavLink to={n.to} end={n.end} onClick={onClose}
                   className={({ isActive }) => `relative flex h-full min-h-22 flex-col items-center justify-center gap-1.5 rounded-2xl p-2 text-center text-xs leading-tight font-bold shadow-sm transition ${isActive ? 'bg-brand text-white' : 'bg-white text-navy/80 active:bg-mist'}`}>
-                  <Icon name={n.icon} size={22} />
-                  <span>{n.label}</span>
-                  {count > 0 && <span className="absolute top-1.5 right-1.5 min-w-5 rounded-full bg-red-500 px-1 text-center text-[10px] leading-5 text-white">{count}</span>}
+                  {({ isActive }) => (
+                    <>
+                      <NavIcon name={n.icon} on={isActive} size={22} />
+                      <span>{n.label}</span>
+                      {count > 0 && <span className="absolute top-1.5 right-1.5 min-w-5 rounded-full bg-red-500 px-1 text-center text-[10px] leading-5 text-white">{count}</span>}
+                    </>
+                  )}
                 </NavLink>
               </li>
             )
@@ -258,10 +266,14 @@ export default function AdminLayout() {
                   <NavLink to={n.to} end={n.end}
                     className={({ isActive }) =>
                       `group flex min-h-10 items-center gap-3 rounded-xl px-3 text-[15px] font-semibold whitespace-nowrap transition ${isActive ? 'bg-brand text-white shadow-md shadow-brand/25' : 'text-navy/75 hover:bg-mist hover:text-brand'}`}>
-                    <Icon name={n.icon} size={18} className="shrink-0" />
-                    <span className="flex-1">{n.label}</span>
-                    {count > 0 && (
-                      <span className="min-w-6 rounded-full bg-gold px-1.5 text-center text-xs leading-6 font-extrabold text-navy">{count}</span>
+                    {({ isActive }) => (
+                      <>
+                        <NavIcon name={n.icon} on={isActive} size={18} />
+                        <span className="flex-1">{n.label}</span>
+                        {count > 0 && (
+                          <span className="min-w-6 rounded-full bg-gold px-1.5 text-center text-xs leading-6 font-extrabold text-navy">{count}</span>
+                        )}
+                      </>
                     )}
                   </NavLink>
                 </li>

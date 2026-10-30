@@ -5,7 +5,7 @@ import { api } from '../lib/api.js'
 import { shrinkImage } from '../lib/shrinkImage.js'
 import { STATES, stateName } from '../data/states.js'
 import DistrictSelect from '../components/DistrictSelect.jsx'
-import Icon from '../components/Icon.jsx'
+import Icon from '../components/BoxIcon.jsx' // two-tone icons for the coloured boxes
 
 const PHONE_OK = /^[6-9]\d{9}$/
 const EMAIL_OK = /^\S+@\S+\.\S+$/
