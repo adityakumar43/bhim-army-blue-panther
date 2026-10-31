@@ -7,6 +7,8 @@ import { stateNameEn, codeFromName, memberInState, memberStateFilter } from '../
 import { canonicalDistrict } from '../config/districts.js'
 import { notifyAdmin } from '../services/mailer.js'
 import QRCode from 'qrcode'
+import Checkin from '../models/Checkin.js'
+import { Event } from '../models/Content.js'
 import { upload } from '../middleware/upload.js'
 import { uploadImage, deleteImage } from '../config/cloudinary.js'
 import { issueCard, sendWelcome, emailCard } from '../services/members.js'
@@ -153,6 +155,41 @@ router.post('/status', statusLimiter, async (req, res) => {
   })
 })
 
+// How many events each member came to (checked in at the gate), and the last one
+async function withAttendance(list) {
+  const ids = list.filter((m) => m.status === 'approved').map((m) => m._id)
+  if (!ids.length) return list
+  const rows = await Checkin.aggregate([
+    { $match: { member: { $in: ids } } },
+    { $sort: { createdAt: -1 } },
+    { $group: { _id: '$member', n: { $sum: 1 }, lastEvent: { $first: '$event' }, lastAt: { $first: '$createdAt' } } },
+  ])
+  const events = await Event.find({ _id: { $in: rows.map((r) => r.lastEvent) } }).select('titleEn titleHi date').lean()
+  const byMember = new Map(rows.map((r) => [String(r._id), r]))
+  return list.map((m) => {
+    const r = byMember.get(String(m._id))
+    if (!r) return { ...m, attended: 0 }
+    const ev = events.find((e) => String(e._id) === String(r.lastEvent))
+    return { ...m, attended: r.n, lastEvent: ev ? { title: ev.titleEn || ev.titleHi, date: ev.date } : { date: r.lastAt } }
+  })
+}
+
+// Every event one member came to, newest first
+router.get('/:id/attendance', protect, requireAny('members', 'district'), async (req, res) => {
+  const filter = { _id: req.params.id }
+  const scope = stateScope(req.admin)
+  if (scope) Object.assign(filter, memberStateFilter(scope))
+  const area = districtScope(req.admin)
+  if (area) filter.district = sameDistrict(area.district)
+  const member = await Member.findOne(filter).select('_id').lean().catch(() => null)
+  if (!member) return res.status(404).json({ message: 'Not found' })
+  const rows = await Checkin.find({ member: member._id }).sort({ createdAt: -1 }).limit(500).lean()
+  const events = await Event.find({ _id: { $in: rows.map((r) => r.event) } }).select('titleEn titleHi date location').lean()
+  res.json(rows.map((r) => {
+    const ev = events.find((e) => String(e._id) === String(r.event)) || {}
+    return { _id: r._id, at: r.createdAt, by: r.byName, title: ev.titleEn || ev.titleHi || 'Deleted event', date: ev.date, location: ev.location }
+  }))
+})
 
 router.get('/', protect, requireAny('members', 'district'), async (req, res) => {
   const filter = ['pending', 'approved', 'rejected', 'cancelled'].includes(req.query.status)
@@ -162,7 +199,8 @@ router.get('/', protect, requireAny('members', 'district'), async (req, res) => 
   if (scope) Object.assign(filter, memberStateFilter(scope))
   const area = districtScope(req.admin)
   if (area) filter.district = sameDistrict(area.district) // District admins: only their district
-  res.json(await Member.find(filter).sort({ createdAt: -1 }).limit(1000).populate('referredBy', 'name memberNo'))
+  const list = await Member.find(filter).sort({ createdAt: -1 }).limit(1000).populate('referredBy', 'name memberNo').lean()
+  res.json(await withAttendance(list))
 })
 
 // A District admin's word on an application from their district: they know the person, or they have a concern.

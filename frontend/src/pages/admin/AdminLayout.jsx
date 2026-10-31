@@ -25,6 +25,7 @@ const NAV = [
   { to: '/admin/visitors', label: 'Visitors', icon: 'eye', perm: ['content', 'members'] },
   { to: '/admin/volunteers', label: 'Volunteers', icon: 'hand', perm: ['members', 'district'], badge: 'volunteers' },
   { to: '/admin/mailouts', label: 'Email Members', icon: 'mail', perm: 'members' },
+  { to: '/admin/polls', label: 'Polls', icon: 'poll', perm: 'members' },
   { to: '/admin/certificates', label: 'Certificates', icon: 'award', perm: 'members' },
   { to: '/admin/messages', label: 'Messages', icon: 'chat', perm: 'messages', badge: 'messages' },
   { to: '/admin/helpdesk', label: 'Help Desk', icon: 'help', perm: ['helpdesk', 'district'], badge: 'helpdesk' },
@@ -32,6 +33,7 @@ const NAV = [
   { to: '/admin/team', label: 'Team & Roles', icon: 'users', perm: 'team' },
   { to: '/admin/activity', label: 'Activity Log', icon: 'activity', perm: 'admins' },
   { to: '/admin/backup', label: 'Backup', icon: 'download', perm: 'admins' },
+  { to: '/admin/guide', label: 'Guide', icon: 'book' },
   { to: '/admin/security', label: 'Security', icon: 'shield' },
 ]
 

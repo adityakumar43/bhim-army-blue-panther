@@ -70,6 +70,11 @@ const Events = page(() => import('./pages/Events.jsx'))
 const Visitors = page(() => import('./pages/admin/Visitors.jsx'))
 const PrintCards = page(() => import('./pages/admin/PrintCards.jsx'))
 const CheckIn = page(() => import('./pages/admin/CheckIn.jsx'))
+const AdminPolls = page(() => import('./pages/admin/Polls.jsx'))
+const Guide = page(() => import('./pages/admin/Guide.jsx'))
+const Polls = page(() => import('./pages/Polls.jsx'))
+const NotFound = page(() => import('./pages/NotFound.jsx'))
+const AdminNotFound = page(() => import('./pages/NotFound.jsx').then((m) => ({ default: m.AdminNotFound })))
 const UpdateDetails = page(() => import('./pages/UpdateDetails.jsx'))
 
 export default function App() {
@@ -91,6 +96,7 @@ export default function App() {
             <Route path="/news/:id" element={<Detail kind="news" />} />
             <Route path="/events" element={<Events />} />
             <Route path="/events/:id" element={<Detail kind="events" />} />
+            <Route path="/polls" element={<Polls />} />
             <Route path="/gallery" element={<Gallery />} />
             <Route path="/join" element={<Join />} />
             <Route path="/about" element={<About />} />
@@ -140,8 +146,12 @@ export default function App() {
               <Route path="print-cards" element={<Perm perm={['members', 'district']}><PrintCards /></Perm>} />
               <Route path="checkin" element={<Perm perm={['members', 'content', 'district', 'checkin']}><CheckIn /></Perm>} />
               <Route path="checkin/:eventId" element={<Perm perm={['members', 'content', 'district', 'checkin']}><CheckIn /></Perm>} />
+              <Route path="polls" element={<Perm perm="members"><AdminPolls /></Perm>} />
+              <Route path="guide" element={<Guide />} />
               <Route path="security" element={<Security />} />
+              <Route path="*" element={<AdminNotFound />} />
             </Route>
+            <Route path="*" element={<NotFound />} />
           </Routes>
         </Suspense>
       </main>

@@ -16,10 +16,10 @@ function downloadCsv(rows) {
   const when = (d) => (d ? new Date(d).toLocaleString('en-IN', { dateStyle: 'medium', timeStyle: 'short' }) : '')
   const born = (d) => (d ? new Date(d).toLocaleDateString('en-IN', { dateStyle: 'medium', timeZone: 'UTC' }) : '')
   const head = ['Name', 'Phone', 'Email', 'Date of birth', 'City', 'District', 'State', 'Status', 'Member no',
-    'Applied on', 'Approved/Rejected on', 'Approved/Rejected by', 'Photo link', 'Assembly constituency no', 'Lok Sabha constituency no']
+    'Applied on', 'Approved/Rejected on', 'Approved/Rejected by', 'Photo link', 'Assembly constituency no', 'Lok Sabha constituency no', 'Events attended']
   const lines = rows.map((m) => [
     m.name, m.phone, m.email, born(m.dob), m.city, m.district, m.state, m.status, m.memberNo,
-    when(m.createdAt), when(m.reviewedAt), m.reviewedByName, m.photo?.url, m.assemblyNo, m.lokSabhaNo,
+    when(m.createdAt), when(m.reviewedAt), m.reviewedByName, m.photo?.url, m.assemblyNo, m.lokSabhaNo, m.attended ?? '',
   ])
   const csv = [head, ...lines]
     .map((r) => r.map((v) => `"${String(v ?? '').replace(/"/g, '""')}"`).join(','))
@@ -40,6 +40,32 @@ function whatsappLink(m) {
   return `https://wa.me/91${m.phone}?text=${encodeURIComponent(text)}`
 }
 
+// Events this member came to (from Event Check-in at the gate). "See all" loads the list.
+function Attendance({ m }) {
+  const [list, setList] = useState(null)
+  const [open, setOpen] = useState(false)
+  const [error, setError] = useState('')
+  const day = (d) => (d ? new Date(d).toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' }) : '')
+  const toggle = () => {
+    setOpen(!open)
+    if (!list) api.get(`/members/${m._id}/attendance`).then(setList).catch((e) => setError(e.message))
+  }
+  if (!m.attended) return <div className="text-navy/50">🎟️ No events attended yet</div>
+  return (
+    <div>
+      🎟️ Came to <b className="text-navy">{m.attended}</b> {m.attended === 1 ? 'event' : 'events'}
+      {m.lastEvent?.title && <span> · last: {m.lastEvent.title}{m.lastEvent.date ? ` (${day(m.lastEvent.date)})` : ''}</span>}
+      {' '}<button type="button" onClick={toggle} aria-expanded={open} className="font-semibold text-brand underline">{open ? 'Hide' : 'See all'}</button>
+      {open && (
+        <ul className="mt-1.5 flex flex-col gap-1 rounded-lg bg-mist/60 px-3 py-2 text-xs">
+          {error && <li className="text-red-700">{error}</li>}
+          {!list && !error && <li>Loading…</li>}
+          {list?.map((e) => <li key={e._id}>📅 {day(e.date || e.at)} · <b>{e.title}</b>{e.location ? ` · ${e.location}` : ''}</li>)}
+        </ul>
+      )}
+    </div>
+  )
+}
 
 // District admins' word on an application. Everyone sees it; a District admin can give or change their own.
 function Recommendations({ m, me, onSaved }) {
@@ -120,6 +146,7 @@ export default function Members() {
   const [q, setQ] = useState('')
   const [stateF, setStateF] = useState('')
   const [districtF, setDistrictF] = useState('')
+  const [sortBy, setSortBy] = useState('new') // 'new' (newest first) or 'active' (came to the most events)
 
   // Opened from the search box at the top: show that tab and fill in the search
   const { find, status: wantStatus } = useFind()
@@ -139,14 +166,16 @@ export default function Members() {
   const shown = useMemo(() => {
     const text = q.trim().toLowerCase()
     const digits = text.replace(/\D/g, '')
-    return (items || []).filter((m) => {
+    const list = (items || []).filter((m) => {
       if (stateF && clean(m.state) !== stateF) return false
       if (districtF && clean(m.district) !== districtF) return false
       if (!text) return true
       const words = [m.name, m.email, m.memberNo, m.city, m.district].join(' ').toLowerCase()
       return words.includes(text) || (digits.length >= 3 && String(m.phone || '').replace(/\D/g, '').includes(digits))
     })
-  }, [items, q, stateF, districtF])
+    // Most active first: the members who came to the most events
+    return sortBy === 'active' ? [...list].sort((a, b) => (b.attended || 0) - (a.attended || 0)) : list
+  }, [items, q, stateF, districtF, sortBy])
   const filtering = q || stateF || districtF
   const clearFilters = () => { setQ(''); setStateF(''); setDistrictF('') }
 
@@ -250,6 +279,12 @@ export default function Members() {
             <option value="">🏘️ All districts</option>
             {districts.map((d) => <option key={d} value={d}>{d}</option>)}
           </select>
+          {status === 'approved' && (
+            <select aria-label="Sort" value={sortBy} onChange={(e) => setSortBy(e.target.value)} className="input min-h-10 min-w-40 flex-1 py-2">
+              <option value="new">🕒 Newest first</option>
+              <option value="active">🎟️ Most active first</option>
+            </select>
+          )}
           {filtering && (
             <button onClick={clearFilters} className="abtn min-h-10 px-3"><Icon name="close" size={16} /> Clear</button>
           )}
@@ -301,6 +336,7 @@ export default function Members() {
                   <div>🗓️ Applied {when(m.createdAt)}</div>
                   {m.referredBy?.name && <div>🤝 Invited by {m.referredBy.name}{m.referredBy.memberNo ? ` (${m.referredBy.memberNo})` : ''}</div>}
                   {m.detailsUpdatedAt && <div>✏️ Updated own details {when(m.detailsUpdatedAt)}</div>}
+                  {m.status === 'approved' && <Attendance m={m} />}
                 </div>
               </div>
             </div>

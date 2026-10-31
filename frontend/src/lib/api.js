@@ -17,7 +17,8 @@ async function request(path, { method = 'GET', body } = {}) {
     try { sessionStorage.setItem('loginNotice', data.message || '') } catch { /* storage blocked */ }
     window.location.href = '/admin/login'
   }
-  if (!res.ok) throw new Error(data.message || 'Request failed')
+  // The error keeps the server's reply (e.data), so pages can read extra details like a code
+  if (!res.ok) throw Object.assign(new Error(data.message || 'Request failed'), { status: res.status, data })
   return data
 }
 

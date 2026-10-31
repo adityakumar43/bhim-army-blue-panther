@@ -7,6 +7,7 @@ export const BANDS = {
   '/campaigns': ['sections.campaigns', 'home.campaignsIntro'],
   '/news': ['sections.news', 'home.newsIntro'],
   '/events': ['cal.title', 'cal.intro'],
+  '/polls': ['poll.title', 'poll.intro'],
   '/gallery': ['nav.gallery'],
   '/contact': ['contact.title'],
   '/join': ['join.title', 'join.intro'],

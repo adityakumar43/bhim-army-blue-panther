@@ -26,7 +26,7 @@ const ROLE_NAMES = { superadmin: 'Super Admin', editor: 'Content Editor', member
 
 const nameOf = (doc) => {
     if (!doc || typeof doc !== 'object') return ''
-    const name = doc.refNo || doc.titleEn || doc.titleHi || doc.nameEn || doc.nameHi || doc.name || doc.textEn || doc.textHi || doc.receiptNo || doc.email || ''
+    const name = doc.refNo || doc.titleEn || doc.titleHi || doc.questionEn || doc.questionHi || doc.nameEn || doc.nameHi || doc.name || doc.textEn || doc.textHi || doc.receiptNo || doc.email || ''
     return String(name).slice(0, 100)
 }
 
@@ -52,6 +52,12 @@ function describe(section, method, part, body = {}, last = '') {
         case 'mailouts':
             if (method === 'POST' && !part) return ['email', `emailed members: "${String(body.subject || '').slice(0, 80)}"`, true]
             if (part === 'stop') return ['update', 'stopped an announcement email', true]
+            return null
+        case 'polls':
+            if (method === 'POST') return ['create', 'asked a new poll:']
+            if (body.closed === true) return ['disable', 'closed the poll']
+            if (body.closed === false) return ['enable', 'opened again the poll']
+            if (method === 'DELETE') return ['delete', 'deleted a poll', true]
             return null
         case 'push':
             if (method === 'POST' && !part) return ['email', `sent a phone notification: "${String(body.title || '').slice(0, 80)}"`, true]
