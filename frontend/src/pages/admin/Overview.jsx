@@ -119,7 +119,18 @@ export default function Overview() {
         </>
       )}
       {can('members') && <Birthdays />}
-      {!can('district') && <Stats />}
+      {/* Gate volunteers only scan cards: show them the way to Event Check-in */}
+      {me.role === 'gate' && (
+        <Link to="/admin/checkin" className="mb-6 flex items-center gap-4 rounded-2xl bg-gold p-5 text-navy shadow-md transition hover:-translate-y-0.5 hover:shadow-lg">
+          <span aria-hidden="true" className="flex h-14 w-14 shrink-0 items-center justify-center rounded-2xl bg-white/50"><BoxIcon name="ticket" size={30} /></span>
+          <span className="min-w-0 flex-1">
+            <b className="block text-xl">Open Event Check-in</b>
+            <span className="text-sm">Choose today's event and scan members' cards at the gate.</span>
+          </span>
+          <Icon name="arrow" size={22} className="shrink-0" />
+        </Link>
+      )}
+      {!can(['district', 'checkin']) && <Stats />}
     </>
   )
 }

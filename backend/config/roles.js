@@ -5,6 +5,7 @@ export const ROLES = {
   finance: ['donations'],
   stateadmin: ['members', 'leaders', 'helpdesk', 'team'], // only for their own state (see stateScope in middleware/auth.js); 'team' = their District admins
   districtadmin: ['district'], // only their own district: sees members and volunteers, recommends applications, handles help desk cases
+  gate: ['checkin'], // Gate volunteer: only scans members' cards at events (Event Check-in), nothing else
 }
 export const can = (role, permission) => !!ROLES[role]?.includes(permission)
 

@@ -18,17 +18,19 @@ const view = (a) => ({
 const NEED_STATE = 'Choose the state this person will look after'
 const NEED_DISTRICT = 'Choose the district this District admin will look after'
 const validState = (s) => STATE_CODES.includes(String(s || ''))
-const hasState = (role) => role === 'stateadmin' || role === 'districtadmin'
+const hasState = (role) => ['stateadmin', 'districtadmin', 'gate'].includes(role)
+// The roles a State admin may add and manage, in their own state
+const LOCAL = ['districtadmin', 'gate']
 
 // Is this a State admin (who may only manage their own state's District admins)?
 const limited = (req) => !can(req.admin.role, 'admins')
-const mine = (req, a) => !limited(req) || (a.role === 'districtadmin' && a.state === req.admin.state)
+const mine = (req, a) => !limited(req) || (LOCAL.includes(a.role) && a.state === req.admin.state)
 
 // Works out the state and district for a role, or gives the problem as text
 function area(role, state, district) {
   if (!hasState(role)) return { state: null, district: null }
   if (!validState(state)) return { problem: NEED_STATE }
-  if (role === 'stateadmin') return { state, district: null }
+  if (role !== 'districtadmin') return { state, district: null } // State admins and Gate volunteers belong to a state only
   const d = canonicalDistrict(state, district)
   return d ? { state, district: d } : { problem: NEED_DISTRICT }
 }
@@ -37,14 +39,14 @@ const otherActiveSuperadmins = (excludeId) =>
   Admin.countDocuments({ _id: { $ne: excludeId }, role: 'superadmin', active: { $ne: false } })
 
 router.get('/', async (req, res) => {
-  const filter = limited(req) ? { role: 'districtadmin', state: req.admin.state } : {}
+  const filter = limited(req) ? { role: { $in: LOCAL }, state: req.admin.state } : {}
   res.json((await Admin.find(filter).sort({ createdAt: 1 })).map(view))
 })
 
 router.post('/', async (req, res) => {
   const { name, email, password } = req.body || {}
-  // A State admin can only add District admins, and only in their own state
-  const role = limited(req) ? 'districtadmin' : req.body?.role
+  // A State admin can only add District admins and Gate volunteers, and only in their own state
+  const role = limited(req) ? (LOCAL.includes(req.body?.role) ? req.body.role : 'districtadmin') : req.body?.role
   const state = limited(req) ? req.admin.state : req.body?.state
   if (!name || !String(name).trim()) return res.status(400).json({ message: 'Enter a name' })
   if (!/^\S+@\S+\.\S+$/.test(email || '')) return res.status(400).json({ message: 'Enter a valid email address' })
@@ -74,7 +76,7 @@ router.patch('/:id', async (req, res) => {
   const disabling = active === false && target.active !== false
 
   if (role !== undefined && !ROLES[role]) return res.status(400).json({ message: 'Unknown role' })
-  if (limited(req) && roleChanges) return res.status(403).json({ message: 'You can only manage District admins' })
+  if (limited(req) && roleChanges) return res.status(403).json({ message: 'You can only manage District admins and Gate volunteers' })
   if (limited(req) && state !== undefined && state !== req.admin.state) return res.status(403).json({ message: 'You can only choose districts of your own state' })
   if (isSelf && (roleChanges || disabling)) {
     return res.status(400).json({ message: 'You cannot change your own role or disable your own account' })

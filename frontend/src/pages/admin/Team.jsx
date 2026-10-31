@@ -11,7 +11,7 @@ import DistrictSelect from '../../components/DistrictSelect.jsx'
 const EMPTY = { name: '', email: '', password: '', role: 'editor', state: '', district: '' }
 const sortedStates = [...STATES].sort((a, b) => a.en.localeCompare(b.en))
 const stateLabel = (code) => stateByCode(code)?.en || code
-const hasState = (role) => role === 'stateadmin' || role === 'districtadmin'
+const hasState = (role) => ['stateadmin', 'districtadmin', 'gate'].includes(role)
 const areaLabel = (a) => [a.district, a.state && stateLabel(a.state)].filter(Boolean).join(', ')
 
 // Password box with an eye button to show or hide what was typed
@@ -32,7 +32,7 @@ export default function Team() {
   const { me } = useOutletContext()
   // A State admin manages only the District admins of their own state
   const limited = !me.permissions.includes('admins')
-  const roleChoices = Object.entries(ROLE_INFO).filter(([key]) => !limited || key === 'districtadmin')
+  const roleChoices = Object.entries(ROLE_INFO).filter(([key]) => !limited || key === 'districtadmin' || key === 'gate')
   const fresh = () => (limited ? { ...EMPTY, role: 'districtadmin', state: me.state } : EMPTY)
   const [admins, setAdmins] = useState(null)
   const [form, setForm] = useState(fresh)
@@ -66,9 +66,7 @@ export default function Team() {
       await api.post('/admins', form)
       setForm(fresh())
       setAdding(false)
-    }, form.role === 'districtadmin'
-      ? 'District admin added. Share the password with them privately.'
-      : 'Team member added. Share the password with them privately.')
+    }, `${ROLE_INFO[form.role]?.label || 'Team member'} added. Share the password with them privately.`)
     setBusy(false)
   }
 
@@ -100,8 +98,8 @@ export default function Team() {
 
   return (
     <>
-      <PageHeader title="Team & Roles" subtitle={limited ? `Add and manage the District admins of ${stateLabel(me.state)}.` : 'Give each person only the access they need.'}>
-        {!adding && <button onClick={() => { setAdding(true); setNote('') }} className="abtn-primary">➕ Add {limited ? 'District admin' : 'team member'}</button>}
+      <PageHeader title="Team & Roles" subtitle={limited ? `Add and manage the District admins and Gate volunteers of ${stateLabel(me.state)}.` : 'Give each person only the access they need.'}>
+        {!adding && <button onClick={() => { setAdding(true); setNote('') }} className="abtn-primary">➕ Add team member</button>}
       </PageHeader>
       <Notice>{error}</Notice>
       <Notice kind="success">{note}</Notice>
@@ -109,7 +107,7 @@ export default function Team() {
       {adding && (
         <form onSubmit={create} className="card mb-5">
           <div className="mb-3 flex items-center justify-between gap-3">
-            <h2 className="text-lg font-extrabold">➕ Add {limited ? 'a District admin' : 'a team member'}</h2>
+            <h2 className="text-lg font-extrabold">➕ Add a team member</h2>
             <button type="button" onClick={() => { setAdding(false); setForm(fresh()) }} aria-label="Close" className="flex h-9 w-9 items-center justify-center rounded-lg text-navy/60 hover:bg-mist">
               <Icon name="close" size={18} />
             </button>
@@ -126,7 +124,7 @@ export default function Team() {
                 onChange={(e) => setForm({ ...form, password: e.target.value })} />
             </label>
             <label className="flex flex-col gap-1 font-semibold">🎭 Role
-              <select value={form.role} disabled={limited} onChange={(e) => setForm({ ...form, role: e.target.value, district: '' })} className="input disabled:opacity-70">
+              <select value={form.role} onChange={(e) => setForm({ ...form, role: e.target.value, district: '' })} className="input">
                 {roleChoices.map(([key, r]) => <option key={key} value={key}>{r.label}</option>)}
               </select>
             </label>
@@ -148,7 +146,7 @@ export default function Team() {
             <p className="text-sm text-navy/65">ℹ️ <b>{ROLE_INFO[form.role].label}:</b> {ROLE_INFO[form.role].desc}</p>
             <div className="flex gap-2">
               <button type="button" onClick={() => { setAdding(false); setForm(fresh()) }} className="abtn">Cancel</button>
-              <button disabled={busy} className="abtn-primary">{busy ? 'Adding...' : `✅ Add ${limited ? 'District admin' : 'team member'}`}</button>
+              <button disabled={busy} className="abtn-primary">{busy ? 'Adding...' : '✅ Add team member'}</button>
             </div>
           </div>
         </form>

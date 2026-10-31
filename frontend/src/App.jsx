@@ -138,8 +138,8 @@ export default function App() {
               <Route path="notifications" element={<Perm perm="content"><Notifications /></Perm>} />
               <Route path="visitors" element={<Perm perm={['content', 'members']}><Visitors /></Perm>} />
               <Route path="print-cards" element={<Perm perm={['members', 'district']}><PrintCards /></Perm>} />
-              <Route path="checkin" element={<Perm perm={['members', 'content', 'district']}><CheckIn /></Perm>} />
-              <Route path="checkin/:eventId" element={<Perm perm={['members', 'content', 'district']}><CheckIn /></Perm>} />
+              <Route path="checkin" element={<Perm perm={['members', 'content', 'district', 'checkin']}><CheckIn /></Perm>} />
+              <Route path="checkin/:eventId" element={<Perm perm={['members', 'content', 'district', 'checkin']}><CheckIn /></Perm>} />
               <Route path="security" element={<Security />} />
             </Route>
           </Routes>

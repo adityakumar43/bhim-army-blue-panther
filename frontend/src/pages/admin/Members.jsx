@@ -2,7 +2,7 @@ import { useEffect, useMemo, useState } from 'react'
 import { useNavigate, useOutletContext } from 'react-router-dom'
 import { api } from '../../lib/api.js'
 import { portrait } from '../../lib/img.js'
-import { PageHeader, Notice, ListLoading, Pill } from './ui.jsx'
+import { PageHeader, Notice, ListLoading, Pill, useFind } from './ui.jsx'
 import Icon from '../../components/Icon.jsx'
 import BoxIcon from '../../components/BoxIcon.jsx'
 import { stateByCode } from '../../data/states.js'
@@ -120,6 +120,13 @@ export default function Members() {
   const [q, setQ] = useState('')
   const [stateF, setStateF] = useState('')
   const [districtF, setDistrictF] = useState('')
+
+  // Opened from the search box at the top: show that tab and fill in the search
+  const { find, status: wantStatus } = useFind()
+  useEffect(() => {
+    if (wantStatus && FILTERS.some(([k]) => k === wantStatus)) setStatus(wantStatus)
+    if (find) setQ(find)
+  }, [find, wantStatus])
 
   // Choices for the State and District boxes, taken from the applications in this tab
   const clean = (v) => (v || '').trim()

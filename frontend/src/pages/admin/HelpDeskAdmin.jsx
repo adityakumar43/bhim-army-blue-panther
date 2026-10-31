@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react'
 import { useOutletContext } from 'react-router-dom'
 import { api } from '../../lib/api.js'
-import { PageHeader, Notice, ListLoading, Pill } from './ui.jsx'
+import { PageHeader, Notice, ListLoading, Pill, useFind, matchesFind, FindNote } from './ui.jsx'
 import { CATEGORIES, STATUS, categoryOf } from '../../data/helpdesk.js'
 import { stateByCode } from '../../data/states.js'
 
@@ -191,6 +191,9 @@ export default function HelpDeskAdmin() {
     const [saved, setSaved] = useState(null) // the case just updated, to offer a WhatsApp message
     const [error, setError] = useState('')
     const myState = ['stateadmin', 'districtadmin'].includes(me.role) ? stateByCode(me.state) : null
+    // Opened from the search box at the top: show that tab and only the matching case
+    const { find, status: wantStatus, clear: clearFind } = useFind()
+    useEffect(() => { if (wantStatus && TABS.some(([k]) => k === wantStatus)) setStatus(wantStatus) }, [find, wantStatus])
 
     const load = () => {
         const p = new URLSearchParams()
@@ -210,13 +213,14 @@ export default function HelpDeskAdmin() {
 
     // Districts of the cases loaded, to show one district's cases
     const districts = [...new Set((items || []).map((c) => c.district).filter(Boolean))].sort()
-    const shown = district ? items?.filter((c) => c.district === district) : items
+    const shown = items?.filter((c) => (!district || c.district === district) && matchesFind(find, c.refNo, c.name, c.phone))
     const staleCount = shown?.filter((c) => ['new', 'in_progress'].includes(c.status) && daysSince(lastUpdate(c)) >= STALE_DAYS).length || 0
     const toggle = (on) => `min-h-10 rounded-xl border px-3 text-sm font-semibold transition ${on ? 'border-brand bg-brand text-white' : 'border-brand/15 bg-white text-navy/75 hover:bg-mist'}`
 
     return (
         <>
             <PageHeader title="Help Desk" subtitle="Problems reported by people through the Help desk page." />
+            <FindNote find={find} clear={clearFind} />
             {myState && <p className="mb-4 rounded-xl bg-mist px-4 py-2.5 text-sm font-semibold text-brand">📍 You are seeing only cases from {me.district ? `${me.district} district, ` : ''}{myState.en}.</p>}
 
             <div className="mb-3 flex flex-wrap items-center gap-2">

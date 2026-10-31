@@ -6,4 +6,5 @@ export const ROLE_INFO = {
   finance: { label: 'Finance', desc: 'Sees donations and receipts only.' },
   stateadmin: { label: 'State Admin', desc: 'Approves members and manages leaders of one state only, and adds its District admins.' },
   districtadmin: { label: 'District Admin', desc: 'One district only: sees its members and volunteers, recommends applications, and handles its help desk cases.' },
+  gate: { label: 'Gate Volunteer', desc: 'Only scans members\' cards at events (Event Check-in). Cannot see phone numbers or change anything else.' },
 }

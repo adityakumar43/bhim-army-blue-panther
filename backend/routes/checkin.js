@@ -8,7 +8,7 @@ import { stateNameEn } from '../config/stateNames.js'
 
 // Event check-in: at the gate, the team scans members' card QR codes (or types the member number or phone)
 const router = Router()
-router.use(protect, requireAny('members', 'content', 'district'))
+router.use(protect, requireAny('members', 'content', 'district', 'checkin'))
 
 const isId = (id) => mongoose.isValidObjectId(id)
 const DAY = 864e5

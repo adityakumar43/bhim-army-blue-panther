@@ -1,4 +1,4 @@
-import { useLocation } from 'react-router-dom'
+import { useLocation, useSearchParams } from 'react-router-dom'
 import Icon from '../../components/Icon.jsx'
 
 
@@ -71,5 +71,34 @@ export function ListLoading({ rows = 3 }) {
         </div>
       ))}
     </div>
+  )
+}
+
+
+// "find" in the address comes from the search box at the top: the page then shows only what matches
+export function useFind() {
+  const [params, setParams] = useSearchParams()
+  const find = params.get('find') || ''
+  const clear = () => {
+    const next = new URLSearchParams(params)
+    next.delete('find')
+    next.delete('status')
+    setParams(next, { replace: true })
+  }
+  return { find, status: params.get('status'), clear }
+}
+
+// Does any of these values contain the text being looked for? (ignores capitals)
+export const matchesFind = (find, ...values) => !find || values.join(' ').toLowerCase().includes(find.toLowerCase())
+
+// The note above a list that is showing only search results, with a way back to everything
+export function FindNote({ find, clear }) {
+  if (!find) return null
+  return (
+    <p className="mb-4 flex flex-wrap items-center gap-2 rounded-xl border border-brand/20 bg-mist px-4 py-2.5 text-sm">
+      <Icon name="search" size={16} className="text-brand" />
+      <span>Showing only results for <b>“{find}”</b></span>
+      <button type="button" onClick={clear} className="ml-auto font-semibold text-brand underline">Show all</button>
+    </p>
   )
 }

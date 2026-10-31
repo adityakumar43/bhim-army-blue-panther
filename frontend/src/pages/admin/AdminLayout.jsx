@@ -1,9 +1,10 @@
-import { useEffect, useState } from 'react'
+import { useCallback, useEffect, useState } from 'react'
 import { Link, NavLink, Outlet, useLocation, useNavigate } from 'react-router-dom'
 import { api } from '../../lib/api.js'
 import { ROLE_INFO } from '../../lib/roles.js'
 import Icon from '../../components/Icon.jsx'
 import BoxIcon from '../../components/BoxIcon.jsx'
+import AdminSearch, { SearchButton } from './AdminSearch.jsx'
 import { stateByCode } from '../../data/states.js'
 
 
@@ -11,7 +12,7 @@ const NAV = [
   { to: '/admin', label: 'Overview', icon: 'grid', end: true },
   { to: '/admin/news', label: 'News', icon: 'news', perm: 'content' },
   { to: '/admin/events', label: 'Events', icon: 'calendar', perm: 'content' },
-  { to: '/admin/checkin', label: 'Event Check-in', icon: 'ticket', perm: ['members', 'content', 'district'] },
+  { to: '/admin/checkin', label: 'Event Check-in', icon: 'ticket', perm: ['members', 'content', 'district', 'checkin'] },
   { to: '/admin/gallery', label: 'Gallery', icon: 'image', perm: 'content' },
   { to: '/admin/slides', label: 'Home Slider', icon: 'layers', perm: 'content' },
   { to: '/admin/leaders', label: 'Leadership', icon: 'award', perm: 'leaders' },
@@ -181,6 +182,8 @@ export default function AdminLayout() {
   const { pathname } = useLocation()
   const [me, setMe] = useState(null)
   const [moreOpen, setMoreOpen] = useState(false)
+  const [searchOpen, setSearchOpen] = useState(false)
+  const openSearch = useCallback(() => { setMoreOpen(false); setSearchOpen(true) }, [])
   useEffect(() => setMoreOpen(false), [pathname])
   const [summary, setSummary] = useState({ members: 0, messages: 0, donations: 0, helpdesk: 0, volunteers: 0 })
 
@@ -230,7 +233,7 @@ export default function AdminLayout() {
   return (
     <div className="min-h-screen bg-[#F3F6FC]">
       <header className="sticky top-0 z-40 flex items-center justify-between gap-3 bg-navy px-4 py-2.5 text-white shadow-md sm:px-6">
-        <div className="flex min-w-0 items-center gap-3">
+        <div className="flex min-w-0 items-center gap-3 lg:flex-1">
           <img src="/logo.png" alt="" className="h-9 w-9 shrink-0 rounded-lg object-cover" />
           {/* Phones: the role in small gold letters under the name; bigger screens: a gold badge beside it */}
           <div className="min-w-0 leading-tight sm:flex sm:items-center sm:gap-3">
@@ -238,8 +241,10 @@ export default function AdminLayout() {
             <span className="block truncate text-xs font-bold text-gold sm:shrink-0 sm:rounded-md sm:bg-gold sm:px-2 sm:py-0.5 sm:font-extrabold sm:text-navy">{ROLE_INFO[me.role]?.label || 'Admin'}</span>
           </div>
         </div>
-        <div className="flex shrink-0 items-center gap-2 text-sm">
-          <div className="hidden items-center gap-2 md:flex">
+        {/* Search: in the middle on computers, an icon at the right on phones */}
+        {!locked && me.role !== 'gate' && <div className="ml-auto shrink-0 lg:ml-0"><SearchButton onOpen={openSearch} /></div>}
+        <div className="flex shrink-0 items-center justify-end gap-2 text-sm lg:flex-1">
+          <div className="hidden items-center gap-2 xl:flex">
             <span aria-hidden="true" className="flex h-9 w-9 items-center justify-center rounded-full bg-brand font-extrabold text-white ring-2 ring-gold/70">
               {me.name?.[0]?.toUpperCase()}
             </span>
@@ -287,7 +292,7 @@ export default function AdminLayout() {
           {(!locked || pathname === '/admin/security') && <Outlet context={{ me, summary, refresh, refreshMe }} />}
         </main>
       </div>
-
+      {searchOpen && <AdminSearch pages={items} onClose={() => setSearchOpen(false)} />}
       {moreOpen && <MoreSheet me={me} items={more} summary={summary} onClose={() => setMoreOpen(false)} logout={logout} />}
       <PhoneTabs tabs={tabs} more={more} summary={summary} moreOpen={moreOpen} setMoreOpen={setMoreOpen} />
     </div>

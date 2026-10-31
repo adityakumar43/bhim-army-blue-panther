@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useState } from 'react'
 import { useOutletContext } from 'react-router-dom'
 import { api } from '../../lib/api.js'
-import { PageHeader, Notice, ListLoading, Pill } from './ui.jsx'
+import { PageHeader, Notice, ListLoading, Pill, useFind } from './ui.jsx'
 import { SKILLS, AVAILABILITY, skillOf } from '../../data/volunteers.js'
 import { stateByCode } from '../../data/states.js'
 
@@ -26,6 +26,12 @@ export default function Volunteers() {
     const [status, setStatus] = useState('new')
     const [skill, setSkill] = useState('')
     const [q, setQ] = useState('')
+    // Opened from the search box at the top: show that tab and fill in the search
+    const { find, status: wantStatus } = useFind()
+    useEffect(() => {
+        if (wantStatus && TABS.some(([k]) => k === wantStatus)) setStatus(wantStatus)
+        if (find) setQ(find)
+    }, [find, wantStatus])
     const [items, setItems] = useState(null)
     const [error, setError] = useState('')
     const myState = ['stateadmin', 'districtadmin'].includes(me.role) ? stateByCode(me.state) : null

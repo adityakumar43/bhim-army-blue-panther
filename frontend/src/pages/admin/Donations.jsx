@@ -1,12 +1,13 @@
 import { useEffect, useState } from 'react'
 import { api } from '../../lib/api.js'
-import { PageHeader, Notice, ListLoading, Pill } from './ui.jsx'
+import { PageHeader, Notice, ListLoading, Pill, useFind, matchesFind, FindNote } from './ui.jsx'
 import Icon from '../../components/BoxIcon.jsx' // two-tone icons for the coloured boxes
 
 const rupees = (n) => '₹' + Number(n).toLocaleString('en-IN')
 
 export default function Donations() {
   const [data, setData] = useState(null)
+  const { find, clear: clearFind } = useFind() // opened from the search box at the top
   const [error, setError] = useState('')
   const [note, setNote] = useState('')
 
@@ -28,6 +29,7 @@ export default function Donations() {
   return (
     <>
       <PageHeader title="Donations" subtitle="Payments received through the Donate page." />
+      <FindNote find={find} clear={clearFind} />
       <Notice>{error}</Notice>
       <Notice kind="success">{note}</Notice>
       {!data && !error && <ListLoading />}
@@ -51,7 +53,7 @@ export default function Donations() {
           </div>
           {data.items.length === 0 && <p className="card text-center text-navy/70">📭 No donations yet.</p>}
           <ul className="grid gap-4 xl:grid-cols-2">
-            {data.items.map((d) => (
+            {data.items.filter((d) => matchesFind(find, d.receiptNo, d.name, d.email, d.phone)).map((d) => (
               <li key={d._id} className="card p-4 sm:p-5">
                 <div className="flex items-start justify-between gap-3">
                   <div className="flex min-w-0 items-center gap-3">

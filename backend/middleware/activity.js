@@ -22,7 +22,7 @@ const modelFor = (section) => {
     return Object.values(mongoose.models).find((m) => names.includes(m.collection?.name))
 }
 
-const ROLE_NAMES = { superadmin: 'Super Admin', editor: 'Content Editor', membership: 'Membership Manager', finance: 'Finance', stateadmin: 'State Admin', districtadmin: 'District Admin' }
+const ROLE_NAMES = { superadmin: 'Super Admin', editor: 'Content Editor', membership: 'Membership Manager', finance: 'Finance', stateadmin: 'State Admin', districtadmin: 'District Admin', gate: 'Gate Volunteer' }
 
 const nameOf = (doc) => {
     if (!doc || typeof doc !== 'object') return ''

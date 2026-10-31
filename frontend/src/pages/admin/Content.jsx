@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react'
 import { Link } from 'react-router-dom'
 import { api } from '../../lib/api.js'
-import { PageHeader, Notice, ListLoading } from './ui.jsx'
+import { PageHeader, Notice, ListLoading, useFind, matchesFind, FindNote } from './ui.jsx'
 import Icon from '../../components/Icon.jsx'
 import RsvpList from './RsvpList.jsx'
 import { STATES } from '../../data/states.js'
@@ -54,6 +54,7 @@ const LABELS = {
 export default function Content({ kind }) {
   const config = KINDS[kind]
   const [items, setItems] = useState(null)
+  const { find, clear: clearFind } = useFind() // opened from the search box at the top
   const [form, setForm] = useState({})
   const [file, setFile] = useState(null)
   const [editing, setEditing] = useState(null)
@@ -245,10 +246,11 @@ export default function Content({ kind }) {
 
       {!showForm && <Notice>{error}</Notice>}
       <h2 className="mb-3 text-lg font-extrabold">📋 All items {items && `(${items.length})`}</h2>
+      <FindNote find={find} clear={clearFind} />
       {!items && <ListLoading />}
       {items?.length === 0 && <p className="card text-center text-navy/70">📭 Nothing published yet. Click "{ADD_LABEL[kind]}" to add the first one.</p>}
       <ul className="grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
-        {items?.map((it) => (
+        {items?.filter((it) => matchesFind(find, it.titleEn, it.titleHi)).map((it) => (
           <li key={it._id} className={`card flex flex-col overflow-hidden p-0 sm:p-0 ${editing?._id === it._id ? 'ring-2 ring-brand' : ''}`}>
             {it.image?.url && <img src={it.image.url} alt="" loading="lazy" className="aspect-video w-full rounded-none object-cover" />}
             <div className="flex flex-1 flex-col p-4">

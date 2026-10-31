@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react'
 import { useOutletContext } from 'react-router-dom'
 import { api } from '../../lib/api.js'
-import { PageHeader, Notice, ListLoading, Pill } from './ui.jsx'
+import { PageHeader, Notice, ListLoading, Pill, useFind, matchesFind, FindNote } from './ui.jsx'
 
 
 
@@ -17,6 +17,7 @@ export default function Messages() {
   const [replyText, setReplyText] = useState('')
   const [sending, setSending] = useState(false)
   const [topic, setTopic] = useState('')
+  const { find, clear: clearFind } = useFind() // opened from the search box at the top
 
   const openReply = (m) => { setReplyFor(m._id); setReplyText(`Jai Bhim ${m.name},\n\n`); setNote(''); setError('') }
 
@@ -57,6 +58,7 @@ export default function Messages() {
   return (
     <>
       <PageHeader title="Messages" subtitle="Messages sent from the Contact page. Unread ones are highlighted." />
+      <FindNote find={find} clear={clearFind} />
       <Notice>{error}</Notice>
       <Notice kind="success">{note}</Notice>
       {!items && !error && <ListLoading />}
@@ -75,7 +77,7 @@ export default function Messages() {
         </div>
       )}
       <ul className="flex flex-col gap-3">
-        {items?.filter((m) => !topic || (m.topic || 'general') === topic).map((m) => (
+        {items?.filter((m) => (!topic || (m.topic || 'general') === topic) && matchesFind(find, m.name, m.email, m.phone)).map((m) => (
           <li key={m._id} className={`card p-4 sm:p-5 ${m.read ? '' : 'border-l-4 border-brand bg-mist/50'}`}>
             <div className="flex items-start gap-3">
               <span aria-hidden="true" className={`flex h-10 w-10 shrink-0 items-center justify-center rounded-full font-extrabold text-white ${m.read ? 'bg-navy/40' : 'bg-brand'}`}>

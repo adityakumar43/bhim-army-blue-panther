@@ -35,6 +35,7 @@ import pushRoutes from './routes/push.js'
 import calendarRoutes from './routes/calendar.js'
 import visitRoutes from './routes/visits.js'
 import checkinRoutes from './routes/checkin.js'
+import searchRoutes from './routes/search.js'
 import { startCaseReminderTimer } from './services/caseReminders.js'
 
 if (!process.env.JWT_SECRET || !process.env.MONGO_URI) {
@@ -86,6 +87,7 @@ app.use('/api/push', pushRoutes)
 app.use('/api/calendar', calendarRoutes)
 app.use('/api/visits', visitRoutes)
 app.use('/api/checkin', checkinRoutes)
+app.use('/api/search', searchRoutes)
 app.use('/api/leaders', leaderRoutes)
 app.use('/api/announcements', announcementRoutes)
 
