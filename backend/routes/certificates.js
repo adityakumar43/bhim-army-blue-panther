@@ -10,6 +10,7 @@ import { STATE_CODES } from '../config/states.js'
 import { stateNameEn } from '../config/stateNames.js'
 import { ORG } from '../config/org.js'
 import { sendMail } from '../services/mailer.js'
+import { button } from '../services/emailLayout.js'
 
 const router = Router()
 const PREFIX = () => process.env.CERT_PREFIX || 'BBP'
@@ -133,10 +134,10 @@ function certEmail(c) {
       ORG.name,
     ].join('\n'),
     html: `<div style="font-family:Arial,sans-serif;max-width:520px;margin:auto;color:#0A1A3F">
-<h2 style="color:#0B3C9D;margin-bottom:4px">${esc(ORG.name)}</h2>
+
 <p>जय भीम <strong>${esc(c.name)}</strong>!<br>${esc(ORG.name)} की ओर से आपका <strong>${hi}</strong> जारी किया गया है।</p>
 <p>Jai Bhim <strong>${esc(c.name)}</strong>! Your <strong>${en}</strong> has been issued.</p>
-<p><a href="${esc(link)}" style="display:inline-block;background:#0B3C9D;color:#fff;padding:12px 20px;border-radius:10px;text-decoration:none;font-weight:bold">देखें और डाउनलोड करें / View and download</a></p>
+${button('देखें और डाउनलोड करें / View and download', link)}
 <p style="color:#555;font-size:13px">Reference no.: <strong>${esc(c.refNo)}</strong><br>${esc(link)}</p>
 </div>`,
   }

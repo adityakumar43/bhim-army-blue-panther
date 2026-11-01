@@ -1,4 +1,5 @@
 import { ORG } from '../config/org.js'
+import { button } from './emailLayout.js'
 
 const esc = (s) =>
     String(s ?? '').replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]))
@@ -20,10 +21,10 @@ export function welcomeEmail(m) {
     ].join('\n')
 
     const html = `<div style="font-family:Arial,sans-serif;max-width:520px;margin:auto;color:#0A1A3F">
-<h2 style="color:#0B3C9D;margin-bottom:4px">${esc(ORG.name)}</h2>
+
 <p>जय भीम <strong>${esc(m.name)}</strong>!<br>आपका सदस्यता आवेदन स्वीकार हो गया है।<br>आपकी सदस्यता संख्या: <strong>${esc(m.memberNo)}</strong></p>
 <p>Jai Bhim <strong>${esc(m.name)}</strong>!<br>Your membership application has been approved.<br>Your member number: <strong>${esc(m.memberNo)}</strong></p>
-<p><a href="${esc(link)}" style="display:inline-block;background:#0B3C9D;color:#fff;padding:12px 20px;text-decoration:none;font-weight:bold">देखें / View your membership card</a></p>
+${button('अपना कार्ड देखें / View your membership card', link)}
 <p style="color:#555;font-size:13px">${esc(link)}</p>
 </div>`
     return { subject, text, html }

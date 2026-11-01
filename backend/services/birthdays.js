@@ -1,6 +1,7 @@
 import Member from '../models/Member.js'
 import { ORG } from '../config/org.js'
 import { sendMail } from './mailer.js'
+import { button } from './emailLayout.js'
 
 // Birthday wishes: every morning (from 8 AM Indian time) approved members whose birthday is today
 // get a greeting email. Each member gets at most one per year, even if the server restarts.
@@ -51,22 +52,20 @@ export function birthdayEmail(m) {
         ORG.name,
     ].filter((l) => l !== '').join('\n')
 
-    const html = `<div style="font-family:Arial,sans-serif;max-width:540px;margin:auto;color:#0A1A3F;border:1px solid #e3e8f3;border-radius:16px;overflow:hidden">
-<div style="background:#0A1A3F;color:#fff;padding:28px 24px;text-align:center">
-${site ? `<img src="${esc(site)}/icons/icon-192.png" alt="" width="84" height="84" style="display:block;margin:0 auto 10px">` : ''}
-<div style="font-size:40px;line-height:1">🎂</div>
-<h1 style="margin:10px 0 4px;font-size:24px">जन्मदिन मुबारक हो!</h1>
-<div style="color:#F2B705;font-weight:bold;letter-spacing:1px">HAPPY BIRTHDAY</div>
+    const html = `<div style="text-align:center;padding:0 0 20px;margin-bottom:6px;border-bottom:1px solid #E3E8F3">
+<div style="font-size:52px;line-height:1">🎂</div>
+<h1 style="margin:12px 0 4px;font-size:27px;color:#0A1A3F">जन्मदिन मुबारक हो!</h1>
+<div style="color:#B8860B;font-weight:bold;letter-spacing:3px;font-size:13px">HAPPY BIRTHDAY</div>
 </div>
-<div style="padding:24px">
+<div>
 <p style="font-size:17px">जय भीम <strong>${esc(m.name)}</strong> जी!</p>
 <p>${esc(ORG.name)} परिवार की ओर से आपको जन्मदिन की हार्दिक शुभकामनाएँ। आप स्वस्थ रहें, आगे बढ़ते रहें और समाज के हक़ की लड़ाई में यूँ ही साथ खड़े रहें।</p>
 <p>Jai Bhim <strong>${esc(m.name)}</strong>! The whole ${esc(ORG.name)} family wishes you a very happy birthday. Stay healthy, keep growing, and keep standing with us for justice and equality.</p>
 <p style="margin:22px 0;padding:14px 16px;border-left:4px solid #F2B705;background:#FFF8E1;font-weight:bold">“शिक्षित बनो, संगठित रहो, संघर्ष करो”<br><span style="font-weight:normal;color:#555">— डॉ. बी. आर. आंबेडकर</span></p>
 ${m.memberNo ? `<p style="color:#555;font-size:14px">सदस्यता संख्या / Member no.: <strong>${esc(m.memberNo)}</strong></p>` : ''}
-${card ? `<p><a href="${esc(card)}" style="display:inline-block;background:#0B3C9D;color:#fff;padding:12px 20px;border-radius:10px;text-decoration:none;font-weight:bold">अपना सदस्यता कार्ड देखें / View your card</a></p>` : ''}
+${card ? button('अपना सदस्यता कार्ड देखें / View your card', card) : ''}
 <p style="margin-top:24px">— ${esc(ORG.name)}</p>
-</div></div>`
+</div>`
     return { subject, text, html }
 }
 

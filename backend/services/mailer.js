@@ -1,4 +1,5 @@
 import nodemailer from 'nodemailer'
+import { emailLayout, textToHtml } from './emailLayout.js'
 
 let transport
 function getTransport() {
@@ -16,7 +17,9 @@ function getTransport() {
 export async function sendMail({ to, subject, text, html }) {
   const t = getTransport()
   if (!t) return false
-  const info = await t.sendMail({ from: process.env.MAIL_FROM || process.env.SMTP_USER, to, subject, text, html })
+  // Every email gets the same look (logo, name, slogan); an email written only as text is made into HTML too
+  const body = emailLayout({ html: html || textToHtml(text), text, subject })
+  const info = await t.sendMail({ from: process.env.MAIL_FROM || process.env.SMTP_USER, to, subject, text, html: body })
   // A mail server can answer "ok" while refusing every address. That is not a success.
   if (Array.isArray(info.accepted) && info.accepted.length === 0) {
     throw new Error(`The mail server did not accept ${to}: ${info.response || 'no reason given'}`)
