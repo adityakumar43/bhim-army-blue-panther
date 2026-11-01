@@ -1,0 +1,24 @@
+# For Hostinger (and any Apache / LiteSpeed server).
+# Vite copies this file into dist/ when you run "npm run build".
+
+# 1. Every address (like /join or /admin/members) opens the React app, which then shows the right page.
+#    Without this, opening a link straight away or refreshing an inner page gives "404 Not Found".
+Options -MultiViews
+RewriteEngine On
+RewriteBase /
+# Real files (pictures, scripts, styles) are sent as they are
+RewriteCond %{REQUEST_FILENAME} -f [OR]
+RewriteCond %{REQUEST_FILENAME} -d
+RewriteRule ^ - [L]
+RewriteRule ^ index.html [L]
+
+# 2. Caching: the page itself and the app's service worker are always checked for a new version,
+#    so visitors get updates at once. Built files have a new name each build, so they can be kept long.
+<IfModule mod_headers.c>
+  <FilesMatch "^(index\.html|sw\.js|manifest\.webmanifest)$">
+    Header set Cache-Control "no-cache"
+  </FilesMatch>
+  <If "%{REQUEST_URI} =~ m#^/assets/#">
+    Header set Cache-Control "public, max-age=31536000, immutable"
+  </If>
+</IfModule>

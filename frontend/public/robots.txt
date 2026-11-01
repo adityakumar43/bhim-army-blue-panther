@@ -5,4 +5,4 @@ Disallow: /card/
 Disallow: /certificate/
 
 # When the site is live, change this to your backend's address + /sitemap.xml
-Sitemap: http://localhost:5000/sitemap.xml
+Sitemap: https://api.bhimarmybluepanther.org/sitemap.xml
