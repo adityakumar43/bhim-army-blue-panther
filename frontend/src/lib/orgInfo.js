@@ -1,6 +1,6 @@
 
 export const ORG = {
   // phone: '[PHONE NUMBER]',
-  email: 'info@bhimarmybluepanther.org',
+  email: 'contact@bhimarmybluepanther.org',
   address: 'Pithampur - Indore, Madhya Pradesh',
 }
