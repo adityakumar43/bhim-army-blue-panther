@@ -65,7 +65,7 @@ ${preview(text)}
 ${logo ? `<td style="padding-right:14px;vertical-align:middle">${logo}</td>` : ''}
 <td style="vertical-align:middle;font-family:${FONT}">
 <div style="font-size:21px;font-weight:bold;color:#ffffff;line-height:1.25">भीम आर्मी ब्लू पैंथर</div>
-<div style="font-size:11px;font-weight:bold;color:${GOLD};letter-spacing:3px;line-height:1.6">${esc(ORG.name.toUpperCase())}</div>
+<div style="font-size:10px;font-weight:bold;color:${GOLD};letter-spacing:2px;line-height:1.6;white-space:nowrap">${esc(ORG.name.toUpperCase())}</div>
 </td></tr></table>
 </td></tr>
 <tr><td bgcolor="${GOLD}" style="background:${GOLD};height:4px;line-height:4px;font-size:0">&nbsp;</td></tr>

@@ -12,6 +12,7 @@ import Home from './pages/Home.jsx'
 import SessionWatch from './pages/admin/SessionWatch.jsx'
 import Perm from './pages/admin/Perm.jsx'
 import Loading from './components/Loading.jsx'
+import ScrollToTop from './components/ScrollToTop.jsx'
 
 
 // Pages other than Home load only when someone opens them, so the first visit downloads much less.
@@ -86,6 +87,7 @@ export default function App() {
   return (
     <>
       <RouteSeo />
+      <ScrollToTop />
       {!isAdmin && <Navbar />}
       <main className={hasBand(pathname) ? 'bg-[#f3f6fb]' : undefined}>
         {!isAdmin && <PageBand />}
