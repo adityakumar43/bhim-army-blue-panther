@@ -12,6 +12,10 @@
       var saysComputer = !/Mobi|Android|iPhone|iPad/i.test(navigator.userAgent)
       if (navigator.maxTouchPoints > 0 && small && saysComputer) {
         document.querySelector('meta[name=viewport]').setAttribute('content', 'width=1280')
+        // Chrome keeps the page 980 px wide in this mode, so turn on the desktop layout (index.css) and zoom it to fit
+        var html = document.documentElement
+        html.classList.add('desk')
+        html.style.zoom = Math.min(1, window.innerWidth / 1280)
       }
     })()
   </script>

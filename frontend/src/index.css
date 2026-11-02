@@ -1,5 +1,37 @@
 @import "tailwindcss";
 
+
+/* A phone with "Desktop site" turned on gets class "desk" on <html> (see index.html). Its browser is always 980 px wide,
+   so the lg (1024) and xl (1280) designs would never show. These make them show anyway, and index.html zooms the
+   page out so the 1280 px desktop design fits the screen exactly. */
+@custom-variant lg {
+  @media (width >=64rem) {
+    @slot;
+  }
+
+  &:where(.desk, .desk *) {
+    @slot;
+  }
+}
+
+@custom-variant xl {
+  @media (width >=80rem) {
+    @slot;
+  }
+
+  &:where(.desk, .desk *) {
+    @slot;
+  }
+}
+
+@custom-variant max-lg {
+  @media (width < 64rem) {
+    &:where(:not(.desk, .desk *)) {
+      @slot;
+    }
+  }
+}
+
 @theme {
   --font-sans: "Mukta", sans-serif;
   --color-brand: #0b3c9d;
