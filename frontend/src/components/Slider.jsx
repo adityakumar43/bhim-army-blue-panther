@@ -100,7 +100,7 @@ export default function Slider({ slides, interval = 5000 }) {
                   <img
                     src={cdn(url, 1200)}
                     srcSet={`${cdn(url, 640)} 640w, ${cdn(url, 1200)} 1200w, ${cdn(url, 1920)} 1920w`}
-                    sizes="100vw" alt={caption} loading={i === 0 ? 'eager' : 'lazy'} draggable="false"
+                    sizes="100vw" alt={caption} loading={i === 0 ? 'eager' : 'lazy'} fetchPriority={i === 0 ? 'high' : 'auto'} draggable="false"
                     className="relative h-full w-full object-contain" />
                   {caption && (
                     <div className="absolute inset-x-0 bottom-0 bg-linear-to-t from-navy/85 to-transparent px-5 pt-16 pb-14 text-white sm:px-10 lg:px-16">
