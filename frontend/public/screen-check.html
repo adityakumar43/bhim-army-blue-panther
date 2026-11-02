@@ -1,0 +1,38 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="robots" content="noindex" />
+  <title>Screen check</title>
+  <style>
+    body { font: 16px/1.5 system-ui, sans-serif; margin: 16px; background: #fff; color: #0a1a3f; }
+    table { border-collapse: collapse; width: 100%; }
+    td { border: 1px solid #ccd; padding: 6px 8px; vertical-align: top; word-break: break-all; }
+    td:first-child { font-weight: bold; white-space: nowrap; }
+  </style>
+</head>
+<body>
+  <h2>Screen check</h2>
+  <p>Take a screenshot of this page with "Desktop site" ON, and one with it OFF.</p>
+  <table id="t"></table>
+  <script>
+    var before = { w: innerWidth, vw: window.visualViewport ? Math.round(visualViewport.width) : '-' }
+    // Try the same switch the website uses, then measure again
+    document.querySelector('meta[name=viewport]').setAttribute('content', 'width=1280')
+    setTimeout(function () {
+      var rows = [
+        ['Page width (before)', before.w],
+        ['Page width (after asking for 1280)', innerWidth],
+        ['Visual width (before / after)', before.vw + ' / ' + (window.visualViewport ? Math.round(visualViewport.width) : '-')],
+        ['Screen width x height', screen.width + ' x ' + screen.height],
+        ['Pixel ratio', window.devicePixelRatio],
+        ['Touch points', navigator.maxTouchPoints],
+        ['Mobile (browser hint)', navigator.userAgentData ? String(navigator.userAgentData.mobile) : '-'],
+        ['Browser says', navigator.userAgent],
+      ]
+      document.getElementById('t').innerHTML = rows.map(function (r) { return '<tr><td>' + r[0] + '</td><td>' + r[1] + '</td></tr>' }).join('')
+    }, 300)
+  </script>
+</body>
+</html>
