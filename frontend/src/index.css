@@ -32,6 +32,11 @@
   }
 }
 
+/* Zoomed out, "one screen tall" needs more height, or the footer floats up on short pages */
+html.desk main {
+  min-height: calc(100svh / var(--desk-zoom, 1) - 4.5rem);
+}
+
 @theme {
   --font-sans: "Mukta", sans-serif;
   --color-brand: #0b3c9d;

@@ -15,7 +15,9 @@
         // Chrome keeps the page 980 px wide in this mode, so turn on the desktop layout (index.css) and zoom it to fit
         var html = document.documentElement
         html.classList.add('desk')
-        html.style.zoom = Math.min(1, window.innerWidth / 1280)
+        var zoom = Math.min(1, window.innerWidth / 1280)
+        html.style.zoom = zoom
+        html.style.setProperty('--desk-zoom', zoom) // used by index.css to keep the footer at the bottom
       }
     })()
   </script>
