@@ -5,6 +5,7 @@ import { api } from '../lib/api.js'
 import ZoomPhoto from '../components/ZoomPhoto.jsx'
 import { pickText, formatDate } from '../lib/text.js'
 import Loading from '../components/Loading.jsx'
+import EmptyState from '../components/EmptyState.jsx'
 
 export default function News() {
   const { t, i18n } = useTranslation()
@@ -25,7 +26,7 @@ export default function News() {
   return (
     <div className="mx-auto max-w-4xl px-5 py-12 lg:px-16">
 
-      {news.length === 0 && <p className="text-navy/70">{t('empty')}</p>}
+      {news.length === 0 && <EmptyState icon="news" />}
       <div className="flex flex-col gap-8">
         {news.map((n) => (
           <article key={n._id} className="panel">
@@ -43,7 +44,7 @@ export default function News() {
         <h2 className="text-3xl font-extrabold">{t('sections.events')}</h2>
         <Link to="/events" className="inline-flex min-h-10 items-center gap-2 rounded-xl border border-brand/20 bg-white px-4 font-semibold text-brand hover:bg-mist">📅 {t('cal.open')}</Link>
       </div>
-      {events.length === 0 && <p className="text-navy/70">{t('empty')}</p>}
+      {events.length === 0 && <EmptyState icon="calendar" />}
       <div className="flex flex-col gap-6">
         {events.map((ev) => (
           <article key={ev._id} className="panel">

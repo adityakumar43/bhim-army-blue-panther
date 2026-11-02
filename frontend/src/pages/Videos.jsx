@@ -5,6 +5,7 @@ import { pickText } from '../lib/text.js'
 import YouTubeLite from '../components/YouTubeLite.jsx'
 import { VIDEO_CATEGORIES, videoCategory } from '../data/videos.js'
 import Loading from '../components/Loading.jsx'
+import EmptyState from '../components/EmptyState.jsx'
 
 // Public page: speeches, rallies and events on YouTube
 export default function Videos() {
@@ -33,7 +34,7 @@ export default function Videos() {
             )}
             {error && <p role="alert" className="text-red-700">{error}</p>}
             {!items && !error && <Loading />}
-            {items?.length === 0 && <p className="panel text-center text-navy/70">{t('videos.empty')}</p>}
+            {items?.length === 0 && <EmptyState icon="video" text={t('videos.empty')} hint={false} />}
 
             <ul className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
                 {shown.map((v) => (

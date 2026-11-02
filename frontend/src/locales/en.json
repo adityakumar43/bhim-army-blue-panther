@@ -91,6 +91,7 @@
   },
   "loading": "Loading...",
   "empty": "Nothing published yet.",
+  "emptyHint": "New posts will appear here soon. Please check back later.",
   "viewAll": "View all",
   "join": {
     "title": "Become a Member",
