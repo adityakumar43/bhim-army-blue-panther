@@ -99,7 +99,7 @@ export default function Slider({ slides, interval = 5000 }) {
                 <SlideLink link={s.link} tabIndex={i === index ? 0 : -1} onZoom={() => setViewing(i)}>
                   <img
                     src={cdn(url, 1200)}
-                    srcSet={`${cdn(url, 640)} 640w, ${cdn(url, 1200)} 1200w, ${cdn(url, 1920)} 1920w`}
+                    srcSet={`${cdn(url, 480)} 480w, ${cdn(url, 800)} 800w, ${cdn(url, 1200)} 1200w, ${cdn(url, 1920)} 1920w`}
                     sizes="100vw" alt={caption} loading={i === 0 ? 'eager' : 'lazy'} fetchPriority={i === 0 ? 'high' : 'auto'} draggable="false"
                     className="relative h-full w-full object-contain" />
                   {caption && (
