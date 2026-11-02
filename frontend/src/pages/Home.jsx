@@ -11,6 +11,9 @@ import { campaigns } from '../data/compaigns.js'
 import InspirationsPreview from '../components/InspirationsPreview.jsx'
 
 const hideBroken = (e) => { e.currentTarget.style.display = 'none' }
+// The slides from the last visit, shown at once while the new list loads (null = never loaded on this device)
+const cachedSlides = () => { try { return JSON.parse(localStorage.getItem('slidesCache')) } catch { return null } }
+const cacheSlides = (list) => { try { localStorage.setItem('slidesCache', JSON.stringify(list)) } catch { /* ignore */ } }
 const wrap = 'mx-auto max-w-7xl px-5 py-16 lg:px-16'
 const cardBox = 'flex h-full flex-col overflow-hidden rounded-2xl border border-navy/10 bg-white shadow-sm transition hover:shadow-md'
 
@@ -43,12 +46,17 @@ export default function Home() {
   const { t, i18n } = useTranslation()
   const lang = i18n.language
   const [news, setNews] = useState([])
-  const [slides, setSlides] = useState([])
+  const [slides, setSlides] = useState(cachedSlides) // null while the first load is still on its way
   const [events, setEvents] = useState([])
 
   useEffect(() => {
     api.get('/news?limit=3').then(setNews).catch(() => setNews([]))
-    api.get('/slides').then(setSlides).catch(() => setSlides([]))
+    // Use the list index.html already started loading, if there is one
+    const early = window.__slides
+    window.__slides = undefined
+      ; (early ? early.then((list) => list || api.get('/slides')) : api.get('/slides'))
+        .then((list) => { setSlides(list); cacheSlides(list) })
+        .catch(() => setSlides((old) => old || []))
     // Upcoming events first (soonest on top), then the most recent past ones. Three are shown.
     api.get('/events?limit=20').then((all) => {
       const today = new Date().toLocaleDateString('en-CA')
@@ -61,7 +69,10 @@ export default function Home() {
   return (
     <>
 
-      {slides.length > 0 && <Slider slides={slides} />}
+      {/* While the slides load for the first time, an empty box of the same size keeps the page from jumping */}
+      {slides === null
+        ? <div aria-hidden="true" className="aspect-4/3 w-full bg-navy sm:aspect-video lg:aspect-21/9 lg:max-h-136" />
+        : slides.length > 0 && <Slider slides={slides} />}
       <Hero />
 
       {/* Our path: the three principles */}
@@ -104,7 +115,7 @@ export default function Home() {
       {events.length > 0 && (
         <section className="bg-white">
           <div className={wrap}>
-            <SectionHead title={t('sections.events')} intro={t('home.eventsIntro')} to="/events" label={t('cal.open')}/>
+            <SectionHead title={t('sections.events')} intro={t('home.eventsIntro')} to="/events" label={t('cal.open')} />
             <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
               {events.map((ev) => (
                 <Link key={ev._id} to={`/events/${ev._id}`} className={cardBox}>

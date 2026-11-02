@@ -17,6 +17,8 @@
   <!-- Connect to the backend and the photo server early, so the slides and news start loading sooner -->
   <link rel="preconnect" href="%VITE_API_URL%" crossorigin />
   <link rel="preconnect" href="https://res.cloudinary.com" />
+  <!-- The big photo on the home page starts downloading straight away -->
+  <link rel="preload" as="image" href="/hero.jpg" fetchpriority="high" />
   <link rel="icon" type="image/png" sizes="512x512" href="/logo.png" />
   <link rel="manifest" href="/manifest.webmanifest" />
   <link rel="apple-touch-icon" href="/icons/apple-touch-icon.png" />
@@ -32,6 +34,10 @@
 </head>
 
 <body>
+  <script>
+    // On the home page, start loading the slides list before the app's code has even arrived (saves about a second on phones)
+    if (location.pathname === '/') window.__slides = fetch('%VITE_API_URL%/slides').then((r) => (r.ok ? r.json() : null)).catch(() => null)
+  </script>
   <div id="root"></div>
   <script type="module" src="/src/main.jsx"></script>
 </body>

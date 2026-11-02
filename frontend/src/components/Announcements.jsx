@@ -10,6 +10,9 @@ const safeLink = (l) => (l && /^(\/(?!\/)|https?:\/\/)/.test(l) ? l : null)
 // Private browsing can block this storage, so a problem here must never break the page
 const remembered = () => { try { return sessionStorage.getItem('hiddenUpdates') } catch { return null } }
 const remember = (value) => { try { sessionStorage.setItem('hiddenUpdates', value) } catch { /* ignore */ } }
+// The updates from the last visit, shown at once while the new ones load (null = never loaded on this device)
+const cachedUpdates = () => { try { return JSON.parse(localStorage.getItem('updatesCache')) } catch { return null } }
+const cacheUpdates = (list) => { try { localStorage.setItem('updatesCache', JSON.stringify(list)) } catch { /* ignore */ } }
 
 const Icon = ({ d }) => (
   <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.4"
@@ -24,18 +27,20 @@ const FADE = '@keyframes updateIn{from{opacity:0;transform:translateY(6px)}to{op
 export default function Announcements({ interval = 6000 }) {
   const { t, i18n } = useTranslation()
   const lang = i18n.language
-  const [items, setItems] = useState([])
+  const [items, setItems] = useState(cachedUpdates) // null while the first load is still on its way
   const [index, setIndex] = useState(0)
   // People who asked their device for less motion get a bar that does not change by itself
   const [playing, setPlaying] = useState(() => !window.matchMedia?.('(prefers-reduced-motion: reduce)').matches)
   const [hold, setHold] = useState(false) // hovering or using the keyboard inside
   const [hidden, setHidden] = useState(false)
   const swipe = useRef(null)
-  const n = items.length
-  const signature = items.map((a) => a._id).join(',')
+  const n = items?.length || 0
+  const signature = (items || []).map((a) => a._id).join(',')
 
   useEffect(() => {
-    api.get('/announcements/current').then(setItems).catch(() => setItems([]))
+    api.get('/announcements/current')
+      .then((list) => { setItems(list); cacheUpdates(list) })
+      .catch(() => setItems((old) => old || []))
   }, [])
 
   // A visitor who hides the bar stays free of it for this visit, until a NEW update appears
@@ -49,6 +54,9 @@ export default function Announcements({ interval = 6000 }) {
     const id = setTimeout(() => setIndex((i) => (i + 1) % n), Math.max(interval, words * 350))
     return () => clearTimeout(id)
   }, [n, playing, hold, index, interval, lang, items])
+
+  // While loading for the first time, keep the bar's space so the page does not jump down when it appears
+  if (items === null) return <div aria-hidden="true" className="border-b border-white/10 bg-[linear-gradient(90deg,#0a1a3f_0%,#0b3c9d_50%,#0a1a3f_100%)]"><div className="min-h-13" /></div>
 
   if (n === 0 || hidden) return null
 
@@ -78,7 +86,7 @@ export default function Announcements({ interval = 6000 }) {
     >
       <style>{FADE}</style>
       {/* One slim row. On phones the label shrinks to a red dot and long updates show two lines. */}
-      <div className="mx-auto flex max-w-7xl items-center gap-x-3 px-4 py-2 sm:gap-x-4 sm:px-5 sm:py-2.5 lg:px-16">
+      <div className="mx-auto flex min-h-13 max-w-7xl items-center gap-x-3 px-4 py-2 sm:gap-x-4 sm:px-5 sm:py-2.5 lg:px-16">
         <span className="relative flex h-2 w-2 shrink-0 sm:hidden" aria-hidden="true">
           <span className="absolute inline-flex h-full w-full rounded-full bg-red-500 opacity-75 motion-safe:animate-ping" />
           <span className="relative inline-flex h-2 w-2 rounded-full bg-red-600" />

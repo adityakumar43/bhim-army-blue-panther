@@ -12,7 +12,8 @@ export default function Hero() {
   const { t, i18n } = useTranslation()
   const [photoOk, setPhotoOk] = useState(true)
   // The photo's own width ÷ height, measured when it loads, so the frame takes exactly its shape
-  const [ratio, setRatio] = useState(4 / 5)
+  // Starts at hero.jpg's own shape (1000 × 962), so the frame does not change size when the photo arrives
+  const [ratio, setRatio] = useState(1000 / 962)
   const photo = useRef(null)
   const measure = () => {
     const img = photo.current
@@ -67,7 +68,7 @@ export default function Hero() {
           style={photoOk ? { aspectRatio: ratio } : undefined}
         >
           {photoOk
-            ? <img ref={photo} src="/hero.jpg" alt="" onLoad={measure} onError={() => setPhotoOk(false)} className="absolute inset-0 h-full w-full object-contain" />
+            ? <img ref={photo} src="/hero.jpg" alt="" fetchPriority="high" onLoad={measure} onError={() => setPhotoOk(false)} className="absolute inset-0 h-full w-full object-contain" />
             : <Chakra className="absolute inset-0 m-auto h-2/3 w-2/3 text-white/20" />}
           <div className="absolute inset-x-0 bottom-0 bg-linear-to-t from-navy/90 to-transparent p-5 pt-16">
             <span className="rounded-md bg-gold px-2.5 py-1 text-xs font-extrabold text-navy">{t('heroPhoto')}</span>
