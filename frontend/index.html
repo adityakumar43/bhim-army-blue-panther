@@ -4,6 +4,17 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <script>
+    // A phone with "Desktop site" turned on: show the full desktop design (as on a 1280 px laptop screen, zoomed out to fit).
+    // Found by: a touch screen the size of a phone, but a browser that says it is a computer.
+    (function () {
+      var small = Math.min(screen.width, screen.height) < 600
+      var saysComputer = !/Mobi|Android|iPhone|iPad/i.test(navigator.userAgent)
+      if (navigator.maxTouchPoints > 0 && small && saysComputer) {
+        document.querySelector('meta[name=viewport]').setAttribute('content', 'width=1280')
+      }
+    })()
+  </script>
   <meta name="theme-color" content="#0B3C9D" />
   <title>Bhim Army Blue Panther</title>
   <link rel="preconnect" href="https://fonts.googleapis.com" />
