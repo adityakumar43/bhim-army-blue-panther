@@ -234,9 +234,9 @@ export default function Join() {
             <span>{filled === total
               ? `🎉 ${t('join.allDone', { defaultValue: 'All set! You can send your application.' })}`
               : t('join.progress', { done: filled, total, defaultValue: '{{done}} of {{total}} required fields done' })}</span>
-            <span className="text-navy/50"><span className="text-red-600">*</span> {t('join.required', { defaultValue: 'Required' })}</span>
+            <span className="text-navy/70"><span className="text-red-600">*</span> {t('join.required', { defaultValue: 'Required' })}</span>
           </div>
-          <div className="h-2.5 overflow-hidden rounded-full bg-mist" role="progressbar" aria-valuemin={0} aria-valuemax={total} aria-valuenow={filled}>
+          <div className="h-2.5 overflow-hidden rounded-full bg-mist" role="progressbar" aria-label={t('join.progressLabel', { defaultValue: 'Form progress' })} aria-valuemin={0} aria-valuemax={total} aria-valuenow={filled}>
             <div className={`h-full rounded-full transition-all duration-500 ${filled === total ? 'bg-green-600' : 'bg-gold'}`} style={{ width: `${(filled / total) * 100}%` }} />
           </div>
         </div>
@@ -336,14 +336,14 @@ export default function Join() {
                 </label>
               </div>
               <p className="mt-2 text-sm text-navy/60">{t('join.photoHint')}</p>
-              {photo && <p className="mt-1 truncate text-xs text-navy/50">📎 {photo.name}</p>}
+              {photo && <p className="mt-1 truncate text-xs text-navy/70">📎 {photo.name}</p>}
             </div>
           </div>
         </Section>
 
         <Section icon="chat" title={t('join.message')}>
-          <textarea rows="3" maxLength="500" value={form.message || ''} onChange={set('message')} className="input" />
-          <p className="mt-1 text-right text-xs text-navy/50">{(form.message || '').length}/500</p>
+          <textarea rows="3" maxLength="500" value={form.message || ''} onChange={set('message')} aria-label={t('join.message')} className="input" />
+          <p className="mt-1 text-right text-xs text-navy/70">{(form.message || '').length}/500</p>
         </Section>
 
         {/* Hidden trap for bots. Real visitors never see or fill this. */}
@@ -359,7 +359,7 @@ export default function Join() {
           <Svg name="send" />
           {busy ? t('join.sending') : t('join.submit')}
         </button>
-        <p className="flex items-start justify-center gap-1.5 px-2 text-center text-sm text-navy/60">
+        <p className="flex items-start justify-center gap-1.5 px-2 text-center text-sm text-navy/70">
           <Svg name="lock" size={15} className="mt-0.5 shrink-0" /> {t('join.privacy', { defaultValue: 'Your details are safe with us and seen only by our team.' })}
         </p>
       </form>

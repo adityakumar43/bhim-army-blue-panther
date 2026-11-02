@@ -18,6 +18,10 @@ RewriteRule ^ index.html [L]
   <FilesMatch "^(index\.html|sw\.js|manifest\.webmanifest)$">
     Header set Cache-Control "no-cache"
   </FilesMatch>
+    # Pictures and icons: kept for a week (a changed picture shows up within 7 days, or at once after a hard refresh)
+  <If "%{REQUEST_URI} =~ m#\.(png|jpe?g|webp|svg|ico)$#">
+    Header set Cache-Control "public, max-age=604800"
+  </If>
   <If "%{REQUEST_URI} =~ m#^/assets/#">
     Header set Cache-Control "public, max-age=31536000, immutable"
   </If>
