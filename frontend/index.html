@@ -3,6 +3,12 @@
 
 <head>
   <meta charset="UTF-8" />
+  <script>
+    // Old address (Render): send visitors to the real website, on the same page
+    if (/\.onrender\.com$/i.test(location.hostname)) {
+      location.replace('https://bhimarmybluepanther.org' + location.pathname + location.search + location.hash)
+    }
+  </script>
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <script>
     // A phone with "Desktop site" turned on: show the full desktop design (as on a 1280 px laptop screen, zoomed out to fit).
