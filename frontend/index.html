@@ -78,7 +78,19 @@
     // On the home page, start loading the slides list before the app's code has even arrived (saves about a second on phones)
     if (location.pathname === '/') window.__slides = fetch('%VITE_API_URL%/slides').then((r) => (r.ok ? r.json() : null)).catch(() => null)
   </script>
-  <div id="root"></div>
+  <div id="root">
+    <!-- A plain-text version of the site for search engines and AI crawlers that do not run JavaScript.
+         Visitors never see it: it is hidden, and the app replaces it as soon as it loads. -->
+    <div style="position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap">
+      <h1>Bhim Army Blue Panther (भीम आर्मी ब्लू पैंथर)</h1>
+      <p>A social organisation in India working to uplift Dalit, backward, minority, women and tribal (Adivasi) communities and to raise a strong voice against crimes, exploitation and atrocities committed against them. Educate, Organise, Struggle (शिक्षित बनो, संगठित रहो, संघर्ष करो).</p>
+      <nav>
+        <a href="/about">About Us</a> <a href="/leadership/states">State Leadership</a> <a href="/campaigns">Campaigns</a>
+        <a href="/news">News</a> <a href="/events">Events</a> <a href="/join">Join Us</a> <a href="/help">Help Desk</a>
+        <a href="/volunteer">Volunteer</a> <a href="/donate">Donate</a> <a href="/contact">Contact</a>
+      </nav>
+    </div>
+  </div>
   <script type="module" src="/src/main.jsx"></script>
 </body>
 
