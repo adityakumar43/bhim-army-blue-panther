@@ -25,6 +25,7 @@ import downloadRoutes from './routes/downloads.js'
 import videoRoutes from './routes/videos.js'
 import shareRoutes from './routes/share.js'
 import sitemapRoutes from './routes/sitemap.js'
+import llmsRoutes from './routes/llms.js'
 import birthdayRoutes from './routes/birthdays.js'
 import certificateRoutes from './routes/certificates.js'
 import mailoutRoutes from './routes/mailouts.js'
@@ -100,6 +101,7 @@ app.use('/api/downloads', downloadRoutes)
 app.use('/api/videos', videoRoutes)
 app.use('/share', shareRoutes)
 app.use('/sitemap.xml', sitemapRoutes)
+app.use('/llms.txt', llmsRoutes)
 app.use('/api/birthdays', birthdayRoutes)
 app.use('/api/certificates', certificateRoutes)
 app.use('/api/mailouts', mailoutRoutes)

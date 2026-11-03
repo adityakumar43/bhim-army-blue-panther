@@ -6,6 +6,8 @@
 Options -MultiViews
 RewriteEngine On
 RewriteBase /
+# llms.txt (summary for AI assistants) is built live by the backend, with the current leaders
+RewriteRule ^llms\.txt$ https://api.bhimarmybluepanther.org/llms.txt [R=302,L]
 # Real files (pictures, scripts, styles) are sent as they are
 RewriteCond %{REQUEST_FILENAME} -f [OR]
 RewriteCond %{REQUEST_FILENAME} -d
