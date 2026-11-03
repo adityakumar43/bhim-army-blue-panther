@@ -5,7 +5,7 @@ import { api } from '../lib/api.js'
 import { stateByCode, stateName } from '../data/states.js'
 import { pickText } from '../lib/text.js'
 import { Band } from '../components/PageBand.jsx'
-import { useSeo } from '../components/Seo.jsx'
+import { useSeo, useJsonLd, leadersJsonLd } from '../components/Seo.jsx'
 import LeaderCard from '../components/LeaderCard.jsx'
 import Loading from '../components/Loading.jsx'
 import Icon from '../components/BoxIcon.jsx' // two-tone icons for the coloured boxes
@@ -49,6 +49,8 @@ export default function StateLeaders() {
     const districts = groups.sort((a, b) => a.name.localeCompare(b.name, lang))
     return { stateTeam: list.filter((x) => x.level !== 'district'), districts }
   }, [leaders, lang])
+
+  useJsonLd('leaders-jsonld', leadersJsonLd(leaders, state?.en))
 
   const back = <Link to="/leadership/states" className="mb-6 inline-flex items-center gap-1 font-semibold text-brand">← {t('leaders.back')}</Link>
 

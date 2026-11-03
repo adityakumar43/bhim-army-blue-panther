@@ -68,7 +68,45 @@ export function useSeo({ title, description, image, type }) {
     }, [title, description, image, type, language])
 }
 
-// Tells Google who the organisation is (name, logo, website). Added once.
+// Puts structured data (JSON-LD) on the page while it is open, and removes it when the page closes.
+// Google, Bing and AI assistants read it to know exactly who is who. Pass null to add nothing.
+export function useJsonLd(id, data) {
+    const json = data ? JSON.stringify(data) : ''
+    useEffect(() => {
+        if (!json) return
+        const script = document.createElement('script')
+        script.type = 'application/ld+json'
+        script.id = id
+        script.textContent = json
+        document.head.appendChild(script)
+        return () => script.remove()
+    }, [id, json])
+}
+
+// Leaders as schema.org people, each linked to the organisation. `where` is added to the post (for example a state).
+export function leadersJsonLd(list, where = '') {
+    if (!list?.length) return null
+    const org = `${window.location.origin}/#organization`
+    return {
+        '@context': 'https://schema.org',
+        '@graph': list.map((l) => {
+            const name = l.nameEn || l.nameHi
+            const role = l.roleEn || l.roleHi
+            const area = l.level === 'district' ? l.areaEn || l.areaHi : ''
+            return {
+                '@type': 'Person',
+                name,
+                ...(l.nameEn && l.nameHi ? { alternateName: l.nameHi } : {}),
+                ...(role ? { jobTitle: [role, area, where].filter(Boolean).join(', ') } : {}),
+                ...(l.photo ? { image: absolute(l.photo) } : {}),
+                memberOf: { '@id': org, '@type': 'Organization', name: 'Bhim Army Blue Panther' },
+                url: window.location.href.split('#')[0],
+            }
+        }),
+    }
+}
+
+// Tells Google who the organisation is (name, logo, website). Added once (index.html already has it).
 function addOrganisation() {
     if (document.getElementById('org-jsonld')) return
     const script = document.createElement('script')

@@ -54,6 +54,23 @@
   <meta property="og:description" content="शिक्षित बनो, संगठित रहो, संघर्ष करो" />
   <meta property="og:image" content="%VITE_SITE_URL%/og-default.jpg" />
   <meta name="twitter:card" content="summary_large_image" />
+  <!-- Tells Google, Bing and AI assistants who the organisation is. Leaders are added by the About and State pages. -->
+  <script type="application/ld+json" id="org-jsonld">
+    {
+      "@context": "https://schema.org",
+      "@type": "Organization",
+      "@id": "%VITE_SITE_URL%/#organization",
+      "name": "Bhim Army Blue Panther",
+      "alternateName": ["भीम आर्मी ब्लू पैंथर", "Bhim Army Blue Panthers", "Blue Panther"],
+      "url": "%VITE_SITE_URL%",
+      "logo": "%VITE_SITE_URL%/logo.png",
+      "image": "%VITE_SITE_URL%/og-default.jpg",
+      "description": "A social organisation in India working to uplift Dalit, backward, minority, women and tribal (Adivasi) communities and to raise a strong voice against crimes, exploitation and atrocities committed against them.",
+      "slogan": "Educate, Organise, Struggle (शिक्षित बनो, संगठित रहो, संघर्ष करो)",
+      "areaServed": { "@type": "Country", "name": "India" },
+      "knowsLanguage": ["hi", "en"]
+    }
+  </script>
 </head>
 
 <body>

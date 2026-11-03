@@ -5,6 +5,7 @@ import { api } from '../lib/api.js'
 import Icon from './Icon.jsx'
 import LeaderCard from './LeaderCard.jsx'
 import Loading from './Loading.jsx'
+import { useJsonLd, leadersJsonLd } from './Seo.jsx'
 
 // The Leadership part of the About page: national leaders, then the way into state leadership
 export default function Leadership() {
@@ -14,6 +15,8 @@ export default function Leadership() {
   useEffect(() => {
     api.get('/leaders?level=national').then(setNational).catch(() => setNational([]))
   }, [])
+
+  useJsonLd('leaders-jsonld', leadersJsonLd(national, 'India'))
 
   return (
     <>
