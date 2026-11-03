@@ -3,6 +3,7 @@ import { useLocation } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
 import i18n from '../i18n.js'
 import { BANDS } from './PageBand.jsx'
+import { ORG } from '../lib/orgInfo.js'
 
 // Search engines (Google, Bing) read the page title, description and links set here.
 // Every page gets these automatically; pages with their own content (one news item, one event,
@@ -123,6 +124,20 @@ function addOrganisation() {
     document.head.appendChild(script)
 }
 
+// Adds the organisation's social media pages (from lib/orgInfo.js) to the organisation block in index.html,
+// so Google and AI assistants know those pages are the same organisation. Empty links are skipped.
+function addSocialLinks() {
+    const el = document.getElementById('org-jsonld')
+    const links = Object.values(ORG.social || {}).filter((u) => /^https?:\/\//.test(u || ''))
+    if (!el || !links.length || el.dataset.social) return
+    try {
+        const data = JSON.parse(el.textContent)
+        data.sameAs = links
+        el.textContent = JSON.stringify(data)
+        el.dataset.social = '1'
+    } catch { /* leave it as it is */ }
+}
+
 // Put once in App.jsx. Sets the title and description for every ordinary page.
 export default function RouteSeo() {
     const { pathname } = useLocation()
@@ -131,6 +146,7 @@ export default function RouteSeo() {
     useEffect(() => {
         document.documentElement.lang = language
         addOrganisation()
+        addSocialLinks()
         if (OWN_SEO.test(pathname)) return
         if (PRIVATE.test(pathname)) return applySeo({ title: pathname.startsWith('/admin') ? 'Admin' : null, noindex: true })
         const band = BANDS[pathname]

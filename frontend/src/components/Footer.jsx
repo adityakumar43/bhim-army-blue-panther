@@ -18,6 +18,9 @@ export default function Footer() {
   const path = ['educate', 'organize', 'struggle'].map((k) => t(`about.${k}.title`))
   const head = 'mb-3 text-sm font-extrabold tracking-wide text-gold uppercase'
   const link = 'inline-flex min-h-8 items-center text-sm text-white/75 hover:text-white'
+  // Social media pages that have a link in lib/orgInfo.js
+  const SOCIAL_NAMES = { facebook: 'Facebook', instagram: 'Instagram', youtube: 'YouTube', x: 'X (Twitter)', whatsapp: 'WhatsApp', linkedin: 'LinkedIn' }
+  const social = Object.entries(ORG.social || {}).filter(([, url]) => /^https?:\/\//.test(url || ''))
 
   return (
     <footer className="print:hidden bg-[#06112c] text-white">
@@ -55,6 +58,18 @@ export default function Footer() {
             {ORG.phone && <a href={`tel:${ORG.phone.replace(/\s/g, '')}`} className="text-gold hover:underline">{ORG.phone}</a>}
             {ORG.email && <a href={`mailto:${ORG.email}`} className="break-all hover:text-white hover:underline">{ORG.email}</a>}
           </address>
+          {social.length > 0 && (
+            <ul className="mt-4 flex flex-wrap gap-2" aria-label="Social media">
+              {social.map(([key, url]) => (
+                <li key={key}>
+                  <a href={url} target="_blank" rel="noopener noreferrer me"
+                    className="inline-flex min-h-9 items-center rounded-full border border-white/20 px-3 text-xs font-semibold text-white/85 hover:border-gold hover:text-gold">
+                    {SOCIAL_NAMES[key] || key}
+                  </a>
+                </li>
+              ))}
+            </ul>
+          )}
         </div>
       </div>
 
