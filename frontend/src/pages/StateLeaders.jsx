@@ -67,7 +67,7 @@ export default function StateLeaders() {
   return (
     <>
       <Band kicker={t('leaders.state')} title={stateName(state, i18n.language)} />
-      <div className="mx-auto max-w-7xl px-5 py-10 lg:px-16">
+      <div className="mx-auto max-w-7xl px-5 pt-10 pb-20 lg:px-16">
         {back}
         {leaders === null && <Loading />}
         {leaders?.length === 0 && <EmptyState icon="users" text={t('leaders.stateEmpty')} hint={false} />}
@@ -75,7 +75,7 @@ export default function StateLeaders() {
         {stateTeam.length > 0 && (
           <section>
             {districts.length > 0 && <h2 className="mb-4 text-2xl font-extrabold">🏛️ {t('leaders.stateTeam', { defaultValue: 'State team' })}</h2>}
-            <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 sm:gap-5 lg:grid-cols-4">
+            <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 sm:gap-5 md:grid-cols-4 lg:grid-cols-5">
               {stateTeam.map((l) => <LeaderCard key={l._id} leader={l} />)}
             </div>
           </section>
