@@ -6,8 +6,11 @@ import { backfillCards } from '../services/members.js'
 export async function connectDB() {
   await mongoose.connect(process.env.MONGO_URI)
   console.log('MongoDB connected')
+  // One-time tidying of old records: done in the background, so visitors never wait for it
+  upkeep().catch((err) => console.error('Start-up upkeep failed:', err.message))
+}
 
-
+async function upkeep() {
   await Admin.updateMany({ role: { $exists: false } }, { role: 'superadmin' })
   await Admin.updateMany({ active: { $exists: false } }, { active: true })
   await backfillCards()
