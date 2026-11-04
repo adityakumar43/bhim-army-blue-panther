@@ -25,6 +25,7 @@ export const BANDS = {
 
 // Pages with a band get the light grey background. Each state's page draws its own band (with the state's name).
 export const hasBand = (pathname) => Object.hasOwn(BANDS, pathname) || pathname.startsWith('/leadership/states/') || pathname.startsWith('/inspirations/')
+    || pathname.startsWith('/news/') || pathname.startsWith('/events/') // one news item or event: a white card on the grey background
 
 const dots = { backgroundImage: 'radial-gradient(rgba(255,255,255,0.07) 1px, transparent 1px)', backgroundSize: '22px 22px' }
 

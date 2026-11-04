@@ -47,19 +47,21 @@ export default function Detail({ kind }) {
     return (
         <article className="mx-auto max-w-3xl px-5 py-12 lg:px-16">
             <Link to="/news" className="font-semibold text-brand">← {t('detail.back')}</Link>
-            {item.image?.url && <ZoomPhoto item={item} width={1200} buttonClassName="mt-6" className="max-h-112 w-full object-cover" />}
-            <div className="mt-6 font-semibold text-brand">
-                {formatDate(date, lang)}{item.time ? `, ${timeText(item.time, lang)}` : ''}{item.location ? `, ${item.location}` : ''}
-            </div>
-            <h1 className="my-2 text-3xl font-extrabold">{pickText(item, 'title', lang)}</h1>
-            <ListenButton item={item} kind={kind} small className="mb-3" />
-            <p className="text-lg whitespace-pre-line">{pickText(item, 'body', lang)}</p>
-            {kind === 'events' && <EventActions event={item} className="mt-5" />}
-            {kind === 'events' && <EventRsvp eventId={item._id} />}
-            {/* Share: as a poster picture, or as a link */}
-            <div className="mt-8 flex flex-wrap items-start gap-3">
-                <WhatsAppShare item={item} kind={kind} />
-                <SharePoster item={item} kind={kind} link={shareLink(kind, item._id)} />
+            <div className="panel mt-6">
+                {item.image?.url && <ZoomPhoto item={item} width={1200} buttonClassName="mb-6" className="max-h-112 w-full object-cover" />}
+                <div className="font-semibold text-brand">
+                    {formatDate(date, lang)}{item.time ? `, ${timeText(item.time, lang)}` : ''}{item.location ? `, ${item.location}` : ''}
+                </div>
+                <h1 className="my-2 text-3xl font-extrabold">{pickText(item, 'title', lang)}</h1>
+                <ListenButton item={item} kind={kind} small className="mb-3" />
+                <p className="text-lg whitespace-pre-line">{pickText(item, 'body', lang)}</p>
+                {kind === 'events' && <EventActions event={item} className="mt-5" />}
+                {kind === 'events' && <EventRsvp eventId={item._id} />}
+                {/* Share: as a poster picture, or as a link */}
+                <div className="mt-8 flex flex-wrap items-start gap-3">
+                    <WhatsAppShare item={item} kind={kind} />
+                    <SharePoster item={item} kind={kind} link={shareLink(kind, item._id)} />
+                </div>
             </div>
         </article>
     )

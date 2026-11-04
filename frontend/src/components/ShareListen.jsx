@@ -13,13 +13,13 @@ const WA_PATH = 'M12.04 2C6.58 2 2.13 6.45 2.13 11.91c0 1.75.46 3.45 1.32 4.95L2
 export function WhatsAppShare({ item, kind, small = false, className = '' }) {
     const { t, i18n } = useTranslation()
     const text = `${pickText(item, 'title', i18n.language)}\n${shareLink(kind, item._id)}`
-    const size = small ? 'min-h-10 gap-1.5 rounded-full px-3.5 text-sm' : 'min-h-11 gap-2 rounded-xl px-5'
+    const size = small ? 'min-h-10 gap-1.5 rounded-full px-3.5 text-sm font-semibold' : 'btn gap-2' // big: the same size as the site's other buttons
     return (
         <a
             href={`https://wa.me/?text=${encodeURIComponent(text)}`}
             target="_blank" rel="noopener noreferrer"
             onClick={() => trackEvent('share', { method: 'whatsapp', content_type: kind, item_id: item._id })}
-            className={`inline-flex items-center justify-center bg-[#25d366] font-semibold text-white hover:bg-[#1da851] ${size} ${className}`}
+            className={`inline-flex items-center justify-center bg-[#25d366] text-white hover:bg-[#1da851] ${size} ${className}`}
         >
             <svg viewBox="0 0 24 24" width={small ? 16 : 20} height={small ? 16 : 20} fill="currentColor" aria-hidden="true"><path d={WA_PATH} /></svg>
             {small ? t('detail.shareShort', { defaultValue: 'Share' }) : t('detail.share')}
