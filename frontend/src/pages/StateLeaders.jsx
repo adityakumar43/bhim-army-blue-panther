@@ -67,7 +67,7 @@ export default function StateLeaders() {
   return (
     <>
       <Band kicker={t('leaders.state')} title={stateName(state, i18n.language)} />
-      <div className="mx-auto max-w-7xl px-5 pt-10 pb-20 lg:px-16">
+      <div className="mx-auto max-w-7xl px-5 py-10 lg:px-16">
         {back}
         {leaders === null && <Loading />}
         {leaders?.length === 0 && <EmptyState icon="users" text={t('leaders.stateEmpty')} hint={false} />}

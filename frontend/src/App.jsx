@@ -91,7 +91,7 @@ export default function App() {
       <ScrollToTop />
       {!isAdmin && <Navbar />}
       {/* At least a screen tall, so on a short page (or an empty one) the footer stays at the bottom, not up near the header */}
-      <main className={`${isAdmin ? '' : 'min-h-[calc(100svh-4.5rem)]'} ${hasBand(pathname) ? 'bg-[#f3f6fb]' : ''}`}>
+      <main className={`${isAdmin ? '' : 'min-h-[calc(100svh-4.5rem)]'} ${isAdmin || pathname === '/' ? '' : 'pb-8 sm:pb-12'} ${hasBand(pathname) ? 'bg-[#f3f6fb]' : ''}`}>
         {!isAdmin && <PageBand />}
         <Suspense fallback={<Loading page />}>
           <Routes>
