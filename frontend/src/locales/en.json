@@ -8,7 +8,10 @@
   "detail": {
     "back": "News & Events",
     "notFound": "This page was not found.",
-    "share": "Share on WhatsApp"
+    "share": "Share on WhatsApp",
+    "shareShort": "Share",
+    "listen": "Listen",
+    "stop": "Stop"
   },
   "poster": {
     "button": "Share as a poster",
@@ -665,5 +668,26 @@
     "doneTitle": "Your details are updated",
     "doneBody": "Thank you. Our team has been told about the change.",
     "noChange": "Nothing was changed."
+  },
+  "board": {
+    "title": "Invite leaderboard",
+    "intro": "Members whose invite link brought the most new members into the organisation.",
+    "link": "Invite leaderboard",
+    "see": "See the invite leaderboard",
+    "state": "State",
+    "district": "District",
+    "allIndia": "All of India",
+    "allDistricts": "All districts",
+    "allTime": "All time",
+    "month": "Last 30 days",
+    "members_one": "member",
+    "members_other": "members",
+    "summary": "{{joined}} new members brought in by {{inviters}} members",
+    "empty": "Nobody here has brought in a new member yet. Be the first!",
+    "howTitle": "How do I get on the board?",
+    "how": "Open “Check membership status”, enter your mobile number and date of birth, and share the invite link shown there. Everyone who joins with your link and is approved counts for you.",
+    "howLink": "Get my invite link",
+    "failed": "Could not load the leaderboard. Please try again.",
+    "privacy": "Only the first name, the first letter of the surname and the place are shown."
   }
 }

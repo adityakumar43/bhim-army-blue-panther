@@ -55,6 +55,7 @@ const Security = page(() => import('./pages/admin/Security.jsx'))
 const Activity = page(() => import('./pages/admin/Activity.jsx'))
 const Backup = page(() => import('./pages/admin/Backup.jsx'))
 const MemberStatus = page(() => import('./pages/MemberStatus.jsx'))
+const Leaderboard = page(() => import('./pages/Leaderboard.jsx'))
 const HelpDesk = page(() => import('./pages/HelpDesk.jsx'))
 const HelpDeskAdmin = page(() => import('./pages/admin/HelpDeskAdmin.jsx'))
 const Volunteer = page(() => import('./pages/Volunteer.jsx'))
@@ -109,6 +110,7 @@ export default function App() {
             <Route path="/inspirations" element={<Inspirations />} />
             <Route path="/inspirations/:slug" element={<Inspiration />} />
             <Route path="/membership/status" element={<MemberStatus />} />
+            <Route path="/leaderboard" element={<Leaderboard />} />
             <Route path="/membership/update" element={<UpdateDetails />} />
             <Route path="/help" element={<HelpDesk />} />
             <Route path="/volunteer" element={<Volunteer />} />

@@ -366,6 +366,12 @@ export default function Members() {
                       📧 {m.cardEmailedAt ? 'Email again' : 'Email card'}
                     </button>
                   )}
+                  {!viewOnly && (
+                    <button onClick={() => act(() => api.patch(`/members/${m._id}/board`, { hidden: !m.hideFromBoard }))} className="abtn min-h-9 px-3"
+                      title="Whether this member's first name can appear on the public Invite leaderboard">
+                      {m.hideFromBoard ? '🏆 Show on leaderboard' : '🙈 Hide from leaderboard'}
+                    </button>
+                  )}
                 </div>
               </div>
             )}

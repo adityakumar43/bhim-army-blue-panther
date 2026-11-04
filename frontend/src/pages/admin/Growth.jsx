@@ -3,6 +3,7 @@ import { api } from '../../lib/api.js'
 import { STATES } from '../../data/states.js'
 import { PageHeader, Notice, ListLoading } from './ui.jsx'
 import { Tile, MonthBars } from './Stats.jsx'
+import IndiaMap from './IndiaMap.jsx'
 
 const sortedStates = [...STATES].sort((a, b) => a.en.localeCompare(b.en))
 const n = (v) => Number(v || 0).toLocaleString('en-IN')
@@ -94,8 +95,9 @@ export default function Growth() {
                         <MonthBars title="🆕 New members per month" data={data.perMonth} />
                         <MonthBars title="📈 Total members" data={data.total} />
 
+                        {!data.state && <IndiaMap rows={data.byState} onPick={setState} />}
                         {!data.state && (
-                            <Places title="🗺️ Members by state (tap a state for its districts)" rows={data.byState} onPick={setState} empty="No approved members yet." />
+                            <Places title="📊 Members by state (tap a state for its districts)" rows={data.byState} onPick={setState} empty="No approved members yet." />
                         )}
                         {data.state && (
                             <div className="flex flex-col gap-4">

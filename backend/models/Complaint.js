@@ -29,9 +29,11 @@ const complaintSchema = new mongoose.Schema(
     consentAt: Date, // when they ticked "I agree" to the Privacy Policy
     assignedTo: { adminId: mongoose.Schema.Types.ObjectId, name: String }, // the team member handling this case
     remindedAt: Date, // the last reminder email to the team about this case
+    // Still no update after a week: 1 = the State Admins were told, 2 = the Super Admins too. Counts only while at is after the last update.
+    escalation: { level: Number, at: Date },
     notes: [{ text: { type: String, maxlength: 2000 }, byName: String, at: { type: Date, default: Date.now } }], // team only
   },
   { timestamps: true }
 )
 
-export default mongoose.model('Complaint', complaintSchema)
+export default mongoose.model('Complaint', complaintSchema)

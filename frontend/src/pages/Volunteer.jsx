@@ -2,6 +2,7 @@ import { useMemo, useState } from 'react'
 import { Link } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
 import { api } from '../lib/api.js'
+import { trackEvent } from '../lib/analytics.js'
 import { STATES, stateName } from '../data/states.js'
 import { SKILLS, AVAILABILITY } from '../data/volunteers.js'
 import Consent from '../components/Consent.jsx'
@@ -60,6 +61,7 @@ export default function Volunteer() {
         setBusy(true)
         try {
             const r = await api.post('/volunteers', { ...form, consent: true })
+            trackEvent('volunteer_signup')
             setDone({ updated: !!r?.updated })
             window.scrollTo({ top: 0, behavior: 'smooth' })
         } catch (err) {

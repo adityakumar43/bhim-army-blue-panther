@@ -2,7 +2,7 @@ import { Router } from 'express'
 import Member from '../models/Member.js'
 import { protect, requirePermission, stateScope } from '../middleware/auth.js'
 import { STATE_CODES } from '../config/states.js'
-import { memberStateFilter, codeFromName, stateNameEn } from '../config/stateNames.js'
+import { memberStateFilter, memberInState, codeFromName, stateNameEn } from '../config/stateNames.js'
 import { canonicalDistrict, districtsOfState } from '../config/districts.js'
 
 // Member growth: where the members are, how fast they are joining, and who brings in the most new members.
@@ -17,6 +17,54 @@ function lastMonths(n = 12) {
     for (let i = n - 1; i >= 0; i--) out.push(monthKey(new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth() - i, 15))))
     return [...new Set(out)]
 }
+
+// Only the first name and the first letter of the last name go on the public leaderboard: "Ravi Kumar" -> "Ravi K."
+const shortName = (name) => {
+    const parts = String(name || '').trim().split(/\s+/).filter(Boolean)
+    const first = (parts[0] || '').charAt(0).toUpperCase() + (parts[0] || '').slice(1)
+    return parts.length > 1 ? `${first} ${parts.at(-1)[0].toUpperCase()}.` : first
+}
+
+// Public invite leaderboard: members whose invite link brought in the most APPROVED members.
+// ?state=uttar-pradesh&district=Agra narrows it to where the inviter lives; ?period=30 counts only the last 30 days.
+router.get('/leaderboard', async (req, res) => {
+    const state = STATE_CODES.includes(req.query.state) ? req.query.state : null
+    const district = state && typeof req.query.district === 'string' ? req.query.district.trim().slice(0, 100) : ''
+    const days = req.query.period === '30' ? 30 : 0
+    const match = { status: 'approved', referredBy: { $ne: null } }
+    if (days) match.$expr = { $gte: [{ $ifNull: ['$approvedAt', '$createdAt'] }, new Date(Date.now() - days * 864e5)] }
+
+    const rows = await Member.aggregate([
+        { $match: match },
+        { $group: { _id: '$referredBy', n: { $sum: 1 } } },
+        { $lookup: { from: 'members', localField: '_id', foreignField: '_id', as: 'who' } },
+        { $unwind: '$who' },
+        { $match: { 'who.status': 'approved', 'who.hideFromBoard': { $ne: true } } },
+        { $project: { n: 1, name: '$who.name', stateCode: '$who.stateCode', state: '$who.state', district: '$who.district' } },
+    ])
+    // Districts were sometimes typed by hand: match them to the official list of the state
+    const sameName = (code, d) => (code && canonicalDistrict(code, d || '')) || String(d || '').trim()
+    const want = district && sameName(state, district).toLowerCase()
+    const list = rows
+        .map((r) => ({ ...r, stateCode: r.stateCode || codeFromName(r.state) || null }))
+        .map((r) => ({ ...r, district: sameName(r.stateCode, r.district) }))
+        .filter((r) => !state || memberInState(r, state))
+        .filter((r) => !want || r.district.toLowerCase() === want)
+        .sort((a, b) => b.n - a.n || String(a.name).localeCompare(String(b.name)))
+
+    res.set('Cache-Control', 'public, max-age=600') // ten minutes: fresh enough, and cheap
+    res.json({
+        joined: list.reduce((sum, r) => sum + r.n, 0), // members brought in by everyone on this list
+        inviters: list.length,
+        top: list.slice(0, 20).map((r) => ({
+            rank: 1 + list.filter((x) => x.n > r.n).length, // equal numbers share a place
+            name: shortName(r.name),
+            district: r.district,
+            stateCode: r.stateCode,
+            value: r.n,
+        })),
+    })
+})
 
 router.get('/', protect, requirePermission('members'), async (req, res) => {
     // State admins always see their own state; others may pick one, or see all of India
@@ -116,4 +164,4 @@ router.get('/', protect, requirePermission('members'), async (req, res) => {
     })
 })
 
-export default router
+export default router

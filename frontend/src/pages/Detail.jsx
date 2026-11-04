@@ -10,8 +10,7 @@ import Loading from '../components/Loading.jsx'
 import EventActions from '../components/EventActions.jsx'
 import { timeText } from '../lib/calendar.js'
 import SharePoster from '../components/SharePoster.jsx'
-
-const SHARE_BASE = (import.meta.env.VITE_API_URL || 'http://localhost:5000/api').replace(/\/api\/?$/, '')
+import { WhatsAppShare, ListenButton, shareLink } from '../components/ShareListen.jsx'
 
 // One news item or one event on its own page. kind is "news" or "events".
 export default function Detail({ kind }) {
@@ -53,20 +52,15 @@ export default function Detail({ kind }) {
                 {formatDate(date, lang)}{item.time ? `, ${timeText(item.time, lang)}` : ''}{item.location ? `, ${item.location}` : ''}
             </div>
             <h1 className="my-2 text-3xl font-extrabold">{pickText(item, 'title', lang)}</h1>
+            <ListenButton item={item} kind={kind} small className="mb-3" />
             <p className="text-lg whitespace-pre-line">{pickText(item, 'body', lang)}</p>
             {kind === 'events' && <EventActions event={item} className="mt-5" />}
             {kind === 'events' && <EventRsvp eventId={item._id} />}
             {/* Share: as a poster picture, or as a link */}
             <div className="mt-8 flex flex-wrap items-start gap-3">
-                <SharePoster item={item} kind={kind} link={`${SHARE_BASE}/share/${kind}/${item._id}`} />
-                <a
-                    href={`https://wa.me/?text=${encodeURIComponent(`${pickText(item, 'title', lang)}\n${SHARE_BASE}/share/${kind}/${item._id}`)}`}
-                    target="_blank" rel="noopener noreferrer"
-                    className="btn border-2 border-brand text-brand"
-                >
-                    {t('detail.share')}
-                </a>
+                <WhatsAppShare item={item} kind={kind} />
+                <SharePoster item={item} kind={kind} link={shareLink(kind, item._id)} />
             </div>
         </article>
     )
-}
+}

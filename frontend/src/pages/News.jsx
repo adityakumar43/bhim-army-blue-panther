@@ -6,6 +6,7 @@ import ZoomPhoto from '../components/ZoomPhoto.jsx'
 import { pickText, formatDate } from '../lib/text.js'
 import Loading from '../components/Loading.jsx'
 import EmptyState from '../components/EmptyState.jsx'
+import { WhatsAppShare, ListenButton } from '../components/ShareListen.jsx'
 
 export default function News() {
   const { t, i18n } = useTranslation()
@@ -36,6 +37,10 @@ export default function News() {
               <Link to={`/news/${n._id}`} className="hover:text-brand hover:underline">{pickText(n, 'title', lang)}</Link>
             </h2>
             <p className="whitespace-pre-line text-lg">{pickText(n, 'body', lang)}</p>
+            <div className="mt-4 flex flex-wrap gap-2">
+              <ListenButton item={n} small />
+              <WhatsAppShare item={n} kind="news" small />
+            </div>
           </article>
         ))}
       </div>
@@ -56,6 +61,10 @@ export default function News() {
               <Link to={`/events/${ev._id}`} className="hover:text-brand hover:underline">{pickText(ev, 'title', lang)}</Link>
             </h3>
             <p className="whitespace-pre-line">{pickText(ev, 'body', lang)}</p>
+            <div className="mt-4 flex flex-wrap gap-2">
+              <ListenButton item={ev} kind="events" small />
+              <WhatsAppShare item={ev} kind="events" small />
+            </div>
           </article>
         ))}
       </div>

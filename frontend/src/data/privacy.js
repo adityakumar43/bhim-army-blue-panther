@@ -1,7 +1,7 @@
 // The Privacy Policy, in Hindi and English. Change the wording here; the page shows it as it is.
 // Have someone in the organisation (ideally a lawyer) read it before the website goes live.
 
-export const PRIVACY_UPDATED = '2026-11-04' // change this date whenever you change the policy
+export const PRIVACY_UPDATED = '2026-11-05' // change this date whenever you change the policy
 
 // The person who answers privacy questions and complaints (the "grievance officer").
 // Fill these in before going live. While the email is empty, the page points people to the Contact page.
@@ -69,6 +69,7 @@ export const PRIVACY = {
                 ['Our team', 'only team members who need it for their work, and each person sees only what their role allows. A state admin sees only their own state, and a district admin only their own district. A gate volunteer at an event sees only the name, photo, member number and place of the member whose card they scan.'],
                 ['Membership card', 'your card page shows your name, photo, state, member number and the date you joined to anyone who opens your card link or scans its QR code. Your mobile number, email, date of birth and address are never shown there.'],
                 ['Certificates and letters', 'the check page of a certificate or letter shows what is printed on it.'],
+                ['Invite leaderboard', 'if people join with your invite link and are approved, the public Invite leaderboard may show your first name, the first letter of your surname, your district and state, and how many people joined with your link. Nothing else about you is shown there. To be left off it, write to us.'],
                 ['Service providers', 'we use trusted services to run the website: a database host (MongoDB Atlas), Cloudinary (for photos and voice messages), an email service (to send emails), Razorpay (for payments), Google Analytics and Microsoft Clarity (to understand how the website is used) and the notification service of your browser company, such as Google, Apple or Mozilla (to deliver notifications). They keep the data only to provide their service to us.'],
                 ['When the law requires it', 'we may share data if a court or the law requires us to.'],
             ],
@@ -175,6 +176,7 @@ export const PRIVACY = {
                 ['हमारी टीम', 'सिर्फ़ वे टीम सदस्य जिन्हें अपने काम के लिए इसकी ज़रूरत है, और हर व्यक्ति सिर्फ़ वही देखता है जो उसके पद के लिए ज़रूरी है। प्रदेश एडमिन सिर्फ़ अपना प्रदेश देखते हैं और ज़िला एडमिन सिर्फ़ अपना ज़िला। कार्यक्रम में गेट स्वयंसेवक सिर्फ़ उसी सदस्य का नाम, फ़ोटो, सदस्य संख्या और जगह देखता है जिसका कार्ड वह स्कैन करता है।'],
                 ['सदस्यता कार्ड', 'आपके कार्ड का पेज, कार्ड का लिंक खोलने या उसका QR कोड स्कैन करने वाले किसी भी व्यक्ति को आपका नाम, फ़ोटो, प्रदेश, सदस्य संख्या और जुड़ने की तारीख दिखाता है। आपका मोबाइल नंबर, ईमेल, जन्म तिथि और पता वहाँ कभी नहीं दिखता।'],
                 ['प्रमाण पत्र और पत्र', 'प्रमाण पत्र या पत्र के जाँच पेज पर वही दिखता है जो उस पर छपा है।'],
+                ['आमंत्रण लीडरबोर्ड', 'अगर लोग आपके आमंत्रण लिंक से जुड़ते हैं और उन्हें मंज़ूरी मिलती है, तो सार्वजनिक आमंत्रण लीडरबोर्ड पर आपका पहला नाम, उपनाम का पहला अक्षर, आपका ज़िला और प्रदेश, और आपके लिंक से जुड़े लोगों की संख्या दिख सकती है। वहाँ आपके बारे में और कुछ नहीं दिखता। अगर आप उस पर नहीं दिखना चाहते, तो हमें लिखें।'],
                 ['सेवा देने वाली कंपनियाँ', 'वेबसाइट चलाने के लिए हम भरोसेमंद सेवाओं का उपयोग करते हैं: डेटाबेस (MongoDB Atlas), Cloudinary (फ़ोटो और आवाज़ संदेशों के लिए), ईमेल सेवा (ईमेल भेजने के लिए), Razorpay (भुगतान के लिए), Google Analytics और Microsoft Clarity (वेबसाइट का उपयोग समझने के लिए) और आपकी ब्राउज़र कंपनी की सूचना सेवा, जैसे Google, Apple या Mozilla (सूचनाएँ पहुँचाने के लिए)। वे जानकारी सिर्फ़ हमें अपनी सेवा देने के लिए रखती हैं।'],
                 ['जब कानून कहे', 'अदालत या कानून के कहने पर हम जानकारी साझा कर सकते हैं।'],
             ],

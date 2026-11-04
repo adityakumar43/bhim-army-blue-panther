@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useRef, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { api } from '../lib/api.js'
+import { trackEvent } from '../lib/analytics.js'
 import { shrinkImage } from '../lib/shrinkImage.js'
 import { STATES, stateName } from '../data/states.js'
 import { CATEGORIES, STATUS, categoryOf } from '../data/helpdesk.js'
@@ -243,6 +244,7 @@ export default function HelpDesk() {
       }
       const r = await api.post('/helpdesk', data)
       const mine = { refNo: r.refNo, phone: form.phone }
+      trackEvent('helpdesk_report', { category: form.category })
       setSent(mine)
       setAgree(false)
       save(mine)

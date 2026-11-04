@@ -20,6 +20,7 @@ const PAGES = [
     ['/inspirations', 'monthly', '0.7'],
     ['/help', 'monthly', '0.7'],
     ['/volunteer', 'monthly', '0.6'],
+    ['/leaderboard', 'weekly', '0.5'],
     ['/donate', 'monthly', '0.6'],
     ['/contact', 'monthly', '0.6'],
     ['/membership/status', 'yearly', '0.3'],
@@ -68,4 +69,4 @@ router.get('/', async (req, res) => {
         .send(`<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n${urls.join('\n')}\n</urlset>\n`)
 })
 
-export default router
+export default router

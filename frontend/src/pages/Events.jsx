@@ -6,6 +6,7 @@ import { pickText } from '../lib/text.js'
 import { STATES, stateName, stateByCode } from '../data/states.js'
 import { eventDay, timeText, pad } from '../lib/calendar.js'
 import EventActions from '../components/EventActions.jsx'
+import { WhatsAppShare } from '../components/ShareListen.jsx'
 import Loading from '../components/Loading.jsx'
 
 // Today's date in India, like 2026-10-30
@@ -156,7 +157,10 @@ export default function Events() {
                                             {e.stateCode && <span>🗺️ {stateName(stateByCode(e.stateCode) || { en: e.stateCode, hi: e.stateCode }, lang)}</span>}
                                             {past && <span className="font-semibold">{t('cal.past', { defaultValue: 'Already held' })}</span>}
                                         </div>
-                                        {!past && <EventActions event={e} className="mt-3" />}
+                                        <div className="mt-3 flex flex-wrap items-start gap-2">
+                                            {!past && <EventActions event={e} />}
+                                            <WhatsAppShare item={e} kind="events" small />
+                                        </div>
                                     </div>
                                 </li>
                             )

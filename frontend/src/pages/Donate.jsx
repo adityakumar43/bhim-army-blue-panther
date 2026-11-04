@@ -2,6 +2,7 @@ import { useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
 import { api } from '../lib/api.js'
+import { trackEvent } from '../lib/analytics.js'
 import Icon from '../components/BoxIcon.jsx' // two-tone icons for the coloured boxes
 
 const PRESETS = [100, 500, 1000, 2500, 5000]
@@ -68,6 +69,7 @@ export default function Donate() {
         handler: async (resp) => {
           try {
             const r = await api.post('/donations/verify', resp)
+            trackEvent('donation_complete', { value, currency: 'INR' })
             if (r.receiptToken) navigate(`/receipt/${r.receiptToken}`)
             else setDone(true)
           } catch (err) {

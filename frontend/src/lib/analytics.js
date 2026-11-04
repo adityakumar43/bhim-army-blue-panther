@@ -57,3 +57,10 @@ export function trackPage(path) {
         })
     }, 600)
 }
+
+// An important action, like a form sent. In Google Analytics, mark these as "key events"
+// (Admin → Events) to see how many visitors actually join, report or donate.
+export function trackEvent(name, params = {}) {
+    if (!ready || !allowed(location.pathname)) return
+    window.gtag('event', name, params)
+}

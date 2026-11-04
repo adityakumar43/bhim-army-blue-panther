@@ -15,6 +15,7 @@ export const BANDS = {
   '/leadership/states': ['leaders.statesTitle', 'leaders.statesIntro'],
   '/inspirations': ['inspire.title', 'inspire.intro'],
   '/membership/status': ['status.title', 'status.intro'],
+  '/leaderboard': ['board.title', 'board.intro'],
   '/help': ['help.title', 'help.intro'],
   '/volunteer': ['vol.title', 'vol.intro'],
   '/downloads': ['dl.title', 'dl.intro'],
@@ -47,4 +48,4 @@ export default function PageBand() {
   if (!Object.hasOwn(BANDS, pathname)) return null
   const [title, intro] = BANDS[pathname]
   return <Band kicker={t('org')} title={t(title)} intro={intro ? t(intro) : null} />
-}
+}

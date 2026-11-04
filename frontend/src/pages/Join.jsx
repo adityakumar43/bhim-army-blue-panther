@@ -2,6 +2,7 @@ import { useEffect, useMemo, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { Link, useSearchParams } from 'react-router-dom'
 import { api } from '../lib/api.js'
+import { trackEvent } from '../lib/analytics.js'
 import { shrinkImage } from '../lib/shrinkImage.js'
 import Consent from '../components/Consent.jsx'
 import Icon from '../components/BoxIcon.jsx' // two-tone icons for the coloured boxes
@@ -168,6 +169,7 @@ export default function Join() {
       data.append('consent', 'true')
       await api.post('/members', data)
       dropDraft()
+      trackEvent('join_submit')
       setDone(true)
       window.scrollTo({ top: 0, behavior: 'smooth' })
     } catch (err) {

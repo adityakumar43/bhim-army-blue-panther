@@ -242,6 +242,15 @@ router.patch('/:id/status', protect, requirePermission('members'), async (req, r
   res.json(member)
 })
 
+// Leave a member off the public invite leaderboard (or show them again), when they ask
+router.patch('/:id/board', protect, requirePermission('members'), async (req, res) => {
+  const found = await Member.findById(req.params.id).catch(() => null)
+  if (!found || !inMyState(req, found)) return res.status(404).json({ message: 'Not found' })
+  found.hideFromBoard = req.body?.hidden === true
+  await found.save()
+  res.json(found)
+})
+
 router.delete('/:id', protect, requirePermission('members'), async (req, res) => {
   const found = await Member.findById(req.params.id).catch(() => null)
   if (!found || !inMyState(req, found)) return res.status(404).json({ message: 'Not found' })

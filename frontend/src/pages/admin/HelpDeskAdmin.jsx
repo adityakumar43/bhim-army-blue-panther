@@ -40,6 +40,8 @@ function Case({ c, team, canDelete, onSaved, onDelete }) {
     const open_ = ['new', 'in_progress'].includes(c.status)
     const quiet = open_ ? daysSince(lastUpdate(c)) : 0
     const stale = quiet >= STALE_DAYS
+    // Escalated by the daily check (still counts only if nothing has been posted since)
+    const escalated = open_ && c.escalation?.level && new Date(c.escalation.at) >= lastUpdate(c) ? c.escalation.level : 0
 
     async function save() {
         setBusy(true)
@@ -70,6 +72,7 @@ function Case({ c, team, canDelete, onSaved, onDelete }) {
                         <Pill tone={st?.tone}>{st?.emoji} {st?.en}</Pill>
                         {c.urgent && <Pill tone="red">🔴 Urgent</Pill>}
                         {stale && <span className="rounded-full bg-amber-100 px-2 py-0.5 text-xs font-bold text-amber-900">⏰ No update for {quiet} days</span>}
+                        {escalated > 0 && <span className="rounded-full bg-red-100 px-2 py-0.5 text-xs font-bold text-red-800">🚨 Escalated to {escalated === 2 ? 'Super Admin' : 'State Admin'}</span>}
                     </div>
                     <h3 className="mt-1 text-lg font-bold">{cat.emoji} {cat.en}</h3>
                 </div>

@@ -74,6 +74,7 @@ function InviteBox({ memberNo, invites, t }) {
           ? t('invite.count', { joined: invites.joined, approved: invites.approved, defaultValue: '{{joined}} joined with your link · {{approved}} approved' })
           : t('invite.none', { defaultValue: 'Nobody has joined with your link yet.' })}
       </p>
+      <Link to="/leaderboard" className="mt-3 inline-block text-sm font-semibold text-brand underline">🏆 {t('board.see')}</Link>
     </div>
   )
 }

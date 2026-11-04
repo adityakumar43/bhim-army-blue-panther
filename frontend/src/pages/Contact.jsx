@@ -2,6 +2,7 @@ import { useState } from 'react'
 import { Link } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
 import { api } from '../lib/api.js'
+import { trackEvent } from '../lib/analytics.js'
 import Consent from '../components/Consent.jsx'
 import Icon from '../components/BoxIcon.jsx' // two-tone icons for the coloured boxes
 
@@ -68,6 +69,7 @@ export default function Contact() {
     setBusy(true)
     try {
       await api.post('/contact', { ...form, topic, message: form.message.trim(), consent: true })
+      trackEvent('contact_message', { topic })
       setDone(true)
       setAgree(false)
     } catch (err) {

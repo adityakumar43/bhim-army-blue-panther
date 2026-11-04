@@ -4,7 +4,7 @@ import Member from '../models/Member.js'
 import { protect, requirePermission, stateScope } from '../middleware/auth.js'
 import { memberStateFilter } from '../config/stateNames.js'
 import { indiaNow, sendBirthdayWishes, FROM_HOUR } from '../services/birthdays.js'
-import { sendCaseReminders } from '../services/caseReminders.js'
+import { runHelpdeskChecks } from '../services/caseReminders.js'
 
 const router = Router()
 const DAY = 864e5
@@ -22,8 +22,8 @@ router.get('/run', async (req, res) => {
     const key = req.get('x-cron-key') || req.query.key
     if (!secret || !key || !sameKey(key, secret)) return res.status(404).json({ message: 'Not found' })
     if (indiaNow().hour < FROM_HOUR) return res.json({ skipped: `Too early. Wishes go out after ${FROM_HOUR} AM.` })
-    // The same wake-up call also sends the help desk reminders
-    const [wishes, reminders] = await Promise.all([sendBirthdayWishes(), sendCaseReminders()])
+    // The same wake-up call also sends the help desk reminders and escalations
+    const [wishes, reminders] = await Promise.all([sendBirthdayWishes(), runHelpdeskChecks()])
     res.json({ ...wishes, reminders })
 })
 
@@ -68,4 +68,4 @@ router.get('/', protect, requirePermission('members'), async (req, res) => {
     res.json({ emailOn: Boolean(process.env.SMTP_HOST) && process.env.BIRTHDAY_EMAILS !== 'off', list })
 })
 
-export default router
+export default router
