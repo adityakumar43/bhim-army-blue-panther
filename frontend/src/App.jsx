@@ -8,6 +8,7 @@ import RouteSeo from './components/Seo.jsx'
 import InstallApp from './components/InstallApp.jsx'
 import { NotifyPrompt } from './components/Notify.jsx'
 import { countVisit } from './lib/track.js'
+import { trackPage } from './lib/analytics.js'
 import Home from './pages/Home.jsx'
 import SessionWatch from './pages/admin/SessionWatch.jsx'
 import Perm from './pages/admin/Perm.jsx'
@@ -82,7 +83,7 @@ export default function App() {
 
   const { pathname } = useLocation()
   const isAdmin = pathname.startsWith('/admin')
-  useEffect(() => { if (!isAdmin) countVisit(pathname) }, [pathname, isAdmin]) // visitor numbers
+  useEffect(() => { if (!isAdmin) { countVisit(pathname); trackPage(pathname) } }, [pathname, isAdmin]) // visitor numbers + Google Analytics
 
   return (
     <>
