@@ -119,10 +119,10 @@ export default function Home() {
             <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
               {events.map((ev) => (
                 <Link key={ev._id} to={`/events/${ev._id}`} className={cardBox}>
-                  {ev.image?.url && <img src={cdn(ev.image.url, 600)} alt="" loading="lazy" onError={hideBroken} className="aspect-video w-full object-cover" />}
-                  <div className="flex-1 p-6">
+                  {ev.image?.url && <img src={cdn(ev.image.url, 600)} alt="" loading="lazy" onError={hideBroken} className="aspect-[5/2] w-full object-cover" />}
+                  <div className="flex-1 p-5">
                     <DateLine date={ev.date} place={ev.location} lang={lang} />
-                    <h3 className="mb-2 text-xl font-extrabold">{pickText(ev, 'title', lang)}</h3>
+                    <h3 className="mb-1.5 line-clamp-2 text-lg leading-snug font-extrabold">{pickText(ev, 'title', lang)}</h3>
                     <p className="line-clamp-2 text-navy/75">{pickText(ev, 'body', lang)}</p>
                   </div>
                 </Link>
@@ -139,10 +139,10 @@ export default function Home() {
           <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
             {news.map((n) => (
               <Link key={n._id} to={`/news/${n._id}`} className={cardBox}>
-                {n.image?.url && <img src={cdn(n.image.url, 600)} alt="" loading="lazy" onError={hideBroken} className="aspect-video w-full object-cover" />}
-                <div className="flex-1 p-6">
+                {n.image?.url && <img src={cdn(n.image.url, 600)} alt="" loading="lazy" onError={hideBroken} className="aspect-[5/2] w-full object-cover" />}
+                <div className="flex-1 p-5">
                   <DateLine date={n.createdAt} lang={lang} />
-                  <h3 className="mb-2 text-xl font-extrabold">{pickText(n, 'title', lang)}</h3>
+                  <h3 className="mb-1.5 line-clamp-2 text-lg leading-snug font-extrabold">{pickText(n, 'title', lang)}</h3>
                   <p className="line-clamp-2 text-navy/75">{pickText(n, 'body', lang)}</p>
                 </div>
               </Link>
