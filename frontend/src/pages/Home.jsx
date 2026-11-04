@@ -9,6 +9,7 @@ import { pickText, formatDate } from '../lib/text.js'
 import { cdn } from '../lib/img.js'
 import { campaigns } from '../data/compaigns.js'
 import InspirationsPreview from '../components/InspirationsPreview.jsx'
+import EmptyState from '../components/EmptyState.jsx'
 
 const hideBroken = (e) => { e.currentTarget.style.display = 'none' }
 // The slides from the last visit, shown at once while the new list loads (null = never loaded on this device)
@@ -135,7 +136,7 @@ export default function Home() {
       <section className={events.length > 0 ? 'bg-[#f3f6fb]' : 'bg-white'}>
         <div className={wrap}>
           <SectionHead title={t('sections.news')} intro={t('home.newsIntro')} to="/news" label={t('viewAll')} />
-          {news.length === 0 && <p className="text-navy/70">{t('empty')}</p>}
+          {news.length === 0 && <EmptyState icon="news" />}
           <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
             {news.map((n) => (
               <Link key={n._id} to={`/news/${n._id}`} className={cardBox}>
@@ -152,7 +153,8 @@ export default function Home() {
       </section>
 
 
-      <InspirationsPreview />
+      {/* Opposite colour to Latest News above, so the two sections never run together */}
+      <InspirationsPreview grey={events.length === 0} />
 
       {/* Call to action */}
       <section className="bg-linear-to-br from-navy via-[#0d2a6b] to-brand text-white">
