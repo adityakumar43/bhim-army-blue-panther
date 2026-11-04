@@ -36,8 +36,10 @@ export default function News() {
             <h2 className="my-1 text-2xl font-extrabold">
               <Link to={`/news/${n._id}`} className="hover:text-brand hover:underline">{pickText(n, 'title', lang)}</Link>
             </h2>
-            <p className="whitespace-pre-line text-lg">{pickText(n, 'body', lang)}</p>
-            <div className="mt-4 flex flex-wrap gap-2">
+            {/* Only the first 3 lines here; the whole text, poster and more are on its own page */}
+            <p className="line-clamp-3 whitespace-pre-line text-lg">{pickText(n, 'body', lang)}</p>
+            <div className="mt-4 flex flex-wrap items-center gap-2">
+              <Link to={`/news/${n._id}`} className="inline-flex min-h-10 items-center rounded-full px-1 font-semibold text-brand hover:underline">{t('detail.readMore')} →</Link>
               <ListenButton item={n} small />
               <WhatsAppShare item={n} kind="news" small />
             </div>
@@ -60,8 +62,9 @@ export default function News() {
             <h3 className="my-1 text-xl font-extrabold">
               <Link to={`/events/${ev._id}`} className="hover:text-brand hover:underline">{pickText(ev, 'title', lang)}</Link>
             </h3>
-            <p className="whitespace-pre-line">{pickText(ev, 'body', lang)}</p>
-            <div className="mt-4 flex flex-wrap gap-2">
+            <p className="line-clamp-3 whitespace-pre-line">{pickText(ev, 'body', lang)}</p>
+            <div className="mt-4 flex flex-wrap items-center gap-2">
+              <Link to={`/events/${ev._id}`} className="inline-flex min-h-10 items-center rounded-full px-1 font-semibold text-brand hover:underline">{t('detail.readMore')} →</Link>
               <ListenButton item={ev} kind="events" small />
               <WhatsAppShare item={ev} kind="events" small />
             </div>
