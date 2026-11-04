@@ -247,7 +247,7 @@ export default function Join() {
               <input type="text" required autoComplete="name" value={form.name || ''} onChange={set('name')} className={`${input} pr-10`} />
             </Field>
             <Field label={t('join.phone')} prefix="+91" required ok={phoneOk && !applied} problem={phoneProblem}>
-              <input type="tel" inputMode="numeric" required autoComplete="tel-national" maxLength="15" placeholder="98765 43210"
+              <input type="tel" inputMode="numeric" required autoComplete="tel-national" maxLength="15" placeholder="12345 67890"
                 value={phone} onChange={set('phone', (v) => v.replace(/\D/g, '').replace(/^91(?=\d{10}$)/, '').slice(0, 10))}
                 onBlur={blur('phone')} className="input pr-10 pl-14 tracking-wide" />
             </Field>
