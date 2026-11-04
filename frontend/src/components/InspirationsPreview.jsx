@@ -15,7 +15,7 @@ export default function InspirationsPreview() {
           <h2 className="text-3xl font-extrabold">{t('inspire.title')}</h2>
           <p className="mt-2 max-w-2xl text-navy/70">{t('inspire.intro')}</p>
         </div>
-        <Link to="/inspirations" className="btn gap-1 rounded-lg border-2 border-brand px-5 font-bold text-brand hover:bg-brand hover:text-white">
+        <Link to="/inspirations" className="inline-flex min-h-10 items-center gap-1 rounded-lg border-2 border-brand px-4 text-sm font-bold text-brand hover:bg-brand hover:text-white">
           {t('inspire.viewAll')} <span aria-hidden="true">→</span>
         </Link>
       </div>

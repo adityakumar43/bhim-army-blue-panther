@@ -24,7 +24,7 @@ function SectionHead({ title, intro, to, label }) {
         <h2 className="text-3xl font-extrabold">{title}</h2>
         {intro && <p className="mt-2 text-navy/70">{intro}</p>}
       </div>
-      <Link to={to} className="btn gap-1 rounded-lg border-2 border-brand px-5 font-bold text-brand hover:bg-brand hover:text-white">
+      <Link to={to} className="inline-flex min-h-10 items-center gap-1 rounded-lg border-2 border-brand px-4 text-sm font-bold text-brand hover:bg-brand hover:text-white">
         {label} <span aria-hidden="true">→</span>
       </Link>
     </div>
