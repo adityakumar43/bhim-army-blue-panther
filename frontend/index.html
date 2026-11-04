@@ -53,6 +53,7 @@
   <meta property="og:title" content="Bhim Army Blue Panther" />
   <meta property="og:description" content="शिक्षित बनो, संगठित रहो, संघर्ष करो" />
   <meta property="og:image" content="%VITE_SITE_URL%/og-default.jpg" />
+  <meta property="og:site_name" content="Bhim Army Blue Panther" />
   <meta name="twitter:card" content="summary_large_image" />
   <!-- Tells Google, Bing and AI assistants who the organisation is. Leaders are added by the About and State pages. -->
   <script type="application/ld+json" id="org-jsonld">
@@ -69,6 +70,19 @@
       "slogan": "Educate, Organise, Struggle (शिक्षित बनो, संगठित रहो, संघर्ष करो)",
       "areaServed": { "@type": "Country", "name": "India" },
       "knowsLanguage": ["hi", "en"]
+    }
+  </script>
+  <!-- Tells Google which name to show above the result instead of the bare address -->
+  <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "WebSite",
+      "@id": "%VITE_SITE_URL%/#website",
+      "name": "Bhim Army Blue Panther",
+      "alternateName": ["भीम आर्मी ब्लू पैंथर", "Blue Panther"],
+      "url": "%VITE_SITE_URL%/",
+      "inLanguage": ["hi", "en"],
+      "publisher": { "@id": "%VITE_SITE_URL%/#organization" }
     }
   </script>
 </head>
