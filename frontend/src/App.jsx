@@ -83,7 +83,7 @@ export default function App() {
 
   const { pathname } = useLocation()
   const isAdmin = pathname.startsWith('/admin')
-  useEffect(() => { if (!isAdmin) { countVisit(pathname); trackPage(pathname) } }, [pathname, isAdmin]) // visitor numbers + Google Analytics
+  useEffect(() => { if (!isAdmin) countVisit(pathname); trackPage(pathname) }, [pathname, isAdmin]) // visitor numbers + Google Analytics / Clarity
 
   return (
     <>
