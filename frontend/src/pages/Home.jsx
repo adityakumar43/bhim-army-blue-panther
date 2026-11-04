@@ -100,7 +100,7 @@ export default function Home() {
         <div className={wrap}>
           <SectionHead title={t('sections.campaigns')} intro={t('home.campaignsIntro')} to="/campaigns" label={t('viewAll')} />
           <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
-            {campaigns.map((c) => (
+            {campaigns.slice(0, 3).map((c) => ( // only the first 3 here; "View all" opens the full list
               <article key={c.id} className={`${cardBox} ${c.image ? '' : 'border-t-4 border-t-brand'}`}>
                 {c.image && <img src={c.image} alt="" loading="lazy" onError={hideBroken} className="aspect-video w-full object-cover object-top" />}
                 <div className="flex-1 p-6">
