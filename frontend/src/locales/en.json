@@ -690,5 +690,9 @@
     "howLink": "Get my invite link",
     "failed": "Could not load the leaderboard. Please try again.",
     "privacy": "Only the first name, the first letter of the surname and the place are shown."
+  },
+  "errors": {
+    "offline": "Could not reach the server. Please check your internet and try again.",
+    "retry": "Try again"
   }
 }

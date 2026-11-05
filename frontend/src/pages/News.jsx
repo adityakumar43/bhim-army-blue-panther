@@ -15,13 +15,27 @@ export default function News() {
   const [events, setEvents] = useState(null)
   const [error, setError] = useState('')
 
-  useEffect(() => {
+  function load() {
+    setError('')
+    setNews(null)
     Promise.all([api.get('/news'), api.get('/events')])
       .then(([n, e]) => { setNews(n); setEvents(e) })
       .catch((e) => setError(e.message))
-  }, [])
+  }
+  useEffect(load, [])
 
-  if (error) return <p className="px-5 py-16 text-center text-red-700">{error}</p>
+  // Could not load (even after trying again): a clear message and a button, not a bare error
+  if (error) {
+    return (
+      <div className="mx-auto max-w-xl px-5 py-16 text-center">
+        <div className="rounded-2xl border border-navy/10 bg-white px-6 py-10 shadow-sm">
+          <p className="text-3xl" aria-hidden="true">📡</p>
+          <p role="alert" className="mt-3 font-semibold text-navy">{error}</p>
+          <button type="button" onClick={load} className="btn mt-5 bg-brand text-white hover:bg-navy">🔄 {t('errors.retry', { defaultValue: 'Try again' })}</button>
+        </div>
+      </div>
+    )
+  }
   if (!news) return <Loading page />
 
   return (
