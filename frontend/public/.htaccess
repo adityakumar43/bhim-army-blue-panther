@@ -6,6 +6,9 @@
 Options -MultiViews
 RewriteEngine On
 RewriteBase /
+# www.bhimarmybluepanther.org goes to bhimarmybluepanther.org: one official address for visitors and Google
+RewriteCond %{HTTP_HOST} ^www\.(.+)$ [NC]
+RewriteRule ^ https://%1%{REQUEST_URI} [R=301,L]
 # llms.txt (summary for AI assistants) is built live by the backend, with the current leaders
 RewriteRule ^llms\.txt$ https://api.bhimarmybluepanther.org/llms.txt [R=302,L]
 # Real files (pictures, scripts, styles) are sent as they are

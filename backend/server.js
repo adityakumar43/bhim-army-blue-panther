@@ -49,7 +49,10 @@ const app = express()
 
 app.set('trust proxy', 1)
 app.use(helmet({ crossOriginResourcePolicy: { policy: 'cross-origin' } }))
-app.use(cors({ origin: process.env.CLIENT_URL }))
+// The site may be opened with or without "www." (www.bhimarmybluepanther.org): allow both,
+// otherwise the browser blocks every answer on the other one ("Failed to fetch")
+const SITE = (process.env.CLIENT_URL || '').trim().replace(/\/+$/, '').replace('://www.', '://')
+app.use(cors({ origin: SITE ? [SITE, SITE.replace('://', '://www.')] : process.env.CLIENT_URL }))
 
 app.post('/api/donations/webhook', express.raw({ type: 'application/json' }), razorpayWebhook)
 app.use(express.json({ limit: '1mb' }))
