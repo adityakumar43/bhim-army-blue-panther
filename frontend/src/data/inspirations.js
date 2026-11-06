@@ -10,7 +10,7 @@ export const inspirations = [
     yearsHi: '1891 – 1956',
     titleEn: 'Architect of the Indian Constitution',
     titleHi: 'भारतीय संविधान के निर्माता',
-    photo: '/inspirations/ambedkar.jpg',
+    photo: '/inspirations/ambedkar.jpg?v=3',
     shortEn: "Born into a family treated as 'untouchable', Babasaheb became one of India's most highly educated leaders. He chaired the committee that drafted the Constitution and spent his life fighting caste discrimination.",
     shortHi: "जिस परिवार को 'अछूत' माना जाता था, उसमें जन्मे बाबासाहेब भारत के सबसे शिक्षित नेताओं में से एक बने। उन्होंने संविधान की प्रारूप समिति की अध्यक्षता की और पूरा जीवन जातिगत भेदभाव के विरुद्ध संघर्ष में लगाया।",
     contributionsEn: [

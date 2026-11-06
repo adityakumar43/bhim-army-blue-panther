@@ -20,6 +20,7 @@ const PAGES = [
     ['/inspirations', 'monthly', '0.7'],
     ['/help', 'monthly', '0.7'],
     ['/volunteer', 'monthly', '0.6'],
+    ['/samvidhan', 'yearly', '0.7'],
     ['/leaderboard', 'weekly', '0.5'],
     ['/donate', 'monthly', '0.6'],
     ['/contact', 'monthly', '0.6'],

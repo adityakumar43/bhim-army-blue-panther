@@ -8,7 +8,7 @@ const router = Router()
 // Friendly sheet names. Anything not listed keeps its own name.
 const NAMES = {
   Member: 'Members', Donation: 'Donations', Message: 'Messages', Leader: 'Leaders', News: 'News', Event: 'Events',
-  Gallery: 'Gallery', Slide: 'Home slider', Announcement: 'Home updates', Admin: 'Team', Activity: 'Activity log',
+  Gallery: 'Gallery', Slide: 'Home slider', Announcement: 'Home updates', Admin: 'Team', Activity: 'Activity log', Pledge: 'Samvidhan pledges',
 }
 const SKIP = new Set(['Counter']) // internal counters, not useful in a backup
 // Secrets are never put in a backup file
@@ -76,4 +76,4 @@ router.get('/json', protect, requirePermission('admins'), async (req, res) => {
   res.json({ exportedAt: new Date(), exportedBy: req.admin.name, data })
 })
 
-export default router
+export default router

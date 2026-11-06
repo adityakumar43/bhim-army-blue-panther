@@ -21,6 +21,7 @@ import { activityLog } from './middleware/activity.js'
 import { News, Event, Gallery, Slide } from './models/Content.js'
 import helpdeskRoutes from './routes/helpdesk.js'
 import volunteerRoutes from './routes/volunteers.js'
+import pledgeRoutes from './routes/pledge.js'
 import downloadRoutes from './routes/downloads.js'
 import videoRoutes from './routes/videos.js'
 import shareRoutes from './routes/share.js'
@@ -100,6 +101,7 @@ app.use('/api/announcements', announcementRoutes)
 app.use('/api/contact', contactRoutes)
 app.use('/api/helpdesk', helpdeskRoutes)
 app.use('/api/volunteers', volunteerRoutes)
+app.use('/api/pledge', pledgeRoutes)
 app.use('/api/downloads', downloadRoutes)
 app.use('/api/videos', videoRoutes)
 app.use('/share', shareRoutes)

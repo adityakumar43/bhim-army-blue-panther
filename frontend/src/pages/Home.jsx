@@ -10,6 +10,7 @@ import { cdn } from '../lib/img.js'
 import { campaigns } from '../data/compaigns.js'
 import InspirationsPreview from '../components/InspirationsPreview.jsx'
 import EmptyState from '../components/EmptyState.jsx'
+import SamvidhanBanner from '../components/SamvidhanBanner.jsx'
 
 const hideBroken = (e) => { e.currentTarget.style.display = 'none' }
 // The slides from the last visit, shown at once while the new list loads (null = never loaded on this device)
@@ -69,6 +70,9 @@ export default function Home() {
 
   return (
     <>
+
+      {/* 25 and 26 November only: the Samvidhan Divas banner (it hides itself on other days) */}
+      <SamvidhanBanner />
 
       {/* While the slides load for the first time, an empty box of the same size keeps the page from jumping */}
       {slides === null
@@ -169,4 +173,4 @@ export default function Home() {
       </section>
     </>
   )
-}
+}

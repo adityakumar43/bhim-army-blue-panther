@@ -11,7 +11,7 @@ const BRAND = '#0b3c9d'
 const GOLD = '#f2b705'
 const FONT = 'Mukta, "Noto Sans Devanagari", sans-serif'
 
-function loadImage(src) {
+export function loadImage(src) {
     return new Promise((resolve) => {
         if (!src) return resolve(null)
         const img = new Image()
@@ -22,7 +22,7 @@ function loadImage(src) {
     })
 }
 
-function roundRect(ctx, x, y, w, h, r) {
+export function roundRect(ctx, x, y, w, h, r) {
     ctx.beginPath()
     ctx.moveTo(x + r, y)
     ctx.arcTo(x + w, y, x + w, y + h, r)
@@ -41,7 +41,7 @@ function drawCover(ctx, img, x, y, w, h) {
 }
 
 // Split text into lines that fit the width; the last line ends with … if the text is too long
-function wrap(ctx, text, maxWidth, maxLines) {
+export function wrap(ctx, text, maxWidth, maxLines) {
     const words = String(text).replace(/\s+/g, ' ').trim().split(' ')
     const lines = []
     let line = ''
@@ -164,4 +164,4 @@ export async function makePoster({ item, kind, lang, t }) {
     ctx.textAlign = 'left'
 
     return new Promise((resolve, reject) => canvas.toBlob((b) => (b ? resolve(b) : reject(new Error('Could not make the poster'))), 'image/png'))
-}
+}
