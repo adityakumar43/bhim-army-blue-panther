@@ -40,7 +40,16 @@ async function sharePicture(blob, fileName, text) {
     setTimeout(() => URL.revokeObjectURL(a.href), 5000)
     return false
 }
-const whatsappLink = (text) => `https://wa.me/?text=${encodeURIComponent(text)}`
+// WhatsApp's Windows/Mac app garbles emojis that arrive through a link (they show as �), so on computers the
+// message goes without them: ⭐ becomes ★ and the other emojis are left out. Phones keep every emoji.
+const isPhone = () => typeof navigator !== 'undefined' && /Android|iPhone|iPad|iPod|Mobile/i.test(navigator.userAgent)
+const plainText = (text) => text
+    .replace(/⭐/g, '★')
+    .replace(/[\u{1F1E6}-\u{1F1FF}]/gu, '') // flag letters (🇮🇳)
+    .replace(/\p{Extended_Pictographic}\uFE0F?/gu, '')
+    .replace(/[\uFE0F\u200D]/g, '')
+    .replace(/[ \t]+\n/g, '\n').replace(/\n[ \t]+/g, '\n').replace(/ {2,}/g, ' ').trim()
+const whatsappLink = (text) => `https://wa.me/?text=${encodeURIComponent(isPhone() ? text : plainText(text))}`
 const num = (n, lang) => Number(n || 0).toLocaleString(lang === 'hi' ? 'hi-IN' : 'en-IN')
 const section = 'rounded-2xl border border-navy/10 bg-white p-5 shadow-sm sm:p-8'
 
