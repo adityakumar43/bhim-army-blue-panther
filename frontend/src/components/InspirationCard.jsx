@@ -32,7 +32,8 @@ export default function InspirationCard({ person }) {
   const contributions = pickList(person, 'contributions', lang).slice(0, 2)
 
   return (
-    <article className="group flex flex-col overflow-hidden rounded-2xl border border-navy/10 bg-white shadow-sm transition hover:-translate-y-1 hover:shadow-lg">
+    // The whole card opens the person's page: the "Read more" link is stretched over the card (after:absolute after:inset-0)
+    <article className="group relative flex cursor-pointer flex-col overflow-hidden rounded-2xl border border-navy/10 bg-white shadow-sm transition hover:-translate-y-1 hover:shadow-lg focus-within:ring-2 focus-within:ring-brand">
       <div className="relative">
         <InspirationPhoto person={person} name={name} className="aspect-[5/4] w-full" />
         <span className="absolute bottom-2 left-2 rounded-full bg-navy/85 px-2.5 py-0.5 text-xs font-semibold text-gold">
@@ -54,8 +55,8 @@ export default function InspirationCard({ person }) {
           </div>
         )}
         <Link to={`/inspirations/${person.slug}`} aria-label={`${t('inspire.readMore')}: ${name}`}
-          className="mt-auto inline-flex min-h-10 items-center gap-1 pt-2 text-sm font-bold text-brand group-hover:underline">
-          {t('inspire.readMore')} <span aria-hidden="true">→</span>
+          className="mt-auto inline-flex min-h-10 items-center gap-1 pt-2 text-sm font-bold text-brand outline-none after:absolute after:inset-0 after:content-['']">
+          {t('inspire.readMore')} <span aria-hidden="true" className="transition-transform group-hover:translate-x-1">→</span>
         </Link>
       </div>
     </article>

@@ -3,7 +3,9 @@
 
 # 1. Every address (like /join or /admin/members) opens the React app, which then shows the right page.
 #    Without this, opening a link straight away or refreshing an inner page gives "404 Not Found".
-Options -MultiViews
+Options -MultiViews -Indexes
+# Do not add a / to addresses that match a folder (like /inspirations): the React page handles them
+DirectorySlash Off
 RewriteEngine On
 RewriteBase /
 # www.bhimarmybluepanther.org goes to bhimarmybluepanther.org: one official address for visitors and Google
@@ -11,9 +13,9 @@ RewriteCond %{HTTP_HOST} ^www\.(.+)$ [NC]
 RewriteRule ^ https://%1%{REQUEST_URI} [R=301,L]
 # llms.txt (summary for AI assistants) is built live by the backend, with the current leaders
 RewriteRule ^llms\.txt$ https://api.bhimarmybluepanther.org/llms.txt [R=302,L]
-# Real files (pictures, scripts, styles) are sent as they are
-RewriteCond %{REQUEST_FILENAME} -f [OR]
-RewriteCond %{REQUEST_FILENAME} -d
+# Real files (pictures, scripts, styles) are sent as they are. Folders are not: /inspirations is both a
+# folder of photos and a page, and the page must win (otherwise a refresh shows a list of files)
+RewriteCond %{REQUEST_FILENAME} -f
 RewriteRule ^ - [L]
 RewriteRule ^ index.html [L]
 
