@@ -724,7 +724,7 @@
     "viewCert": "See my certificate",
     "another": "Take the pledge for someone else",
     "privacy": "Only your name and place are saved, to count the pledges. Nothing else is asked.",
-    "shareText": "I took the pledge for the Constitution on Samvidhan Divas. Read the Preamble and take the pledge too: {{link}}",
+    "shareCert": "✋ I took the pledge for the Constitution on Samvidhan Divas!\n📜 Justice · Liberty · Equality · Fraternity\n\nRead the Preamble and get your own certificate too 👇\n{{link}}\n\nJai Bhim · Jai Samvidhan 🇮🇳",
     "certReady": "Your certificate is ready",
     "certHint": "Share it on WhatsApp and Status, or download it to print.",
     "speechTitle": "25 November 1949: Dr. Ambedkar's last speech in the Constituent Assembly",
@@ -743,12 +743,32 @@
     "good": "Well done! Read the Preamble again to learn more.",
     "tryMore": "Keep learning. Read the Preamble and try again.",
     "shareScore": "Share my score on WhatsApp",
-    "scoreText": "I scored {{score}}/{{total}} in the Constitution quiz of Bhim Army Blue Panther. Can you beat me? {{link}}",
+    "scoreText": "🧠 I scored {{score}}/{{total}} in the Constitution Quiz! {{stars}}\n\nThink you know our Constitution better? Take the 10-question challenge 👇\n{{link}}\n\nJai Bhim · Jai Samvidhan 🇮🇳",
+    "sendLink": "Send link on WhatsApp",
+    "cardName": "Your name on the score card (optional)",
+    "shareCard": "Share my score card",
+    "challenge": "Challenge friends",
+    "makingCard": "Making your score card…",
+    "welcomeQuiz": "{{name}} scored {{score}}/{{total}} in the Constitution quiz. Can you beat that?",
+    "welcomePledge": "{{name}} took the pledge for the Constitution and invited you to take it too.",
+    "aFriend": "A friend",
+    "acceptQuiz": "Take the challenge",
+    "acceptPledge": "Take the pledge",
     "again": "Play again",
     "cta": "Join the movement to protect the Constitution",
     "bannerTitle": "Samvidhan Divas · 26 November",
     "bannerText": "Read the Preamble and take the pledge for the Constitution.",
     "bannerBtn": "Take the pledge",
+    "card": {
+      "title": "Constitution Quiz · Samvidhan Divas",
+      "whose": "{{name}}'s score",
+      "my": "My score",
+      "champion": "Constitution Champion",
+      "expert": "Constitution Expert",
+      "good": "Good knowledge",
+      "learning": "Keep learning",
+      "beat": "Can you beat this score?"
+    },
     "cert": {
       "title": "Constitution Pledge Certificate",
       "sub": "Samvidhan Divas · 26 November",
@@ -756,7 +776,8 @@
       "body": "has read the Preamble of the Constitution of India and pledged to uphold justice, liberty, equality and fraternity, and to protect the dignity of every person.",
       "no": "Certificate no.",
       "date": "Date",
-      "slogan": "Jai Bhim · Jai Samvidhan"
+      "slogan": "Jai Bhim · Jai Samvidhan",
+      "values": "Justice|Liberty|Equality|Fraternity"
     }
   }
 }

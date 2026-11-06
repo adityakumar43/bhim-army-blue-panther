@@ -1,16 +1,46 @@
 import { useEffect, useMemo, useState } from 'react'
 import { createPortal } from 'react-dom'
-import { Link } from 'react-router-dom'
+import { Link, useSearchParams } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
 import { api } from '../lib/api.js'
 import { trackEvent } from '../lib/analytics.js'
 import { makeCertificate } from '../lib/pledgeCertificate.js'
+import { makeScoreCard } from '../lib/scoreCard.js'
 import { STATES, stateName } from '../data/states.js'
 import { PREAMBLE, SPEECH, QUIZ } from '../data/samvidhan.js'
 import DistrictSelect from '../components/DistrictSelect.jsx'
 import { ListenButton } from '../components/ShareListen.jsx'
 
-const PAGE = 'https://bhimarmybluepanther.org/samvidhan'
+// Shared links go through the backend's /share/samvidhan page: WhatsApp then shows the Samvidhan picture
+// with a personal title ("Ravi scored 8/10…"), and the friend lands on this page with the same greeting.
+const SHARE_BASE = (import.meta.env.VITE_API_URL || 'http://localhost:5000/api').replace(/\/api\/?$/, '')
+const firstName = (n) => String(n || '').trim().split(/\s+/)[0] || '' // only the first name goes into links
+function shareUrl({ by, score, lang }) {
+    const q = new URLSearchParams()
+    if (by) q.set('by', firstName(by))
+    if (score !== undefined && score !== null) q.set('score', String(score))
+    q.set('lang', lang === 'en' ? 'en' : 'hi')
+    return `${SHARE_BASE}/share/samvidhan?${q}`
+}
+const starText = (score, total) => { const n = Math.round((score / total) * 5); return '⭐'.repeat(n) + '☆'.repeat(5 - n) }
+const canShareFiles = () => typeof navigator !== 'undefined' && !!navigator.canShare && navigator.canShare({ files: [new File([''], 'x.png', { type: 'image/png' })] })
+
+// Share a picture with a message (phones: the share menu, with WhatsApp in it).
+// Where pictures cannot be shared (most computers), it is downloaded instead and false is returned.
+async function sharePicture(blob, fileName, text) {
+    const file = new File([blob], fileName, { type: 'image/png' })
+    if (navigator.canShare?.({ files: [file] })) {
+        try { await navigator.share({ files: [file], text }) } catch { /* the person closed the share menu */ }
+        return true
+    }
+    const a = document.createElement('a')
+    a.href = URL.createObjectURL(blob)
+    a.download = fileName
+    a.click()
+    setTimeout(() => URL.revokeObjectURL(a.href), 5000)
+    return false
+}
+const whatsappLink = (text) => `https://wa.me/?text=${encodeURIComponent(text)}`
 const num = (n, lang) => Number(n || 0).toLocaleString(lang === 'hi' ? 'hi-IN' : 'en-IN')
 const section = 'rounded-2xl border border-navy/10 bg-white p-5 shadow-sm sm:p-8'
 
@@ -34,10 +64,11 @@ function Preamble() {
 
 // ---------- The certificate window (like "Share as a poster") ----------
 function CertificateWindow({ cert, name, onClose }) {
-    const { t } = useTranslation()
+    const { t, i18n } = useTranslation()
     const fileName = `samvidhan-pledge-${cert.certNo}.png`
     const [note, setNote] = useState('')
-    const canShareFiles = typeof navigator !== 'undefined' && !!navigator.canShare && navigator.canShare({ files: [new File([''], 'x.png', { type: 'image/png' })] })
+    // The message that goes with the picture: who took the pledge, the four values, and a link that invites others
+    const message = t('samvidhan.shareCert', { link: shareUrl({ by: name, lang: i18n.language }) })
 
     useEffect(() => {
         const key = (e) => e.key === 'Escape' && onClose()
@@ -52,13 +83,8 @@ function CertificateWindow({ cert, name, onClose }) {
         a.click()
     }
     async function share() {
-        const file = new File([cert.blob], fileName, { type: 'image/png' })
-        if (navigator.canShare?.({ files: [file] })) {
-            try { await navigator.share({ files: [file], text: t('samvidhan.shareText', { link: PAGE }) }) } catch { /* closed the share menu */ }
-        } else {
-            download()
-            setNote(t('poster.saved', { defaultValue: 'Saved. Open WhatsApp, tap the 📎 (attach) button and choose this picture.' }))
-        }
+        const shared = await sharePicture(cert.blob, fileName, message)
+        if (!shared) setNote(t('poster.saved', { defaultValue: 'Saved. Open WhatsApp, tap the 📎 (attach) button and choose this picture.' }))
         trackEvent('share', { method: 'whatsapp', content_type: 'pledge_certificate' })
     }
 
@@ -71,12 +97,17 @@ function CertificateWindow({ cert, name, onClose }) {
                 <p className="-mt-3 text-sm text-navy/65">{t('samvidhan.certHint')}</p>
                 {note && <p role="status" className="rounded-xl bg-green-50 px-3 py-2 text-sm text-green-800">{note}</p>}
                 <div className="grid gap-2 sm:grid-cols-3">
+                    {/* Phones: the picture with the message. Computers: it is saved, to attach in WhatsApp. */}
                     <button type="button" onClick={share} className="btn gap-2 bg-[#25D366] text-white hover:brightness-95">
-                        {canShareFiles ? t('poster.share', { defaultValue: 'Share' }) : t('poster.forWhatsapp', { defaultValue: 'Save for WhatsApp' })}
+                        📸 {canShareFiles() ? t('poster.share', { defaultValue: 'Share' }) : t('poster.forWhatsapp', { defaultValue: 'Save for WhatsApp' })}
                     </button>
-                    <button type="button" onClick={download} className="btn border-2 border-brand text-brand">{t('poster.download', { defaultValue: 'Download' })}</button>
-                    <button type="button" onClick={onClose} className="btn text-navy/70 underline">{t('poster.close', { defaultValue: 'Close' })}</button>
+                    {/* The invitation as a message (the link shows a Samvidhan picture and "<name> took the pledge" on WhatsApp) */}
+                    <a href={whatsappLink(message)} target="_blank" rel="noopener noreferrer"
+                        onClick={() => trackEvent('share', { method: 'whatsapp', content_type: 'pledge_link' })}
+                        className="btn gap-2 border-2 border-[#25D366] text-[#128c4a] hover:bg-green-50">💬 {t('samvidhan.sendLink')}</a>
+                    <button type="button" onClick={download} className="btn border-2 border-brand text-brand">⬇️ {t('poster.download', { defaultValue: 'Download' })}</button>
                 </div>
+                <button type="button" onClick={onClose} className="-mt-1 self-center py-1 text-sm font-semibold text-navy/60 underline">{t('poster.close', { defaultValue: 'Close' })}</button>
             </div>
         </div>,
         document.body,
@@ -121,7 +152,7 @@ function Pledge({ onPledged }) {
             if (!r.certNo) return // the hidden bot field was filled
             setDone(r)
             setOpen(true)
-            onPledged(r.total)
+            onPledged(r.total, r.name)
             trackEvent('pledge_taken', { state: form.stateCode })
         } catch (err) {
             setError(err.message)
@@ -219,9 +250,12 @@ function Speech() {
 }
 
 // ---------- The quiz ----------
-function Quiz() {
+function Quiz({ myName = '' }) {
     const { t, i18n } = useTranslation()
     const lang = i18n.language === 'en' ? 'en' : 'hi'
+    const [name, setName] = useState(myName) // optional, printed on the score card
+    const [card, setCard] = useState(null) // { blob, url } of the score card picture
+    const [note, setNote] = useState('')
     const [step, setStep] = useState(-1) // -1 = not started; QUIZ.length = finished
     const [picked, setPicked] = useState(null)
     const [score, setScore] = useState(0)
@@ -240,7 +274,29 @@ function Quiz() {
     }
     function restart() { setScore(0); setPicked(null); setStep(0) }
 
-    const shareText = t('samvidhan.scoreText', { score, total, link: PAGE })
+    useEffect(() => { if (myName && !name) setName(myName) }, [myName])
+
+    // The score card is drawn when the quiz ends, and again if the name or language changes
+    useEffect(() => {
+        if (step !== total) return
+        let gone = false
+        const timer = setTimeout(() => {
+            makeScoreCard({ score, total, name: firstName(name), t }).then((blob) => {
+                if (gone) return
+                setCard((old) => { if (old) URL.revokeObjectURL(old.url); return { blob, url: URL.createObjectURL(blob) } })
+            }).catch(() => {})
+        }, 300) // wait until they stop typing their name
+        return () => { gone = true; clearTimeout(timer) }
+    }, [step, name, lang])
+
+    // The challenge message: the score with stars, and a link that shows "<name> scored 8/10" on WhatsApp
+    const shareText = t('samvidhan.scoreText', { score, total, stars: starText(score, total), link: shareUrl({ by: name, score, lang }) })
+    async function shareCard() {
+        if (!card) return
+        const shared = await sharePicture(card.blob, `samvidhan-quiz-${score}-of-${total}.png`, shareText)
+        setNote(shared ? '' : t('poster.saved', { defaultValue: 'Saved. Open WhatsApp, tap the 📎 (attach) button and choose this picture.' }))
+        trackEvent('share', { method: 'whatsapp', content_type: 'quiz_card' })
+    }
     const verdict = score >= 8 ? t('samvidhan.great') : score >= 5 ? t('samvidhan.good') : t('samvidhan.tryMore')
 
     return (
@@ -288,19 +344,58 @@ function Quiz() {
             )}
 
             {step === total && (
-                <div className="mt-6 rounded-2xl bg-mist/60 p-6 text-center">
-                    <p className="text-5xl font-extrabold text-brand">{score}<span className="text-2xl text-navy/50">/{total}</span></p>
-                    <p role="status" className="mt-2 text-lg font-extrabold">{t('samvidhan.score', { score, total })}</p>
-                    <p className="mt-1 text-navy/70">{verdict}</p>
-                    <div className="mt-5 flex flex-wrap justify-center gap-2">
-                        <a href={`https://wa.me/?text=${encodeURIComponent(shareText)}`} target="_blank" rel="noopener noreferrer"
-                            onClick={() => trackEvent('share', { method: 'whatsapp', content_type: 'quiz_score' })}
-                            className="btn gap-2 bg-[#25d366] text-white hover:bg-[#1da851]">{t('samvidhan.shareScore')}</a>
-                        <button type="button" onClick={restart} className="btn border-2 border-brand text-brand">🔄 {t('samvidhan.again')}</button>
+                <div className="mt-6 grid items-start gap-6 rounded-2xl bg-mist/60 p-5 sm:p-6 lg:grid-cols-[minmax(0,22rem)_1fr]">
+                    {/* The score card picture people share */}
+                    <div className="mx-auto w-full max-w-xs lg:max-w-none">
+                        {card
+                            ? <img src={card.url} alt={t('samvidhan.score', { score, total })} className="w-full rounded-2xl shadow-lg" />
+                            : <div className="flex aspect-square w-full items-center justify-center rounded-2xl bg-navy text-white/70">{t('samvidhan.makingCard')}</div>}
+                    </div>
+                    <div className="text-center lg:text-left">
+                        <p className="text-5xl font-extrabold text-brand">{score}<span className="text-2xl text-navy/50">/{total}</span></p>
+                        <p role="status" className="mt-2 text-lg font-extrabold">{t('samvidhan.score', { score, total })}</p>
+                        <p className="mt-1 text-navy/70">{verdict}</p>
+                        <label className="mt-5 flex flex-col gap-1 text-left text-sm font-semibold">{t('samvidhan.cardName')}
+                            <input value={name} onChange={(e) => setName(e.target.value.slice(0, 40))} maxLength="40" autoComplete="given-name"
+                                placeholder={t('samvidhan.namePh')} className="input bg-white" />
+                        </label>
+                        {note && <p role="status" className="mt-3 rounded-xl bg-green-50 px-3 py-2 text-left text-sm text-green-800">{note}</p>}
+                        <div className="mt-4 grid gap-2 sm:grid-cols-2">
+                            <button type="button" onClick={shareCard} disabled={!card} className="btn gap-2 bg-[#25d366] text-white hover:bg-[#1da851] disabled:opacity-60">
+                                📸 {t('samvidhan.shareCard')}
+                            </button>
+                            <a href={whatsappLink(shareText)} target="_blank" rel="noopener noreferrer"
+                                onClick={() => trackEvent('share', { method: 'whatsapp', content_type: 'quiz_challenge' })}
+                                className="btn gap-2 border-2 border-[#25D366] text-[#128c4a] hover:bg-green-50">💬 {t('samvidhan.challenge')}</a>
+                        </div>
+                        <button type="button" onClick={restart} className="mt-3 text-sm font-semibold text-brand underline">🔄 {t('samvidhan.again')}</button>
                     </div>
                 </div>
             )}
         </section>
+    )
+}
+
+// A friend opened a shared link (?by=Ravi or ?by=Ravi&score=8): greet them with who sent it and what to do
+function Welcome() {
+    const { t } = useTranslation()
+    const [params] = useSearchParams()
+    const by = firstName(String(params.get('by') || '').replace(/[^\p{L}\p{M} .'-]/gu, '')).slice(0, 40)
+    const raw = params.get('score')
+    const score = /^(10|[0-9])$/.test(raw || '') ? Number(raw) : null
+    if (!by && score === null) return null
+    const name = by || t('samvidhan.aFriend')
+    const quiz = score !== null
+    return (
+        <div className="flex flex-col items-center gap-4 rounded-2xl border-2 border-gold bg-[#fffaf0] p-5 text-center shadow-sm sm:flex-row sm:text-left">
+            <span className="text-5xl" aria-hidden="true">{quiz ? '🏆' : '🙏'}</span>
+            <p className="flex-1 text-lg font-extrabold text-navy">
+                {quiz ? t('samvidhan.welcomeQuiz', { name, score, total: QUIZ.length }) : t('samvidhan.welcomePledge', { name })}
+            </p>
+            <a href={quiz ? '#quiz' : '#pledge'} className="btn shrink-0 bg-brand text-white hover:bg-navy">
+                {quiz ? `🧠 ${t('samvidhan.acceptQuiz')}` : `✋ ${t('samvidhan.acceptPledge')}`}
+            </a>
+        </div>
     )
 }
 
@@ -309,11 +404,13 @@ export default function Samvidhan() {
     const { t, i18n } = useTranslation()
     const lang = i18n.language
     const [count, setCount] = useState(null)
+    const [myName, setMyName] = useState('') // after the pledge, their name is offered for the quiz score card
 
     useEffect(() => { api.get('/pledge/count').then(setCount).catch(() => {}) }, [])
 
     return (
         <div className="mx-auto flex max-w-5xl flex-col gap-6 px-5 py-10 sm:py-12">
+            <Welcome />
             {/* How many have pledged, and quick links to each part */}
             <div className="flex flex-col items-center gap-3 rounded-2xl bg-navy px-5 py-5 text-center text-white sm:flex-row sm:justify-between sm:text-left">
                 <p className="text-lg font-extrabold">
@@ -329,9 +426,9 @@ export default function Samvidhan() {
             </div>
 
             <Preamble />
-            <Pledge onPledged={(total) => setCount((c) => ({ ...(c || { states: 1 }), total }))} />
+            <Pledge onPledged={(total, name) => { setCount((c) => ({ ...(c || { states: 1 }), total })); setMyName(name) }} />
             <Speech />
-            <Quiz />
+            <Quiz myName={myName} />
 
             <div className="rounded-2xl bg-linear-to-br from-navy via-[#0d2a6b] to-brand p-8 text-center text-white">
                 <p className="text-2xl font-extrabold text-gold">{t('samvidhan.cta')}</p>
