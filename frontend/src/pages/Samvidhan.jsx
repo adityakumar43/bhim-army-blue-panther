@@ -7,7 +7,7 @@ import { trackEvent } from '../lib/analytics.js'
 import { makeCertificate } from '../lib/pledgeCertificate.js'
 import { makeScoreCard } from '../lib/scoreCard.js'
 import { STATES, stateName } from '../data/states.js'
-import { PREAMBLE, SPEECH, QUIZ_SIZE, pickQuiz, newQuizSeed, isQuizSeed } from '../data/samvidhan.js'
+import { PREAMBLE, SPEECH, QUIZ_SIZE, pickQuiz, newQuizSeed, isQuizSeed, SEASON, isSamvidhanSeason } from '../data/samvidhan.js'
 import DistrictSelect from '../components/DistrictSelect.jsx'
 import { ListenButton } from '../components/ShareListen.jsx'
 
@@ -124,8 +124,13 @@ function CertificateWindow({ cert, name, onClose }) {
     )
 }
 
+// "11-01" -> "1 November" / "1 नवंबर"
+const dayMonth = (md, lang) => { const [m, d] = md.split('-').map(Number); return new Date(2000, m - 1, d).toLocaleDateString(lang === 'hi' ? 'hi-IN' : 'en-IN', { day: 'numeric', month: 'long' }) }
+
 // ---------- The pledge form ----------
-function Pledge({ onPledged }) {
+// status = the server's /pledge/count answer. The server decides whether the pledge is open;
+// until its answer arrives, the page guesses from today's date.
+function Pledge({ onPledged, status }) {
     const { t, i18n } = useTranslation()
     const lang = i18n.language
     const [form, setForm] = useState({ name: '', stateCode: '', district: '', website: '' })
@@ -162,10 +167,10 @@ function Pledge({ onPledged }) {
             if (!r.certNo) return // the hidden bot field was filled
             setDone(r)
             setOpen(true)
-            onPledged(r.total, r.name)
+            onPledged(r)
             trackEvent('pledge_taken', { state: form.stateCode })
         } catch (err) {
-            setError(err.message)
+            setError(err.data?.code === 'closed' ? t('samvidhan.closedTitle', { date: dayMonth(err.data.opensOn || SEASON.from, lang) }) : err.message)
         } finally {
             setBusy(false)
         }
@@ -181,7 +186,17 @@ function Pledge({ onPledged }) {
             <h2 className="text-2xl font-extrabold sm:text-3xl">✋ {t('samvidhan.pledgeTitle')}</h2>
             <p className="mt-1 text-navy/70">{t('samvidhan.pledgeIntro')}</p>
 
-            {done ? (
+            {!done && (status ? status.open === false : !isSamvidhanSeason()) ? (
+                <div className="mt-6 rounded-2xl bg-mist/60 p-5 text-center sm:p-6">
+                    <p className="text-4xl" aria-hidden="true">🗓️</p>
+                    <p className="mt-2 text-lg font-extrabold">{t('samvidhan.closedTitle', { date: dayMonth(status?.opensOn || SEASON.from, lang) })}</p>
+                    <p className="mx-auto mt-1 max-w-xl text-navy/70">{t('samvidhan.closedText')}</p>
+                    <div className="mt-4 flex flex-wrap justify-center gap-2">
+                        <a href="#preamble" className="btn border-2 border-brand text-brand hover:bg-brand hover:text-white">📜 {t('samvidhan.preambleTitle')}</a>
+                        <a href="#quiz" className="btn bg-brand text-white hover:bg-navy">🧠 {t('samvidhan.quizTitle')}</a>
+                    </div>
+                </div>
+            ) : done ? (
                 <div className="mt-6 rounded-2xl bg-green-50 p-5 text-center">
                     <p className="text-3xl" aria-hidden="true">🎉</p>
                     <p role="status" className="mt-2 text-lg font-extrabold text-green-900">{t('samvidhan.done', { name: done.name })}</p>
@@ -428,9 +443,12 @@ export default function Samvidhan() {
             {/* How many have pledged, and quick links to each part */}
             <div className="flex flex-col items-center gap-3 rounded-2xl bg-navy px-5 py-5 text-center text-white sm:flex-row sm:justify-between sm:text-left">
                 <p className="text-lg font-extrabold">
-                    ✋ {count?.total
-                        ? <>{t('samvidhan.count', { count: count.total, n: num(count.total, lang) })}{count.states > 1 && <span className="font-semibold text-white/75"> · {t('samvidhan.states', { count: count.states })}</span>}</>
-                        : t('samvidhan.first')}
+                    {/* This season's pledges first, the all-time total beside it. Before this season's first pledge, just the total. */}
+                    ✋ {count?.thisYear
+                        ? <>{t('samvidhan.season', { count: count.thisYear, n: num(count.thisYear, lang) })}{(count.total > count.thisYear || count.states > 1) && <span className="font-semibold text-white/75"> · {count.total > count.thisYear ? t('samvidhan.since', { n: num(count.total, lang), year: count.since }) : t('samvidhan.states', { count: count.states })}</span>}</>
+                        : count?.total
+                            ? <>{t('samvidhan.count', { count: count.total, n: num(count.total, lang) })}{count.states > 1 && <span className="font-semibold text-white/75"> · {t('samvidhan.states', { count: count.states })}</span>}</>
+                            : t('samvidhan.first')}
                 </p>
                 <nav className="flex flex-wrap justify-center gap-2 text-sm font-bold">
                     <a href="#preamble" className="rounded-full bg-white/10 px-3 py-2 hover:bg-white/20">📜 {t('samvidhan.preambleTitle')}</a>
@@ -440,7 +458,7 @@ export default function Samvidhan() {
             </div>
 
             <Preamble />
-            <Pledge onPledged={(total, name) => { setCount((c) => ({ ...(c || { states: 1 }), total })); setMyName(name) }} />
+            <Pledge status={count} onPledged={(r) => { setCount((c) => ({ ...(c || { states: 1 }), total: r.total, thisYear: r.thisYear, since: c?.since || new Date(r.date).getFullYear() })); setMyName(r.name) }} />
             <Speech />
             <Quiz myName={myName} />
 

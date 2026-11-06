@@ -20,7 +20,8 @@ export function isSamvidhanSeason(now = new Date()) {
     try { if (new URLSearchParams(window.location.search).get('samvidhan') === '1') return true } catch { /* no window */ }
     const md = new Intl.DateTimeFormat('en-CA', { timeZone: 'Asia/Kolkata', month: '2-digit', day: '2-digit' }).format(now)
     // The season crosses the new year, so it is "from 1 Nov onwards" OR "up to 26 Jan"
-    return md >= SEASON.from || md <= SEASON.to
+    // A season inside one year (e.g. 04-10 to 04-20) needs both; one that crosses the new year (11-01 to 01-26) needs either
+    return SEASON.from <= SEASON.to ? md >= SEASON.from && md <= SEASON.to : md >= SEASON.from || md <= SEASON.to
 }
 
 // The Preamble, one line per phrase. English: the official text. Hindi: the official Hindi text (भारत का संविधान).
