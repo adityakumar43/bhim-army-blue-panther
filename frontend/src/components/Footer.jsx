@@ -2,6 +2,7 @@ import { Link } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
 import { ORG } from '../lib/orgInfo.js'
 import { NotifyButton } from './Notify.jsx'
+import { isSamvidhanSeason } from '../data/samvidhan.js'
 
 export default function Footer() {
   const { t } = useTranslation()
@@ -13,7 +14,9 @@ export default function Footer() {
 
   // Two short lists instead of one long one
   const explore = [['/', t('nav.home')], ['/about', t('nav.about')], ['/leadership/states', t('nav.states')], ['/inspirations', t('nav.inspire')],
-  ['/campaigns', t('nav.campaigns')], ['/news', t('nav.news')], ['/events', t('cal.link')], ['/polls', t('poll.link')], ['/gallery', t('nav.gallery')], ['/videos', t('videos.link')], ['/samvidhan', t('samvidhan.link')]]
+  ['/campaigns', t('nav.campaigns')], ['/news', t('nav.news')], ['/events', t('cal.link')], ['/polls', t('poll.link')], ['/gallery', t('nav.gallery')], ['/videos', t('videos.link')],
+  // Samvidhan Divas: only from 1 November to 26 January (the page itself stays open all year)
+  ...(isSamvidhanSeason() ? [['/samvidhan', t('samvidhan.link')]] : [])]
   const involved = [['/join', t('nav.join')], ['/volunteer', t('vol.link')], ['/leaderboard', t('board.link')], ['/donate', t('cta.donate')], ['/help', t('help.link')], ['/downloads', t('dl.link')]]
   const path = ['educate', 'organize', 'struggle'].map((k) => t(`about.${k}.title`))
   const head = 'mb-3 text-sm font-extrabold tracking-wide text-gold uppercase'

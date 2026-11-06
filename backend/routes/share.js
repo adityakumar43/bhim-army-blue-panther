@@ -47,7 +47,7 @@ ${image ? `<meta name="twitter:image" content="${esc(image)}">` : ''}
 // The Samvidhan Divas page. Shared certificates and quiz scores link here with the sharer's name and score,
 // so WhatsApp shows a personal title ("Ravi scored 8/10, can you beat them?") over the Samvidhan picture,
 // and the friend who opens it lands on the right part of the page with the same greeting.
-//   /share/samvidhan?by=Ravi&score=8&lang=en   -> quiz challenge
+//   /share/samvidhan?by=Ravi&score=8&q=1234&lang=en   -> quiz challenge (q = which questions, so the friend gets the same ones)
 //   /share/samvidhan?by=Ravi&lang=hi           -> "Ravi took the pledge"
 router.get('/samvidhan', (req, res) => {
     const en = req.query.lang === 'en'
@@ -76,6 +76,7 @@ router.get('/samvidhan', (req, res) => {
     const q = new URLSearchParams()
     if (by) q.set('by', by)
     if (score !== null) q.set('score', String(score))
+    if (score !== null && /^[1-9]\d{0,5}$/.test(String(req.query.q || ''))) q.set('q', String(req.query.q))
     const url = `${site()}/samvidhan${q.size ? `?${q}` : ''}${part ? `#${part}` : ''}`
     res.set('Cache-Control', 'public, max-age=3600')
     res.type('html').send(page({ title, description, image: `${site()}/og-samvidhan.jpg`, url }))

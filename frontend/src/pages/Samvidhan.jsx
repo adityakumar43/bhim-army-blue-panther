@@ -7,7 +7,7 @@ import { trackEvent } from '../lib/analytics.js'
 import { makeCertificate } from '../lib/pledgeCertificate.js'
 import { makeScoreCard } from '../lib/scoreCard.js'
 import { STATES, stateName } from '../data/states.js'
-import { PREAMBLE, SPEECH, QUIZ } from '../data/samvidhan.js'
+import { PREAMBLE, SPEECH, QUIZ_SIZE, pickQuiz, newQuizSeed, isQuizSeed } from '../data/samvidhan.js'
 import DistrictSelect from '../components/DistrictSelect.jsx'
 import { ListenButton } from '../components/ShareListen.jsx'
 
@@ -15,10 +15,11 @@ import { ListenButton } from '../components/ShareListen.jsx'
 // with a personal title ("Ravi scored 8/10…"), and the friend lands on this page with the same greeting.
 const SHARE_BASE = (import.meta.env.VITE_API_URL || 'http://localhost:5000/api').replace(/\/api\/?$/, '')
 const firstName = (n) => String(n || '').trim().split(/\s+/)[0] || '' // only the first name goes into links
-function shareUrl({ by, score, lang }) {
+function shareUrl({ by, score, seed, lang }) {
     const q = new URLSearchParams()
     if (by) q.set('by', firstName(by))
     if (score !== undefined && score !== null) q.set('score', String(score))
+    if (seed) q.set('q', String(seed)) // the friend gets the same 10 questions
     q.set('lang', lang === 'en' ? 'en' : 'hi')
     return `${SHARE_BASE}/share/samvidhan?${q}`
 }
@@ -262,14 +263,18 @@ function Speech() {
 function Quiz({ myName = '' }) {
     const { t, i18n } = useTranslation()
     const lang = i18n.language === 'en' ? 'en' : 'hi'
+    const [params] = useSearchParams()
+    // Which 10 questions: the seed from a challenge link (?q=1234), or a new random one
+    const [seed, setSeed] = useState(() => (isQuizSeed(params.get('q')) ? Number(params.get('q')) : newQuizSeed()))
+    const questions = useMemo(() => pickQuiz(seed), [seed])
     const [name, setName] = useState(myName) // optional, printed on the score card
     const [card, setCard] = useState(null) // { blob, url } of the score card picture
     const [note, setNote] = useState('')
-    const [step, setStep] = useState(-1) // -1 = not started; QUIZ.length = finished
+    const [step, setStep] = useState(-1) // -1 = not started; total = finished
     const [picked, setPicked] = useState(null)
     const [score, setScore] = useState(0)
-    const total = QUIZ.length
-    const q = QUIZ[step]
+    const total = questions.length
+    const q = questions[step]
 
     function choose(i) {
         if (picked !== null) return
@@ -281,7 +286,7 @@ function Quiz({ myName = '' }) {
         setStep((s) => s + 1)
         if (step + 1 === total) trackEvent('quiz_done', { score: score, total })
     }
-    function restart() { setScore(0); setPicked(null); setStep(0) }
+    function restart() { setSeed(newQuizSeed()); setScore(0); setPicked(null); setStep(0) } // new questions each time
 
     useEffect(() => { if (myName && !name) setName(myName) }, [myName])
 
@@ -299,7 +304,7 @@ function Quiz({ myName = '' }) {
     }, [step, name, lang])
 
     // The challenge message: the score with stars, and a link that shows "<name> scored 8/10" on WhatsApp
-    const shareText = t('samvidhan.scoreText', { score, total, stars: starText(score, total), link: shareUrl({ by: name, score, lang }) })
+    const shareText = t('samvidhan.scoreText', { score, total, stars: starText(score, total), link: shareUrl({ by: name, score, seed, lang }) })
     async function shareCard() {
         if (!card) return
         const shared = await sharePicture(card.blob, `samvidhan-quiz-${score}-of-${total}.png`, shareText)
@@ -399,7 +404,7 @@ function Welcome() {
         <div className="flex flex-col items-center gap-4 rounded-2xl border-2 border-gold bg-[#fffaf0] p-5 text-center shadow-sm sm:flex-row sm:text-left">
             <span className="text-5xl" aria-hidden="true">{quiz ? '🏆' : '🙏'}</span>
             <p className="flex-1 text-lg font-extrabold text-navy">
-                {quiz ? t('samvidhan.welcomeQuiz', { name, score, total: QUIZ.length }) : t('samvidhan.welcomePledge', { name })}
+                {quiz ? t('samvidhan.welcomeQuiz', { name, score, total: QUIZ_SIZE }) : t('samvidhan.welcomePledge', { name })}
             </p>
             <a href={quiz ? '#quiz' : '#pledge'} className="btn shrink-0 bg-brand text-white hover:bg-navy">
                 {quiz ? `🧠 ${t('samvidhan.acceptQuiz')}` : `✋ ${t('samvidhan.acceptPledge')}`}
