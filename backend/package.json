@@ -33,6 +33,12 @@
     "razorpay": "^2.9.8",
     "web-push": "^3.6.7"
   },
+  "overrides": {
+    "uuid": "^11.1.1",
+    "nodemon": {
+      "minimatch": "^11.0.5"
+    }
+  },
   "devDependencies": {
     "nodemon": "^3.1.14"
   }
