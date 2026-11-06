@@ -139,7 +139,7 @@ function AdminLoading() {
       <span className="sr-only">Opening the admin panel…</span>
       <header className="sticky top-0 z-40 flex items-center justify-between gap-3 bg-navy px-4 py-2.5 text-white shadow-md sm:px-6">
         <div className="flex min-w-0 items-center gap-3">
-          <img src="/logo.png" alt="" className="h-9 w-9 shrink-0 rounded-lg object-cover" />
+          <img src="/logo-160.webp" alt="" className="h-9 w-9 shrink-0 rounded-lg object-cover" />
           <strong className="truncate">Bhim Army Blue Panther</strong>
           <span className="hidden rounded-md bg-gold px-2 py-0.5 text-xs font-extrabold text-navy sm:inline">ADMIN</span>
         </div>
@@ -236,7 +236,7 @@ export default function AdminLayout() {
     <div className="min-h-screen bg-[#F3F6FC]">
       <header className="sticky top-0 z-40 flex items-center justify-between gap-3 bg-navy px-4 py-2.5 text-white shadow-md sm:px-6">
         <div className="flex min-w-0 items-center gap-3 lg:flex-1">
-          <img src="/logo.png" alt="" className="h-9 w-9 shrink-0 rounded-lg object-cover" />
+          <img src="/logo-160.webp" alt="" className="h-9 w-9 shrink-0 rounded-lg object-cover" />
           {/* Phones: the role in small gold letters under the name; bigger screens: a gold badge beside it */}
           <div className="min-w-0 leading-tight sm:flex sm:items-center sm:gap-3">
             <strong className="block truncate">Bhim Army Blue Panther</strong>

@@ -1,6 +1,6 @@
 import { Link } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
-import { isSamvidhanTime } from '../data/samvidhan.js'
+import { isSamvidhanTime } from '../data/samvidhanDates.js'
 
 // Shown at the top of the Home page only on 25 and 26 November (Indian time), every year, by itself.
 // Add ?samvidhan=1 to the address to see it on any other day.

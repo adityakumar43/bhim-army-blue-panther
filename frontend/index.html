@@ -40,8 +40,6 @@
   <!-- Connect to the backend and the photo server early, so the slides and news start loading sooner -->
   <link rel="preconnect" href="%VITE_API_URL%" crossorigin />
   <link rel="preconnect" href="https://res.cloudinary.com" />
-  <!-- The big photo on the home page starts downloading straight away -->
-  <link rel="preload" as="image" href="/hero.jpg" fetchpriority="high" />
   <link rel="icon" type="image/png" sizes="512x512" href="/logo.png" />
   <link rel="manifest" href="/manifest.webmanifest" />
   <link rel="apple-touch-icon" href="/icons/apple-touch-icon.png" />
@@ -89,8 +87,30 @@
 
 <body>
   <script>
-    // On the home page, start loading the slides list before the app's code has even arrived (saves about a second on phones)
-    if (location.pathname === '/') window.__slides = fetch('%VITE_API_URL%/slides').then((r) => (r.ok ? r.json() : null)).catch(() => null)
+    // On the home page, start loading the slides list before the app's code has even arrived (saves about a second on phones),
+    // and start downloading the first slide's picture as soon as its address is known, instead of waiting for the app.
+    // The addresses must match the ones Slider.jsx builds (lib/img.js), so the browser uses this download for the slide.
+    if (location.pathname === '/') (function () {
+      var started = {}
+      function cdn(u, w) { return u.indexOf('/upload/') > -1 ? u.replace('/upload/', '/upload/f_auto,q_auto,w_' + w + '/') : u }
+      function preload(list) {
+        var u = list && list[0] && list[0].image && list[0].image.url
+        if (!u || started[u]) return
+        started[u] = true
+        var l = document.createElement('link')
+        l.rel = 'preload'
+        l.as = 'image'
+        l.href = cdn(u, 1200)
+        l.setAttribute('imagesrcset', [480, 800, 1200, 1920].map(function (w) { return cdn(u, w) + ' ' + w + 'w' }).join(', '))
+        l.setAttribute('imagesizes', '100vw')
+        l.setAttribute('fetchpriority', 'high')
+        document.head.appendChild(l)
+      }
+      // A returning visitor: the slides saved from the last visit, so the picture starts at once
+      try { preload(JSON.parse(localStorage.getItem('slidesCache'))) } catch (e) { /* storage blocked */ }
+      window.__slides = fetch('%VITE_API_URL%/slides').then(function (r) { return r.ok ? r.json() : null }).catch(function () { return null })
+      window.__slides.then(preload)
+    })()
   </script>
   <div id="root">
     <!-- A plain-text version of the site for search engines and AI crawlers that do not run JavaScript.

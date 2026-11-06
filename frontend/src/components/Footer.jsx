@@ -2,7 +2,7 @@ import { Link } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
 import { ORG } from '../lib/orgInfo.js'
 import { NotifyButton } from './Notify.jsx'
-import { isSamvidhanSeason } from '../data/samvidhan.js'
+import { isSamvidhanSeason } from '../data/samvidhanDates.js'
 
 export default function Footer() {
   const { t } = useTranslation()
@@ -30,7 +30,7 @@ export default function Footer() {
       <div className="mx-auto grid max-w-7xl gap-8 px-5 py-10 sm:grid-cols-2 lg:grid-cols-[1.4fr_1.5fr_0.9fr_1.4fr] lg:gap-10 lg:px-16">
         <div>
           <div className="mb-4 flex items-center gap-3">
-            <img src="/logo.png" alt="" className="h-12 w-12 rounded-md object-contain" />
+            <img src="/logo-160.webp" alt="" className="h-12 w-12 rounded-md object-contain" />
             <strong className="text-lg leading-tight">{t('org')}</strong>
           </div>
           <p className="mb-4 max-w-sm text-sm leading-relaxed text-white/75">{t('footerText', { defaultValue: t('mission') })}</p>

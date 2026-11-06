@@ -68,7 +68,13 @@ export default function Hero() {
           style={photoOk ? { aspectRatio: ratio } : undefined}
         >
           {photoOk
-            ? <img ref={photo} src="/hero.jpg" alt="" fetchPriority="high" onLoad={measure} onError={() => setPhotoOk(false)} className="absolute inset-0 h-full w-full object-contain" />
+            ? (
+              // WebP is about half the size of the JPEG; phones take the 640 px one. Very old browsers get hero.jpg.
+              <picture>
+                <source type="image/webp" srcSet="/hero-640.webp 640w, /hero-1000.webp 1000w" sizes="(min-width: 1024px) 500px, 100vw" />
+                <img ref={photo} src="/hero.jpg" alt="" onLoad={measure} onError={() => setPhotoOk(false)} className="absolute inset-0 h-full w-full object-contain" />
+              </picture>
+            )
             : <Chakra className="absolute inset-0 m-auto h-2/3 w-2/3 text-white/20" />}
           <div className="absolute inset-x-0 bottom-0 bg-linear-to-t from-navy/90 to-transparent p-5 pt-16">
             <span className="rounded-md bg-gold px-2.5 py-1 text-xs font-extrabold text-navy">{t('heroPhoto')}</span>

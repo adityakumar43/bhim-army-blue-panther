@@ -45,7 +45,7 @@ export default function Login() {
       <div className="relative w-full max-w-md rounded-3xl border-t-[6px] border-gold bg-white p-6 shadow-2xl shadow-black/40 sm:p-7">
         <div className="mb-4">
           <div className="flex items-center gap-3">
-            <img src="/logo.png" alt="" className="h-14 w-14 shrink-0 rounded-xl object-cover shadow-sm ring-2 ring-mist" />
+            <img src="/logo-160.webp" alt="" className="h-14 w-14 shrink-0 rounded-xl object-cover shadow-sm ring-2 ring-mist" />
             <div>
               <p className="leading-tight font-bold text-brand">Bhim Army Blue Panther</p>
               <p className="text-xs text-navy/60">शिक्षित बनो, संगठित रहो, संघर्ष करो</p>
