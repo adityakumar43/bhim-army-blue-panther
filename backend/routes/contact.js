@@ -40,13 +40,15 @@ router.post('/', limiter, async (req, res) => {
   }
   notifyAdmin(`New contact message${topic === 'general' ? '' : ` (${topic})`}`, `From ${name}${b.phone ? ' (' + b.phone + ')' : ''}:\n\n${message.slice(0, 300)}`)
 
-  // Send the person a "we got your message" email (only if they gave an email)
+  // Send the person a "we got your message" email (only if they gave an email).
+  // It repeats nothing they typed (not the message, not the name): anyone can type any address here,
+  // and an email that echoed their words could be used to send spam from our address.
   if (b.email) {
-    const text = `Jai Bhim ${name},\n\nWe have received your message. Our team will get back to you soon.\n\nYour message:\n${message}\n\n— Bhim Army Blue Panther`
+    const text = `Jai Bhim,\n\nWe have received your message. Our team will get back to you soon.\n\nIf you did not write to us, you can ignore this email.\n\n— Bhim Army Blue Panther`
     const html = `<div style="font-family:Arial,sans-serif;font-size:15px;color:#0a1a3f;line-height:1.6">
-      <p>जय भीम <b>${escape(name)}</b>,</p>
+      <p>जय भीम,</p>
       <p>आपका संदेश हमें मिल गया है। हमारी टीम जल्द ही आपसे संपर्क करेगी।<br>We have received your message. Our team will get back to you soon.</p>
-      <p style="background:#eef3fb;border-left:4px solid #0b3c9d;padding:10px 12px;white-space:pre-line">${escape(message)}</p>
+      <p style="color:#666;font-size:13px">अगर आपने हमें नहीं लिखा, तो इस ईमेल को अनदेखा करें।<br>If you did not write to us, you can ignore this email.</p>
       <p>— Bhim Army Blue Panther</p></div>`
     sendMail({ to: b.email, subject: 'We received your message – Bhim Army Blue Panther', text, html })
       .catch((err) => console.error('Contact confirmation email failed:', err.message))

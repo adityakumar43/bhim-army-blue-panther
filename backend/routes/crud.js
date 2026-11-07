@@ -66,6 +66,7 @@ export default function crud(Model, { fields, sort, filterFields = [], requireTi
     try {
       res.status(201).json(await Model.create(data))
     } catch (err) {
+      await deleteImage(data.image?.publicId) // not saved: do not leave the new photo unused in Cloudinary
       if (err.name === 'ValidationError') {
         const first = Object.values(err.errors)[0]
         return res.status(400).json({ message: first?.kind === 'regexp' ? first.message : 'Please check the details and try again' })
@@ -89,13 +90,16 @@ export default function crud(Model, { fields, sort, filterFields = [], requireTi
     if (requireTitle && !item.titleHi && !item.titleEn) {
       return res.status(400).json({ message: 'Add a title in Hindi or English' })
     }
-    if (req.file) {
-      await deleteImage(item.image?.publicId)
-      item.image = await uploadImage(req.file.buffer)
-    }
+    // A new photo: upload it and save first. The old photo is deleted only once the save has worked,
+    // so a failed save (a mistyped link or time) never leaves the item pointing at a deleted photo.
+    const oldImage = req.file ? item.image?.publicId : null
+    if (req.file) item.image = await uploadImage(req.file.buffer)
     try {
-      res.json(await item.save())
+      const saved = await item.save()
+      if (oldImage) await deleteImage(oldImage)
+      res.json(saved)
     } catch (err) {
+      if (req.file) await deleteImage(item.image?.publicId) // the new photo was not saved: remove it
       if (err.name === 'ValidationError') {
         const first = Object.values(err.errors)[0]
         return res.status(400).json({ message: first?.kind === 'regexp' ? first.message : 'Please check the details and try again' })

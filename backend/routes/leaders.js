@@ -65,7 +65,12 @@ router.post('/', protect, requirePermission('leaders'), upload.single('photo'), 
   if (error) return res.status(400).json({ message: error })
   if (notMyState(req, data.state)) return res.status(403).json({ message: OWN_STATE_ONLY })
   if (req.file) data.photo = await uploadImage(req.file.buffer, 'bluepanther/leaders')
-  res.status(201).json(view(await Leader.create(data)))
+  try {
+    res.status(201).json(view(await Leader.create(data)))
+  } catch (err) {
+    await deleteImage(data.photo?.publicId) // not saved: do not leave the photo unused in Cloudinary
+    throw err
+  }
 })
 
 router.put('/:id', protect, requirePermission('leaders'), upload.single('photo'), async (req, res) => {
@@ -74,14 +79,17 @@ router.put('/:id', protect, requirePermission('leaders'), upload.single('photo')
   const { data, error } = read(req.body || {})
   if (error) return res.status(400).json({ message: error })
   Object.assign(leader, data)
-  if (req.file) {
-    await deleteImage(leader.photo?.publicId)
-    leader.photo = await uploadImage(req.file.buffer, 'bluepanther/leaders')
-  } else if (req.body.removePhoto === 'true') {
-    await deleteImage(leader.photo?.publicId)
-    leader.photo = undefined
+  // The old photo is deleted only after the save has worked, so the leader never points at a deleted photo
+  const oldPhoto = (req.file || req.body.removePhoto === 'true') ? leader.photo?.publicId : null
+  if (req.file) leader.photo = await uploadImage(req.file.buffer, 'bluepanther/leaders')
+  else if (oldPhoto) leader.photo = undefined
+  try {
+    await leader.save()
+  } catch (err) {
+    if (req.file) await deleteImage(leader.photo?.publicId) // the new photo was not saved: remove it
+    throw err
   }
-  await leader.save()
+  if (oldPhoto) await deleteImage(oldPhoto)
   res.json(view(leader))
 })
 

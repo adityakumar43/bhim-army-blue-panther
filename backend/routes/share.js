@@ -83,7 +83,7 @@ router.get('/samvidhan', (req, res) => {
 })
 
 router.get('/:kind/:id', async (req, res) => {
-    const Model = MODELS[req.params.kind]
+    const Model = Object.hasOwn(MODELS, req.params.kind) ? MODELS[req.params.kind] : null // only news and events
     const fallback = `${site()}/${req.params.kind === 'events' ? 'news' : req.params.kind || ''}`
     if (!Model || !mongoose.isValidObjectId(req.params.id)) return res.redirect(302, site())
     const item = await Model.findById(req.params.id).lean()

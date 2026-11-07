@@ -89,11 +89,12 @@ router.post('/', reportLimiter, helpdeskUpload, async (req, res) => {
         }).catch((err) => console.error('District case email failed:', err.message))
       }
       notifyAdmin(`New help desk case ${c.refNo}`, `${c.category} in ${c.district ? c.district + ', ' : ''}${c.state}\nFrom ${name} (${phone})\n\n${description.slice(0, 400)}`)
-      // If they gave an email, send them their reference number so they don't lose it
+      // If they gave an email, send them their reference number so they don't lose it.
+      // Only the reference number we made: nothing they typed is repeated, so the email cannot carry spam.
       if (c.email) {
-        const text = `Jai Bhim ${name},\n\nWe have received your complaint.\nYour reference number: ${c.refNo}\n\nUse this number with your mobile number on the Help desk page to check progress.\nIn an emergency, call 112.\n\n— Bhim Army Blue Panther`
+        const text = `Jai Bhim,\n\nWe have received your complaint.\nYour reference number: ${c.refNo}\n\nUse this number with your mobile number on the Help desk page to check progress.\nIn an emergency, call 112.\n\n— Bhim Army Blue Panther`
         const html = `<div style="font-family:Arial,sans-serif;font-size:15px;color:#0a1a3f;line-height:1.6">
-          <p>जय भीम <b>${name.replace(/[<>&"]/g, '')}</b>,</p>
+          <p>जय भीम,</p>
           <p>आपकी शिकायत हमें मिल गई है। / We have received your complaint.</p>
           <p>संदर्भ संख्या / Reference number:<br><b style="font-size:22px;letter-spacing:2px;color:#0b3c9d">${c.refNo}</b></p>
           <p>इस संख्या और अपने मोबाइल नंबर से सहायता केंद्र पेज पर प्रगति देखें।<br>Use this number with your mobile number on the Help desk page to check progress.</p>
