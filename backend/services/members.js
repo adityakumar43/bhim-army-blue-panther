@@ -15,7 +15,14 @@ export async function issueCard(id) {
     const member = await Member.findById(id)
     if (!member) return { member: null, isNew: false }
     if (member.memberNo) return { member, isNew: false }
-
+    // Claim the member first, and only then take the next number, so two approvals at the same moment
+    // (a double click) never use up a number. The claim runs out after a minute, so a server that stopped
+    // half-way never leaves a member without a number: the next try (or the start-up check) finishes it.
+    const won = await Member.findOneAndUpdate(
+        { _id: id, memberNo: { $exists: false }, $or: [{ issuingCardAt: { $exists: false } }, { issuingCardAt: { $lt: new Date(Date.now() - 60e3) } }] },
+        { $set: { issuingCardAt: new Date() } },
+    )
+    if (!won) return { member: await Member.findById(id), isNew: false }
     const claimed = await Member.findOneAndUpdate(
         { _id: id, memberNo: { $exists: false } },
         {
@@ -24,6 +31,7 @@ export async function issueCard(id) {
                 approvedAt: new Date(),
                 cardToken: member.cardToken || crypto.randomBytes(16).toString('hex'),
             },
+            $unset: { issuingCardAt: 1 },
         },
         { new: true }
     )

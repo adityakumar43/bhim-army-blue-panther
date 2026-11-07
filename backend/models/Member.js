@@ -27,6 +27,7 @@ const memberSchema = new mongoose.Schema(
     endReason: String, // why the membership was ended
     cardEmailedAt: Date,
     birthdayWishedYear: Number, // the last year a birthday email was sent
+    issuingCardAt: { type: Date, select: false }, // a short lock while a membership number is being given (see services/members.js)
     emailOptOut: { type: Boolean, default: false }, // said "stop" to announcement emails
     unsubToken: { type: String, unique: true, sparse: true, select: false }, // the "stop these emails" link (made when the first email goes out)
     referredBy: { type: mongoose.Schema.Types.ObjectId, ref: 'Member', index: true }, // the member whose invite link they joined with
