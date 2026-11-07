@@ -28,6 +28,7 @@ const memberSchema = new mongoose.Schema(
     cardEmailedAt: Date,
     birthdayWishedYear: Number, // the last year a birthday email was sent
     emailOptOut: { type: Boolean, default: false }, // said "stop" to announcement emails
+    unsubToken: { type: String, unique: true, sparse: true, select: false }, // the "stop these emails" link (made when the first email goes out)
     referredBy: { type: mongoose.Schema.Types.ObjectId, ref: 'Member', index: true }, // the member whose invite link they joined with
     hideFromBoard: { type: Boolean, default: false }, // asked not to be shown on the public invite leaderboard
     // District admins' word on the application: they know the person ('good'), or they have a concern

@@ -18,7 +18,7 @@ export async function protect(req, res, next) {
     if (!admin) return res.status(401).json({ message: 'Account not found' })
     if (admin.active === false) return res.status(401).json({ message: 'This account is disabled' })
     if (admin.sessionId && sid !== admin.sessionId) {
-      return res.status(401).json({ message: 'You were logged out because this account was logged in on another device.' })
+      return res.status(401).json({ message: 'You were logged out: this account was logged in on another device, or its password was changed. Please log in again.' })
     }
     if (needsTwoFactor(admin.role) && !admin.twoFactorEnabled && !SETUP_PATHS.includes(req.originalUrl.split('?')[0])) {
       return res.status(403).json({ code: '2FA_REQUIRED', message: 'Your role requires two-step login. Set it up first.' })

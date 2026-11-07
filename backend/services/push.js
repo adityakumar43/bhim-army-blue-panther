@@ -4,6 +4,19 @@ import PushSend from '../models/PushSend.js'
 
 // Phone notifications ("web push"). The two keys are made once with:  npx web-push generate-vapid-keys
 // and kept in .env as VAPID_PUBLIC_KEY and VAPID_PRIVATE_KEY. Without them, notifications are switched off.
+// The services browsers use for notifications: Google (Chrome, Android), Mozilla (Firefox), Microsoft (Edge) and Apple (Safari, iPhone).
+// A device address anywhere else is not a real browser, and the server never sends to it.
+const PUSH_HOSTS = [/^fcm\.googleapis\.com$/, /^android\.googleapis\.com$/, /^updates\.push\.services\.mozilla\.com$/,
+    /(^|\.)push\.services\.mozilla\.com$/, /(^|\.)notify\.windows\.com$/, /^web\.push\.apple\.com$/, /(^|\.)push\.apple\.com$/]
+export function isPushService(endpoint) {
+    try {
+        const u = new URL(endpoint)
+        return u.protocol === 'https:' && !u.port && PUSH_HOSTS.some((h) => h.test(u.hostname))
+    } catch {
+        return false
+    }
+}
+
 export const pushReady = () => !!(process.env.VAPID_PUBLIC_KEY && process.env.VAPID_PRIVATE_KEY)
 
 let configured = false
@@ -23,6 +36,11 @@ const GONE = [404, 410] // the device turned notifications off, or the app was r
 // Sends one notification to one device. Gives 'sent', 'removed' (device is gone, so it was deleted) or 'failed'.
 export async function pushTo(sub, message) {
     if (!setup()) throw new Error('Phone notifications are not set up (VAPID keys in .env)')
+    // Saved before this check existed and not a real push service: remove it instead of sending to it
+    if (!isPushService(sub.endpoint)) {
+        await PushSubscription.deleteOne({ _id: sub._id })
+        return 'removed'
+    }
     try {
         await webpush.sendNotification({ endpoint: sub.endpoint, keys: sub.keys }, JSON.stringify(message), { TTL: 24 * 3600, urgency: 'normal' })
         if (sub.failures) await PushSubscription.updateOne({ _id: sub._id }, { $set: { failures: 0 } })

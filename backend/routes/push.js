@@ -3,14 +3,14 @@ import rateLimit from 'express-rate-limit'
 import PushSubscription from '../models/PushSubscription.js'
 import PushSend from '../models/PushSend.js'
 import { protect, requirePermission } from '../middleware/auth.js'
-import { pushReady, pushTo, runPush } from '../services/push.js'
+import { pushReady, pushTo, runPush, isPushService } from '../services/push.js'
 
 const router = Router()
 const limiter = rateLimit({ windowMs: 15 * 60 * 1000, max: 30, message: { message: 'Too many tries. Please try again later.' } })
 
 // A real push address: https, from the browser's own push service, not too long
 const validSub = (s) =>
-    s && typeof s.endpoint === 'string' && /^https:\/\/[^\s]{10,990}$/.test(s.endpoint) &&
+    s && typeof s.endpoint === 'string' && s.endpoint.length <= 1000 && isPushService(s.endpoint) &&
     typeof s.keys?.p256dh === 'string' && s.keys.p256dh.length <= 200 && typeof s.keys?.auth === 'string' && s.keys.auth.length <= 100
 
 // ----- Public -----

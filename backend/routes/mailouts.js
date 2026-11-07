@@ -52,7 +52,7 @@ router.get('/districts', protect, requirePermission('members'), async (req, res)
 router.post('/test', protect, requirePermission('members'), async (req, res) => {
     const msg = readMessage(req.body || {})
     if (msg.error) return res.status(400).json({ message: msg.error })
-    const me = { name: req.admin.name, memberNo: 'TEST', cardToken: 'test' }
+    const me = { name: req.admin.name, memberNo: 'TEST', unsubToken: 'test' }
     try {
         if (!(await sendMail({ to: req.admin.email, ...mailoutEmail({ ...msg, subject: `[TEST] ${msg.subject}` }, me) }))) {
             return res.status(503).json({ message: 'Email is not set up on the server yet (SMTP settings in .env)' })
@@ -103,7 +103,11 @@ const stopLimiter = rateLimit({ windowMs: 15 * 60 * 1000, max: 20, message: { me
 router.post('/unsubscribe', stopLimiter, async (req, res) => {
     const token = String(req.body?.token || '')
     if (!/^[a-f0-9]{32}$/.test(token)) return res.status(404).json({ message: 'Link not valid' })
-    const m = await Member.findOneAndUpdate({ cardToken: token }, { $set: { emailOptOut: true } }, { new: true })
+    // Emails now carry their own unsubscribe code. Emails sent before carried the card code: those links keep working
+    // until LEGACY_UNTIL, so nobody is stuck with an old email they cannot stop. After that date only the new code works.
+    const LEGACY_UNTIL = new Date('2027-02-01T00:00:00+05:30')
+    const m = await Member.findOneAndUpdate({ unsubToken: token }, { $set: { emailOptOut: true } }, { new: true })
+      ?? (new Date() < LEGACY_UNTIL ? await Member.findOneAndUpdate({ cardToken: token }, { $set: { emailOptOut: true } }, { new: true }) : null)
     if (!m) return res.status(404).json({ message: 'Link not valid' })
     res.json({ ok: true, name: m.name })
 })

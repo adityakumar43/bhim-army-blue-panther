@@ -1,4 +1,5 @@
 import { Router } from 'express'
+import crypto from 'crypto'
 import Admin from '../models/Admin.js'
 import { protect, requirePermission } from '../middleware/auth.js'
 import { ROLES, can } from '../config/roles.js'
@@ -98,7 +99,12 @@ router.patch('/:id', async (req, res) => {
   target.state = where.state
   target.district = where.district
   if (active !== undefined) target.active = !!active
-  if (password !== undefined) target.password = password
+  if (password !== undefined) {
+    target.password = password
+    // A new password logs that admin out everywhere at once (a new session id makes their current login invalid).
+    // Someone changing their own password keeps the session they are using: with one session per account, it is theirs.
+    if (!isSelf) target.sessionId = crypto.randomUUID()
+  }
   await target.save()
   res.json(view(target))
 })

@@ -1,3 +1,4 @@
+import crypto from 'crypto'
 import Member from '../models/Member.js'
 import Mailout from '../models/Mailout.js'
 import { sendMail } from './mailer.js'
@@ -18,7 +19,7 @@ export function audience(stateCode, district) {
 
 // The email one member gets. Paragraphs are kept; nothing the admin types can become HTML.
 export function mailoutEmail({ subject, body }, m) {
-    const stop = `${process.env.CLIENT_URL}/unsubscribe/${m.cardToken}`
+    const stop = `${process.env.CLIENT_URL}/unsubscribe/${m.unsubToken}`
     const paras = body.split(/\n\s*\n/).map((p) => p.trim()).filter(Boolean)
     const text = [`जय भीम ${m.name},`, '', body, '', `— ${ORG.name}`, '', `ये ईमेल बंद करने के लिए / To stop these emails: ${stop}`].join('\n')
     const html = `<div>
@@ -38,7 +39,7 @@ export async function runMailout(id) {
     const pause = Number(process.env.MAILOUT_DELAY_MS ?? 1500)
     const mo = await Mailout.findById(id)
     if (!mo) return
-    const members = await Member.find(audience(mo.stateCode, mo.district)).select('name email memberNo cardToken').lean()
+    const members = await Member.find(audience(mo.stateCode, mo.district)).select('name email memberNo +unsubToken').lean()
     let sent = 0, failed = 0, n = 0
     const save = (extra = {}) => Mailout.updateOne({ _id: id }, { $set: { sent, failed, ...extra } })
     for (const m of members) {
@@ -46,6 +47,11 @@ export async function runMailout(id) {
             const now = await Mailout.findById(id).select('status').lean()
             if (now?.status === 'stopped') return save()
             await save()
+        }
+        // The first announcement to a member makes their own unsubscribe code (separate from their membership card)
+        if (!m.unsubToken) {
+            m.unsubToken = crypto.randomBytes(16).toString('hex')
+            await Member.updateOne({ _id: m._id }, { $set: { unsubToken: m.unsubToken } }, { timestamps: false })
         }
         try {
             const ok = await sendMail({ to: m.email, ...mailoutEmail(mo, m) })

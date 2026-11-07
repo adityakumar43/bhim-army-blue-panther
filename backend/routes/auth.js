@@ -118,6 +118,12 @@ router.post('/login/2fa', limiter(10), async (req, res) => {
   res.json({ token: await sign(admin._id), admin: profile(admin) })
 })
 
+// Log out: a new session id on the server, so this login stops working everywhere, not only in this browser
+router.post('/logout', protect, async (req, res) => {
+  await Admin.updateOne({ _id: req.admin._id }, { $set: { sessionId: crypto.randomUUID() } })
+  res.json({ ok: true })
+})
+
 router.get('/me', protect, (req, res) => {
   res.json({ admin: profile(req.admin) })
 })

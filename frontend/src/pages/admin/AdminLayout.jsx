@@ -222,8 +222,11 @@ export default function AdminLayout() {
   }, [total])
 
   function logout() {
-    localStorage.removeItem('token')
-    navigate('/admin/login')
+    // End the session on the server too, so the login cannot be used again; leave even if the server does not answer
+    api.post('/auth/logout').catch(() => { }).finally(() => {
+      localStorage.removeItem('token')
+      navigate('/admin/login')
+    })
   }
 
   if (!me) return <AdminLoading />
