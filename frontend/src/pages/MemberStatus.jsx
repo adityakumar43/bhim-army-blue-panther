@@ -3,6 +3,7 @@ import { Link } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
 import { api } from '../lib/api.js'
 import Icon from '../components/BoxIcon.jsx' // two-tone icons for the coloured boxes
+import { msg, say, fromError } from '../lib/msg.js'
 
 const ICONS = {
   search: 'M11 19a8 8 0 1 0 0-16 8 8 0 0 0 0 16zM21 21l-4.3-4.3',
@@ -102,13 +103,13 @@ export default function MemberStatus() {
     e.preventDefault()
     setError('')
     setResult(null)
-    if (!phoneOk) return setError(t('join.phoneHint', { defaultValue: '10-digit mobile number starting with 6, 7, 8 or 9' }))
-    if (!dobReal) return setError(t('join.badDate', { defaultValue: 'This date does not exist. Please check the day and month.' }))
+    if (!phoneOk) return setError(msg('join.phoneHint', { defaultValue: '10-digit mobile number starting with 6, 7, 8 or 9' }))
+    if (!dobReal) return setError(msg('join.badDate', { defaultValue: 'This date does not exist. Please check the day and month.' }))
     setBusy(true)
     try {
       setResult(await api.post('/members/status', { phone: form.phone, dob }))
     } catch (err) {
-      setError(err.message.startsWith('We could not find') ? t('status.notFound') : err.message)
+      setError(err.message.startsWith('We could not find') ? msg('status.notFound') : fromError(err))
     } finally {
       setBusy(false)
     }
@@ -154,7 +155,7 @@ export default function MemberStatus() {
             </div>
           </div>
 
-          {error && <p role="alert" className="mt-4 flex gap-2 rounded-xl border border-red-200 bg-red-50 p-3 text-sm text-red-800"><span aria-hidden="true">⚠️</span>{error}</p>}
+          {error && <p role="alert" className="mt-4 flex gap-2 rounded-xl border border-red-200 bg-red-50 p-3 text-sm text-red-800"><span aria-hidden="true">⚠️</span>{say(t, error)}</p>}
 
           <button disabled={busy} className="btn mt-5 w-full gap-2 bg-brand text-white shadow-md hover:bg-navy disabled:opacity-60">
             <Svg name="search" /> {busy ? t('status.checking') : t('status.check')}

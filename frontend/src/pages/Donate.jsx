@@ -4,6 +4,7 @@ import { useTranslation } from 'react-i18next'
 import { api } from '../lib/api.js'
 import { trackEvent } from '../lib/analytics.js'
 import Icon from '../components/BoxIcon.jsx' // two-tone icons for the coloured boxes
+import { msg, say, fromError } from '../lib/msg.js'
 
 const PRESETS = [100, 500, 1000, 2500, 5000]
 const MIN = 10, MAX = 500000
@@ -50,9 +51,9 @@ export default function Donate() {
   async function pay(e) {
     e.preventDefault()
     setError('')
-    if (!amountOk) return setError(t('donate.badAmount', { defaultValue: 'Enter an amount between ₹10 and ₹5,00,000.' }))
-    if (form.phone && !phoneOk) return setError(t('join.phoneHint', { defaultValue: '10-digit mobile number starting with 6, 7, 8 or 9' }))
-    if (form.email && !emailOk) return setError(t('contact.badEmail', { defaultValue: 'Please check your email address.' }))
+    if (!amountOk) return setError(msg('donate.badAmount', { defaultValue: 'Enter an amount between ₹10 and ₹5,00,000.' }))
+    if (form.phone && !phoneOk) return setError(msg('join.phoneHint', { defaultValue: '10-digit mobile number starting with 6, 7, 8 or 9' }))
+    if (form.email && !emailOk) return setError(msg('contact.badEmail', { defaultValue: 'Please check your email address.' }))
     setBusy(true)
     try {
       await loadCheckout()
@@ -73,7 +74,7 @@ export default function Donate() {
             if (r.receiptToken) navigate(`/receipt/${r.receiptToken}`)
             else setDone(true)
           } catch (err) {
-            setError(err.message)
+            setError(fromError(err))
           } finally {
             setBusy(false)
           }
@@ -81,12 +82,12 @@ export default function Donate() {
         modal: { ondismiss: () => setBusy(false) },
       })
       rzp.on('payment.failed', () => {
-        setError(t('donate.failed'))
+        setError(msg('donate.failed'))
         setBusy(false)
       })
       rzp.open()
     } catch (err) {
-      setError(err.message)
+      setError(fromError(err))
       setBusy(false)
     }
   }
@@ -187,7 +188,7 @@ export default function Donate() {
           <p className="mt-2 text-xs text-navy/60">📧 {t('donate.receiptHint')}</p>
         </div>
 
-        {error && <p role="alert" className="flex gap-2 rounded-xl border border-red-200 bg-red-50 p-3 text-sm text-red-800"><span aria-hidden="true">⚠️</span>{error}</p>}
+        {error && <p role="alert" className="flex gap-2 rounded-xl border border-red-200 bg-red-50 p-3 text-sm text-red-800"><span aria-hidden="true">⚠️</span>{say(t, error)}</p>}
         <button disabled={busy} className="btn min-h-14 w-full gap-2 bg-gold text-lg font-extrabold text-navy shadow-md hover:brightness-95 disabled:opacity-60">
           {busy ? t('donate.wait') : <>💙 {t('donate.pay')} {amountOk ? rupees(value) : ''}</>}
         </button>

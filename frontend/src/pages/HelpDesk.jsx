@@ -8,6 +8,7 @@ import { CATEGORIES, STATUS, categoryOf } from '../data/helpdesk.js'
 import Consent from '../components/Consent.jsx'
 import DistrictSelect from '../components/DistrictSelect.jsx'
 import Icon from '../components/BoxIcon.jsx' // two-tone icons for the coloured boxes
+import { msg, say, fromError } from '../lib/msg.js'
 
 const EMPTY = { name: '', phone: '', email: '', stateCode: '', district: '', village: '', policeStation: '', category: '', incidentDate: '', description: '', website: '' }
 const PHONE_OK = /^[6-9]\d{9}$/
@@ -220,17 +221,18 @@ export default function HelpDesk() {
   async function report(e) {
     e.preventDefault()
     setError('')
-    if (!form.category) return setError(t('help.pickCategory', { defaultValue: 'Please choose what the problem is about.' }))
-    if (!form.stateCode) return setError(t('help.pickState', { defaultValue: 'Please choose your state.' }))
-    if (descLen < MIN && !voice) return setError(t('help.tooShortVoice', { defaultValue: 'Please write what happened (at least 20 letters), or record a voice message.' }))
-    if (!form.name.trim()) return setError(t('help.needName', { defaultValue: 'Please enter your name.' }))
-    if (!phoneOk) return setError(t('join.phoneHint', { defaultValue: '10-digit mobile number starting with 6, 7, 8 or 9' }))
+    if (!form.category) return setError(msg('help.pickCategory', { defaultValue: 'Please choose what the problem is about.' }))
+    if (!form.stateCode) return setError(msg('help.pickState', { defaultValue: 'Please choose your state.' }))
+    if (descLen < MIN && !voice) return setError(msg('help.tooShortVoice', { defaultValue: 'Please write what happened (at least 20 letters), or record a voice message.' }))
+    if (!form.name.trim()) return setError(msg('help.needName', { defaultValue: 'Please enter your name.' }))
+    if (!phoneOk) return setError(msg('join.phoneHint', { defaultValue: '10-digit mobile number starting with 6, 7, 8 or 9' }))
     const pad = (n) => String(n).padStart(2, '0')
-    const incidentDate = when.day && when.month && when.year ? `${when.year}-${pad(when.month)}-${pad(when.day)}` : ''
-    if ((when.day || when.month || when.year) && !incidentDate) return setError(t('help.fullDate', { defaultValue: 'Choose the day, month and year of the incident, or leave all three empty.' }))
-    if (incidentDate && new Date(`${incidentDate}T00:00:00Z`).toISOString().slice(0, 10) !== incidentDate) return setError(t('join.badDate', { defaultValue: 'This date does not exist. Please check the day and month.' }))
-    if (incidentDate > new Date().toLocaleDateString('en-CA')) return setError(t('help.futureDate', { defaultValue: 'The date of the incident cannot be in the future.' }))
-    if (!agree) return setError(t('privacy.needAgree', { defaultValue: 'Please tick the box to agree before sending.' }))
+    // The month and year of the incident are needed; the day only if they remember it ("2026-03" or "2026-03-14")
+    if (!when.month || !when.year) return setError(msg('help.fullDate', { defaultValue: 'Choose at least the month and year of the incident.' }))
+    const incidentDate = `${when.year}-${pad(when.month)}${when.day ? `-${pad(when.day)}` : ''}`
+    if (when.day && new Date(`${incidentDate}T00:00:00Z`).toISOString().slice(0, 10) !== incidentDate) return setError(msg('join.badDate', { defaultValue: 'This date does not exist. Please check the day and month.' }))
+    if (incidentDate > new Date().toLocaleDateString('en-CA').slice(0, incidentDate.length)) return setError(msg('help.futureDate', { defaultValue: 'The date of the incident cannot be in the future.' }))
+    if (!agree) return setError(msg('privacy.needAgree', { defaultValue: 'Please tick the box to agree before sending.' }))
     setBusy(true)
     try {
       const data = new FormData()
@@ -256,7 +258,7 @@ export default function HelpDesk() {
       setVoice(null)
       window.scrollTo({ top: 0, behavior: 'smooth' })
     } catch (err) {
-      setError(err.message)
+      setError(fromError(err))
     } finally {
       setBusy(false)
     }
@@ -271,7 +273,7 @@ export default function HelpDesk() {
       setFound(await api.post('/helpdesk/track', track))
       save(track)
     } catch (err) {
-      setError(err.message.startsWith('No complaint') ? t('help.notFound') : err.message)
+      setError(err.message.startsWith('No complaint') ? msg('help.notFound') : fromError(err))
     } finally {
       setBusy(false)
     }
@@ -365,7 +367,8 @@ export default function HelpDesk() {
                 {needsStation && <span className="text-xs font-normal text-navy/65">💡 {t('help.stationHint', { defaultValue: 'Important for this kind of complaint. Write the name of the police station.' })}</span>}
               </label>
               <div role="group" aria-labelledby="help-date" className="flex flex-col gap-1.5 font-semibold sm:col-span-2">
-                <span id="help-date">📅 {t('help.date')}</span>
+                <span id="help-date">📅 {t('help.date')}<Req /></span>
+                <span className="text-xs font-normal text-navy/65">{t('help.dateHint', { defaultValue: 'Month and year are needed. Choose the day too if you remember it.' })}</span>
                 <div className="grid grid-cols-[1fr_1.6fr_1.3fr] gap-2 sm:max-w-md">
                   <select aria-label={t('join.day', { defaultValue: 'Day' })} value={when.day} onChange={(e) => setWhen({ ...when, day: e.target.value })} className="input px-2">
                     <option value="">{t('join.day', { defaultValue: 'Day' })}</option>
@@ -458,7 +461,7 @@ export default function HelpDesk() {
           <Consent checked={agree} onChange={(v) => { setAgree(v); setError('') }} error={!!error && !agree}
             text={t('privacy.agreeHelp', { defaultValue: 'I agree that the details I give, including photos and voice messages, are used by the team to help me, as explained in the Privacy Policy.' })} />
 
-          {error && <p role="alert" className="flex gap-2 rounded-xl border border-red-200 bg-red-50 p-3 text-sm text-red-800"><span aria-hidden="true">⚠️</span>{error}</p>}
+          {error && <p role="alert" className="flex gap-2 rounded-xl border border-red-200 bg-red-50 p-3 text-sm text-red-800"><span aria-hidden="true">⚠️</span>{say(t, error)}</p>}
           <button disabled={busy} className="btn w-full gap-2 bg-brand text-white shadow-md hover:bg-navy disabled:opacity-60">{busy ? t('help.sending') : `📤 ${t('help.submit')}`}</button>
           <p className="-mt-2 text-center text-xs text-navy/60">🔒 {t('help.privacy')}</p>
         </form>
@@ -484,7 +487,7 @@ export default function HelpDesk() {
                 </span>
               </label>
             </div>
-            {error && <p role="alert" className="mt-4 flex gap-2 rounded-xl border border-red-200 bg-red-50 p-3 text-sm text-red-800"><span aria-hidden="true">⚠️</span>{error}</p>}
+            {error && <p role="alert" className="mt-4 flex gap-2 rounded-xl border border-red-200 bg-red-50 p-3 text-sm text-red-800"><span aria-hidden="true">⚠️</span>{say(t, error)}</p>}
             <button disabled={busy} className="btn mt-5 w-full gap-2 bg-brand text-white shadow-md hover:bg-navy disabled:opacity-60">{busy ? t('help.checking') : `🔍 ${t('help.track')}`}</button>
           </form>
 

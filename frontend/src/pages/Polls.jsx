@@ -6,6 +6,7 @@ import { pickText, formatDate } from '../lib/text.js'
 import { stateName, stateByCode } from '../data/states.js'
 import BoxIcon from '../components/BoxIcon.jsx'
 import Loading from '../components/Loading.jsx'
+import { msg, say, fromError } from '../lib/msg.js'
 
 const SAVED = 'pollMember' // member number and mobile, remembered on this phone if the person wants
 
@@ -50,8 +51,8 @@ function PollCard({ poll, me, lang, t }) {
 
     async function vote() {
         setError('')
-        if (choice === null) return setError(t('poll.err.noOption', { defaultValue: 'Choose an answer first.' }))
-        if (!me.memberNo.trim() || me.phone.replace(/\D/g, '').length < 10) return setError(t('poll.err.missing', { defaultValue: 'Fill in your member number and mobile number above.' }))
+        if (choice === null) return setError(msg('poll.err.noOption', { defaultValue: 'Choose an answer first.' }))
+        if (!me.memberNo.trim() || me.phone.replace(/\D/g, '').length < 10) return setError(msg('poll.err.missing', { defaultValue: 'Fill in your member number and mobile number above.' }))
         setBusy(true)
         try {
             const r = await api.post(`/polls/${poll._id}/vote`, { option: choice, memberNo: me.memberNo, phone: me.phone })
@@ -60,7 +61,7 @@ function PollCard({ poll, me, lang, t }) {
         } catch (e) {
             const code = e.data?.code
             if (code === 'already') setDone({ already: true, option: e.data.option, results: e.data.results })
-            else setError(code ? t(`poll.err.${code}`, { defaultValue: e.message }) : e.message)
+            else setError(code ? msg(`poll.err.${code}`, { defaultValue: e.message }) : fromError(e))
         } finally { setBusy(false) }
     }
 
@@ -103,7 +104,7 @@ function PollCard({ poll, me, lang, t }) {
                             </button>
                         ))}
                     </div>
-                    {error && <p role="alert" className="mt-3 text-sm font-semibold text-red-700">⚠️ {error}</p>}
+                    {error && <p role="alert" className="mt-3 text-sm font-semibold text-red-700">⚠️ {say(t, error)}</p>}
                     <button type="button" onClick={vote} disabled={busy} className="btn mt-4 w-full bg-brand text-white hover:brightness-110 sm:w-auto">
                         {busy ? t('poll.sending', { defaultValue: 'Sending…' }) : t('poll.submit', { defaultValue: 'Submit my answer' })}
                     </button>

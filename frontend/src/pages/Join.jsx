@@ -8,6 +8,7 @@ import Consent from '../components/Consent.jsx'
 import Icon from '../components/BoxIcon.jsx' // two-tone icons for the coloured boxes
 import { STATES, stateName } from '../data/states.js'
 import { districtsOf, districtName } from '../data/districts.js'
+import { msg, say, fromError } from '../lib/msg.js'
 
 // Small line icons shown inside the boxes
 const ICONS = {
@@ -156,10 +157,10 @@ export default function Join() {
   async function submit(e) {
     e.preventDefault()
     setError('')
-    if (!photo) return setError(t('join.photoNeeded'))
-    if (!dobReal) return setError(dobProblem || t('join.badDate', { defaultValue: 'Please choose your date of birth' }))
-    if (!adult) return setError(dobProblem)
-    if (!agree) return setError(t('privacy.needAgree', { defaultValue: 'Please tick the box to agree before sending.' }))
+    if (!photo) return setError(msg('join.photoNeeded'))
+    if (!dobReal) return setError(msg('join.badDate', { defaultValue: dob ? 'This date does not exist. Please check the day and month.' : 'Please choose your date of birth' }))
+    if (!adult) return setError(msg('join.tooYoung', { defaultValue: 'You must be 18 or older to become a member.' }))
+    if (!agree) return setError(msg('privacy.needAgree', { defaultValue: 'Please tick the box to agree before sending.' }))
     setBusy(true)
     try {
       const data = new FormData()
@@ -173,7 +174,7 @@ export default function Join() {
       setDone(true)
       window.scrollTo({ top: 0, behavior: 'smooth' })
     } catch (err) {
-      setError(err.message)
+      setError(fromError(err))
     } finally {
       setBusy(false)
     }
@@ -355,7 +356,7 @@ export default function Join() {
         <Consent checked={agree} onChange={(v) => { setAgree(v); setError('') }} error={!!error && !agree}
           text={t('privacy.agreeJoin', { defaultValue: 'I am 18 or older. I agree that my details and photo are used for my membership (my card shows my name, photo and state), as explained in the Privacy Policy.' })} />
 
-        {error && <p role="alert" className="flex gap-2 rounded-xl border border-red-200 bg-red-50 p-3 text-red-800"><span aria-hidden="true">⚠️</span>{error}</p>}
+        {error && <p role="alert" className="flex gap-2 rounded-xl border border-red-200 bg-red-50 p-3 text-red-800"><span aria-hidden="true">⚠️</span>{say(t, error)}</p>}
 
         <button disabled={busy || applied} className="btn gap-2 bg-gold text-lg text-navy shadow-md hover:brightness-95 disabled:opacity-60">
           <Svg name="send" />

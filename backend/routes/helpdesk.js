@@ -45,10 +45,16 @@ router.post('/', reportLimiter, helpdeskUpload, async (req, res) => {
   // A voice message can take the place of the written description
   if (!voiceFile && description.length < 20) return res.status(400).json({ message: 'Please describe what happened (at least 20 letters), or record a voice message' })
   if (description.length > 3000) return res.status(400).json({ message: 'Please keep the description under 3000 letters' })
-  let incidentDate
-  if (b.incidentDate) {
-    incidentDate = new Date(`${b.incidentDate}T00:00:00Z`)
-    if (Number.isNaN(incidentDate.getTime()) || incidentDate > new Date()) return res.status(400).json({ message: 'Check the date of the incident' })
+  // When it happened: the month and year are required, the day only if the person remembers it ("2026-03" or "2026-03-14")
+  const when = String(b.incidentDate || '')
+  if (!/^\d{4}-\d{2}(-\d{2})?$/.test(when)) return res.status(400).json({ message: 'Choose the month and year of the incident' })
+  const incidentDayKnown = when.length === 10
+  const day = incidentDayKnown ? when : `${when}-01`
+  const incidentDate = new Date(`${day}T00:00:00Z`)
+  // A real date (JavaScript quietly turns 31 February into 3 March), not before 1950, and not later than today in India
+  const indiaToday = new Intl.DateTimeFormat('en-CA', { timeZone: 'Asia/Kolkata' }).format(new Date())
+  if (Number.isNaN(incidentDate.getTime()) || incidentDate.toISOString().slice(0, 10) !== day || when < '1950' || when > indiaToday.slice(0, when.length)) {
+    return res.status(400).json({ message: 'Check the date of the incident' })
   }
 
   // Upload the photos and the voice message (if any) at the same time
@@ -64,7 +70,7 @@ router.post('/', reportLimiter, helpdeskUpload, async (req, res) => {
   const data = {
     name: name.slice(0, 100), phone, email: b.email || undefined, stateCode: b.stateCode, state: stateNameEn(b.stateCode),
     district, village: String(b.village || '').trim().slice(0, 100),
-    policeStation: String(b.policeStation || '').trim().slice(0, 100), category: b.category, incidentDate, description, photos, voice,
+    policeStation: String(b.policeStation || '').trim().slice(0, 100), category: b.category, incidentDate, incidentDayKnown, description, photos, voice,
     history: [{ status: 'new' }],
     consentAt: new Date(),
   }

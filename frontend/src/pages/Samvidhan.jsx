@@ -10,6 +10,7 @@ import { STATES, stateName } from '../data/states.js'
 import { PREAMBLE, SPEECH, QUIZ_SIZE, pickQuiz, newQuizSeed, isQuizSeed, SEASON, isSamvidhanSeason } from '../data/samvidhan.js'
 import DistrictSelect from '../components/DistrictSelect.jsx'
 import { ListenButton } from '../components/ShareListen.jsx'
+import { msg, say, fromError } from '../lib/msg.js'
 
 // Shared links go through the backend's /share/samvidhan page: WhatsApp then shows the Samvidhan picture
 // with a personal title ("Ravi scored 8/10…"), and the friend lands on this page with the same greeting.
@@ -94,7 +95,7 @@ function CertificateWindow({ cert, name, onClose }) {
     }
     async function share() {
         const shared = await sharePicture(cert.blob, fileName, message)
-        if (!shared) setNote(t('poster.saved', { defaultValue: 'Saved. Open WhatsApp, tap the 📎 (attach) button and choose this picture.' }))
+        if (!shared) setNote(msg('poster.saved', { defaultValue: 'Saved. Open WhatsApp, tap the 📎 (attach) button and choose this picture.' }))
         trackEvent('share', { method: 'whatsapp', content_type: 'pledge_certificate' })
     }
 
@@ -105,7 +106,7 @@ function CertificateWindow({ cert, name, onClose }) {
                 <img src={cert.url} alt={`${t('samvidhan.cert.title')}: ${name}`} className="w-full rounded-xl shadow-md" />
                 <p className="text-lg font-extrabold">{t('samvidhan.certReady')}</p>
                 <p className="-mt-3 text-sm text-navy/65">{t('samvidhan.certHint')}</p>
-                {note && <p role="status" className="rounded-xl bg-green-50 px-3 py-2 text-sm text-green-800">{note}</p>}
+                {note && <p role="status" className="rounded-xl bg-green-50 px-3 py-2 text-sm text-green-800">{say(t, note)}</p>}
                 <div className="grid gap-2 sm:grid-cols-3">
                     {/* Phones: the picture with the message. Computers: it is saved, to attach in WhatsApp. */}
                     <button type="button" onClick={share} className="btn gap-2 bg-[#25D366] text-white hover:brightness-95">
@@ -151,16 +152,16 @@ function Pledge({ onPledged, status }) {
         makeCertificate({ pledge: done, lang, t }).then((blob) => {
             if (gone) return
             setCert({ blob, url: URL.createObjectURL(blob) })
-        }).catch(() => setError(t('poster.failed', { defaultValue: 'Could not make the picture. Please try again.' })))
+        }).catch(() => setError(msg('poster.failed', { defaultValue: 'Could not make the picture. Please try again.' })))
         return () => { gone = true }
     }, [done, lang])
 
     async function submit(e) {
         e.preventDefault()
         setError('')
-        if (form.name.trim().length < 2) return setError(t('samvidhan.needName'))
-        if (!form.stateCode) return setError(t('samvidhan.needState'))
-        if (!agree) return setError(t('samvidhan.needAgree'))
+        if (form.name.trim().length < 2) return setError(msg('samvidhan.needName'))
+        if (!form.stateCode) return setError(msg('samvidhan.needState'))
+        if (!agree) return setError(msg('samvidhan.needAgree'))
         setBusy(true)
         try {
             const r = await api.post('/pledge', form)
@@ -170,7 +171,7 @@ function Pledge({ onPledged, status }) {
             onPledged(r)
             trackEvent('pledge_taken', { state: form.stateCode })
         } catch (err) {
-            setError(err.data?.code === 'closed' ? t('samvidhan.closedTitle', { date: dayMonth(err.data.opensOn || SEASON.from, lang) }) : err.message)
+            setError(err.data?.code === 'closed' ? msg('samvidhan.closedTitle', (lng) => ({ date: dayMonth(err.data.opensOn || SEASON.from, lng) })) : fromError(err))
         } finally {
             setBusy(false)
         }
@@ -207,7 +208,7 @@ function Pledge({ onPledged, status }) {
                         </button>
                         <button type="button" onClick={another} className="btn border-2 border-brand text-brand">{t('samvidhan.another')}</button>
                     </div>
-                    {error && <p role="alert" className="mt-3 text-sm text-red-700">{error}</p>}
+                    {error && <p role="alert" className="mt-3 text-sm text-red-700">{say(t, error)}</p>}
                 </div>
             ) : (
                 <form onSubmit={submit} className="mt-6 grid gap-4 sm:grid-cols-2" noValidate>
@@ -231,7 +232,7 @@ function Pledge({ onPledged, status }) {
                         <input type="checkbox" checked={agree} onChange={(e) => setAgree(e.target.checked)} className="mt-1 h-5 w-5 shrink-0 accent-brand" />
                         <span className="font-semibold">{t('samvidhan.agree')}</span>
                     </label>
-                    {error && <p role="alert" className="text-red-700 sm:col-span-2">{error}</p>}
+                    {error && <p role="alert" className="text-red-700 sm:col-span-2">{say(t, error)}</p>}
                     <div className="sm:col-span-2">
                         <button type="submit" disabled={busy} className="btn w-full bg-brand text-white hover:bg-navy disabled:opacity-60 sm:w-auto">
                             ✋ {busy ? t('samvidhan.busy') : t('samvidhan.submit')}
@@ -323,7 +324,7 @@ function Quiz({ myName = '' }) {
     async function shareCard() {
         if (!card) return
         const shared = await sharePicture(card.blob, `samvidhan-quiz-${score}-of-${total}.png`, shareText)
-        setNote(shared ? '' : t('poster.saved', { defaultValue: 'Saved. Open WhatsApp, tap the 📎 (attach) button and choose this picture.' }))
+        setNote(shared ? '' : msg('poster.saved', { defaultValue: 'Saved. Open WhatsApp, tap the 📎 (attach) button and choose this picture.' }))
         trackEvent('share', { method: 'whatsapp', content_type: 'quiz_card' })
     }
     const verdict = score >= 8 ? t('samvidhan.great') : score >= 5 ? t('samvidhan.good') : t('samvidhan.tryMore')
@@ -388,7 +389,7 @@ function Quiz({ myName = '' }) {
                             <input value={name} onChange={(e) => setName(e.target.value.slice(0, 40))} maxLength="40" autoComplete="given-name"
                                 placeholder={t('samvidhan.namePh')} className="input bg-white" />
                         </label>
-                        {note && <p role="status" className="mt-3 rounded-xl bg-green-50 px-3 py-2 text-left text-sm text-green-800">{note}</p>}
+                        {note && <p role="status" className="mt-3 rounded-xl bg-green-50 px-3 py-2 text-left text-sm text-green-800">{say(t, note)}</p>}
                         <div className="mt-4 grid gap-2 sm:grid-cols-2">
                             <button type="button" onClick={shareCard} disabled={!card} className="btn gap-2 bg-[#25d366] text-white hover:bg-[#1da851] disabled:opacity-60">
                                 📸 {t('samvidhan.shareCard')}

@@ -5,6 +5,7 @@ import { api } from '../lib/api.js'
 import { trackEvent } from '../lib/analytics.js'
 import Consent from '../components/Consent.jsx'
 import Icon from '../components/BoxIcon.jsx' // two-tone icons for the coloured boxes
+import { msg, say, fromError } from '../lib/msg.js'
 
 const PHONE_OK = /^[6-9]\d{9}$/
 const EMAIL_OK = /^\S+@\S+\.\S+$/
@@ -62,10 +63,10 @@ export default function Contact() {
   async function submit(e) {
     e.preventDefault()
     setError('')
-    if (form.phone && !phoneOk) return setError(t('join.phoneHint', { defaultValue: '10-digit mobile number starting with 6, 7, 8 or 9' }))
-    if (form.email && !emailOk) return setError(t('contact.badEmail', { defaultValue: 'Please check your email address.' }))
-    if (!form.phone && !form.email) return setError(t('contact.needOne', { defaultValue: 'Give a mobile number or an email so we can reply to you.' }))
-    if (!agree) return setError(t('privacy.needAgree', { defaultValue: 'Please tick the box to agree before sending.' }))
+    if (form.phone && !phoneOk) return setError(msg('join.phoneHint', { defaultValue: '10-digit mobile number starting with 6, 7, 8 or 9' }))
+    if (form.email && !emailOk) return setError(msg('contact.badEmail', { defaultValue: 'Please check your email address.' }))
+    if (!form.phone && !form.email) return setError(msg('contact.needOne', { defaultValue: 'Give a mobile number or an email so we can reply to you.' }))
+    if (!agree) return setError(msg('privacy.needAgree', { defaultValue: 'Please tick the box to agree before sending.' }))
     setBusy(true)
     try {
       await api.post('/contact', { ...form, topic, message: form.message.trim(), consent: true })
@@ -73,7 +74,7 @@ export default function Contact() {
       setDone(true)
       setAgree(false)
     } catch (err) {
-      setError(err.message)
+      setError(fromError(err))
     } finally {
       setBusy(false)
     }
@@ -209,7 +210,7 @@ export default function Contact() {
                   text={t('privacy.agreeContact', { defaultValue: 'I agree that my details are used to reply to my message, as explained in the Privacy Policy.' })} />
               </div>
 
-              {error && <p role="alert" className="mt-3 flex gap-2 rounded-xl border border-red-200 bg-red-50 p-3 text-sm text-red-800"><span aria-hidden="true">⚠️</span>{error}</p>}
+              {error && <p role="alert" className="mt-3 flex gap-2 rounded-xl border border-red-200 bg-red-50 p-3 text-sm text-red-800"><span aria-hidden="true">⚠️</span>{say(t, error)}</p>}
 
               <button disabled={busy} className="btn mt-5 w-full gap-2 bg-brand text-white shadow-md hover:bg-navy disabled:opacity-60">
                 <span aria-hidden="true">📨</span> {busy ? t('contact.sending') : t('contact.send')}

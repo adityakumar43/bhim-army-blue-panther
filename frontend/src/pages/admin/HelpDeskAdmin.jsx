@@ -85,7 +85,7 @@ function Case({ c, team, canDelete, onSaved, onDelete }) {
                 {c.email && <a href={`mailto:${c.email}`} className="break-all hover:text-brand hover:underline">✉️ {c.email}</a>}
                 <span>📍 {[c.village, c.district, stateByCode(c.stateCode)?.en || c.state].filter(Boolean).join(', ')}</span>
                 {c.policeStation && <span>👮 PS {c.policeStation}</span>}
-                {c.incidentDate && <span>📅 Happened {new Date(c.incidentDate).toLocaleDateString('en-IN', { dateStyle: 'medium', timeZone: 'UTC' })}</span>}
+                {c.incidentDate && <span>📅 Happened {new Date(c.incidentDate).toLocaleDateString('en-IN', c.incidentDayKnown === false ? { month: 'long', year: 'numeric', timeZone: 'UTC' } : { dateStyle: 'medium', timeZone: 'UTC' })}</span>}
             </div>
             <p className="mt-2 text-sm">
                 {c.assignedTo?.name

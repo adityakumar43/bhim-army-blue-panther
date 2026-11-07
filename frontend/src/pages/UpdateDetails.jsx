@@ -6,6 +6,7 @@ import { shrinkImage } from '../lib/shrinkImage.js'
 import { STATES, stateName } from '../data/states.js'
 import DistrictSelect from '../components/DistrictSelect.jsx'
 import Icon from '../components/BoxIcon.jsx' // two-tone icons for the coloured boxes
+import { msg, say, fromError } from '../lib/msg.js'
 
 const PHONE_OK = /^[6-9]\d{9}$/
 const EMAIL_OK = /^\S+@\S+\.\S+$/
@@ -68,14 +69,14 @@ export default function UpdateDetails() {
     async function run(job) {
         setError('')
         setBusy(true)
-        try { await job() } catch (err) { setError(err.message) } finally { setBusy(false) }
+        try { await job() } catch (err) { setError(fromError(err)) } finally { setBusy(false) }
     }
 
     // Step 1: send the code
     const sendCode = (e) => {
         e?.preventDefault()
-        if (!PHONE_OK.test(who.phone)) return setError(t('join.phoneHint', { defaultValue: '10-digit mobile number starting with 6, 7, 8 or 9' }))
-        if (!dob) return setError(t('join.badDate', { defaultValue: 'Please choose your date of birth' }))
+        if (!PHONE_OK.test(who.phone)) return setError(msg('join.phoneHint', { defaultValue: '10-digit mobile number starting with 6, 7, 8 or 9' }))
+        if (!dob) return setError(msg('join.badDate', { defaultValue: 'Please choose your date of birth' }))
         run(async () => {
             const r = await api.post('/member-update/start', { phone: who.phone, dob })
             setSentTo(r.email)
@@ -98,8 +99,8 @@ export default function UpdateDetails() {
     // Step 3: save
     const save = (e) => {
         e.preventDefault()
-        if (!PHONE_OK.test(form.phone)) return setError(t('join.phoneHint', { defaultValue: '10-digit mobile number starting with 6, 7, 8 or 9' }))
-        if (!EMAIL_OK.test(form.email || '')) return setError(t('join.emailHint', { defaultValue: 'Please check the email address' }))
+        if (!PHONE_OK.test(form.phone)) return setError(msg('join.phoneHint', { defaultValue: '10-digit mobile number starting with 6, 7, 8 or 9' }))
+        if (!EMAIL_OK.test(form.email || '')) return setError(msg('join.emailHint', { defaultValue: 'Please check the email address' }))
         run(async () => {
             const data = new FormData()
             data.append('pass', pass)
@@ -148,7 +149,7 @@ export default function UpdateDetails() {
                                 </select>
                             </div>
                         </div>
-                        <Problem>{error}</Problem>
+                        <Problem>{say(t, error)}</Problem>
                         <button disabled={busy} className="btn mt-5 w-full gap-2 bg-brand text-white shadow-md hover:bg-navy disabled:opacity-60">
                             📧 {busy ? '…' : t('upd.sendCode', { defaultValue: 'Send me a code' })}
                         </button>
@@ -164,7 +165,7 @@ export default function UpdateDetails() {
                         <input inputMode="numeric" autoComplete="one-time-code" required maxLength="6" pattern="[0-9]{6}" value={code} autoFocus
                             onChange={(e) => setCode(e.target.value.replace(/\D/g, '').slice(0, 6))} aria-label={t('upd.codeTitle', { defaultValue: 'Type the code from your email' })}
                             placeholder="••••••" className="input mt-4 text-center text-2xl font-bold tracking-[0.5em]" />
-                        <Problem>{error}</Problem>
+                        <Problem>{say(t, error)}</Problem>
                         <button disabled={busy || code.length !== 6} className="btn mt-5 w-full gap-2 bg-brand text-white shadow-md hover:bg-navy disabled:opacity-60">
                             ✅ {busy ? '…' : t('upd.checkCode', { defaultValue: 'Continue' })}
                         </button>
@@ -220,7 +221,7 @@ export default function UpdateDetails() {
                         </div>
                     </Box>
 
-                    <Problem>{error}</Problem>
+                    <Problem>{say(t, error)}</Problem>
                     <button disabled={busy} className="btn w-full gap-2 bg-brand text-white shadow-md hover:bg-navy disabled:opacity-60">
                         💾 {busy ? t('upd.saving', { defaultValue: 'Saving…' }) : t('upd.save', { defaultValue: 'Save my details' })}
                     </button>

@@ -17,6 +17,7 @@ const complaintSchema = new mongoose.Schema(
     policeStation: { type: String, trim: true, maxlength: 100 },
     category: { type: String, enum: CATEGORIES, required: true },
     incidentDate: Date,
+    incidentDayKnown: Boolean, // false = only the month and year were given (incidentDate is then the 1st of that month)
     description: { type: String, trim: true, maxlength: 3000 }, // needed unless they recorded a voice message
     photo: { url: String, publicId: String }, // older cases: one photo
     photos: [{ url: String, publicId: String }], // up to 3 photos or documents

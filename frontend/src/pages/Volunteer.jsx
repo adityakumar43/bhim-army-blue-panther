@@ -7,6 +7,7 @@ import { STATES, stateName } from '../data/states.js'
 import { SKILLS, AVAILABILITY } from '../data/volunteers.js'
 import Consent from '../components/Consent.jsx'
 import DistrictSelect from '../components/DistrictSelect.jsx'
+import { msg, say, fromError } from '../lib/msg.js'
 
 const EMPTY = { name: '', phone: '', email: '', stateCode: '', district: '', availability: 'anytime', message: '', skills: [], website: '' }
 const PHONE_OK = /^[6-9]\d{9}$/
@@ -53,11 +54,11 @@ export default function Volunteer() {
     async function submit(e) {
         e.preventDefault()
         setError('')
-        if (!form.skills.length) return setError(t('vol.pickSkill'))
-        if (!form.name.trim()) return setError(t('help.needName', { defaultValue: 'Please enter your name.' }))
-        if (!phoneOk) return setError(t('join.phoneHint', { defaultValue: '10-digit mobile number starting with 6, 7, 8 or 9' }))
-        if (!agree) return setError(t('privacy.needAgree', { defaultValue: 'Please tick the box to agree before sending.' }))
-        if (!form.stateCode) return setError(t('help.pickState', { defaultValue: 'Please choose your state.' }))
+        if (!form.skills.length) return setError(msg('vol.pickSkill'))
+        if (!form.name.trim()) return setError(msg('help.needName', { defaultValue: 'Please enter your name.' }))
+        if (!phoneOk) return setError(msg('join.phoneHint', { defaultValue: '10-digit mobile number starting with 6, 7, 8 or 9' }))
+        if (!agree) return setError(msg('privacy.needAgree', { defaultValue: 'Please tick the box to agree before sending.' }))
+        if (!form.stateCode) return setError(msg('help.pickState', { defaultValue: 'Please choose your state.' }))
         setBusy(true)
         try {
             const r = await api.post('/volunteers', { ...form, consent: true })
@@ -65,7 +66,7 @@ export default function Volunteer() {
             setDone({ updated: !!r?.updated })
             window.scrollTo({ top: 0, behavior: 'smooth' })
         } catch (err) {
-            setError(err.message)
+            setError(fromError(err))
         } finally {
             setBusy(false)
         }
@@ -187,7 +188,7 @@ export default function Volunteer() {
                 <Consent checked={agree} onChange={(v) => { setAgree(v); setError('') }} error={!!error && !agree}
                     text={t('privacy.agreeVol', { defaultValue: 'I agree that my details are used by the team to contact me about volunteer work, as explained in the Privacy Policy.' })} />
 
-                {error && <p role="alert" className="flex gap-2 rounded-xl border border-red-200 bg-red-50 p-3 text-sm text-red-800"><span aria-hidden="true">⚠️</span>{error}</p>}
+                {error && <p role="alert" className="flex gap-2 rounded-xl border border-red-200 bg-red-50 p-3 text-sm text-red-800"><span aria-hidden="true">⚠️</span>{say(t, error)}</p>}
                 <button disabled={busy} className="btn w-full gap-2 bg-brand text-white shadow-md hover:bg-navy disabled:opacity-60">{busy ? t('vol.sending') : `🙋 ${t('vol.submit')}`}</button>
                 <p className="-mt-2 text-center text-xs text-navy/60">🔒 {t('vol.privacy', { defaultValue: 'Your details are only used by our team to contact you.' })}</p>
             </form>

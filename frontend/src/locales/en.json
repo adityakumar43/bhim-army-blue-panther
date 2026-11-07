@@ -530,7 +530,8 @@
       "copies": "Keep a copy of every application you give. Note the date and the name of the officer."
     },
     "link": "Help desk",
-    "fullDate": "Choose the day, month and year of the incident, or leave all three empty.",
+    "fullDate": "Choose at least the month and year of the incident.",
+    "dateHint": "Month and year are needed. Choose the day too if you remember it.",
     "futureDate": "The date of the incident cannot be in the future."
   },
   "vol": {
