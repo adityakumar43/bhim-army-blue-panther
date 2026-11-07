@@ -12,6 +12,7 @@ import { Event } from '../models/Content.js'
 import { upload } from '../middleware/upload.js'
 import { uploadImage, deleteImage } from '../config/cloudinary.js'
 import { issueCard, sendWelcome, emailCard } from '../services/members.js'
+import { cursorOf, after, pageSize, NEWEST } from '../services/paging.js'
 
 const router = Router()
 
@@ -199,7 +200,9 @@ router.get('/', protect, requireAny('members', 'district'), async (req, res) => 
   if (scope) Object.assign(filter, memberStateFilter(scope))
   const area = districtScope(req.admin)
   if (area) filter.district = sameDistrict(area.district) // District admins: only their district
-  const list = await Member.find(filter).sort({ createdAt: -1 }).limit(1000).populate('referredBy', 'name memberNo').lean()
+  const c = cursorOf(req) // a page at a time, newest first
+  if (c === false) return res.status(400).json({ message: 'Bad page' })
+  const list = await Member.find(after(filter, c)).sort(NEWEST).limit(pageSize(req, 1000)).populate('referredBy', 'name memberNo').lean()
   res.json(await withAttendance(list))
 })
 

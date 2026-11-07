@@ -1,6 +1,7 @@
-import { useEffect, useState } from 'react'
+import { useState } from 'react'
 import { useOutletContext } from 'react-router-dom'
 import { api } from '../../lib/api.js'
+import { usePaged, LoadMore } from './paged.jsx'
 import { PageHeader, Notice, ListLoading, Pill, useFind, matchesFind, FindNote } from './ui.jsx'
 
 
@@ -9,8 +10,8 @@ const TOPICS = { general: '💬 General', membership: '🪪 Membership', event: 
 
 export default function Messages() {
   const { refresh } = useOutletContext()
-  const [items, setItems] = useState(null)
   const [error, setError] = useState('')
+  const { items, more, busy, load, loadMore } = usePaged('/contact', 500, { onError: (e) => setError(e.message) }) // newest first, a page at a time
 
   const [note, setNote] = useState('')
   const [replyFor, setReplyFor] = useState(null)
@@ -37,9 +38,6 @@ export default function Messages() {
       setSending(false)
     }
   }
-
-  const load = () => api.get('/contact').then(setItems).catch((e) => setError(e.message))
-  useEffect(() => { load() }, [])
 
   async function act(fn) {
     try {
@@ -142,6 +140,7 @@ export default function Messages() {
           </li>
         ))}
       </ul>
+      <LoadMore more={more} busy={busy} onClick={loadMore} count={items?.length} noun="messages" />
     </>
   )
 }

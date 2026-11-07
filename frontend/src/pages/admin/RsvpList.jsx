@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react'
 import { api } from '../../lib/api.js'
 import { Notice, ListLoading } from './ui.jsx'
 import Icon from '../../components/Icon.jsx'
+import { toCsv } from '../../lib/csv.js'
 
 // Pop-up list of everyone who registered for one event, with Excel download
 export default function RsvpList({ event, onClose, onChange }) {
@@ -25,7 +26,7 @@ export default function RsvpList({ event, onClose, onChange }) {
   function downloadCsv() {
     const rows = [['Name', 'Phone', 'District', 'People', 'Registered on'],
       ...items.map((r) => [r.name, r.phone, r.district, r.people, new Date(r.createdAt).toLocaleString('en-IN')])]
-    const csv = rows.map((r) => r.map((v) => `"${String(v ?? '').replace(/"/g, '""')}"`).join(',')).join('\n')
+    const csv = toCsv(rows)
     const a = document.createElement('a')
     a.href = URL.createObjectURL(new Blob(['﻿' + csv], { type: 'text/csv;charset=utf-8' }))
     a.download = `attending-${(event.titleEn || 'event').replace(/[^a-z0-9]+/gi, '-').toLowerCase()}.csv`

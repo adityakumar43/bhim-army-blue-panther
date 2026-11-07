@@ -3,6 +3,7 @@ import rateLimit from 'express-rate-limit'
 import Message from '../models/Message.js'
 import { protect, requirePermission } from '../middleware/auth.js'
 import { notifyAdmin, sendMail } from '../services/mailer.js'
+import { cursorOf, after, pageSize, NEWEST } from '../services/paging.js'
 
 const router = Router()
 
@@ -57,7 +58,9 @@ router.post('/', limiter, async (req, res) => {
 })
 
 router.get('/', protect, requirePermission('messages'), async (req, res) => {
-  res.json(await Message.find().sort({ createdAt: -1 }).limit(500))
+  const c = cursorOf(req) // a page at a time, newest first
+  if (c === false) return res.status(400).json({ message: 'Bad page' })
+  res.json(await Message.find(after({}, c)).sort(NEWEST).limit(pageSize(req, 500)))
 })
 
 router.patch('/:id/read', protect, requirePermission('messages'), async (req, res) => {

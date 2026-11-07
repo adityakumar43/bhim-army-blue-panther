@@ -5,6 +5,7 @@ import { api } from '../../lib/api.js'
 import { PageHeader, Notice, ListLoading } from './ui.jsx'
 import BoxIcon from '../../components/BoxIcon.jsx'
 import Icon from '../../components/Icon.jsx'
+import { toCsv } from '../../lib/csv.js'
 
 const n = (v) => Number(v || 0).toLocaleString('en-IN')
 const title = (e) => e.titleHi || e.titleEn || 'Event'
@@ -214,7 +215,7 @@ function EventCheckIn({ eventId }) {
     function downloadCsv() {
         const rows = [['Name', 'Member no.', 'District', 'Guests', 'Time', 'Checked in by'],
         ...data.list.map((r) => [r.name || 'Guest (not a member)', r.memberNo || '', r.district || '', r.member ? '' : r.guests, new Date(r.createdAt).toLocaleString('en-IN'), r.byName || ''])]
-        const csv = rows.map((r) => r.map((v) => `"${String(v ?? '').replace(/"/g, '""')}"`).join(',')).join('\n')
+        const csv = toCsv(rows)
         const a = document.createElement('a')
         a.href = URL.createObjectURL(new Blob(['﻿' + csv], { type: 'text/csv;charset=utf-8' }))
         a.download = `attendance-${(data.event.titleEn || 'event').replace(/[^a-z0-9]+/gi, '-').toLowerCase()}.csv`

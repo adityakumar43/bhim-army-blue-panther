@@ -4,6 +4,8 @@ import rateLimit from 'express-rate-limit'
 import { VisitDay, VisitorMark } from '../models/Visit.js'
 import { News, Event } from '../models/Content.js'
 import { protect, requireAny } from '../middleware/auth.js'
+import { STATE_CODES } from '../config/states.js'
+import { INSPIRATIONS } from '../config/inspirations.js'
 
 // Visitor numbers for the admin panel: how many people visit, which pages they read, how they found the site.
 const router = Router()
@@ -13,6 +15,26 @@ const BOT = /bot|crawl|spider|slurp|preview|facebookexternalhit|whatsapp\/|teleg
 // Map keys cannot hold dots or start with $
 const keySafe = (s) => String(s).replace(/\./g, '%2E').replace(/^\$/, '%24').slice(0, 120)
 const keyBack = (s) => s.replace(/%2E/g, '.').replace(/^%24/, '$')
+
+// Only the site's real pages are counted by name; any other address counts as "/other".
+// Anyone can send made-up addresses here, and every new name would stay in the statistics for good.
+const PAGES = new Set(['/', '/about', '/campaigns', '/contact', '/donate', '/downloads', '/events', '/gallery', '/help',
+    '/inspirations', '/join', '/leaderboard', '/leadership/states', '/membership/status', '/news', '/polls', '/privacy',
+    '/samvidhan', '/videos', '/volunteer'])
+async function pageOf(raw) {
+    const path = raw.length > 1 ? raw.replace(/\/+$/, '') : raw
+    if (PAGES.has(path)) return path
+    let m = /^\/(news|events)\/([a-f0-9]{24})$/.exec(path)
+    if (m) return (await (m[1] === 'news' ? News : Event).exists({ _id: m[2] })) ? path : '/other'
+    m = /^\/inspirations\/([a-z-]{1,40})$/.exec(path)
+    if (m) return INSPIRATIONS.includes(m[1]) ? path : '/other'
+    m = /^\/leadership\/states\/([a-z-]{1,40})$/.exec(path)
+    if (m) return STATE_CODES.includes(m[1]) ? path : '/other'
+    return '/other'
+}
+// Where people came from: these by name, other websites by name while there is room on the day's list (then "other")
+const NAMED_SOURCES = new Set(['app', 'direct', 'google', 'facebook', 'instagram', 'whatsapp', 'youtube', 'x', 'search'])
+const MAX_SOURCES = 100
 
 // Where they came from, from the address of the page that linked here
 function sourceOf(ref, site, app) {
@@ -53,10 +75,19 @@ router.post('/', limiter, async (req, res) => {
         let isNew = false
         try { await VisitorMark.create({ _id: `${day}:${code}` }); isNew = true } catch (err) { if (err.code !== 11000) throw err }
 
-        const inc = { views: 1, [`pages.${keySafe(path)}`]: 1 }
-        const source = sourceOf(String(b.ref || ''), site, app)
-        if (isNew) Object.assign(inc, { visitors: 1, [`devices.${device}`]: 1, [`langs.${lang}`]: 1, [`sources.${keySafe(source || 'direct')}`]: 1 })
+        const inc = { views: 1, [`pages.${keySafe(await pageOf(path))}`]: 1 }
+        const source = sourceOf(String(b.ref || ''), site, app) || 'direct'
+        const named = NAMED_SOURCES.has(source)
+        if (isNew) Object.assign(inc, { visitors: 1, [`devices.${device}`]: 1, [`langs.${lang}`]: 1 }, named ? { [`sources.${source}`]: 1 } : {})
         await VisitDay.updateOne({ day }, { $inc: inc }, { upsert: true })
+        if (isNew && !named) {
+            // Another website: counted by name if it is already on today's list or there is room, otherwise as "other"
+            const key = `sources.${keySafe(source)}`
+            const listed = await VisitDay.updateOne(
+                { day, $or: [{ [key]: { $exists: true } }, { $expr: { $lt: [{ $size: { $objectToArray: { $ifNull: ['$sources', {}] } } }, MAX_SOURCES] } }] },
+                { $inc: { [key]: 1 } })
+            if (!listed.matchedCount) await VisitDay.updateOne({ day }, { $inc: { 'sources.other': 1 } })
+        }
     } catch (err) {
         console.error('Visit count failed:', err.message)
     }

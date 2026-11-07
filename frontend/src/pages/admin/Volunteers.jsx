@@ -4,6 +4,7 @@ import { api } from '../../lib/api.js'
 import { PageHeader, Notice, ListLoading, Pill, useFind } from './ui.jsx'
 import { SKILLS, AVAILABILITY, skillOf } from '../../data/volunteers.js'
 import { stateByCode } from '../../data/states.js'
+import { toCsv } from '../../lib/csv.js'
 
 const TABS = [['new', '🆕 New'], ['contacted', '📞 Contacted'], ['active', '✅ Active'], ['inactive', '💤 Inactive'], ['', 'All']]
 const STATUS_TONE = { new: 'gold', contacted: 'blue', active: 'green', inactive: 'gray' }
@@ -13,7 +14,7 @@ function downloadCsv(rows) {
     const head = ['Name', 'Phone', 'Email', 'State', 'District', 'Can help with', 'Free', 'Status', 'Message', 'Team note', 'Signed up']
     const lines = rows.map((v) => [v.name, v.phone, v.email, v.state, v.district, v.skills.map((s) => skillOf(s)?.en || s).join('; '),
     availLabel(v.availability), v.status, v.message, v.note, new Date(v.createdAt).toLocaleDateString('en-IN')])
-    const csv = [head, ...lines].map((r) => r.map((x) => `"${String(x ?? '').replace(/"/g, '""')}"`).join(',')).join('\n')
+    const csv = toCsv([head, ...lines])
     const a = document.createElement('a')
     a.href = URL.createObjectURL(new Blob(['﻿' + csv], { type: 'text/csv;charset=utf-8' }))
     a.download = 'volunteers.csv'

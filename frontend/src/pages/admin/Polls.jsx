@@ -5,6 +5,7 @@ import { STATES, stateByCode } from '../../data/states.js'
 import DistrictSelect from '../../components/DistrictSelect.jsx'
 import Icon from '../../components/Icon.jsx'
 import { PageHeader, Notice, ListLoading, Pill } from './ui.jsx'
+import { toCsv } from '../../lib/csv.js'
 
 const sortedStates = [...STATES].sort((a, b) => a.en.localeCompare(b.en))
 const EMPTY = { questionHi: '', questionEn: '', options: [{ textHi: '', textEn: '' }, { textHi: '', textEn: '' }], stateCode: '', district: '', closesAt: '', showResults: true }
@@ -46,7 +47,7 @@ function ResultsDialog({ id, onClose }) {
     function downloadCsv() {
         const head = ['Place', 'Total', ...data.poll.options.map(answer)]
         const rows = [head, ['All', data.total, ...data.counts], ...data[by].map((r) => [r.key, r.total, ...r.counts])]
-        const csv = rows.map((r) => r.map((v) => `"${String(v ?? '').replace(/"/g, '""')}"`).join(',')).join('\n')
+        const csv = toCsv(rows)
         const a = document.createElement('a')
         a.href = URL.createObjectURL(new Blob(['﻿' + csv], { type: 'text/csv;charset=utf-8' }))
         a.download = `poll-results-${by === 'byState' ? 'by-state' : 'by-district'}.csv`

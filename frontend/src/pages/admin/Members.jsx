@@ -1,6 +1,8 @@
 import { useEffect, useMemo, useState } from 'react'
 import { useNavigate, useOutletContext } from 'react-router-dom'
 import { api } from '../../lib/api.js'
+import { toCsv } from '../../lib/csv.js'
+import { usePaged, LoadMore } from './paged.jsx'
 import { portrait } from '../../lib/img.js'
 import { PageHeader, Notice, ListLoading, Pill, useFind } from './ui.jsx'
 import Icon from '../../components/Icon.jsx'
@@ -21,9 +23,7 @@ function downloadCsv(rows) {
     m.name, m.phone, m.email, born(m.dob), m.city, m.district, m.state, m.status, m.memberNo,
     when(m.createdAt), when(m.reviewedAt), m.reviewedByName, m.photo?.url, m.assemblyNo, m.lokSabhaNo, m.attended ?? '',
   ])
-  const csv = [head, ...lines]
-    .map((r) => r.map((v) => `"${String(v ?? '').replace(/"/g, '""')}"`).join(','))
-    .join('\n')
+  const csv = toCsv([head, ...lines])
   // The BOM makes Excel show Hindi text correctly.
   const blob = new Blob(['\ufeff' + csv], { type: 'text/csv;charset=utf-8' })
   const a = document.createElement('a')
@@ -137,8 +137,9 @@ export default function Members() {
     navigate('/admin/print-cards')
   }
   const [status, setStatus] = useState('pending')
-  const [items, setItems] = useState(null)
   const [error, setError] = useState('')
+  // A page at a time, newest first; "Load more" for older ones
+  const { items, more, busy, load, loadMore } = usePaged(`/members?status=${status}`, 1000, { onError: (e) => setError(e.message) })
   const [picked, setPicked] = useState([])
   const [progress, setProgress] = useState('')
   const [note, setNote] = useState('')
@@ -183,8 +184,7 @@ export default function Members() {
   useEffect(() => { setPicked((p) => p.filter((id) => shown.some((m) => m._id === id))) }, [shown])
   const allPicked = shown.length > 0 && shown.every((m) => picked.includes(m._id))
 
-  const load = () => api.get(`/members?status=${status}`).then(setItems).catch((e) => setError(e.message))
-  useEffect(() => { setItems(null); setError(''); setPicked([]); load() }, [status])
+  useEffect(() => { setError(''); setPicked([]) }, [status])
 
   // Approve or reject many applications at once
   const isPicked = (id) => picked.includes(id)
@@ -240,7 +240,7 @@ export default function Members() {
 
       <PageHeader title="Members" subtitle="Review the applications that come from the Join page.">
         {shown.length > 0 && !viewOnly && (
-          <button onClick={() => downloadCsv(shown)} className="abtn">📥 Download Excel ({shown.length})</button>
+          <button onClick={() => (!more || window.confirm(`Only the ${items.length} applications loaded so far are included. To add older ones, press "Load older applications" at the bottom first.\n\nDownload these ${shown.length}?`)) && downloadCsv(shown)} className="abtn">📥 Download Excel ({shown.length})</button>
         )}
         {status === 'approved' && shown.length > 0 && (
           <button onClick={() => printCards((picked.length ? picked : shown.map((m) => m._id)))} className="abtn"
@@ -394,6 +394,7 @@ export default function Members() {
           </li>
         ))}
       </ul>
+      <LoadMore more={more} busy={busy} onClick={loadMore} count={items?.length} noun="applications" />
 
       {/* Floating bar while applications are ticked */}
       {picked.length > 0 && (

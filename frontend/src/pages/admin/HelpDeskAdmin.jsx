@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react'
 import { useOutletContext } from 'react-router-dom'
 import { api } from '../../lib/api.js'
+import { usePaged, LoadMore } from './paged.jsx'
 import { PageHeader, Notice, ListLoading, Pill, useFind, matchesFind, FindNote } from './ui.jsx'
 import { CATEGORIES, STATUS, categoryOf } from '../../data/helpdesk.js'
 import { stateByCode } from '../../data/states.js'
@@ -189,7 +190,6 @@ export default function HelpDeskAdmin() {
     const [mine, setMine] = useState(false)
     const [urgentOnly, setUrgentOnly] = useState(false)
     const [district, setDistrict] = useState('')
-    const [items, setItems] = useState(null)
     const [team, setTeam] = useState([])
     const [saved, setSaved] = useState(null) // the case just updated, to offer a WhatsApp message
     const [error, setError] = useState('')
@@ -198,15 +198,13 @@ export default function HelpDeskAdmin() {
     const { find, status: wantStatus, clear: clearFind } = useFind()
     useEffect(() => { if (wantStatus && TABS.some(([k]) => k === wantStatus)) setStatus(wantStatus) }, [find, wantStatus])
 
-    const load = () => {
-        const p = new URLSearchParams()
-        if (status) p.set('status', status)
-        if (category) p.set('category', category)
-        if (mine) p.set('mine', '1')
-        if (urgentOnly) p.set('urgent', '1')
-        return api.get(`/helpdesk?${p}`).then(setItems).catch((e) => setError(e.message))
-    }
-    useEffect(() => { setItems(null); load() }, [status, category, mine, urgentOnly])
+    const p = new URLSearchParams()
+    if (status) p.set('status', status)
+    if (category) p.set('category', category)
+    if (mine) p.set('mine', '1')
+    if (urgentOnly) p.set('urgent', '1')
+    // Urgent cases first, then the rest, each newest first; "Load more" for older ones
+    const { items, more, busy, load, loadMore } = usePaged(`/helpdesk?${p}`, 500, { group: (c) => (c.urgent ? 1 : 0), onError: (e) => setError(e.message) })
     useEffect(() => { api.get('/helpdesk/team').then(setTeam).catch(() => setTeam([])) }, [])
 
     async function remove(c) {
@@ -274,6 +272,7 @@ export default function HelpDeskAdmin() {
                         onSaved={(updated, tell) => { setSaved(tell ? updated : null); load(); refresh() }} onDelete={remove} />
                 ))}
             </ul>
+            <LoadMore more={more} busy={busy} onClick={loadMore} count={items?.length} noun="cases" />
         </>
     )
 }

@@ -11,11 +11,12 @@ const PAGE_NAMES = {
     '/': 'Home', '/about': 'About', '/news': 'News', '/events': 'Events Calendar', '/gallery': 'Gallery', '/videos': 'Videos',
     '/join': 'Join', '/donate': 'Donate', '/help': 'Help desk', '/volunteer': 'Volunteer', '/contact': 'Contact',
     '/campaigns': 'Campaigns', '/downloads': 'Downloads', '/inspirations': 'Inspirations', '/leadership/states': 'States',
-    '/membership/status': 'Membership status', '/privacy': 'Privacy Policy',
+    '/membership/status': 'Membership status', '/privacy': 'Privacy Policy', '/samvidhan': 'Samvidhan Divas', '/polls': 'Polls',
+    '/leaderboard': 'Leaderboard', '/other': 'Other addresses',
 }
 const SOURCES = {
     direct: '🔗 Direct / saved link', google: '🔍 Google', search: '🔍 Other search', facebook: '📘 Facebook', instagram: '📸 Instagram',
-    whatsapp: '💬 WhatsApp', youtube: '▶️ YouTube', x: '✖️ X (Twitter)', app: '📱 Installed app',
+    whatsapp: '💬 WhatsApp', youtube: '▶️ YouTube', x: '✖️ X (Twitter)', app: '📱 Installed app', other: '🌐 Other websites',
 }
 const DEVICES = { phone: '📱 Phone', computer: '💻 Computer', app: '📲 Installed app' }
 const LANGS = { hi: 'हिंदी', en: 'English' }

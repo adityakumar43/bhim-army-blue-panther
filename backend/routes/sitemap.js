@@ -1,6 +1,7 @@
 import { Router } from 'express'
 import { News, Event } from '../models/Content.js'
 import { STATE_NAMES } from '../config/stateNames.js'
+import { INSPIRATIONS } from '../config/inspirations.js'
 
 // /sitemap.xml: the list of every public page, so Google and Bing can find them all.
 // robots.txt on the website points here.
@@ -26,13 +27,6 @@ const PAGES = [
     ['/contact', 'monthly', '0.6'],
     ['/membership/status', 'yearly', '0.3'],
     ['/privacy', 'yearly', '0.2'],
-]
-
-// Same names as the slugs in frontend/src/data/inspirations.js.
-// When you add a new leader there, add the slug here too.
-const INSPIRATIONS = [
-    'ambedkar', 'shahu-maharaj', 'periyar', 'jyotirao-phule', 'savitribai-phule', 'fatima-sheikh',
-    'lalai-singh-yadav', 'tilka-manjhi', 'uda-devi', 'kanshi-ram', 'narayana-guru',
 ]
 
 const site = () => (process.env.CLIENT_URL || 'http://localhost:5173').replace(/\/+$/, '')

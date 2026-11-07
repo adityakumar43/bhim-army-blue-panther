@@ -11,6 +11,7 @@ import { STATE_CODES } from '../config/states.js'
 import { stateNameEn } from '../config/stateNames.js'
 import { canonicalDistrict } from '../config/districts.js'
 import { notifyAdmin, sendMail } from '../services/mailer.js'
+import { cursorOf, after, pageSize, NEWEST } from '../services/paging.js'
 
 const router = Router()
 
@@ -150,7 +151,16 @@ router.get('/', protect, requireAny('helpdesk', 'district'), async (req, res) =>
   if (CATEGORIES.includes(req.query.category)) filter.category = req.query.category
   if (req.query.mine === '1') filter['assignedTo.adminId'] = req.admin._id
   if (req.query.urgent === '1') filter.urgent = true
-  res.json(await Complaint.find(filter).sort({ urgent: -1, createdAt: -1 }).limit(500))
+  const c = cursorOf(req) // a page at a time
+  if (c === false || (c && c.group === null)) return res.status(400).json({ message: 'Bad page' })
+  const size = pageSize(req, 500)
+  // Urgent cases first, then the rest, each newest first (two lists, so every page follows the same order)
+  const rows = []
+  if (!c || c.group === 1) rows.push(...await Complaint.find(after({ ...filter, urgent: true }, c)).sort(NEWEST).limit(size))
+  if (rows.length < size && !filter.urgent) {
+    rows.push(...await Complaint.find(after({ ...filter, urgent: { $ne: true } }, c?.group === 0 ? c : null)).sort(NEWEST).limit(size - rows.length))
+  }
+  res.json(rows)
 })
 
 // Team members a case can be given to. A state admin only sees the admins of their own state.
