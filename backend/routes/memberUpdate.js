@@ -95,10 +95,16 @@ router.post('/verify', codeLimiter, async (req, res) => {
     if (!m || !m.editCodeHash || !m.editCodeExpires || m.editCodeExpires < new Date()) {
         return res.status(400).json({ message: 'This code has expired. Please ask for a new code.' })
     }
-    if ((m.editCodeTries || 0) >= MAX_TRIES) return res.status(400).json({ message: 'Too many wrong codes. Please ask for a new code.' })
+    // Count this try first, in one step: the database only lets it through while fewer than MAX_TRIES have been used,
+    // so many guesses sent at the same moment cannot get past the limit
+    const counted = await Member.findOneAndUpdate(
+        { _id: m._id, editCodeHash: m.editCodeHash, $or: [{ editCodeTries: { $lt: MAX_TRIES } }, { editCodeTries: { $exists: false } }] },
+        { $inc: { editCodeTries: 1 } },
+        { new: true, timestamps: false, projection: { editCodeTries: 1 } },
+    )
+    if (!counted) return res.status(400).json({ message: 'Too many wrong codes. Please ask for a new code.' })
     if (code.length !== 6 || !same(hash(`${m._id}:${code}`), m.editCodeHash)) {
-        await Member.updateOne({ _id: m._id }, { $inc: { editCodeTries: 1 } }, { timestamps: false })
-        const left = MAX_TRIES - (m.editCodeTries || 0) - 1
+        const left = MAX_TRIES - counted.editCodeTries
         return res.status(400).json({ message: left > 0 ? `Wrong code. ${left} ${left === 1 ? 'try' : 'tries'} left.` : 'Too many wrong codes. Please ask for a new code.' })
     }
     const pass = crypto.randomBytes(24).toString('hex')

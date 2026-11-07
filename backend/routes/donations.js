@@ -40,8 +40,17 @@ router.post('/order', orderLimiter, async (req, res) => {
   if (!Number.isFinite(amount) || amount < 10 || amount > 500000) {
     return res.status(400).json({ message: 'Enter an amount between ₹10 and ₹5,00,000' })
   }
-  if (b.email && !/^\S+@\S+\.\S+$/.test(b.email)) {
+  // The donor's details are all optional, but are checked here, before Razorpay is asked for an order,
+  // so a bad request never leaves an unused order behind
+  const text = (v) => (typeof v === 'string' ? v : '') // anything that is not plain text is ignored
+  const name = text(b.name).trim().slice(0, 100)
+  const email = text(b.email).trim().toLowerCase()
+  const phone = text(b.phone).replace(/\s|-/g, '').replace(/^(\+91|91)(?=\d{10}$)/, '')
+  if (email && (!/^\S+@\S+\.\S+$/.test(email) || email.length > 120)) {
     return res.status(400).json({ message: 'Enter a valid email address' })
+  }
+  if (phone && !/^[6-9]\d{9}$/.test(phone)) {
+    return res.status(400).json({ message: 'Enter a valid 10-digit mobile number' })
   }
 
   let order
@@ -56,7 +65,7 @@ router.post('/order', orderLimiter, async (req, res) => {
     return res.status(502).json({ message: 'Could not start the payment. Please try again.' })
   }
 
-  await Donation.create({ orderId: order.id, amount, name: b.name, email: b.email, phone: b.phone })
+  await Donation.create({ orderId: order.id, amount, name: name || undefined, email: email || undefined, phone: phone || undefined })
   res.json({ orderId: order.id, amount: order.amount, keyId: process.env.RAZORPAY_KEY_ID })
 })
 

@@ -76,10 +76,10 @@ function VoiceRecorder({ t, value, onChange }) {
 
   async function start() {
     setErr('')
-    if (!navigator.mediaDevices?.getUserMedia || typeof MediaRecorder === 'undefined') return setErr(t('help.voiceNoSupport', { defaultValue: 'Voice recording does not work in this browser. Please write instead.' }))
+    if (!navigator.mediaDevices?.getUserMedia || typeof MediaRecorder === 'undefined') return setErr(msg('help.voiceNoSupport', { defaultValue: 'Voice recording does not work in this browser. Please write instead.' }))
     let stream
     try { stream = await navigator.mediaDevices.getUserMedia({ audio: true }) } catch {
-      return setErr(t('help.voiceDenied', { defaultValue: 'Please allow the microphone to record a voice message.' }))
+      return setErr(msg('help.voiceDenied', { defaultValue: 'Please allow the microphone to record a voice message.' }))
     }
     const type = ['audio/webm;codecs=opus', 'audio/webm', 'audio/mp4', 'audio/ogg'].find((m) => MediaRecorder.isTypeSupported?.(m))
     const recorder = new MediaRecorder(stream, type ? { mimeType: type, audioBitsPerSecond: 32000 } : undefined)
@@ -139,7 +139,7 @@ function VoiceRecorder({ t, value, onChange }) {
           </div>
         </div>
       )}
-      {err && <p role="alert" className="mt-2 text-sm text-red-700">⚠️ {err}</p>}
+      {err && <p role="alert" className="mt-2 text-sm text-red-700">⚠️ {say(t, err)}</p>}
     </div>
   )
 }
