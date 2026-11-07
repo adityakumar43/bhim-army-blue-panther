@@ -4,9 +4,12 @@ import Counter from '../models/Counter.js'
 import { sendMail, notifyAdmin } from './mailer.js'
 import { receiptEmail } from './receipt.js'
 
+// The year in India, whatever the server's own clock is set to (a donation at 1 a.m. on 1 January belongs to the new year)
+const indianYear = () => new Intl.DateTimeFormat('en-CA', { timeZone: 'Asia/Kolkata', year: 'numeric' }).format(new Date())
+
 async function nextReceiptNo() {
   const c = await Counter.findOneAndUpdate({ _id: 'receipt' }, { $inc: { seq: 1 } }, { new: true, upsert: true })
-  return `BP-${new Date().getFullYear()}-${String(c.seq).padStart(5, '0')}`
+  return `BP-${indianYear()}-${String(c.seq).padStart(5, '0')}`
 }
 
 

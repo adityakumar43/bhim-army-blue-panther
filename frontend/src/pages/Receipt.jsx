@@ -159,7 +159,7 @@ export default function Receipt() {
         // Right after paying, the payment can take a few seconds to be confirmed
         if (r.pending && tries++ < 10) timer = setTimeout(load, 3000)
       } catch (err) {
-        if (!cancelled) setError(err.message)
+        if (!cancelled) setError(err.status === 404 ? 'notFound' : err.message) // translated below, so it follows a language change
       }
     }
     load()
@@ -178,7 +178,14 @@ export default function Receipt() {
 
   const print = () => (document.fonts?.ready || Promise.resolve()).then(() => window.print())
 
-  if (error) return <p role="alert" className="px-5 py-16 text-center text-red-700">{error}</p>
+  if (error) {
+    return (
+      <div className="px-5 py-16 text-center">
+        <p role="alert" className="text-red-700">{error === 'notFound' ? t('receipt.notFound', { defaultValue: 'Receipt not found. Please check the link.' }) : error}</p>
+        <Link to="/" className="btn mt-5 bg-brand text-white hover:bg-navy">{t('receipt.home')}</Link>
+      </div>
+    )
+  }
   if (!data) return <Loading page />
   if (data.pending) {
     return (

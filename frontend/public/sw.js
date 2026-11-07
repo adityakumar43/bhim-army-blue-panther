@@ -2,7 +2,7 @@
 // Only the website's own files (pages, code, pictures in /public) are saved on the phone.
 // News, members, donations and anything from the backend always come fresh from the internet.
 
-const VERSION = 'v1' // change this (v2, v3...) only if something looks stuck after an update
+const VERSION = 'v2' // change this (v2, v3...) only if something looks stuck after an update
 const CACHE = `bap-${VERSION}`
 const SHELL = ['/', '/manifest.webmanifest', '/logo.png', '/icons/icon-192.png']
 
@@ -12,6 +12,14 @@ const OFFLINE_HTML = `<!doctype html><html lang="hi"><head><meta charset="utf-8"
 button{margin-top:16px;padding:12px 24px;border:0;border-radius:12px;background:#f2b705;color:#0a1a3f;font-weight:800;font-size:16px}</style></head>
 <body><div><h1>इंटरनेट नहीं है</h1><p>You are offline. Please check your connection.</p>
 <button onclick="location.reload()">फिर से कोशिश करें / Try again</button></div></body></html>`
+
+// Each update brings code files with new names, and the old ones are never asked for again.
+// Keep only the newest MAX_ASSETS of them (the oldest saved go first), so phones do not fill up over the months.
+const MAX_ASSETS = 120
+async function trimAssets(c) {
+    const saved = (await c.keys()).filter((r) => new URL(r.url).pathname.startsWith('/assets/'))
+    await Promise.all(saved.slice(0, Math.max(0, saved.length - MAX_ASSETS)).map((r) => c.delete(r)))
+}
 
 self.addEventListener('install', (event) => {
     event.waitUntil(caches.open(CACHE).then((c) => c.addAll(SHELL)).then(() => self.skipWaiting()))
@@ -49,7 +57,7 @@ self.addEventListener('fetch', (event) => {
     if (url.pathname.startsWith('/assets/')) {
         event.respondWith(
             caches.match(req).then((hit) => hit || fetch(req).then((res) => {
-                if (res.ok) { const copy = res.clone(); caches.open(CACHE).then((c) => c.put(req, copy)) }
+                if (res.ok) { const copy = res.clone(); caches.open(CACHE).then((c) => c.put(req, copy).then(() => trimAssets(c))) }
                 return res
             }))
         )

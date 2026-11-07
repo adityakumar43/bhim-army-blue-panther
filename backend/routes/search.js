@@ -73,7 +73,7 @@ router.get('/', protect, async (req, res) => {
             .select('receiptNo name amount paidAt createdAt').sort({ createdAt: -1 }).limit(LIMIT).lean()
             .then((rows) => rows.map((d) => ({
                 kind: 'donation', id: d._id, title: `₹${Number(d.amount || 0).toLocaleString('en-IN')} · ${d.name || 'Anonymous'}`,
-                sub: [d.receiptNo, new Date(d.paidAt || d.createdAt).toLocaleDateString('en-IN')].filter(Boolean).join(' · '),
+                sub: [d.receiptNo, new Date(d.paidAt || d.createdAt).toLocaleDateString('en-IN', { timeZone: 'Asia/Kolkata' })].filter(Boolean).join(' · '),
                 link: `/admin/donations?find=${encodeURIComponent(d.receiptNo || d.name || '')}`,
             }))))
     }
@@ -82,7 +82,7 @@ router.get('/', protect, async (req, res) => {
             jobs.push(Model.find({ $or: [{ titleEn: text }, { titleHi: text }] })
                 .select('titleEn titleHi date createdAt').sort({ createdAt: -1 }).limit(LIMIT).lean()
                 .then((rows) => rows.map((n) => ({
-                    kind, id: n._id, title: n.titleEn || n.titleHi, sub: [n.titleEn && n.titleHi, new Date(n.date || n.createdAt).toLocaleDateString('en-IN')].filter(Boolean).join(' · '),
+                    kind, id: n._id, title: n.titleEn || n.titleHi, sub: [n.titleEn && n.titleHi, new Date(n.date || n.createdAt).toLocaleDateString('en-IN', { timeZone: 'Asia/Kolkata' })].filter(Boolean).join(' · '),
                     link: `/admin/${path}?find=${encodeURIComponent(n.titleEn || n.titleHi || '')}`,
                 }))))
         }

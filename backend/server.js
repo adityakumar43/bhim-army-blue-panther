@@ -119,7 +119,10 @@ app.use('/api/logins', loginRoutes)
 
 app.use((req, res) => res.status(404).json({ message: 'Not found' }))
 app.use((err, req, res, next) => {
-  if (err.code === 'LIMIT_FILE_SIZE') return res.status(400).json({ message: 'This file is too large. Please choose a smaller photo.' })
+  if (err.code === 'LIMIT_FILE_SIZE') {
+    return res.status(400).json({ message: err.field === 'voice' ? 'The voice message is too long. Please record a shorter one.' : 'This file is too large. Please choose a smaller photo.' })
+  }
+  if (err.name === 'MulterError') return res.status(400).json({ message: 'These files could not be accepted. Please send fewer or smaller files.' })
   if (err.status === 400) return res.status(400).json({ message: err.message })
   console.error(err)
   res.status(500).json({ message: 'Something went wrong' })

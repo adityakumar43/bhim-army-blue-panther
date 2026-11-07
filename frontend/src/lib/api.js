@@ -41,7 +41,11 @@ async function request(path, { method = 'GET', body } = {}) {
     window.location.href = '/admin/login'
   }
   // The error keeps the server's reply (e.data), so pages can read extra details like a code
-  if (!res.ok) throw Object.assign(new Error(data.message || 'Request failed'), { status: res.status, data })
+  if (!res.ok) {
+    // No message from our server (a hosting error page, or the server still waking up after the retries): say it in the visitor's language
+    const fallback = res.status >= 500 ? offline() : i18n.t('errors.generic', { defaultValue: 'Something went wrong. Please try again.' })
+    throw Object.assign(new Error(data.message || fallback), { status: res.status, data, offline: !data.message && res.status >= 500 })
+  }
   return data
 }
 

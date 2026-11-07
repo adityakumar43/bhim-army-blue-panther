@@ -148,7 +148,8 @@
     "tooYoung": "You must be 18 or older to become a member.",
     "stateFirst": "Choose your state first",
     "invitedBy": "{{name}} has invited you to join Bhim Army Blue Panther.",
-    "why5": "Support when you face injustice"
+    "why5": "Support when you face injustice",
+    "progressLabel": "Form progress"
   },
   "about": {
     "title": "About Us",
@@ -286,7 +287,8 @@
     "anonymous": "Anonymous",
     "pending": "Your payment is being confirmed. Please refresh this page in a moment.",
     "pdfHint": "For a PDF, choose \"Save as PDF\" as the printer.",
-    "note": "This receipt confirms that we have received your donation."
+    "note": "This receipt confirms that we have received your donation.",
+    "notFound": "Receipt not found. Please check the link."
   },
   "slider": {
     "label": "Featured photos",
@@ -527,7 +529,9 @@
       "relief": "Victims of atrocities are entitled to relief money and support from the government under this Act.",
       "copies": "Keep a copy of every application you give. Note the date and the name of the officer."
     },
-    "link": "Help desk"
+    "link": "Help desk",
+    "fullDate": "Choose the day, month and year of the incident, or leave all three empty.",
+    "futureDate": "The date of the incident cannot be in the future."
   },
   "vol": {
     "title": "Become a volunteer",
@@ -693,7 +697,8 @@
   },
   "errors": {
     "offline": "Could not reach the server. Please check your internet and try again.",
-    "retry": "Try again"
+    "retry": "Try again",
+    "generic": "Something went wrong. Please try again."
   },
   "samvidhan": {
     "title": "Samvidhan Divas",
