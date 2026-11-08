@@ -10,6 +10,8 @@ import { ROLES, needsTwoFactor } from '../config/roles.js'
 import { encrypt } from '../config/crypto.js'
 import { verifyCode } from '../services/twofactor.js'
 import { recordLogin } from '../services/loginlog.js'
+import bcrypt from 'bcryptjs'
+import LoginLock from '../models/LoginLock.js'
 
 const router = Router()
 
@@ -34,26 +36,32 @@ const profile = (a) => ({
   twoFactorRequired: needsTwoFactor(a.role), state: a.state || null, district: a.district || null,
 })
 
-const isLocked = (a) => a.lockUntil && new Date(a.lockUntil) > new Date()
+// Wrong tries count per account AND network, so a stranger who knows an admin's email can lock out only
+// their own network, not the admin (see models/LoginLock.js). The limit of 10 tries per network also stays.
+const lockKey = (admin, req) => `${admin._id}:${crypto.createHash('sha256').update(`${process.env.JWT_SECRET}:${req.ip}`).digest('hex').slice(0, 20)}`
+const isLocked = async (admin, req) => {
+  const lock = await LoginLock.findById(lockKey(admin, req)).lean()
+  return !!lock?.lockUntil && lock.lockUntil > new Date()
+}
 const lockedReply = (res) =>
   res.status(429).json({ message: `Too many wrong attempts. Try again in ${LOCK_MINUTES} minutes.` })
 
-
-async function recordFailure(admin) {
-  const wrong = (admin.failedLogins || 0) + 1
-  await Admin.updateOne(
-    { _id: admin._id },
-    wrong >= MAX_WRONG
-      ? { $set: { failedLogins: 0, lockUntil: new Date(Date.now() + LOCK_MINUTES * 60 * 1000) } }
-      : { $set: { failedLogins: wrong } }
-  )
+// For an email that is not an admin, check the password against this anyway, so the answer takes as long
+// as for a real admin and the time it takes does not tell anyone which emails have accounts
+let dummyHash
+const dummyCheck = async (password) => {
+  dummyHash ||= bcrypt.hash(crypto.randomBytes(16).toString('hex'), 12)
+  await bcrypt.compare(String(password), await dummyHash)
 }
 
-const clearFailures = async (admin) => {
-  if (admin.failedLogins || admin.lockUntil) {
-    await Admin.updateOne({ _id: admin._id }, { $set: { failedLogins: 0 }, $unset: { lockUntil: 1 } })
-  }
+
+async function recordFailure(admin, req) {
+  const _id = lockKey(admin, req)
+  const lock = await LoginLock.findOneAndUpdate({ _id }, { $inc: { wrong: 1 }, $set: { at: new Date() } }, { upsert: true, new: true })
+  if (lock.wrong >= MAX_WRONG) await LoginLock.updateOne({ _id }, { $set: { wrong: 0, lockUntil: new Date(Date.now() + LOCK_MINUTES * 60 * 1000) } })
 }
+
+const clearFailures = (admin, req) => LoginLock.deleteOne({ _id: lockKey(admin, req) })
 
 
 router.post('/login', limiter(10), async (req, res) => {
@@ -63,13 +71,14 @@ router.post('/login', limiter(10), async (req, res) => {
   }
 
   const admin = await Admin.findOne({ email: String(email).toLowerCase() }).select('+password')
-  if (admin && isLocked(admin)) {
-    recordLogin(req, { admin, success: false, reason: 'account locked (too many wrong tries)' })
+  if (admin && await isLocked(admin, req)) {
+    recordLogin(req, { admin, success: false, reason: 'locked on this network (too many wrong tries)' })
     return lockedReply(res)
   }
 
+  if (!admin) await dummyCheck(password) // the same time as a wrong password for a real account
   if (!admin || !(await admin.matchPassword(password))) {
-    if (admin) await recordFailure(admin)
+    if (admin) await recordFailure(admin, req)
     recordLogin(req, { admin, email, success: false, reason: admin ? 'wrong password' : 'unknown email' })
     return res.status(401).json({ message: 'Wrong email or password' })
   }
@@ -77,7 +86,7 @@ router.post('/login', limiter(10), async (req, res) => {
     recordLogin(req, { admin, success: false, reason: 'account disabled' })
     return res.status(403).json({ message: 'This account is disabled. Ask a super admin.' })
   }
-  await clearFailures(admin)
+  await clearFailures(admin, req)
 
   if (admin.twoFactorEnabled) {
     const challenge = jwt.sign({ id: admin._id }, challengeSecret(), { expiresIn: '5m' })
@@ -101,19 +110,20 @@ router.post('/login/2fa', limiter(10), async (req, res) => {
 
   const admin = await Admin.findById(id).select('+twoFactorSecret')
   if (!admin || admin.active === false || !admin.twoFactorEnabled) return expired()
-  if (isLocked(admin)) {
-    recordLogin(req, { admin, success: false, reason: 'account locked (too many wrong tries)' })
+  if (await isLocked(admin, req)) {
+    recordLogin(req, { admin, success: false, reason: 'locked on this network (too many wrong tries)' })
     return lockedReply(res)
   }
 
   const step = verifyCode(admin.twoFactorSecret, code, admin.twoFactorLastStep)
   if (step === null) {
-    await recordFailure(admin)
+    await recordFailure(admin, req)
     recordLogin(req, { admin, success: false, reason: 'wrong 2-step code' })
     return res.status(401).json({ message: 'That code is not correct. Try the newest code in your app.' })
   }
 
-  await Admin.updateOne({ _id: admin._id }, { $set: { twoFactorLastStep: step, failedLogins: 0 }, $unset: { lockUntil: 1 } })
+  await Admin.updateOne({ _id: admin._id }, { $set: { twoFactorLastStep: step } })
+  await clearFailures(admin, req)
   recordLogin(req, { admin, success: true, reason: 'with 2-step code' })
   res.json({ token: await sign(admin._id), admin: profile(admin) })
 })

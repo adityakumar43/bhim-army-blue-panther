@@ -5,6 +5,7 @@ import { protect, requirePermission } from '../middleware/auth.js'
 import { ROLES, can } from '../config/roles.js'
 import { STATE_CODES } from '../config/states.js'
 import { canonicalDistrict } from '../config/districts.js'
+import LoginLock from '../models/LoginLock.js'
 
 // Team & roles. Super admins manage everyone. A State admin manages only the District admins of their own state.
 const router = Router()
@@ -117,6 +118,7 @@ router.post('/:id/reset-2fa', async (req, res) => {
     { _id: target._id },
     { $set: { twoFactorEnabled: false, twoFactorLastStep: 0, failedLogins: 0 }, $unset: { twoFactorSecret: 1, twoFactorPending: 1, lockUntil: 1 } }
   )
+  await LoginLock.deleteMany({ _id: { $regex: `^${target._id}:` } }) // and any lock from wrong tries, on every network
   res.json({ ok: true })
 })
 
