@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { Link } from 'react-router-dom'
 import { api } from '../../lib/api.js'
 import { PageHeader, Notice, ListLoading, useFind, matchesFind, FindNote } from './ui.jsx'
@@ -44,6 +44,7 @@ const niceTime = (d) => new Date(d).toLocaleString('en-IN', { dateStyle: 'medium
 const WHEN = [['now', '🚀 Publish now'], ['later', '🕒 Schedule'], ['draft', '📝 Save as draft']]
 
 const ADD_LABEL = { news: 'Add news', events: 'Add event', gallery: 'Add photo', slides: 'Add slide' }
+const PAGE = 100 // the most the server gives at once
 
 const LABELS = {
   titleHi: 'Title (Hindi)', titleEn: 'Title (English)',
@@ -76,8 +77,38 @@ export default function Content({ kind }) {
     return () => URL.revokeObjectURL(url)
   }, [file])
 
-  const load = () => api.get(`${config.endpoint}?limit=100&all=1`).then(setItems).catch((e) => setError(e.message))
-  useEffect(() => { load() }, [config.endpoint])
+  // A page of 100 at a time, newest first; "Load older items" for the rest. From the search box at the top,
+  // everything is loaded, so the item is found however old it is.
+  const [more, setMore] = useState(false)
+  const [busyMore, setBusyMore] = useState(false)
+  const shown = useRef(0) // how many are on screen, so a reload after a change keeps them all
+  async function fetchFrom(skip, want) {
+    let list = []
+    for (;;) {
+      const page = await api.get(`${config.endpoint}?limit=${PAGE}&skip=${skip + list.length}&all=1`)
+      list = list.concat(page)
+      if (page.length < PAGE || list.length >= want) return { list, full: page.length === PAGE }
+    }
+  }
+  const load = async () => {
+    try {
+      const { list, full } = await fetchFrom(0, find ? Infinity : Math.max(shown.current, 1))
+      shown.current = list.length
+      setItems(list)
+      setMore(full)
+    } catch (e) { setError(e.message) }
+  }
+  async function loadMore() {
+    setBusyMore(true)
+    try {
+      const { list, full } = await fetchFrom(items.length, 1)
+      const all = [...items, ...list.filter((x) => !items.some((y) => y._id === x._id))]
+      shown.current = all.length
+      setItems(all)
+      setMore(full)
+    } catch (e) { setError(e.message) } finally { setBusyMore(false) }
+  }
+  useEffect(() => { load() }, [config.endpoint, find]) // eslint-disable-line react-hooks/exhaustive-deps
   const loadRsvps = () => kind === 'events' && api.get('/rsvp/counts').then(setRsvps).catch(() => { })
   useEffect(() => { loadRsvps() }, [kind])
 
@@ -286,6 +317,12 @@ export default function Content({ kind }) {
           </li>
         ))}
       </ul>
+      {more && (
+        <div className="mt-5 text-center">
+          <button onClick={loadMore} disabled={busyMore} className="abtn min-h-10 px-5">{busyMore ? 'Loading…' : '⬇️ Load older items'}</button>
+          <p className="mt-1.5 text-xs text-navy/60">{items.length} loaded. The search on this page covers only the loaded ones.</p>
+        </div>
+      )}
       {rsvpFor && <RsvpList event={rsvpFor} onClose={() => setRsvpFor(null)} onChange={loadRsvps} />}
     </>
   )

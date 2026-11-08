@@ -2,6 +2,10 @@ import { useEffect, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { api } from '../lib/api.js'
 import { Link } from 'react-router-dom'
+import { msg, say, fromError } from '../lib/msg.js'
+
+const PHONE_OK = /^[6-9]\d{9}$/
+const cleanPhone = (v) => v.replace(/\D/g, '').replace(/^91(?=\d{10}$)/, '').slice(0, 10)
 
 // "I will attend" box on an event's own page
 export default function EventRsvp({ eventId }) {
@@ -18,8 +22,10 @@ export default function EventRsvp({ eventId }) {
 
   async function submit(e) {
     e.preventDefault()
-    setBusy(true)
     setError('')
+    // Checked here first, so the message is in the page language
+    if (!PHONE_OK.test(form.phone)) return setError(msg('join.phoneHint', { defaultValue: '10-digit mobile number starting with 6, 7, 8 or 9' }))
+    setBusy(true)
     try {
       const r = await api.post(`/rsvp/${eventId}`, form)
       setInfo((i) => ({ ...i, people: r.people, registrations: r.registrations }))
@@ -27,7 +33,7 @@ export default function EventRsvp({ eventId }) {
       setOpenForm(false)
       try { localStorage.setItem(key, '1') } catch { /* storage blocked */ }
     } catch (err) {
-      setError(err.message)
+      setError(fromError(err))
     } finally {
       setBusy(false)
     }
@@ -62,7 +68,7 @@ export default function EventRsvp({ eventId }) {
             <input required maxLength="100" autoComplete="name" value={form.name} onChange={set('name')} className="input" />
           </label>
           <label className="flex flex-col gap-1 font-semibold">{t('rsvp.phone')}
-            <input required type="tel" inputMode="numeric" autoComplete="tel" value={form.phone} onChange={set('phone')} className="input" />
+            <input required type="tel" inputMode="numeric" autoComplete="tel" maxLength="15" placeholder="98765 43210" value={form.phone} onChange={(e) => setForm({ ...form, phone: cleanPhone(e.target.value) })} className="input" />
           </label>
           <label className="flex flex-col gap-1 font-semibold">{t('rsvp.district')}
             <input maxLength="100" value={form.district} onChange={set('district')} className="input" />
@@ -72,7 +78,7 @@ export default function EventRsvp({ eventId }) {
           </label>
           {/* Hidden trap for bots */}
           <input type="text" name="website" tabIndex="-1" autoComplete="off" aria-hidden="true" onChange={set('website')} className="absolute -left-[9999px] h-0 w-0 opacity-0" />
-          {error && <p role="alert" className="text-red-700 sm:col-span-2">{error}</p>}
+          {error && <p role="alert" className="text-red-700 sm:col-span-2">{say(t, error)}</p>}
           <div className="flex gap-2 sm:col-span-2">
             <button disabled={busy} className="btn flex-1 bg-brand text-white disabled:opacity-60">{busy ? t('rsvp.sending') : t('rsvp.submit')}</button>
             <button type="button" onClick={() => setOpenForm(false)} className="btn border-2 border-navy/20">{t('rsvp.cancel')}</button>
