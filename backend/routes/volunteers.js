@@ -45,7 +45,12 @@ router.post('/', limiter, async (req, res) => {
     notifyAdmin('Volunteer details sent again', `Someone sent new details for the volunteer with the number ${phone}. Check them in the admin panel (Volunteers) before using them.`)
     return res.status(201).json({ ok: true })
   }
-  await Volunteer.create({ ...data, phone })
+  try {
+    await Volunteer.create({ ...data, phone })
+  } catch (err) {
+    if (err.code === 11000) return res.status(201).json({ ok: true }) // sent twice at the same moment: the first one is saved
+    throw err
+  }
   notifyAdmin('New volunteer', `${data.name} (${phone}) from ${data.district ? data.district + ', ' : ''}${data.state} wants to help: ${skills.join(', ')}`)
   res.status(201).json({ ok: true })
 })

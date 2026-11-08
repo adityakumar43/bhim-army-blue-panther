@@ -129,15 +129,16 @@ export default function Join() {
   const emailOk = EMAIL_OK.test(form.email || '')
   const emailProblem = form.email && !emailOk && touched.email ? t('join.emailHint', { defaultValue: 'Please check the email address' }) : ''
 
-  // As soon as the mobile number is complete, check whether it has already applied
+  // As soon as the mobile number and date of birth are filled in, check whether this person has already applied.
+  // (The server says so only when both match, so nobody can find out from a number alone that someone is a member.)
   useEffect(() => {
     setApplied(false)
-    if (!phoneOk) return
+    if (!phoneOk || !dobReal) return
     const timer = setTimeout(() => {
-      api.get(`/members/check?phone=${phone}`).then((r) => setApplied(!!r.applied)).catch(() => { })
+      api.post('/members/check', { phone, dob }).then((r) => setApplied(!!r.applied)).catch(() => { })
     }, 400)
     return () => clearTimeout(timer)
-  }, [phone, phoneOk])
+  }, [phone, phoneOk, dob, dobReal])
 
   // Districts of the chosen state, from a list, so every member of a district is spelled the same
   const districts = useMemo(() => districtsOf(form.stateCode)

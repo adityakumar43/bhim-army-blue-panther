@@ -13,6 +13,7 @@ import { upload } from '../middleware/upload.js'
 import { uploadImage, deleteImage } from '../config/cloudinary.js'
 import { issueCard, sendWelcome, emailCard } from '../services/members.js'
 import { cursorOf, after, pageSize, NEWEST, withFind } from '../services/paging.js'
+import { shortName } from '../services/names.js'
 
 const router = Router()
 
@@ -42,6 +43,8 @@ function parseDob(value) {
   if (d > new Date() || d.getUTCFullYear() < 1900) return null
   return d
 }
+
+const sameDay = (a, b) => !!a && !!b && new Date(a).toISOString().slice(0, 10) === b.toISOString().slice(0, 10)
 
 const joinLimiter = rateLimit({
   windowMs: 60 * 60 * 1000,
@@ -76,9 +79,6 @@ router.post('/', joinLimiter, upload.single('photo'), async (req, res) => {
   if (assemblyNo === null) return res.status(400).json({ message: 'Assembly constituency number must be a number, like 12' })
   if (lokSabhaNo === null) return res.status(400).json({ message: 'Lok Sabha constituency number must be a number, like 3' })
   if (!req.file) return res.status(400).json({ message: 'Please add your photo' })
-  if (await Member.exists({ phone })) {
-    return res.status(409).json({ message: 'This mobile number has already applied' })
-  }
 
   // The state comes from the list on the Join form; older forms sent typed text
   const stateCode = STATE_CODES.includes(String(b.stateCode || '')) ? String(b.stateCode) : codeFromName(b.state)
@@ -99,10 +99,14 @@ router.post('/', joinLimiter, upload.single('photo'), async (req, res) => {
       consentAt: new Date(),
     })
   } catch (err) {
-    await deleteImage(photo.publicId) // do not leave a photo behind for an application that was not saved
-    if (err.code === 11000) {
-      return res.status(409).json({ message: 'This mobile number has already applied' })
+    if (err.code === 11000 && err.keyPattern?.phone) {
+      // This number has already applied. Only someone who also gave the right date of birth is told so; anyone else
+      // gets the usual "received" answer (nothing is saved), so the form cannot be used to find out who is a member.
+      deleteImage(photo.publicId).catch(() => { }) // not waited for, so the answer takes as long as a real application
+      const m = await Member.findOne({ phone }).select('dob').lean()
+      return sameDay(m?.dob, dob) ? res.status(409).json({ message: 'This mobile number has already applied' }) : res.status(201).json({ ok: true })
     }
+    await deleteImage(photo.publicId) // do not leave a photo behind for an application that was not saved
     if (err.name === 'ValidationError') {
       return res.status(400).json({ message: 'Some details are too long. Please shorten them.' })
     }
@@ -119,12 +123,16 @@ const statusLimiter = rateLimit({
   message: { message: 'Too many tries. Please wait 15 minutes and try again.' },
 })
 
-// Join form: has this mobile number already applied? (Sending the form would say the same, this only says it sooner.)
-const checkLimiter = rateLimit({ windowMs: 15 * 60 * 1000, max: 30, message: { message: 'Too many tries. Please try again later.' } })
-router.get('/check', checkLimiter, async (req, res) => {
-  const phone = String(req.query.phone || '').replace(/\s|-/g, '').replace(/^(\+91|91)(?=\d{10}$)/, '')
-  if (!/^[6-9]\d{9}$/.test(phone)) return res.json({ applied: false })
-  res.json({ applied: !!(await Member.exists({ phone })) })
+// Join form: has this person already applied? Only someone who gives the mobile number AND the date of birth
+// is told so (sending the form answers the same way): anyone can type anyone's number, and "already applied"
+// would tell them that this person is a member.
+const checkLimiter = rateLimit({ windowMs: 15 * 60 * 1000, max: 20, message: { message: 'Too many tries. Please try again later.' } })
+router.post('/check', checkLimiter, async (req, res) => {
+  const phone = String(req.body?.phone || '').replace(/\s|-/g, '').replace(/^(\+91|91)(?=\d{10}$)/, '')
+  const dob = parseDob(req.body?.dob)
+  if (!/^[6-9]\d{9}$/.test(phone) || !dob) return res.json({ applied: false })
+  const m = await Member.findOne({ phone }).select('dob').lean()
+  res.json({ applied: sameDay(m?.dob, dob) })
 })
 
 router.post('/status', statusLimiter, async (req, res) => {
@@ -266,7 +274,7 @@ router.delete('/:id', protect, requirePermission('members'), async (req, res) =>
 router.get('/ref/:no', checkLimiter, async (req, res) => {
   const m = await Member.findOne({ memberNo: String(req.params.no).trim().toUpperCase(), status: 'approved' }).select('name')
   if (!m) return res.status(404).json({ message: 'Invite link not found' })
-  res.json({ name: m.name })
+  res.json({ name: shortName(m.name) }) // "Ravi K.": member numbers go up one by one, so full names here could all be collected
 })
 
 // Many cards at once, for printing on A4 sheets (approved members only, up to 200)

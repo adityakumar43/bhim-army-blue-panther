@@ -8,6 +8,17 @@ import { sendMail } from '../services/mailer.js'
 import { audience, mailoutEmail, runMailout } from '../services/mailout.js'
 
 const router = Router()
+// "Sending" with no progress for this long: the server stopped it (Hostinger puts the app to sleep or restarts it)
+const STALE = 5 * 60 * 1000
+const stalled = (mo) => mo.status === 'sending' && Date.now() - new Date(mo.updatedAt).getTime() > STALE
+// Sent before the website remembered who got it: continuing would email some members twice
+const canContinue = (mo) => !!mo.lastId || (!mo.sent && !mo.failed)
+function start(id) {
+    runMailout(id).catch((err) => {
+        console.error('Announcement stopped:', err.message)
+        Mailout.updateOne({ _id: id }, { $set: { status: 'stopped', note: 'Stopped by an error on the server.', finishedAt: new Date() } }).catch(() => { })
+    })
+}
 
 // A State admin can only write to their own state's members
 function target(req, q) {
@@ -66,7 +77,8 @@ router.post('/test', protect, requirePermission('members'), async (req, res) => 
 // Past announcements (a State admin sees their own state's)
 router.get('/', protect, requirePermission('members'), async (req, res) => {
     const scope = stateScope(req.admin)
-    res.json(await Mailout.find(scope ? { stateCode: scope } : {}).sort({ createdAt: -1 }).limit(50))
+    const list = await Mailout.find(scope ? { stateCode: scope } : {}).sort({ createdAt: -1 }).limit(50).lean()
+    res.json(list.map((mo) => ({ ...mo, interrupted: stalled(mo), canContinue: (mo.status === 'stopped' || stalled(mo)) && canContinue(mo) })))
 })
 
 // Send to members. It runs in the background; the page shows how far it has got.
@@ -76,18 +88,32 @@ router.post('/', protect, requirePermission('members'), async (req, res) => {
     const { stateCode, district } = target(req, req.body || {})
     // One at a time. One that stopped moving for 10 minutes (the server restarted) no longer counts.
     const busy = await Mailout.findOne({ status: 'sending' })
-    if (busy && Date.now() - new Date(busy.updatedAt).getTime() < 10 * 60 * 1000) {
+    if (busy && !stalled(busy)) {
         return res.status(409).json({ message: 'Another announcement is still being sent. Wait for it to finish or stop it.' })
     }
-    if (busy) await Mailout.updateOne({ _id: busy._id }, { $set: { status: 'stopped', note: 'Stopped because the server restarted.', finishedAt: new Date() } })
+    if (busy) await Mailout.updateOne({ _id: busy._id }, { $set: { status: 'stopped', note: 'Interrupted: the server stopped while sending.', finishedAt: new Date() } })
     const total = await Member.countDocuments(audience(stateCode, district))
     if (!total) return res.status(400).json({ message: 'No members with an email address in this group' })
     const mo = await Mailout.create({ ...msg, stateCode, district, total, byName: req.admin.name, byId: req.admin._id })
-    runMailout(mo._id).catch((err) => {
-        console.error('Announcement stopped:', err.message)
-        Mailout.updateOne({ _id: mo._id }, { $set: { status: 'stopped', note: 'Stopped by an error on the server.', finishedAt: new Date() } }).catch(() => { })
-    })
+    start(mo._id)
     res.status(201).json(mo)
+})
+
+// Continue a stopped or interrupted announcement: only the members who have not got it yet
+router.post('/:id/continue', protect, requirePermission('members'), async (req, res) => {
+    const scope = stateScope(req.admin)
+    const other = await Mailout.findOne({ _id: { $ne: req.params.id }, status: 'sending', updatedAt: { $gt: new Date(Date.now() - STALE) } }).catch(() => null)
+    if (other) return res.status(409).json({ message: 'Another announcement is still being sent. Wait for it to finish or stop it.' })
+    const found = await Mailout.findOne({ _id: req.params.id, ...(scope ? { stateCode: scope } : {}) }).lean().catch(() => null)
+    if (!found) return res.status(404).json({ message: 'Not found' })
+    if (!canContinue(found)) return res.status(400).json({ message: 'This announcement was sent before the website could continue sends. Continuing would email some members twice.' })
+    // Claim it, so pressing Continue twice starts only one send
+    const mo = await Mailout.findOneAndUpdate(
+        { _id: found._id, $or: [{ status: 'stopped' }, { status: 'sending', updatedAt: { $lte: new Date(Date.now() - STALE) } }] },
+        { $set: { status: 'sending', note: '', finishedAt: null } }, { new: true })
+    if (!mo) return res.status(409).json({ message: 'This announcement is already being sent' })
+    start(mo._id)
+    res.json(mo)
 })
 
 router.post('/:id/stop', protect, requirePermission('members'), async (req, res) => {

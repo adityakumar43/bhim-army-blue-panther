@@ -39,9 +39,11 @@ export async function runMailout(id) {
     const pause = Number(process.env.MAILOUT_DELAY_MS ?? 1500)
     const mo = await Mailout.findById(id)
     if (!mo) return
-    const members = await Member.find(audience(mo.stateCode, mo.district)).select('name email memberNo +unsubToken').lean()
-    let sent = 0, failed = 0, n = 0
-    const save = (extra = {}) => Mailout.updateOne({ _id: id }, { $set: { sent, failed, ...extra } })
+    // In a fixed order, starting after the last member it went to (an interrupted send continues where it stopped)
+    const members = await Member.find({ ...audience(mo.stateCode, mo.district), ...(mo.lastId ? { _id: { $gt: mo.lastId } } : {}) })
+        .sort({ _id: 1 }).select('name email memberNo +unsubToken').lean()
+    let sent = mo.sent || 0, failed = mo.failed || 0, n = 0, lastId = mo.lastId
+    const save = (extra = {}) => Mailout.updateOne({ _id: id }, { $set: { sent, failed, lastId, ...extra } })
     for (const m of members) {
         if (n++ % 10 === 0) {
             const now = await Mailout.findById(id).select('status').lean()
@@ -61,6 +63,8 @@ export async function runMailout(id) {
             failed++
             console.error(`Announcement to ${m.email} failed:`, err.message)
         }
+        lastId = m._id
+        await save() // after every email, so after a restart nobody is emailed again
         if (pause) await sleep(pause)
     }
     await save({ status: 'done', finishedAt: new Date() })

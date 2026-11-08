@@ -70,7 +70,14 @@ router.post('/:eventId', limiter, async (req, res) => {
   const existing = await Rsvp.findOne({ event: ev._id, phone })
   const data = { name: name.slice(0, 100), district: String(b.district || '').trim().slice(0, 100), people }
   if (existing) await Rsvp.updateOne({ _id: existing._id }, data)
-  else await Rsvp.create({ event: ev._id, phone, ...data })
+  else {
+    try {
+      await Rsvp.create({ event: ev._id, phone, ...data })
+    } catch (err) {
+      if (err.code !== 11000) throw err
+      await Rsvp.updateOne({ event: ev._id, phone }, data) // sent twice at the same moment: keep one registration
+    }
+  }
   res.status(201).json({ ok: true, ...(await totals(ev._id)) }) // the same reply either way: it must not tell whether a number registered
 })
 

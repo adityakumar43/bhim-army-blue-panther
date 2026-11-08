@@ -4,6 +4,7 @@ import { protect, requirePermission, stateScope } from '../middleware/auth.js'
 import { STATE_CODES } from '../config/states.js'
 import { memberStateFilter, memberInState, codeFromName, stateNameEn } from '../config/stateNames.js'
 import { canonicalDistrict, districtsOfState } from '../config/districts.js'
+import { shortName } from '../services/names.js' // the public leaderboard shows 'Ravi K.', not full names
 
 // Member growth: where the members are, how fast they are joining, and who brings in the most new members.
 const router = Router()
@@ -16,13 +17,6 @@ function lastMonths(n = 12) {
     const now = new Date()
     for (let i = n - 1; i >= 0; i--) out.push(monthKey(new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth() - i, 15))))
     return [...new Set(out)]
-}
-
-// Only the first name and the first letter of the last name go on the public leaderboard: "Ravi Kumar" -> "Ravi K."
-const shortName = (name) => {
-    const parts = String(name || '').trim().split(/\s+/).filter(Boolean)
-    const first = (parts[0] || '').charAt(0).toUpperCase() + (parts[0] || '').slice(1)
-    return parts.length > 1 ? `${first} ${parts.at(-1)[0].toUpperCase()}.` : first
 }
 
 // Public invite leaderboard: members whose invite link brought in the most APPROVED members.

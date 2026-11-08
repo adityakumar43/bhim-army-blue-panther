@@ -14,6 +14,9 @@ const mailoutSchema = new mongoose.Schema(
         failed: { type: Number, default: 0 },
         status: { type: String, enum: ['sending', 'done', 'stopped'], default: 'sending' },
         note: String, // why it stopped, if it did
+        // The last member it went to. Members are emailed in a fixed order, so a send that was interrupted
+        // (Hostinger puts the app to sleep or restarts it) can continue with the next one, and nobody gets it twice.
+        lastId: mongoose.Schema.Types.ObjectId,
         finishedAt: Date,
     },
     { timestamps: true }

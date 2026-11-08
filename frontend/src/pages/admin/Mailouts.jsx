@@ -27,7 +27,7 @@ export default function Mailouts() {
     useEffect(() => { loadHistory() }, [])
 
     // While one is being sent, refresh its progress every few seconds
-    const sending = history?.some((m) => m.status === 'sending')
+    const sending = history?.some((m) => m.status === 'sending' && !m.interrupted)
     useEffect(() => {
         if (!sending) return
         const timer = setInterval(loadHistory, 3000)
@@ -65,6 +65,12 @@ export default function Mailouts() {
             setSubject(''); setBody('')
             await loadHistory()
         } catch (e) { setError(e.message) } finally { setBusy('') }
+    }
+
+    async function resume(m) {
+        if (!window.confirm(`Continue sending "${m.subject}"? Only the members who have not got it yet will get it.`)) return
+        setError('')
+        try { await api.post(`/mailouts/${m._id}/continue`); await loadHistory() } catch (e) { setError(e.message) }
     }
 
     async function stop(m) {
@@ -146,8 +152,8 @@ export default function Mailouts() {
             {history?.length === 0 && <p className="card text-center text-navy/70">📭 Nothing sent yet.</p>}
             <ul className="grid gap-3 xl:grid-cols-2">
                 {history?.map((m) => {
-                    const [tone, label] = STATUS[m.status] || STATUS.done
-                    const pct = m.total ? Math.round(((m.sent + m.failed) / m.total) * 100) : 0
+                    const [tone, label] = m.interrupted ? ['red', '⚠️ Interrupted'] : STATUS[m.status] || STATUS.done
+                    const pct = m.total ? Math.min(100, Math.round(((m.sent + m.failed) / m.total) * 100)) : 0
                     return (
                         <li key={m._id} className="card p-4">
                             <div className="flex flex-wrap items-start justify-between gap-2">
@@ -164,7 +170,9 @@ export default function Mailouts() {
                                 <b className="text-green-700">{m.sent}</b> sent{m.failed ? <> · <b className="text-red-700">{m.failed}</b> failed</> : null} · of {m.total}
                             </p>
                             {m.note && <p className="mt-1 text-xs text-red-700">{m.note}</p>}
-                            {m.status === 'sending' && <button onClick={() => stop(m)} className="abtn-danger mt-2 min-h-9 px-3">⏹️ Stop sending</button>}
+                            {m.interrupted && <p className="mt-1 text-xs text-red-700">The server stopped while sending (this can happen when the website goes to sleep).</p>}
+                            {m.status === 'sending' && !m.interrupted && <button onClick={() => stop(m)} className="abtn-danger mt-2 min-h-9 px-3">⏹️ Stop sending</button>}
+                            {m.canContinue && !sending && <button onClick={() => resume(m)} className="abtn-primary mt-2 min-h-9 px-3">▶️ Continue sending to the rest</button>}
                         </li>
                     )
                 })}
