@@ -67,14 +67,27 @@ export default function Donate() {
         description: t('donate.desc'),
         prefill: { name: form.name, email: form.email, contact: form.phone },
         theme: { color: '#0B3C9D' },
+        // The money has been taken. Confirm it with our server, trying again if the connection is weak
+        // (confirming twice is harmless). If it still does not get through, the donor must not think the
+        // payment failed: Razorpay also tells our server directly, and the receipt follows from that.
         handler: async (resp) => {
           try {
-            const r = await api.post('/donations/verify', resp)
-            trackEvent('donation_complete', { value, currency: 'INR' })
-            if (r.receiptToken) navigate(`/receipt/${r.receiptToken}`)
-            else setDone(true)
-          } catch (err) {
-            setError(fromError(err))
+            for (let i = 0; ; i++) {
+              try {
+                const r = await api.post('/donations/verify', resp)
+                trackEvent('donation_complete', { value, currency: 'INR' })
+                if (r.receiptToken) navigate(`/receipt/${r.receiptToken}`)
+                else setDone(true)
+                return
+              } catch (err) {
+                const retry = (err.offline || err.status >= 500) && i < 3
+                if (!retry) {
+                  setError(msg('donate.paidNotConfirmed', { id: resp.razorpay_payment_id || '', defaultValue: 'Your payment was received by Razorpay. Please do not pay again. Your receipt will be emailed once it is confirmed (if you gave an email). Payment ID: {{id}}' }))
+                  return
+                }
+                await new Promise((r) => setTimeout(r, 2000 * (i + 1)))
+              }
+            }
           } finally {
             setBusy(false)
           }

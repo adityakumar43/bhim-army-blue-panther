@@ -18,13 +18,14 @@ export default function Detail({ kind }) {
     const { t, i18n } = useTranslation()
     const lang = i18n.language
     const [item, setItem] = useState(null)
-    const [failed, setFailed] = useState(false)
+    const [failed, setFailed] = useState('') // 'notFound', or 'offline' when the server could not be reached
+    const [tries, setTries] = useState(0)
 
     useEffect(() => {
         setItem(null)
-        setFailed(false)
-        api.get(`/${kind}/${id}`).then(setItem).catch(() => setFailed(true))
-    }, [kind, id])
+        setFailed('')
+        api.get(`/${kind}/${id}`).then(setItem).catch((err) => setFailed(err.status === 404 ? 'notFound' : 'offline'))
+    }, [kind, id, tries])
 
     useSeo({
         title: item && pickText(item, 'title', lang),
@@ -36,8 +37,9 @@ export default function Detail({ kind }) {
     if (failed) {
         return (
             <div className="px-5 py-16 text-center">
-                <p role="alert" className="mb-4 text-lg">{t('detail.notFound')}</p>
-                <Link to="/news" className="font-semibold text-brand underline">{t('detail.back')}</Link>
+                <p role="alert" className="mb-4 text-lg">{failed === 'notFound' ? t('detail.notFound') : t('errors.offline')}</p>
+                {failed === 'offline' && <button onClick={() => setTries((n) => n + 1)} className="btn mb-4 bg-brand text-white hover:bg-navy">{t('errors.retry')}</button>}
+                <div><Link to="/news" className="font-semibold text-brand underline">{t('detail.back')}</Link></div>
             </div>
         )
     }

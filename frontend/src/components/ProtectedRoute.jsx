@@ -1,5 +1,6 @@
 import { Navigate } from 'react-router-dom'
+import { getItem } from '../lib/storage.js'
 
 export default function ProtectedRoute({ children }) {
-  return localStorage.getItem('token') ? children : <Navigate to="/admin/login" replace />
+  return getItem('token') ? children : <Navigate to="/admin/login" replace />
 }

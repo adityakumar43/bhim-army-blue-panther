@@ -249,6 +249,7 @@
     "wait": "Please wait...",
     "desc": "Donation to the organization",
     "failed": "The payment did not go through. Please try again.",
+    "paidNotConfirmed": "Your payment was received by Razorpay. Please do not pay again. Your receipt will be emailed once it is confirmed (if you gave an email). Payment ID: {{id}}",
     "doneTitle": "Thank you! Jai Bhim",
     "doneBody": "Your donation has been received.",
     "badAmount": "Enter an amount between ₹10 and ₹5,00,000.",

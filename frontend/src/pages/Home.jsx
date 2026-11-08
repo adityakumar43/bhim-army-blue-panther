@@ -61,7 +61,7 @@ export default function Home() {
         .catch(() => setSlides((old) => old || []))
     // Upcoming events first (soonest on top), then the most recent past ones. Three are shown.
     api.get('/events?limit=20').then((all) => {
-      const today = new Date().toLocaleDateString('en-CA')
+      const today = new Intl.DateTimeFormat('en-CA', { timeZone: 'Asia/Kolkata' }).format(new Date()) // today in India, like the Events page
       const upcoming = all.filter((e) => e.date.slice(0, 10) >= today).sort((a, b) => a.date.localeCompare(b.date))
       const past = all.filter((e) => e.date.slice(0, 10) < today).sort((a, b) => b.date.localeCompare(a.date))
       setEvents([...upcoming, ...past].slice(0, 3))

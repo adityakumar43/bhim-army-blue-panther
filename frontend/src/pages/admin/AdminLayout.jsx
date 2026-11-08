@@ -6,6 +6,7 @@ import Icon from '../../components/Icon.jsx'
 import BoxIcon from '../../components/BoxIcon.jsx'
 import AdminSearch, { SearchButton } from './AdminSearch.jsx'
 import { stateByCode } from '../../data/states.js'
+import { removeItem } from '../../lib/storage.js'
 
 
 const NAV = [
@@ -224,7 +225,7 @@ export default function AdminLayout() {
   function logout() {
     // End the session on the server too, so the login cannot be used again; leave even if the server does not answer
     api.post('/auth/logout').catch(() => { }).finally(() => {
-      localStorage.removeItem('token')
+      removeItem('token')
       navigate('/admin/login')
     })
   }

@@ -1,4 +1,5 @@
 import i18n from '../i18n.js'
+import { getItem, removeItem } from './storage.js'
 
 const BASE = import.meta.env.VITE_API_URL || 'http://localhost:5000/api'
 
@@ -25,7 +26,7 @@ async function send(url, options, retry) {
 
 async function request(path, { method = 'GET', body } = {}) {
   const headers = {}
-  const token = localStorage.getItem('token')
+  const token = getItem('token')
   if (token) headers.Authorization = `Bearer ${token}`
   if (body && !(body instanceof FormData)) {
     headers['Content-Type'] = 'application/json'
@@ -36,7 +37,7 @@ async function request(path, { method = 'GET', body } = {}) {
   const data = await res.json().catch(() => ({}))
 
   if (res.status === 401 && token) {
-    localStorage.removeItem('token')
+    removeItem('token')
     try { sessionStorage.setItem('loginNotice', data.message || '') } catch { /* storage blocked */ }
     window.location.href = '/admin/login'
   }

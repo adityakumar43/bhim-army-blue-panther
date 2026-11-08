@@ -2,11 +2,12 @@ import { useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import { api } from '../../lib/api.js'
 import Icon from '../../components/Icon.jsx'
+import { getItem, setItem, removeItem } from '../../lib/storage.js'
 
 // This browser's private device code, given by the server after a full login. While an account is locked after
 // many wrong tries from other networks, a phone or computer that has logged in before can still log in.
 const DEVICE = 'adminDevice'
-const deviceCode = () => { try { return localStorage.getItem(DEVICE) || '' } catch { return '' } }
+const deviceCode = () => getItem(DEVICE) || ''
 
 export default function Login() {
   const navigate = useNavigate()
@@ -23,7 +24,7 @@ export default function Login() {
     try { sessionStorage.removeItem('loginNotice') } catch { /* storage blocked */ }
     setBusy(true)
     setError('')
-    localStorage.removeItem('token') // an old expired token must not interfere
+    removeItem('token') // an old expired token must not interfere
     try {
       const r = challenge
         ? await api.post('/auth/login/2fa', { challenge, code, device: deviceCode() })
@@ -31,8 +32,8 @@ export default function Login() {
       if (r.needs2fa) {
         setChallenge(r.challenge)
       } else {
-        localStorage.setItem('token', r.token)
-        if (r.device) try { localStorage.setItem(DEVICE, r.device) } catch { /* storage blocked */ }
+        setItem('token', r.token)
+        if (r.device) setItem(DEVICE, r.device)
         navigate('/admin')
       }
     } catch (err) {

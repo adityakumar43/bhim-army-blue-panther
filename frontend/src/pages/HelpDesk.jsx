@@ -198,7 +198,7 @@ export default function HelpDesk() {
 
   const [when, setWhen] = useState({ day: '', month: '', year: '' }) // date of the incident, from three dropdowns
   const set = (f, clean = (v) => v) => (e) => setForm((old) => ({ ...old, [f]: clean(e.target.value) }))
-  const date = (d) => new Date(d).toLocaleDateString(lang === 'hi' ? 'hi-IN' : 'en-IN', { dateStyle: 'medium' })
+  const date = (d) => new Date(d).toLocaleDateString(lang === 'hi' ? 'hi-IN' : 'en-IN', { dateStyle: 'medium', timeZone: 'Asia/Kolkata' }) // the same date as the team sees
 
   const previews = useMemo(() => photos.map((f) => URL.createObjectURL(f)), [photos])
   useEffect(() => () => previews.forEach((u) => URL.revokeObjectURL(u)), [previews])
@@ -231,7 +231,9 @@ export default function HelpDesk() {
     if (!when.month || !when.year) return setError(msg('help.fullDate', { defaultValue: 'Choose at least the month and year of the incident.' }))
     const incidentDate = `${when.year}-${pad(when.month)}${when.day ? `-${pad(when.day)}` : ''}`
     if (when.day && new Date(`${incidentDate}T00:00:00Z`).toISOString().slice(0, 10) !== incidentDate) return setError(msg('join.badDate', { defaultValue: 'This date does not exist. Please check the day and month.' }))
-    if (incidentDate > new Date().toLocaleDateString('en-CA').slice(0, incidentDate.length)) return setError(msg('help.futureDate', { defaultValue: 'The date of the incident cannot be in the future.' }))
+    // Today in India, the same as the server checks (a visitor abroad may already be on another date)
+    const indiaToday = new Intl.DateTimeFormat('en-CA', { timeZone: 'Asia/Kolkata' }).format(new Date())
+    if (incidentDate > indiaToday.slice(0, incidentDate.length)) return setError(msg('help.futureDate', { defaultValue: 'The date of the incident cannot be in the future.' }))
     if (!agree) return setError(msg('privacy.needAgree', { defaultValue: 'Please tick the box to agree before sending.' }))
     setBusy(true)
     try {
