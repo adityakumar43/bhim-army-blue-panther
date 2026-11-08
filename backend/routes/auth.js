@@ -12,6 +12,7 @@ import { verifyCode } from '../services/twofactor.js'
 import { recordLogin } from '../services/loginlog.js'
 import bcrypt from 'bcryptjs'
 import LoginLock from '../models/LoginLock.js'
+import KnownDevice from '../models/KnownDevice.js'
 
 const router = Router()
 
@@ -36,15 +37,36 @@ const profile = (a) => ({
   twoFactorRequired: needsTwoFactor(a.role), state: a.state || null, district: a.district || null,
 })
 
-// Wrong tries count per account AND network, so a stranger who knows an admin's email can lock out only
-// their own network, not the admin (see models/LoginLock.js). The limit of 10 tries per network also stays.
+// Two locks (see models/LoginLock.js):
+// - Per account AND network: 5 wrong tries lock only that network, so a stranger who knows an admin's email
+//   cannot lock the admin out. (The limit of 10 tries per network also stays.)
+// - Per account, from everywhere: 20 wrong tries in 15 minutes (someone guessing from many networks) lock the
+//   account for every phone or computer it does not know. Devices that have logged in before still can.
+const ACCOUNT_MAX = 20
 const lockKey = (admin, req) => `${admin._id}:${crypto.createHash('sha256').update(`${process.env.JWT_SECRET}:${req.ip}`).digest('hex').slice(0, 20)}`
-const isLocked = async (admin, req) => {
-  const lock = await LoginLock.findById(lockKey(admin, req)).lean()
-  return !!lock?.lockUntil && lock.lockUntil > new Date()
+const accountKey = (admin) => `acct:${admin._id}`
+const deviceKey = (admin, device) => `${admin._id}:${crypto.createHash('sha256').update(String(device)).digest('hex')}`
+const validDevice = (device) => typeof device === 'string' && /^[a-f0-9]{48}$/.test(device)
+const knownDevice = async (admin, device) => validDevice(device) && !!(await KnownDevice.exists({ _id: deviceKey(admin, device) }))
+// After a full login: remember this device (a new private code for the browser if it has none yet)
+async function rememberDevice(admin, device) {
+  const code = validDevice(device) ? device : crypto.randomBytes(24).toString('hex')
+  await KnownDevice.updateOne({ _id: deviceKey(admin, code) }, { $set: { at: new Date() } }, { upsert: true })
+  return code
 }
-const lockedReply = (res) =>
-  res.status(429).json({ message: `Too many wrong attempts. Try again in ${LOCK_MINUTES} minutes.` })
+// null when free to try, otherwise the reason
+async function lockedFor(admin, req, device) {
+  const now = new Date()
+  const [net, account] = await Promise.all([LoginLock.findById(lockKey(admin, req)).lean(), LoginLock.findById(accountKey(admin)).lean()])
+  if (net?.lockUntil > now) return 'network'
+  if (account?.lockUntil > now && !(await knownDevice(admin, device))) return 'account'
+  return null
+}
+const lockedReply = (res, why) => res.status(429).json({
+  message: why === 'account'
+    ? `Too many wrong attempts on this account. Try again in ${LOCK_MINUTES} minutes, or log in from a phone or computer you have used before.`
+    : `Too many wrong attempts. Try again in ${LOCK_MINUTES} minutes.`,
+})
 
 // For an email that is not an admin, check the password against this anyway, so the answer takes as long
 // as for a real admin and the time it takes does not tell anyone which emails have accounts
@@ -56,24 +78,36 @@ const dummyCheck = async (password) => {
 
 
 async function recordFailure(admin, req) {
+  const now = new Date()
+  const until = new Date(now.getTime() + LOCK_MINUTES * 60 * 1000)
   const _id = lockKey(admin, req)
-  const lock = await LoginLock.findOneAndUpdate({ _id }, { $inc: { wrong: 1 }, $set: { at: new Date() } }, { upsert: true, new: true })
-  if (lock.wrong >= MAX_WRONG) await LoginLock.updateOne({ _id }, { $set: { wrong: 0, lockUntil: new Date(Date.now() + LOCK_MINUTES * 60 * 1000) } })
+  const lock = await LoginLock.findOneAndUpdate({ _id }, { $inc: { wrong: 1 }, $set: { at: now } }, { upsert: true, new: true })
+  if (lock.wrong >= MAX_WRONG) await LoginLock.updateOne({ _id }, { $set: { wrong: 0, lockUntil: until } })
+
+  // The account's count from everywhere, over the last 15 minutes
+  const key = accountKey(admin)
+  const old = await LoginLock.findById(key).lean()
+  const fresh = !old?.since || now - old.since > LOCK_MINUTES * 60 * 1000
+  const account = await LoginLock.findOneAndUpdate({ _id: key },
+    fresh ? { $set: { wrong: 1, since: now, at: now } } : { $inc: { wrong: 1 }, $set: { at: now } }, { upsert: true, new: true })
+  if (account.wrong >= ACCOUNT_MAX) await LoginLock.updateOne({ _id: key }, { $set: { wrong: 0, since: now, lockUntil: until } })
 }
 
+// A right login clears this network's count. The account's count stays: someone else may still be guessing.
 const clearFailures = (admin, req) => LoginLock.deleteOne({ _id: lockKey(admin, req) })
 
 
 router.post('/login', limiter(10), async (req, res) => {
-  const { email, password } = req.body || {}
+  const { email, password, device } = req.body || {}
   if (!email || !password) {
     return res.status(400).json({ message: 'Email and password are required' })
   }
 
   const admin = await Admin.findOne({ email: String(email).toLowerCase() }).select('+password')
-  if (admin && await isLocked(admin, req)) {
-    recordLogin(req, { admin, success: false, reason: 'locked on this network (too many wrong tries)' })
-    return lockedReply(res)
+  const locked = admin && await lockedFor(admin, req, device)
+  if (locked) {
+    recordLogin(req, { admin, success: false, reason: locked === 'account' ? 'account locked for new devices (many wrong tries)' : 'locked on this network (too many wrong tries)' })
+    return lockedReply(res, locked)
   }
 
   if (!admin) await dummyCheck(password) // the same time as a wrong password for a real account
@@ -93,12 +127,12 @@ router.post('/login', limiter(10), async (req, res) => {
     return res.json({ needs2fa: true, challenge })
   }
   recordLogin(req, { admin, success: true, reason: 'with password' })
-  res.json({ token: await sign(admin._id), admin: profile(admin) })
+  res.json({ token: await sign(admin._id), admin: profile(admin), device: await rememberDevice(admin, device) })
 })
 
 
 router.post('/login/2fa', limiter(10), async (req, res) => {
-  const { challenge, code } = req.body || {}
+  const { challenge, code, device } = req.body || {}
   const expired = () => res.status(401).json({ message: 'Your login session expired. Please log in again.' })
 
   let id
@@ -110,9 +144,10 @@ router.post('/login/2fa', limiter(10), async (req, res) => {
 
   const admin = await Admin.findById(id).select('+twoFactorSecret')
   if (!admin || admin.active === false || !admin.twoFactorEnabled) return expired()
-  if (await isLocked(admin, req)) {
-    recordLogin(req, { admin, success: false, reason: 'locked on this network (too many wrong tries)' })
-    return lockedReply(res)
+  const locked = await lockedFor(admin, req, device)
+  if (locked) {
+    recordLogin(req, { admin, success: false, reason: locked === 'account' ? 'account locked for new devices (many wrong tries)' : 'locked on this network (too many wrong tries)' })
+    return lockedReply(res, locked)
   }
 
   const step = verifyCode(admin.twoFactorSecret, code, admin.twoFactorLastStep)
@@ -125,7 +160,7 @@ router.post('/login/2fa', limiter(10), async (req, res) => {
   await Admin.updateOne({ _id: admin._id }, { $set: { twoFactorLastStep: step } })
   await clearFailures(admin, req)
   recordLogin(req, { admin, success: true, reason: 'with 2-step code' })
-  res.json({ token: await sign(admin._id), admin: profile(admin) })
+  res.json({ token: await sign(admin._id), admin: profile(admin), device: await rememberDevice(admin, device) })
 })
 
 // Log out: a new session id on the server, so this login stops working everywhere, not only in this browser

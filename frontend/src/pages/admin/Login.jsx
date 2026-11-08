@@ -3,6 +3,11 @@ import { Link, useNavigate } from 'react-router-dom'
 import { api } from '../../lib/api.js'
 import Icon from '../../components/Icon.jsx'
 
+// This browser's private device code, given by the server after a full login. While an account is locked after
+// many wrong tries from other networks, a phone or computer that has logged in before can still log in.
+const DEVICE = 'adminDevice'
+const deviceCode = () => { try { return localStorage.getItem(DEVICE) || '' } catch { return '' } }
+
 export default function Login() {
   const navigate = useNavigate()
   const [form, setForm] = useState({ email: '', password: '' })
@@ -21,12 +26,13 @@ export default function Login() {
     localStorage.removeItem('token') // an old expired token must not interfere
     try {
       const r = challenge
-        ? await api.post('/auth/login/2fa', { challenge, code })
-        : await api.post('/auth/login', form)
+        ? await api.post('/auth/login/2fa', { challenge, code, device: deviceCode() })
+        : await api.post('/auth/login', { ...form, device: deviceCode() })
       if (r.needs2fa) {
         setChallenge(r.challenge)
       } else {
         localStorage.setItem('token', r.token)
+        if (r.device) try { localStorage.setItem(DEVICE, r.device) } catch { /* storage blocked */ }
         navigate('/admin')
       }
     } catch (err) {

@@ -118,7 +118,8 @@ router.post('/:id/reset-2fa', async (req, res) => {
     { _id: target._id },
     { $set: { twoFactorEnabled: false, twoFactorLastStep: 0, failedLogins: 0 }, $unset: { twoFactorSecret: 1, twoFactorPending: 1, lockUntil: 1 } }
   )
-  await LoginLock.deleteMany({ _id: { $regex: `^${target._id}:` } }) // and any lock from wrong tries, on every network
+  // and any lock from wrong tries: on every network, and for the account as a whole
+  await LoginLock.deleteMany({ $or: [{ _id: { $regex: `^${target._id}:` } }, { _id: `acct:${target._id}` }] })
   res.json({ ok: true })
 })
 
