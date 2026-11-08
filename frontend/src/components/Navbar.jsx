@@ -3,6 +3,7 @@ import { Link, NavLink, useLocation } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
 import Icon from './Icon.jsx'
 import Announcements from './Announcements.jsx'
+import ErrorBoundary from './ErrorBoundary.jsx'
 
 const links = [
   ['/', 'home'], ['/about', 'about'], ['/leadership/states', 'states'], ['/campaigns', 'campaigns'],
@@ -67,7 +68,7 @@ export default function Navbar() {
           It is only hidden (not removed) while the phone menu is open, so it keeps its place. */}
       {pathname === '/' && (
         <div className={open ? 'hidden' : undefined}>
-          <Announcements />
+          <ErrorBoundary quiet><Announcements /></ErrorBoundary>
         </div>
       )}
 

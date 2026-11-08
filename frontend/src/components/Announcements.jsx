@@ -60,8 +60,11 @@ export default function Announcements({ interval = 6000 }) {
 
   if (n === 0 || hidden) return null
 
+  // The fresh list can be shorter than the saved one shown first (updates that have ended since the last visit):
+  // until the position is reset, show its first update instead of one that is no longer there
+  const at = index < n ? index : 0
   const go = (i) => setIndex(((i % n) + n) % n)
-  const current = items[index]
+  const current = items[at]
   const text = pickText(current, 'text', lang)
   const href = safeLink(current.link)
   const linkClass = 'group hover:text-gold'
@@ -79,7 +82,7 @@ export default function Announcements({ interval = 6000 }) {
       onTouchStart={(e) => { swipe.current = e.touches[0].clientX }}
       onTouchEnd={(e) => {
         const dx = e.changedTouches[0].clientX - (swipe.current ?? e.changedTouches[0].clientX)
-        if (n > 1 && Math.abs(dx) > 40) go(index + (dx < 0 ? 1 : -1))
+        if (n > 1 && Math.abs(dx) > 40) go(at + (dx < 0 ? 1 : -1))
         swipe.current = null
       }}
       className="relative border-b border-white/10 bg-[linear-gradient(90deg,#0a1a3f_0%,#0b3c9d_50%,#0a1a3f_100%)] text-white"
@@ -109,9 +112,9 @@ export default function Announcements({ interval = 6000 }) {
         <div className="flex shrink-0 items-center sm:gap-0.5">
           {n > 1 && (
             <>
-              <button type="button" onClick={() => go(index - 1)} aria-label={t('announce.prev')} className={`${small} max-sm:hidden`}><Icon d="M15 5l-7 7 7 7" /></button>
-              <span className="min-w-8 text-center text-[11px] font-semibold text-white/70 tabular-nums sm:min-w-10 sm:text-xs">{t('announce.counter', { current: index + 1, total: n })}</span>
-              <button type="button" onClick={() => go(index + 1)} aria-label={t('announce.next')} className={`${small} max-sm:hidden`}><Icon d="M9 5l7 7-7 7" /></button>
+              <button type="button" onClick={() => go(at - 1)} aria-label={t('announce.prev')} className={`${small} max-sm:hidden`}><Icon d="M15 5l-7 7 7 7" /></button>
+              <span className="min-w-8 text-center text-[11px] font-semibold text-white/70 tabular-nums sm:min-w-10 sm:text-xs">{t('announce.counter', { current: at + 1, total: n })}</span>
+              <button type="button" onClick={() => go(at + 1)} aria-label={t('announce.next')} className={`${small} max-sm:hidden`}><Icon d="M9 5l7 7-7 7" /></button>
               <span className="mx-1 hidden h-5 w-px bg-white/20 sm:inline" aria-hidden="true" />
             </>
           )}

@@ -700,7 +700,10 @@
   "errors": {
     "offline": "Could not reach the server. Please check your internet and try again.",
     "retry": "Try again",
-    "generic": "Something went wrong. Please try again."
+    "generic": "Something went wrong. Please try again.",
+    "pageTitle": "Something went wrong on this page",
+    "pageBody": "Please reload the page. If it keeps happening, please let us know.",
+    "reload": "Reload"
   },
   "samvidhan": {
     "title": "Samvidhan Divas",

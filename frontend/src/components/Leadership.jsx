@@ -6,22 +6,28 @@ import Icon from './Icon.jsx'
 import LeaderCard from './LeaderCard.jsx'
 import Loading from './Loading.jsx'
 import { useJsonLd, leadersJsonLd } from './Seo.jsx'
+import LoadFailed from './LoadFailed.jsx'
 
 // The Leadership part of the About page: national leaders, then the way into state leadership
 export default function Leadership() {
   const { t } = useTranslation()
   const [national, setNational] = useState(null)
+  const [failed, setFailed] = useState(false)
+  const [tries, setTries] = useState(0)
 
   useEffect(() => {
-    api.get('/leaders?level=national').then(setNational).catch(() => setNational([]))
-  }, [])
+    setNational(null)
+    setFailed(false)
+    api.get('/leaders?level=national').then(setNational).catch(() => setFailed(true))
+  }, [tries])
 
   useJsonLd('leaders-jsonld', leadersJsonLd(national, 'India'))
 
   return (
     <>
       <h3 className="mb-4 text-2xl font-extrabold">{t('leaders.national')}</h3>
-      {national === null && <Loading />}
+      {national === null && !failed && <Loading />}
+      {failed && <LoadFailed onRetry={() => setTries((n) => n + 1)} className="mb-10" />}
       {national?.length === 0 && <p className="mb-10 text-navy/70">{t('leaders.empty')}</p>}
       {national?.length > 0 && (
         <div className="mb-12 grid grid-cols-2 gap-4 sm:grid-cols-3 sm:gap-5">

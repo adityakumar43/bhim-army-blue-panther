@@ -14,6 +14,7 @@ import SessionWatch from './pages/admin/SessionWatch.jsx'
 import Perm from './pages/admin/Perm.jsx'
 import Loading from './components/Loading.jsx'
 import ScrollToTop from './components/ScrollToTop.jsx'
+import ErrorBoundary from './components/ErrorBoundary.jsx'
 
 
 // Pages other than Home load only when someone opens them, so the first visit downloads much less.
@@ -95,6 +96,8 @@ export default function App() {
       {/* At least a screen tall, so on a short page (or an empty one) the footer stays at the bottom, not up near the header */}
       <main className={`${isAdmin ? '' : 'min-h-[calc(100svh-4.5rem)]'} ${isAdmin || pathname === '/' ? '' : 'pb-8 sm:pb-12'} ${hasBand(pathname) ? 'bg-[#f3f6fb]' : ''}`}>
         {!isAdmin && <PageBand />}
+        {/* A crash on a page (or a page that cannot be downloaded after an update) shows a message, not a white screen */}
+        <ErrorBoundary resetKey={pathname}>
         <Suspense fallback={<Loading page />}>
           <Routes>
             <Route path="/" element={<Home />} />
@@ -162,6 +165,7 @@ export default function App() {
             <Route path="*" element={<NotFound />} />
           </Routes>
         </Suspense>
+        </ErrorBoundary>
       </main>
       {!isAdmin && <Footer />}
       {!isAdmin && <InstallApp />}

@@ -10,6 +10,7 @@ import LeaderCard from '../components/LeaderCard.jsx'
 import Loading from '../components/Loading.jsx'
 import EmptyState from '../components/EmptyState.jsx'
 import Icon from '../components/BoxIcon.jsx' // two-tone icons for the coloured boxes
+import LoadFailed from '../components/LoadFailed.jsx'
 
 // A district's id for the page (used for the "jump to" links)
 const slug = (s) => 'district-' + s.toLowerCase().replace(/[^a-z0-9ऀ-ॿ]+/g, '-').replace(/^-|-$/g, '')
@@ -21,12 +22,15 @@ export default function StateLeaders() {
   const lang = i18n.language
   const state = stateByCode(code)
   const [leaders, setLeaders] = useState(null)
+  const [failed, setFailed] = useState(false)
+  const [tries, setTries] = useState(0)
 
   useEffect(() => {
     if (!state) return
     setLeaders(null)
-    api.get(`/leaders?state=${code}`).then(setLeaders).catch(() => setLeaders([]))
-  }, [code])
+    setFailed(false)
+    api.get(`/leaders?state=${code}`).then(setLeaders).catch(() => setFailed(true))
+  }, [code, tries]) // eslint-disable-line react-hooks/exhaustive-deps
 
   useSeo({ title: state && `${t('leaders.state')} – ${stateName(state, i18n.language)}` })
 
@@ -69,7 +73,8 @@ export default function StateLeaders() {
       <Band kicker={t('leaders.state')} title={stateName(state, i18n.language)} />
       <div className="mx-auto max-w-7xl px-5 py-10 lg:px-16">
         {back}
-        {leaders === null && <Loading />}
+        {leaders === null && !failed && <Loading />}
+        {failed && <LoadFailed onRetry={() => setTries((n) => n + 1)} />}
         {leaders?.length === 0 && <EmptyState icon="users" text={t('leaders.stateEmpty')} hint={false} />}
 
         {stateTeam.length > 0 && (
