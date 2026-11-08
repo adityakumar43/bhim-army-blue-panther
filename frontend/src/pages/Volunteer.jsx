@@ -61,9 +61,9 @@ export default function Volunteer() {
         if (!form.stateCode) return setError(msg('help.pickState', { defaultValue: 'Please choose your state.' }))
         setBusy(true)
         try {
-            const r = await api.post('/volunteers', { ...form, consent: true })
+            await api.post('/volunteers', { ...form, consent: true })
             trackEvent('volunteer_signup')
-            setDone({ updated: !!r?.updated })
+            setDone({})
             window.scrollTo({ top: 0, behavior: 'smooth' })
         } catch (err) {
             setError(fromError(err))
@@ -85,7 +85,7 @@ export default function Volunteer() {
                 <section role="status" className="rounded-2xl border border-green-300 bg-green-50 p-6 text-center shadow-sm sm:p-8">
                     <p className="text-5xl" aria-hidden="true">🙏</p>
                     <h2 className="mt-3 text-2xl font-extrabold text-green-900 sm:text-3xl">{t('vol.thanks')}</h2>
-                    <p className="mt-2 text-navy/80">{done.updated ? t('vol.updated', { defaultValue: 'You had already signed up with this number. We have updated your details.' }) : t('vol.thanksBody')}</p>
+                    <p className="mt-2 text-navy/80">{t('vol.thanksBody')}</p>
                 </section>
                 <section className="mt-5 rounded-2xl border border-navy/10 bg-white p-5 shadow-sm sm:p-6">
                     <h3 className="mb-3 font-extrabold">{t('vol.nextTitle', { defaultValue: 'What happens next' })}</h3>

@@ -1,18 +1,17 @@
-import { useEffect, useState } from 'react'
+import { useState } from 'react'
 import { api } from '../../lib/api.js'
+import { usePaged, LoadMore } from './paged.jsx'
 import { PageHeader, Notice, ListLoading, Pill, useFind, matchesFind, FindNote } from './ui.jsx'
 import Icon from '../../components/BoxIcon.jsx' // two-tone icons for the coloured boxes
 
 const rupees = (n) => '₹' + Number(n).toLocaleString('en-IN')
 
 export default function Donations() {
-  const [data, setData] = useState(null)
   const { find, clear: clearFind } = useFind() // opened from the search box at the top
   const [error, setError] = useState('')
   const [note, setNote] = useState('')
-
-  const load = () => api.get('/donations').then(setData).catch((e) => setError(e.message))
-  useEffect(() => { load() }, [])
+  // A page at a time, newest first, with totals over every donation; from the search box, the server finds the match
+  const { items, meta, more, busy, load, loadMore } = usePaged(`/donations${find ? `?find=${encodeURIComponent(find)}` : ''}`, 1000, { pick: (r) => r.items, onError: (e) => setError(e.message) })
 
   async function resend(id) {
     setError('')
@@ -32,28 +31,28 @@ export default function Donations() {
       <FindNote find={find} clear={clearFind} />
       <Notice>{error}</Notice>
       <Notice kind="success">{note}</Notice>
-      {!data && !error && <ListLoading />}
-      {data && (
+      {!items && !error && <ListLoading />}
+      {items && (
         <>
           <div className="mb-5 grid gap-4 sm:grid-cols-2">
             <div className="card flex items-center gap-4 p-4 sm:p-5">
               <span aria-hidden="true" className="flex h-12 w-12 items-center justify-center rounded-xl bg-green-100 text-green-700"><Icon name="rupee" size={24} /></span>
               <div>
-                <div className="text-3xl leading-none font-extrabold text-brand">{rupees(data.total)}</div>
+                <div className="text-3xl leading-none font-extrabold text-brand">{rupees(meta?.total || 0)}</div>
                 <div className="mt-1 text-sm font-semibold text-navy/70">Total received</div>
               </div>
             </div>
             <div className="card flex items-center gap-4 p-4 sm:p-5">
               <span aria-hidden="true" className="flex h-12 w-12 items-center justify-center rounded-xl bg-rose-100 text-rose-700"><Icon name="heart" size={24} /></span>
               <div>
-                <div className="text-3xl leading-none font-extrabold text-brand">{data.items.length}</div>
+                <div className="text-3xl leading-none font-extrabold text-brand">{meta?.count ?? items.length}</div>
                 <div className="mt-1 text-sm font-semibold text-navy/70">Donations</div>
               </div>
             </div>
           </div>
-          {data.items.length === 0 && <p className="card text-center text-navy/70">📭 No donations yet.</p>}
+          {items.length === 0 && <p className="card text-center text-navy/70">📭 No donations yet.</p>}
           <ul className="grid gap-4 xl:grid-cols-2">
-            {data.items.filter((d) => matchesFind(find, d.receiptNo, d.name, d.email, d.phone)).map((d) => (
+            {items.filter((d) => matchesFind(find, d.receiptNo, d.name, d.email, d.phone)).map((d) => (
               <li key={d._id} className="card p-4 sm:p-5">
                 <div className="flex items-start justify-between gap-3">
                   <div className="flex min-w-0 items-center gap-3">
@@ -88,6 +87,7 @@ export default function Donations() {
               </li>
             ))}
           </ul>
+          <LoadMore more={more} busy={busy} onClick={loadMore} count={items.length} noun="donations" />
         </>
       )}
     </>

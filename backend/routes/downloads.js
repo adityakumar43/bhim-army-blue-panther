@@ -58,7 +58,12 @@ router.post('/', protect, requirePermission('content'), takeFile, async (req, re
     if (error) return res.status(400).json({ message: error })
     if (!req.file) return res.status(400).json({ message: 'Choose a file to upload' })
     data.file = await uploadFile(req.file.buffer, req.file)
-    res.status(201).json(view(await Download.create(data)))
+    try {
+        res.status(201).json(view(await Download.create(data)))
+    } catch (err) {
+        await deleteFile(data.file).catch(() => { }) // not saved: do not leave the file unused in storage
+        throw err
+    }
 })
 
 router.put('/:id', protect, requirePermission('content'), takeFile, async (req, res) => {
@@ -67,12 +72,17 @@ router.put('/:id', protect, requirePermission('content'), takeFile, async (req, 
     const { data, error } = read(req.body || {})
     if (error) return res.status(400).json({ message: error })
     Object.assign(d, data)
-    if (req.file) {
-        const old = d.file
-        d.file = await uploadFile(req.file.buffer, req.file)
-        await deleteFile(old)
+    // A new file: upload it, save, and only then delete the old one (if saving fails, the old file still works).
+    // A copy of the old file's details: d.file itself would already show the new file once it is replaced.
+    const old = req.file ? d.toObject().file : null
+    if (req.file) d.file = await uploadFile(req.file.buffer, req.file)
+    try {
+        await d.save()
+    } catch (err) {
+        if (req.file) await deleteFile(d.file).catch(() => { })
+        throw err
     }
-    await d.save()
+    if (req.file) await deleteFile(old).catch((err) => console.error('Old download file not deleted:', err.message))
     res.json(view(d))
 })
 

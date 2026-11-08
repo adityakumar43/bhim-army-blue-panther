@@ -4,7 +4,7 @@ import { api } from '../../lib/api.js'
 import { toCsv } from '../../lib/csv.js'
 import { usePaged, LoadMore } from './paged.jsx'
 import { portrait } from '../../lib/img.js'
-import { PageHeader, Notice, ListLoading, Pill, useFind } from './ui.jsx'
+import { PageHeader, Notice, ListLoading, Pill, useFind, FindNote } from './ui.jsx'
 import Icon from '../../components/Icon.jsx'
 import BoxIcon from '../../components/BoxIcon.jsx'
 import { stateByCode } from '../../data/states.js'
@@ -138,8 +138,6 @@ export default function Members() {
   }
   const [status, setStatus] = useState('pending')
   const [error, setError] = useState('')
-  // A page at a time, newest first; "Load more" for older ones
-  const { items, more, busy, load, loadMore } = usePaged(`/members?status=${status}`, 1000, { onError: (e) => setError(e.message) })
   const [picked, setPicked] = useState([])
   const [progress, setProgress] = useState('')
   const [note, setNote] = useState('')
@@ -150,11 +148,13 @@ export default function Members() {
   const [sortBy, setSortBy] = useState('new') // 'new' (newest first) or 'active' (came to the most events)
 
   // Opened from the search box at the top: show that tab and fill in the search
-  const { find, status: wantStatus } = useFind()
+  const { find, status: wantStatus, clear: clearFind } = useFind()
   useEffect(() => {
     if (wantStatus && FILTERS.some(([k]) => k === wantStatus)) setStatus(wantStatus)
     if (find) setQ(find)
   }, [find, wantStatus])
+  // A page at a time, newest first; "Load more" for older ones. From the search box: the server finds the match, however old.
+  const { items, more, busy, load, loadMore } = usePaged(`/members?status=${status}${find ? `&find=${encodeURIComponent(find)}` : ''}`, 1000, { onError: (e) => setError(e.message) })
 
   // Choices for the State and District boxes, taken from the applications in this tab
   const clean = (v) => (v || '').trim()
@@ -178,7 +178,7 @@ export default function Members() {
     return sortBy === 'active' ? [...list].sort((a, b) => (b.attended || 0) - (a.attended || 0)) : list
   }, [items, q, stateF, districtF, sortBy])
   const filtering = q || stateF || districtF
-  const clearFilters = () => { setQ(''); setStateF(''); setDistrictF('') }
+  const clearFilters = () => { setQ(''); setStateF(''); setDistrictF(''); clearFind() }
 
   // Only people who are still on screen stay ticked after the search changes
   useEffect(() => { setPicked((p) => p.filter((id) => shown.some((m) => m._id === id))) }, [shown])
@@ -294,6 +294,7 @@ export default function Members() {
         </div>
       )}
 
+      <FindNote find={find} clear={clearFilters} />
       <Notice>{error}</Notice>
       <Notice kind="success">{note}</Notice>
       {shown.length > 0 && !viewOnly && (

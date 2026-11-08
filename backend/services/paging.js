@@ -19,6 +19,15 @@ export function cursorOf(req) {
     return m ? { group: m[1] === undefined ? null : Number(m[1]), at: new Date(Number(m[2])), id: new mongoose.Types.ObjectId(m[3]) } : false
 }
 
+// Opened from the search box at the top (?find=): only the rows where one of these fields contains the text,
+// so a match is found however old it is, not only among the rows already loaded
+export function withFind(filter, req, fields) {
+    const q = String(req.query.find || '').trim().slice(0, 60)
+    if (!q) return filter
+    const text = new RegExp(q.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'), 'i')
+    return { $and: [filter, { $or: fields.map((f) => ({ [f]: text })) }] }
+}
+
 // The filter, keeping only the rows after the cursor
 export const after = (filter, c) => (c
     ? { $and: [filter, { $or: [{ createdAt: { $lt: c.at } }, { createdAt: c.at, _id: { $lt: c.id } }] }] }

@@ -7,6 +7,7 @@ import { protect, requirePermission } from '../middleware/auth.js'
 import { finalizeDonation, ensureReceipt, emailReceipt } from '../services/donations.js'
 import QRCode from 'qrcode'
 import { ORG } from '../config/org.js'
+import { cursorOf, after, pageSize, NEWEST, withFind } from '../services/paging.js'
 
 const router = Router()
 
@@ -109,9 +110,14 @@ router.get('/receipt/:token', async (req, res) => {
 
 
 router.get('/', protect, requirePermission('donations'), async (req, res) => {
-  const items = await Donation.find({ status: 'paid' }).sort({ createdAt: -1 }).limit(1000)
-  const total = items.reduce((sum, d) => sum + d.amount, 0)
-  res.json({ items, total })
+  const c = cursorOf(req) // a page at a time, newest first
+  if (c === false) return res.status(400).json({ message: 'Bad page' })
+  const [items, [all]] = await Promise.all([
+    Donation.find(after(withFind({ status: 'paid' }, req, ['receiptNo', 'name', 'email', 'phone', 'paymentId']), c)).sort(NEWEST).limit(pageSize(req, 1000)),
+    // The totals count every donation, not only the ones on this page (the same as the Dashboard)
+    Donation.aggregate([{ $match: { status: 'paid' } }, { $group: { _id: null, total: { $sum: '$amount' }, count: { $sum: 1 } } }]),
+  ])
+  res.json({ items, total: all?.total || 0, count: all?.count || 0 })
 })
 
 router.post('/:id/resend', protect, requirePermission('donations'), async (req, res) => {

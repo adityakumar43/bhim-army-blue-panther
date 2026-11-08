@@ -11,7 +11,6 @@ const TOPICS = { general: '💬 General', membership: '🪪 Membership', event: 
 export default function Messages() {
   const { refresh } = useOutletContext()
   const [error, setError] = useState('')
-  const { items, more, busy, load, loadMore } = usePaged('/contact', 500, { onError: (e) => setError(e.message) }) // newest first, a page at a time
 
   const [note, setNote] = useState('')
   const [replyFor, setReplyFor] = useState(null)
@@ -19,6 +18,8 @@ export default function Messages() {
   const [sending, setSending] = useState(false)
   const [topic, setTopic] = useState('')
   const { find, clear: clearFind } = useFind() // opened from the search box at the top
+  // Newest first, a page at a time; from the search box, the server finds the message however old
+  const { items, more, busy, load, loadMore } = usePaged(`/contact${find ? `?find=${encodeURIComponent(find)}` : ''}`, 500, { onError: (e) => setError(e.message) })
 
   const openReply = (m) => { setReplyFor(m._id); setReplyText(`Jai Bhim ${m.name},\n\n`); setNote(''); setError('') }
 

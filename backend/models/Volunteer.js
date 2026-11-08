@@ -19,6 +19,12 @@ const volunteerSchema = new mongoose.Schema(
     consentAt: Date, // when they ticked "I agree" to the Privacy Policy
     status: { type: String, enum: VOL_STATUSES, default: 'new', index: true },
     note: { type: String, trim: true, maxlength: 1000 }, // team only
+    // Details sent again with the same mobile number. Anyone can type someone else's number,
+    // so these wait for the team to check them instead of replacing the saved details.
+    pendingUpdate: {
+      at: Date, name: String, email: String, stateCode: String, state: String, district: String,
+      skills: [String], availability: String, message: String, consentAt: Date,
+    },
   },
   { timestamps: true }
 )

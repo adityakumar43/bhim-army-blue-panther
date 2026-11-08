@@ -6,6 +6,7 @@ import { STATE_CODES } from '../config/states.js'
 import { stateNameEn } from '../config/stateNames.js'
 import { canonicalDistrict } from '../config/districts.js'
 import { notifyAdmin } from '../services/mailer.js'
+import { cursorOf, after, pageSize, NEWEST, withFind } from '../services/paging.js'
 
 const router = Router()
 const cleanPhone = (v) => String(v || '').replace(/\s|-/g, '').replace(/^(\+91|91)(?=\d{10}$)/, '')
@@ -37,8 +38,12 @@ router.post('/', limiter, async (req, res) => {
   }
   const existing = await Volunteer.findOne({ phone })
   if (existing) {
-    await Volunteer.updateOne({ _id: existing._id }, data)
-    return res.json({ ok: true, updated: true })
+    // This number has already signed up. Anyone can type any number, so the saved details stay as they are:
+    // the new ones wait for the team, and the reply is the same as for a new sign-up, so it does not tell
+    // a stranger that this number volunteers with us.
+    await Volunteer.updateOne({ _id: existing._id }, { $set: { pendingUpdate: { ...data, at: new Date() } } })
+    notifyAdmin('Volunteer details sent again', `Someone sent new details for the volunteer with the number ${phone}. Check them in the admin panel (Volunteers) before using them.`)
+    return res.status(201).json({ ok: true })
   }
   await Volunteer.create({ ...data, phone })
   notifyAdmin('New volunteer', `${data.name} (${phone}) from ${data.district ? data.district + ', ' : ''}${data.state} wants to help: ${skills.join(', ')}`)
@@ -56,13 +61,21 @@ router.get('/', protect, requireAny('members', 'district'), async (req, res) => 
   const filter = { ...scoped(req) }
   if (VOL_STATUSES.includes(req.query.status)) filter.status = req.query.status
   if (SKILLS.includes(req.query.skill)) filter.skills = req.query.skill
-  res.json(await Volunteer.find(filter).sort({ createdAt: -1 }).limit(2000))
+  const c = cursorOf(req) // a page at a time, newest first
+  if (c === false) return res.status(400).json({ message: 'Bad page' })
+  res.json(await Volunteer.find(after(withFind(filter, req, ['name', 'phone', 'email']), c)).sort(NEWEST).limit(pageSize(req, 2000)))
 })
 
 router.patch('/:id', protect, requirePermission('members'), async (req, res) => {
   const v = await Volunteer.findOne({ _id: req.params.id, ...scoped(req) }).catch(() => null)
   if (!v) return res.status(404).json({ message: 'Not found' })
-  const { status, note } = req.body || {}
+  const { status, note, pending } = req.body || {}
+  // New details sent with this number: use them, or ignore them
+  if (pending === 'accept' && v.pendingUpdate?.at) {
+    const details = v.toObject().pendingUpdate // (its date "at" is not copied)
+    for (const k of ['name', 'email', 'stateCode', 'state', 'district', 'skills', 'availability', 'message', 'consentAt']) if (details[k] !== undefined) v.set(k, details[k])
+    v.pendingUpdate = undefined
+  } else if (pending === 'ignore') v.pendingUpdate = undefined
   if (status !== undefined) {
     if (!VOL_STATUSES.includes(status)) return res.status(400).json({ message: 'Unknown status' })
     v.status = status

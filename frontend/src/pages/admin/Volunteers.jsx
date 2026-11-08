@@ -1,7 +1,8 @@
 import { useEffect, useMemo, useState } from 'react'
 import { useOutletContext } from 'react-router-dom'
 import { api } from '../../lib/api.js'
-import { PageHeader, Notice, ListLoading, Pill, useFind } from './ui.jsx'
+import { PageHeader, Notice, ListLoading, Pill, useFind, FindNote } from './ui.jsx'
+import { usePaged, LoadMore } from './paged.jsx'
 import { SKILLS, AVAILABILITY, skillOf } from '../../data/volunteers.js'
 import { stateByCode } from '../../data/states.js'
 import { toCsv } from '../../lib/csv.js'
@@ -22,29 +23,51 @@ function downloadCsv(rows) {
     setTimeout(() => URL.revokeObjectURL(a.href), 1000)
 }
 
+// Details sent again with this volunteer's number. Anyone can type any number, so the team checks with the person first.
+const PENDING_FIELDS = [['name', 'Name'], ['email', 'Email'], ['state', 'State'], ['district', 'District'], ['skills', 'Can help with'], ['availability', 'Free'], ['message', 'Message']]
+const valueOf = (k, x) => (k === 'skills' ? (x || []).map((s) => skillOf(s)?.en || s).join(', ') : k === 'availability' ? availLabel(x) : x || '—')
+function PendingDetails({ v, viewOnly, onPick }) {
+    const changes = PENDING_FIELDS.filter(([k]) => valueOf(k, v[k]) !== valueOf(k, v.pendingUpdate[k]))
+    return (
+        <div className="mt-2 rounded-lg border border-gold/40 bg-gold/10 px-3 py-2 text-sm">
+            <p className="font-semibold text-navy">📝 New details were sent with this number on {new Date(v.pendingUpdate.at).toLocaleDateString('en-IN')}.</p>
+            <p className="text-xs text-navy/65">Anyone can type someone else's number, so check with {v.name} before using them.</p>
+            {changes.length ? (
+                <ul className="mt-1.5 space-y-0.5 text-xs">
+                    {changes.map(([k, label]) => <li key={k}><b>{label}:</b> {valueOf(k, v[k])} → <b>{valueOf(k, v.pendingUpdate[k])}</b></li>)}
+                </ul>
+            ) : <p className="mt-1 text-xs text-navy/65">Nothing is different from the saved details.</p>}
+            {!viewOnly && (
+                <div className="mt-2 flex flex-wrap gap-2">
+                    {changes.length > 0 && <button onClick={() => onPick('accept')} className="abtn min-h-8 px-3 text-xs">✅ Use the new details</button>}
+                    <button onClick={() => onPick('ignore')} className="abtn min-h-8 px-3 text-xs">✖️ Ignore</button>
+                </div>
+            )}
+        </div>
+    )
+}
+
 export default function Volunteers() {
     const { me, refresh } = useOutletContext()
     const [status, setStatus] = useState('new')
     const [skill, setSkill] = useState('')
     const [q, setQ] = useState('')
     // Opened from the search box at the top: show that tab and fill in the search
-    const { find, status: wantStatus } = useFind()
+    const { find, status: wantStatus, clear: clearFind } = useFind()
     useEffect(() => {
         if (wantStatus && TABS.some(([k]) => k === wantStatus)) setStatus(wantStatus)
         if (find) setQ(find)
     }, [find, wantStatus])
-    const [items, setItems] = useState(null)
     const [error, setError] = useState('')
     const myState = ['stateadmin', 'districtadmin'].includes(me.role) ? stateByCode(me.state) : null
     const viewOnly = me.role === 'districtadmin' // District admins can see their volunteers, not change them
 
-    const load = () => {
-        const p = new URLSearchParams()
-        if (status) p.set('status', status)
-        if (skill) p.set('skill', skill)
-        return api.get(`/volunteers?${p}`).then(setItems).catch((e) => setError(e.message))
-    }
-    useEffect(() => { setItems(null); load() }, [status, skill])
+    const p = new URLSearchParams()
+    if (status) p.set('status', status)
+    if (skill) p.set('skill', skill)
+    if (find) p.set('find', find) // from the search box: the server finds them, however old
+    // A page at a time, newest first; "Load more" for older ones
+    const { items, more, busy, load, loadMore } = usePaged(`/volunteers?${p}`, 2000, { onError: (e) => setError(e.message) })
 
     // Search by name, phone or place
     const shown = useMemo(() => {
@@ -67,7 +90,7 @@ export default function Volunteers() {
     return (
         <>
             <PageHeader title="Volunteers" subtitle="People who offered to help, and what they can do.">
-                {shown.length > 0 && <button onClick={() => downloadCsv(shown)} className="abtn">📥 Download Excel ({shown.length})</button>}
+                {shown.length > 0 && <button onClick={() => (!more || window.confirm(`Only the ${items.length} volunteers loaded so far are included. To add older ones, press "Load older volunteers" at the bottom first.\n\nDownload these ${shown.length}?`)) && downloadCsv(shown)} className="abtn">📥 Download Excel ({shown.length})</button>}
             </PageHeader>
             {myState && <p className="mb-4 rounded-xl bg-mist px-4 py-2.5 text-sm font-semibold text-brand">📍 You are seeing only volunteers from {me.district ? `${me.district} district, ` : ''}{myState.en}.</p>}
 
@@ -85,6 +108,7 @@ export default function Volunteers() {
                 </select>
             </div>
 
+            <FindNote find={find} clear={() => { setQ(''); clearFind() }} />
             <Notice>{error}</Notice>
             {!items && !error && <ListLoading />}
             {items && shown.length === 0 && <p className="card text-center text-navy/70">📭 No volunteers here.</p>}
@@ -107,6 +131,7 @@ export default function Volunteers() {
                         </div>
                         {v.message && <p className="mt-2 rounded-lg bg-gold/10 px-3 py-1.5 text-sm text-navy/80">💬 {v.message}</p>}
                         {v.note && <p className="mt-2 rounded-lg bg-mist/60 px-3 py-1.5 text-sm text-navy/80">🗒️ {v.note}</p>}
+                        {v.pendingUpdate?.at && <PendingDetails v={v} viewOnly={viewOnly} onPick={(pending) => update(v, { pending })} />}
                         <div className="mt-auto flex flex-wrap items-center gap-2 pt-3">
                             <a href={`tel:${v.phone}`} className="abtn min-h-9 px-3">📞</a>
                             <a href={`https://wa.me/91${v.phone}?text=${encodeURIComponent(`Jai Bhim ${v.name}, thank you for volunteering with Bhim Army Blue Panther!`)}`}
@@ -122,6 +147,7 @@ export default function Volunteers() {
                     </li>
                 ))}
             </ul>
+            <LoadMore more={more} busy={busy} onClick={loadMore} count={items?.length} noun="volunteers" />
         </>
     )
 }

@@ -203,6 +203,7 @@ export default function HelpDeskAdmin() {
     if (category) p.set('category', category)
     if (mine) p.set('mine', '1')
     if (urgentOnly) p.set('urgent', '1')
+    if (find) p.set('find', find) // from the search box: the server finds the case, however old
     // Urgent cases first, then the rest, each newest first; "Load more" for older ones
     const { items, more, busy, load, loadMore } = usePaged(`/helpdesk?${p}`, 500, { group: (c) => (c.urgent ? 1 : 0), onError: (e) => setError(e.message) })
     useEffect(() => { api.get('/helpdesk/team').then(setTeam).catch(() => setTeam([])) }, [])

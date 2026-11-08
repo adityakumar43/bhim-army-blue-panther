@@ -36,7 +36,7 @@ router.get('/:eventId/list', protect, requirePermission('content'), async (req, 
 })
 
 router.delete('/:eventId/:id', protect, requirePermission('content'), async (req, res) => {
-  if (!isId(req.params.id)) return res.status(404).json({ message: 'Not found' })
+  if (!isId(req.params.id) || !isId(req.params.eventId)) return res.status(404).json({ message: 'Not found' })
   const r = await Rsvp.findOneAndDelete({ _id: req.params.id, event: req.params.eventId })
   if (!r) return res.status(404).json({ message: 'Not found' })
   res.json({ ok: true })
@@ -71,7 +71,7 @@ router.post('/:eventId', limiter, async (req, res) => {
   const data = { name: name.slice(0, 100), district: String(b.district || '').trim().slice(0, 100), people }
   if (existing) await Rsvp.updateOne({ _id: existing._id }, data)
   else await Rsvp.create({ event: ev._id, phone, ...data })
-  res.status(existing ? 200 : 201).json({ ok: true, updated: !!existing, ...(await totals(ev._id)) })
+  res.status(201).json({ ok: true, ...(await totals(ev._id)) }) // the same reply either way: it must not tell whether a number registered
 })
 
 export default router

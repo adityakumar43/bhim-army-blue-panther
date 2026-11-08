@@ -9,8 +9,10 @@ const cursorOf = (row, group) => `${group ? `${group(row)}_` : ''}${Date.parse(r
 const pageUrl = (path, size, before) =>
   `${path}${!path.includes('?') ? '?' : path.endsWith('?') ? '' : '&'}limit=${size}${before ? `&before=${encodeURIComponent(before)}` : ''}`
 
-export function usePaged(path, size, { group, onError } = {}) {
+//   pick(answer): for answers that are not just a list (Donations: { items, total, count }), where the rows are
+export function usePaged(path, size, { group, pick, onError } = {}) {
   const [items, setItems] = useState(null)
+  const [meta, setMeta] = useState(null) // the whole latest answer, for totals that come with the rows
   const [more, setMore] = useState(false)
   const [busy, setBusy] = useState(false)
   const rows = useRef([]) // what is on screen
@@ -25,8 +27,10 @@ export function usePaged(path, size, { group, onError } = {}) {
     try {
       let list = from
       for (;;) {
-        const page = await api.get(pageUrl(path, size, list.length ? cursorOf(list[list.length - 1], group) : ''))
+        const answer = await api.get(pageUrl(path, size, list.length ? cursorOf(list[list.length - 1], group) : ''))
         if (id !== run.current) return
+        const page = pick ? pick(answer) : answer
+        setMeta(answer)
         list = list.concat(page)
         const full = page.length >= size
         if (!full || list.length >= want) {
@@ -46,9 +50,9 @@ export function usePaged(path, size, { group, onError } = {}) {
   // After a change: load again, keeping as many rows as were on screen
   const load = () => fill([], Math.max(rows.current.length, 1))
   const loadMore = () => fill(rows.current, rows.current.length + 1)
-  useEffect(() => { rows.current = []; setItems(null); setMore(false); load() }, [path]) // eslint-disable-line react-hooks/exhaustive-deps
+  useEffect(() => { rows.current = []; setItems(null); setMeta(null); setMore(false); load() }, [path]) // eslint-disable-line react-hooks/exhaustive-deps
 
-  return { items, more, busy, load, loadMore }
+  return { items, meta, more, busy, load, loadMore }
 }
 
 export function LoadMore({ more, busy, onClick, count, noun }) {
