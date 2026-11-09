@@ -49,7 +49,7 @@ export default function Notifications() {
 
     const thisDeviceOn = () => run('device', async () => {
         try { await turnOn('en') } catch (e) {
-            if (e.message === 'blocked') { setMine('blocked'); throw new Error('Notifications are blocked for this site in your browser settings.') }
+            if (e.message === 'blocked') { setMine('blocked'); throw new Error('Notifications are blocked for this site in your browser settings.', { cause: e }) }
             if (e.message === 'dismissed') return
             throw e
         }

@@ -1,8 +1,10 @@
 import { useEffect, useState } from 'react'
 import { useOutletContext } from 'react-router-dom'
 import { api } from '../../lib/api.js'
-import { usePaged, LoadMore } from './paged.jsx'
-import { PageHeader, Notice, ListLoading, Pill, useFind, matchesFind, FindNote } from './ui.jsx'
+import { LoadMore } from './paged.jsx'
+import { usePaged } from './usePaged.js'
+import { PageHeader, Notice, ListLoading, Pill, FindNote } from './ui.jsx'
+import { useFind, matchesFind } from './find.js'
 import { CATEGORIES, STATUS, categoryOf } from '../../data/helpdesk.js'
 import { stateByCode } from '../../data/states.js'
 
@@ -196,7 +198,12 @@ export default function HelpDeskAdmin() {
     const myState = ['stateadmin', 'districtadmin'].includes(me.role) ? stateByCode(me.state) : null
     // Opened from the search box at the top: show that tab and only the matching case
     const { find, status: wantStatus, clear: clearFind } = useFind()
-    useEffect(() => { if (wantStatus && TABS.some(([k]) => k === wantStatus)) setStatus(wantStatus) }, [find, wantStatus])
+    const search = `${find}|${wantStatus}`
+    const [seenSearch, setSeenSearch] = useState('|null')
+    if (search !== seenSearch) {
+        setSeenSearch(search)
+        if (wantStatus && TABS.some(([k]) => k === wantStatus)) setStatus(wantStatus)
+    }
 
     const p = new URLSearchParams()
     if (status) p.set('status', status)

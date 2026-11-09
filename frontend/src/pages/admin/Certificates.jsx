@@ -124,7 +124,8 @@ export default function Certificates() {
         try {
             const { sendEmail, ...fields } = form
             if (editing) {
-                const { type, ...rest } = fields
+                const rest = { ...fields }
+                delete rest.type // the kind of document cannot change after it is issued
                 await api.patch(`/certificates/${editing._id}`, rest)
                 setNote(`Saved ${editing.refNo}.`)
             } else {

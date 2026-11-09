@@ -10,6 +10,7 @@ import Loading from '../components/Loading.jsx'
 import EmptyState from '../components/EmptyState.jsx'
 import LoadFailed from '../components/LoadFailed.jsx'
 import StickyTabs from '../components/StickyTabs.jsx'
+import useLoad from '../lib/useLoad.js'
 
 const PAGE = 100
 const STEP = 24 // photos put on the page at a time ("Show more photos" adds the next ones)
@@ -28,13 +29,32 @@ async function loadSection(section) {
 const communityKey = (it) => it.communityEn || it.communityHi || ''
 
 export default function Gallery() {
-  const { t, i18n } = useTranslation()
-  const lang = i18n.language
+  const { t } = useTranslation()
   const [params, setParams] = useSearchParams()
   const section = params.get('section') === 'adivasi' ? 'adivasi' : 'general' // /gallery?section=adivasi opens the culture tab
-  const [items, setItems] = useState(null)
-  const [failed, setFailed] = useState(false)
-  const [tries, setTries] = useState(0)
+
+  return (
+    <div>
+      {/* Photos | Culture tabs, on screen while scrolling */}
+      <StickyTabs idPrefix="gallery" label={t('nav.gallery')} value={section}
+        onChange={(key) => setParams(key === 'adivasi' ? { section: 'adivasi' } : {}, { replace: true })}
+        tabs={[
+          { key: 'general', label: `📷 ${t('gallery.photos')}` },
+          { key: 'adivasi', label: `🪶 ${t('gallery.culture')}`, short: `🪶 ${t('gallery.cultureShort', { defaultValue: t('gallery.culture') })}` },
+        ]} />
+
+      {/* key: each tab is started fresh, so its filters, the open photo and "Show more" begin anew */}
+      <GallerySection key={section} section={section} />
+    </div>
+  )
+}
+
+// The photos of one tab, with its filters and the large viewer
+function GallerySection({ section }) {
+  const { t, i18n } = useTranslation()
+  const lang = i18n.language
+  const { data: items, error, reload } = useLoad(() => loadSection(section), section)
+  const failed = !!error
   const [kind, setKind] = useState('') // '', 'dance' or 'festival'
   const [community, setCommunity] = useState('')
   const [visible, setVisible] = useState(STEP)
@@ -51,16 +71,6 @@ export default function Gallery() {
       lastViewed.current = null
     }
   }, [open])
-
-  useEffect(() => {
-    setItems(null)
-    setFailed(false)
-    setKind('')
-    setCommunity('')
-    setOpen(null)
-    setVisible(STEP)
-    loadSection(section).then(setItems).catch(() => setFailed(true))
-  }, [section, tries])
 
   // One entry per community, named in the visitor's language
   const communities = useMemo(() => {
@@ -84,15 +94,6 @@ export default function Gallery() {
   }
 
   return (
-    <div>
-      {/* Photos | Culture tabs, on screen while scrolling */}
-      <StickyTabs idPrefix="gallery" label={t('nav.gallery')} value={section}
-        onChange={(key) => setParams(key === 'adivasi' ? { section: 'adivasi' } : {}, { replace: true })}
-        tabs={[
-          { key: 'general', label: `📷 ${t('gallery.photos')}` },
-          { key: 'adivasi', label: `🪶 ${t('gallery.culture')}`, short: `🪶 ${t('gallery.cultureShort', { defaultValue: t('gallery.culture') })}` },
-        ]} />
-
       <section id={`gallery-panel-${section}`} role="tabpanel" aria-labelledby={`gallery-${section}`} className="mx-auto max-w-6xl px-5 py-8 sm:py-10 lg:px-8">
         {section === 'adivasi' && (
           <div className="mb-6">
@@ -111,7 +112,7 @@ export default function Gallery() {
           </div>
         )}
 
-        {failed && <LoadFailed onRetry={() => setTries((n) => n + 1)} />}
+        {failed && <LoadFailed onRetry={reload} />}
         {!items && !failed && <Loading />}
         {items && items.length === 0 && <EmptyState icon="image" />}
         {items && items.length > 0 && shown.length === 0 && <p className="text-navy/70">{t('gallery.noMatch')}</p>}
@@ -157,6 +158,5 @@ export default function Gallery() {
           <Lightbox items={shown} index={open} onIndex={viewerIndex} onClose={() => setOpen(null)} />
         )}
       </section>
-    </div>
   )
 }

@@ -1,9 +1,8 @@
 import { useTranslation } from 'react-i18next'
 import Leadership from '../components/Leadership.jsx'
-import { pickText } from '../lib/text.js'
 
 export default function About() {
-  const { t, i18n } = useTranslation()
+  const { t } = useTranslation()
   const principles = ['educate', 'organize', 'struggle']
   return (
     <div className="mx-auto max-w-4xl px-5 py-12 lg:px-16">

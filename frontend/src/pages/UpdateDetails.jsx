@@ -1,10 +1,11 @@
-import { useEffect, useMemo, useState } from 'react'
+import { useMemo, useState } from 'react'
 import { Link, useLocation } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
 import { api } from '../lib/api.js'
 import { shrinkImage } from '../lib/shrinkImage.js'
 import { STATES, stateName } from '../data/states.js'
 import DistrictSelect from '../components/DistrictSelect.jsx'
+import FilePreview from '../components/FilePreview.jsx'
 import Icon from '../components/BoxIcon.jsx' // two-tone icons for the coloured boxes
 import { msg, say, fromError } from '../lib/msg.js'
 
@@ -45,7 +46,6 @@ export default function UpdateDetails() {
     const [pass, setPass] = useState('')
     const [form, setForm] = useState({})
     const [photo, setPhoto] = useState(null)
-    const [preview, setPreview] = useState('')
     const [result, setResult] = useState(null)
     const [error, setError] = useState('')
     const [busy, setBusy] = useState(false)
@@ -58,13 +58,6 @@ export default function UpdateDetails() {
     const states = useMemo(() => [...STATES].sort((a, b) => stateName(a, lang).localeCompare(stateName(b, lang), lang)), [lang])
     const setWhoField = (f, clean = (v) => v) => (e) => setWho((old) => ({ ...old, [f]: clean(e.target.value) }))
     const set = (f, clean = (v) => v) => (e) => setForm((old) => ({ ...old, [f]: clean(e.target.value) }))
-
-    useEffect(() => {
-        if (!photo) return setPreview('')
-        const url = URL.createObjectURL(photo)
-        setPreview(url)
-        return () => URL.revokeObjectURL(url)
-    }, [photo])
 
     async function run(job) {
         setError('')
@@ -211,7 +204,9 @@ export default function UpdateDetails() {
 
                     <Box icon="camera" title={t('join.photo')}>
                         <div className="flex flex-wrap items-center gap-4">
-                            {(preview || form.photo) && <img src={preview || form.photo} alt="" className="h-28 w-24 rounded-xl border border-navy/10 object-cover" />}
+                            {photo
+                                ? <FilePreview file={photo} className="h-28 w-24 rounded-xl border border-navy/10 object-cover" />
+                                : form.photo && <img src={form.photo} alt="" className="h-28 w-24 rounded-xl border border-navy/10 object-cover" />}
                             <label className="btn min-h-11 cursor-pointer gap-2 border-2 border-brand bg-white px-4 text-sm text-brand focus-within:ring-4 focus-within:ring-brand/20">
                                 🖼️ {t('upd.newPhoto', { defaultValue: 'Choose a new photo' })}
                                 <input type="file" accept="image/jpeg,image/png,image/webp" className="sr-only"

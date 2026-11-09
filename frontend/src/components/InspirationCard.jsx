@@ -2,12 +2,7 @@ import { useState } from 'react'
 import { Link } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
 import { pickText } from '../lib/text.js'
-
-// Hindi or English list (contributions, bio). Falls back to the other language.
-export const pickList = (item, field, lang) => {
-  const hi = item[`${field}Hi`], en = item[`${field}En`]
-  return (lang === 'hi' ? (hi?.length ? hi : en) : (en?.length ? en : hi)) || []
-}
+import { pickList } from '../lib/inspirationText.js'
 
 // First letters of the name, shown until a photo is added
 const initials = (name) => name.replace(/^(Dr\.|Mahatma|Mata|Manyavar|Sree|Chhatrapati|Periyar|डॉ\.|महात्मा|माता|मान्यवर|श्री|छत्रपति|पेरियार|वीरांगना)\s+/, '')

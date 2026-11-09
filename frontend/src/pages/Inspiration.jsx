@@ -4,8 +4,9 @@ import { useTranslation } from 'react-i18next'
 import { inspirations, inspirationBySlug } from '../data/inspirations.js'
 import { pickText } from '../lib/text.js'
 import { Band } from '../components/PageBand.jsx'
-import { useSeo } from '../components/Seo.jsx'
-import InspirationCard, { InspirationPhoto, pickList } from '../components/InspirationCard.jsx'
+import { useSeo } from '../lib/seo.js'
+import InspirationCard, { InspirationPhoto } from '../components/InspirationCard.jsx'
+import { pickList } from '../lib/inspirationText.js'
 
 // One inspirational leader's full page, at /inspirations/<slug>
 export default function Inspiration() {

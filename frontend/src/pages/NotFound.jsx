@@ -1,7 +1,7 @@
 import { useEffect } from 'react'
 import { Link, useLocation } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
-import { useSeo } from '../components/Seo.jsx'
+import { useSeo } from '../lib/seo.js'
 import BoxIcon from '../components/BoxIcon.jsx'
 
 // Shown for any address the website does not have (a typo, or an old link)

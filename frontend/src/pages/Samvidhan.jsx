@@ -154,7 +154,7 @@ function Pledge({ onPledged, status }) {
             setCert({ blob, url: URL.createObjectURL(blob) })
         }).catch(() => setError(msg('poster.failed', { defaultValue: 'Could not make the picture. Please try again.' })))
         return () => { gone = true }
-    }, [done, lang])
+    }, [done, lang, t])
 
     async function submit(e) {
         e.preventDefault()
@@ -304,7 +304,12 @@ function Quiz({ myName = '' }) {
     }
     function restart() { setSeed(newQuizSeed()); setScore(0); setPicked(null); setStep(0) } // new questions each time
 
-    useEffect(() => { if (myName && !name) setName(myName) }, [myName])
+    // Their name from the pledge is offered here once it arrives (if they have not typed one already)
+    const [seenName, setSeenName] = useState(myName)
+    if (myName && myName !== seenName) {
+        setSeenName(myName)
+        if (!name) setName(myName)
+    }
 
     // The score card is drawn when the quiz ends, and again if the name or language changes
     useEffect(() => {
@@ -317,7 +322,7 @@ function Quiz({ myName = '' }) {
             }).catch(() => {})
         }, 300) // wait until they stop typing their name
         return () => { gone = true; clearTimeout(timer) }
-    }, [step, name, lang])
+    }, [step, name, lang, score, total, t])
 
     // The challenge message: the score with stars, and a link that shows "<name> scored 8/10" on WhatsApp
     const shareText = t('samvidhan.scoreText', { score, total, stars: starText(score, total), link: shareUrl({ by: name, score, seed, lang }) })

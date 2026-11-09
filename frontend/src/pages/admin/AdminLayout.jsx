@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useState } from 'react'
+import { useCallback, useEffect, useEffectEvent, useState } from 'react'
 import { Link, NavLink, Outlet, useLocation, useNavigate } from 'react-router-dom'
 import { api } from '../../lib/api.js'
 import { ROLE_INFO } from '../../lib/roles.js'
@@ -159,8 +159,9 @@ function PhoneTabs({ tabs, more, summary, moreOpen, setMoreOpen }) {
 
 // "More" on phones: every other page as a tile, plus who is logged in, View site and Log out
 function MoreSheet({ me, items, summary, onClose, logout }) {
+  const close = useEffectEvent(() => onClose())
   useEffect(() => {
-    const key = (e) => e.key === 'Escape' && onClose()
+    const key = (e) => e.key === 'Escape' && close()
     document.addEventListener('keydown', key)
     document.body.style.overflow = 'hidden'
     return () => { document.removeEventListener('keydown', key); document.body.style.overflow = '' }
@@ -273,10 +274,12 @@ export default function AdminLayout() {
   const navigate = useNavigate()
   const { pathname } = useLocation()
   const [me, setMe] = useState(null)
-  const [moreOpen, setMoreOpen] = useState(false)
+  // The phone "More" sheet belongs to the page it was opened on, so it closes by itself after choosing a page
+  const [moreOn, setMoreOn] = useState(null)
+  const moreOpen = moreOn === pathname
+  const setMoreOpen = (on) => setMoreOn(on ? pathname : null)
   const [searchOpen, setSearchOpen] = useState(false)
-  const openSearch = useCallback(() => { setMoreOpen(false); setSearchOpen(true) }, [])
-  useEffect(() => setMoreOpen(false), [pathname])
+  const openSearch = useCallback(() => { setMoreOn(null); setSearchOpen(true) }, [])
   const [summary, setSummary] = useState({ members: 0, messages: 0, donations: 0, helpdesk: 0, volunteers: 0 })
 
   const refresh = () => api.get('/admin/summary').then(setSummary).catch(() => { })
@@ -288,7 +291,7 @@ export default function AdminLayout() {
   const locked = !!me && me.twoFactorRequired && !me.twoFactorEnabled
   useEffect(() => {
     if (locked && pathname !== '/admin/security') navigate('/admin/security', { replace: true })
-  }, [locked, pathname])
+  }, [locked, pathname, navigate])
 
   // Check for new items now, then every 30 seconds while the panel is open
   useEffect(() => {
@@ -296,7 +299,7 @@ export default function AdminLayout() {
     refresh()
     const id = setInterval(() => { if (!document.hidden) refresh() }, 30000)
     return () => clearInterval(id)
-  }, [me])
+  }, [me, locked])
 
 
   useEffect(() => {

@@ -1,9 +1,11 @@
 import { useEffect, useRef, useState } from 'react'
 import { Link } from 'react-router-dom'
 import { api } from '../../lib/api.js'
-import { PageHeader, Notice, ListLoading, useFind, matchesFind, FindNote } from './ui.jsx'
+import { PageHeader, Notice, ListLoading, FindNote } from './ui.jsx'
+import { useFind, matchesFind } from './find.js'
 import Icon from '../../components/Icon.jsx'
 import RsvpList from './RsvpList.jsx'
+import FilePreview from '../../components/FilePreview.jsx'
 import { STATES } from '../../data/states.js'
 import { thumb as smallPicture } from '../../lib/img.js'
 
@@ -64,20 +66,11 @@ export default function Content({ kind }) {
   const [error, setError] = useState('')
   const [busy, setBusy] = useState(false)
   const [formKey, setFormKey] = useState(0)
-  const [preview, setPreview] = useState('')
   const [adding, setAdding] = useState(false)
   const [when, setWhen] = useState('now')
   const [rsvps, setRsvps] = useState({}) // people coming to each event
   const [rsvpFor, setRsvpFor] = useState(null)
   const [at, setAt] = useState('')
-
-  // Small preview of the photo chosen in the form
-  useEffect(() => {
-    if (!file) { setPreview(''); return }
-    const url = URL.createObjectURL(file)
-    setPreview(url)
-    return () => URL.revokeObjectURL(url)
-  }, [file])
 
   // A page of 100 at a time, newest first; "Load older items" for the rest. From the search box at the top,
   // everything is loaded, so the item is found however old it is.
@@ -112,7 +105,7 @@ export default function Content({ kind }) {
   }
   useEffect(() => { load() }, [config.endpoint, find]) // eslint-disable-line react-hooks/exhaustive-deps
   const loadRsvps = () => kind === 'events' && api.get('/rsvp/counts').then(setRsvps).catch(() => { })
-  useEffect(() => { loadRsvps() }, [kind])
+  useEffect(() => { if (kind === 'events') api.get('/rsvp/counts').then(setRsvps).catch(() => { }) }, [kind])
 
   function reset() {
     setForm({})
@@ -181,7 +174,6 @@ export default function Content({ kind }) {
 
   // Titles, details, section and link take half the row on large screens; short fields take a quarter
   const wide = (f) => f.startsWith('title') || f.startsWith('body') || ['section', 'link'].includes(f)
-  const thumb = preview || editing?.image?.url
   const showForm = adding || !!editing
 
   return (
@@ -255,8 +247,11 @@ export default function Content({ kind }) {
                 {editing ? 'Replace image (leave empty to keep the current one)' : `Image ${config.needImage ? '(required)' : '(optional)'}`}
               </p>
               <label className="flex cursor-pointer items-center gap-3 rounded-xl border-2 border-dashed border-brand/25 bg-mist/40 p-2.5 transition hover:border-brand hover:bg-mist">
-                {thumb
-                  ? <img src={thumb} alt="" className="h-12 w-12 shrink-0 rounded-lg object-cover" />
+                {/* The photo just chosen, or the current one when editing */}
+                {file
+                  ? <FilePreview file={file} className="h-12 w-12 shrink-0 rounded-lg object-cover" />
+                  : editing?.image?.url
+                  ? <img src={editing.image.url} alt="" className="h-12 w-12 shrink-0 rounded-lg object-cover" />
                   : <span className="flex h-12 w-12 shrink-0 items-center justify-center rounded-lg bg-white text-brand"><Icon name="image" size={22} /></span>}
                 <span className="min-w-0 flex-1 text-sm">
                   <span className="block truncate font-semibold text-brand">{file ? file.name : 'Choose a photo'}</span>

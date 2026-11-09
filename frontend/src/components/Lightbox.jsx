@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from 'react'
+import { useEffect, useEffectEvent, useRef, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { pickText } from '../lib/text.js'
 import { large } from '../lib/img.js'
@@ -20,7 +20,6 @@ export default function Lightbox({ items, index, onIndex, onClose }) {
   const dialog = useRef(null)
   const stage = useRef(null)
   const touchX = useRef(null)
-  const key = useRef(null)
 
   const go = (i) => {
     setZoomed(false)
@@ -28,7 +27,7 @@ export default function Lightbox({ items, index, onIndex, onClose }) {
   }
 
   // Keyboard: arrows, Escape, and Tab kept inside the viewer
-  key.current = (e) => {
+  const onKey = useEffectEvent((e) => {
     if (e.key === 'Escape') onClose()
     else if (e.key === 'ArrowRight' && n > 1) go(index + 1)
     else if (e.key === 'ArrowLeft' && n > 1) go(index - 1)
@@ -39,9 +38,9 @@ export default function Lightbox({ items, index, onIndex, onClose }) {
       if (e.shiftKey && document.activeElement === first) { e.preventDefault(); last.focus() }
       else if (!e.shiftKey && document.activeElement === last) { e.preventDefault(); first.focus() }
     }
-  }
+  })
   useEffect(() => {
-    const handler = (e) => key.current(e)
+    const handler = (e) => onKey(e)
     document.addEventListener('keydown', handler)
     return () => document.removeEventListener('keydown', handler)
   }, [])

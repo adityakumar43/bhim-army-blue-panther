@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react'
 import { api } from '../../lib/api.js'
-import { PageHeader, Notice, ListLoading } from './ui.jsx'
+import { PageHeader, Notice } from './ui.jsx'
 
 const BASE = import.meta.env.VITE_API_URL || 'http://localhost:5000/api'
 const today = () => new Intl.DateTimeFormat('en-CA', { timeZone: 'Asia/Kolkata' }).format(new Date())
@@ -11,6 +11,7 @@ const readLast = () => { try { return localStorage.getItem(LAST_KEY) } catch { r
 const saveLast = () => { try { localStorage.setItem(LAST_KEY, new Date().toISOString()) } catch { /* storage blocked */ } }
 
 export default function Backup() {
+    const [now] = useState(Date.now) // when the page was opened (read once, not on every redraw)
     const [counts, setCounts] = useState(null)
     const [busy, setBusy] = useState('')
     const [error, setError] = useState('')
@@ -44,7 +45,7 @@ export default function Backup() {
         }
     }
 
-    const days = last ? Math.floor((Date.now() - new Date(last)) / 864e5) : null
+    const days = last ? Math.floor((now - new Date(last)) / 864e5) : null
     const total = counts?.reduce((n, c) => n + c.count, 0) || 0
 
     return (

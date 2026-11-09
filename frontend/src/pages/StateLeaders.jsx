@@ -1,19 +1,20 @@
-import { useEffect, useMemo, useState } from 'react'
+import { useMemo } from 'react'
 import { Link, useParams } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
 import { api } from '../lib/api.js'
 import { stateByCode, stateName } from '../data/states.js'
 import { pickText } from '../lib/text.js'
 import { Band } from '../components/PageBand.jsx'
-import { useSeo, useJsonLd, leadersJsonLd } from '../components/Seo.jsx'
+import { useSeo, useJsonLd, leadersJsonLd } from '../lib/seo.js'
 import LeaderCard from '../components/LeaderCard.jsx'
 import Loading from '../components/Loading.jsx'
 import EmptyState from '../components/EmptyState.jsx'
 import Icon from '../components/BoxIcon.jsx' // two-tone icons for the coloured boxes
 import LoadFailed from '../components/LoadFailed.jsx'
+import useLoad from '../lib/useLoad.js'
 
-// A district's id for the page (used for the "jump to" links)
-const slug = (s) => 'district-' + s.toLowerCase().replace(/[^a-z0-9ऀ-ॿ]+/g, '-').replace(/^-|-$/g, '')
+// A district's id for the page (used for the "jump to" links). Hindi letters and signs are kept (Devanagari script).
+const slug = (s) => 'district-' + s.toLowerCase().replace(/[^a-z0-9\p{Script=Devanagari}]+/gu, '-').replace(/^-|-$/g, '')
 
 // One state's leadership, at /leadership/states/<code>: the state team, then each district's team
 export default function StateLeaders() {
@@ -21,16 +22,8 @@ export default function StateLeaders() {
   const { t, i18n } = useTranslation()
   const lang = i18n.language
   const state = stateByCode(code)
-  const [leaders, setLeaders] = useState(null)
-  const [failed, setFailed] = useState(false)
-  const [tries, setTries] = useState(0)
-
-  useEffect(() => {
-    if (!state) return
-    setLeaders(null)
-    setFailed(false)
-    api.get(`/leaders?state=${code}`).then(setLeaders).catch(() => setFailed(true))
-  }, [code, tries]) // eslint-disable-line react-hooks/exhaustive-deps
+  const { data: leaders, error, reload } = useLoad(() => (state ? api.get(`/leaders?state=${code}`) : Promise.resolve(null)), code)
+  const failed = !!error
 
   useSeo({ title: state && `${t('leaders.state')} – ${stateName(state, i18n.language)}` })
 
@@ -74,7 +67,7 @@ export default function StateLeaders() {
       <div className="mx-auto max-w-7xl px-5 py-10 lg:px-16">
         {back}
         {leaders === null && !failed && <Loading />}
-        {failed && <LoadFailed onRetry={() => setTries((n) => n + 1)} />}
+        {failed && <LoadFailed onRetry={reload} />}
         {leaders?.length === 0 && <EmptyState icon="users" text={t('leaders.stateEmpty')} hint={false} />}
 
         {stateTeam.length > 0 && (

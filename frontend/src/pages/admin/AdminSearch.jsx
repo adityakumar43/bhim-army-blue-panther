@@ -48,10 +48,16 @@ export default function AdminSearch({ pages, onClose }) {
     const navigate = useNavigate()
     const input = useRef(null)
     const [q, setQ] = useState('')
-    const [found, setFound] = useState(null) // results from the server, or null while typing
-    const [busy, setBusy] = useState(false)
-    const [error, setError] = useState('')
-    const [active, setActive] = useState(0)
+    const [answer, setAnswer] = useState({ text: '', found: null, error: '' }) // the server's answer, and the text it was for
+    const [pick, setPick] = useState({ q: '', i: 0 }) // the highlighted result; back to the first whenever the text changes
+    const typed = q.trim()
+    const asking = typed.length >= 2
+    const fresh = asking && answer.text === typed
+    const found = fresh ? answer.found : null // results from the server, or null while typing
+    const error = fresh ? answer.error : ''
+    const busy = asking && !fresh
+    const active = pick.q === q ? pick.i : 0
+    const setActive = (v) => setPick((p) => ({ q, i: typeof v === 'function' ? v(p.q === q ? p.i : 0) : v }))
 
     useEffect(() => {
         input.current?.focus()
@@ -61,19 +67,15 @@ export default function AdminSearch({ pages, onClose }) {
 
     // Ask the server a moment after the person stops typing
     useEffect(() => {
-        const text = q.trim()
-        setActive(0); setError('')
-        if (text.length < 2) { setFound(null); setBusy(false); return }
-        setBusy(true)
+        if (!asking) return
         let stale = false
         const timer = setTimeout(() => {
-            api.get(`/search?q=${encodeURIComponent(text)}`)
-                .then((r) => { if (!stale) setFound(r) })
-                .catch((e) => { if (!stale) { setError(e.message); setFound([]) } })
-                .finally(() => { if (!stale) setBusy(false) })
+            api.get(`/search?q=${encodeURIComponent(typed)}`)
+                .then((r) => { if (!stale) setAnswer({ text: typed, found: r, error: '' }) })
+                .catch((e) => { if (!stale) setAnswer({ text: typed, found: [], error: e.message }) })
         }, 250)
         return () => { stale = true; clearTimeout(timer) }
-    }, [q])
+    }, [typed, asking])
 
     // Pages of the admin panel whose name matches, so "help" also offers the Help Desk page
     const text = q.trim().toLowerCase()

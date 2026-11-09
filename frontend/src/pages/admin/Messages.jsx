@@ -1,8 +1,10 @@
 import { useState } from 'react'
 import { useOutletContext } from 'react-router-dom'
 import { api } from '../../lib/api.js'
-import { usePaged, LoadMore } from './paged.jsx'
-import { PageHeader, Notice, ListLoading, Pill, useFind, matchesFind, FindNote } from './ui.jsx'
+import { LoadMore } from './paged.jsx'
+import { usePaged } from './usePaged.js'
+import { PageHeader, Notice, ListLoading, Pill, FindNote } from './ui.jsx'
+import { useFind, matchesFind } from './find.js'
 
 
 

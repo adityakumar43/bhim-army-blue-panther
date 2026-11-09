@@ -30,12 +30,14 @@ export default function Announcements({ interval = 6000 }) {
   const [items, setItems] = useState(cachedUpdates) // null while the first load is still on its way
   const [index, setIndex] = useState(0)
   // People who asked their device for less motion get a bar that does not change by itself
-  const [playing, setPlaying] = useState(() => !window.matchMedia?.('(prefers-reduced-motion: reduce)').matches)
+  const [playing] = useState(() => !window.matchMedia?.('(prefers-reduced-motion: reduce)').matches)
   const [hold, setHold] = useState(false) // hovering or using the keyboard inside
-  const [hidden, setHidden] = useState(false)
+  const [closedFor, setClosedFor] = useState(remembered) // the updates the visitor closed during this visit
   const swipe = useRef(null)
   const n = items?.length || 0
   const signature = (items || []).map((a) => a._id).join(',')
+  // A visitor who hides the bar stays free of it for this visit, until a NEW update appears
+  const hidden = !!signature && closedFor === signature
 
   useEffect(() => {
     api.get('/announcements/current')
@@ -43,9 +45,7 @@ export default function Announcements({ interval = 6000 }) {
       .catch(() => setItems((old) => old || []))
   }, [])
 
-  // A visitor who hides the bar stays free of it for this visit, until a NEW update appears
-  useEffect(() => { setHidden(!!signature && remembered() === signature) }, [signature])
-  useEffect(() => { if (index >= n) setIndex(0) }, [n, index])
+  // (an index past the end after the list got shorter is read as the first update: see `at` below)
 
   useEffect(() => {
     if (n < 2 || !playing || hold) return
@@ -118,7 +118,7 @@ export default function Announcements({ interval = 6000 }) {
               <span className="mx-1 hidden h-5 w-px bg-white/20 sm:inline" aria-hidden="true" />
             </>
           )}
-          <button type="button" onClick={() => { remember(signature); setHidden(true) }} aria-label={t('announce.hide')} className={small}>
+          <button type="button" onClick={() => { remember(signature); setClosedFor(signature) }} aria-label={t('announce.hide')} className={small}>
             <Icon d="M6 6l12 12M18 6L6 18" />
           </button>
         </div>

@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from 'react'
+import { useMemo, useState } from 'react'
 import { Link } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
 import { api } from '../lib/api.js'
@@ -7,6 +7,7 @@ import { districtsOf, districtName } from '../data/districts.js'
 import DistrictSelect from '../components/DistrictSelect.jsx'
 import Loading from '../components/Loading.jsx'
 import EmptyState from '../components/EmptyState.jsx'
+import useLoad from '../lib/useLoad.js'
 
 const MEDALS = { 1: '🥇', 2: '🥈', 3: '🥉' }
 
@@ -18,18 +19,13 @@ export default function Leaderboard() {
     const [state, setState] = useState('')
     const [district, setDistrict] = useState('')
     const [period, setPeriod] = useState('all')
-    const [data, setData] = useState(null)
-    const [failed, setFailed] = useState(false)
-
-    useEffect(() => {
-        setData(null)
-        setFailed(false)
-        const q = new URLSearchParams()
-        if (state) q.set('state', state)
-        if (state && district) q.set('district', district)
-        if (period === '30') q.set('period', '30')
-        api.get(`/growth/leaderboard?${q}`).then(setData).catch(() => setFailed(true))
-    }, [state, district, period])
+    const q = new URLSearchParams()
+    if (state) q.set('state', state)
+    if (state && district) q.set('district', district)
+    if (period === '30') q.set('period', '30')
+    const query = q.toString()
+    const { data, error } = useLoad(() => api.get(`/growth/leaderboard?${query}`), query)
+    const failed = !!error
 
     const states = useMemo(() => [...STATES].sort((a, b) => stateName(a, lang).localeCompare(stateName(b, lang), lang)), [lang])
     // The place under each name, in the page language

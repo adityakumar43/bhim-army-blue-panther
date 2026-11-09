@@ -1,10 +1,12 @@
-import { useEffect, useMemo, useState } from 'react'
+import { useMemo, useState } from 'react'
 import { useNavigate, useOutletContext } from 'react-router-dom'
 import { api } from '../../lib/api.js'
 import { toCsv } from '../../lib/csv.js'
-import { usePaged, LoadMore } from './paged.jsx'
+import { LoadMore } from './paged.jsx'
+import { usePaged } from './usePaged.js'
 import { portrait } from '../../lib/img.js'
-import { PageHeader, Notice, ListLoading, Pill, useFind, FindNote } from './ui.jsx'
+import { PageHeader, Notice, ListLoading, Pill, FindNote } from './ui.jsx'
+import { useFind } from './find.js'
 import Icon from '../../components/Icon.jsx'
 import BoxIcon from '../../components/BoxIcon.jsx'
 import { stateByCode } from '../../data/states.js'
@@ -138,7 +140,7 @@ export default function Members() {
   }
   const [status, setStatus] = useState('pending')
   const [error, setError] = useState('')
-  const [picked, setPicked] = useState([])
+  const [ticked, setPicked] = useState([])
   const [progress, setProgress] = useState('')
   const [note, setNote] = useState('')
 
@@ -149,10 +151,14 @@ export default function Members() {
 
   // Opened from the search box at the top: show that tab and fill in the search
   const { find, status: wantStatus, clear: clearFind } = useFind()
-  useEffect(() => {
+  // (a new search is applied once, while drawing)
+  const search = `${find}|${wantStatus}`
+  const [seenSearch, setSeenSearch] = useState('|null')
+  if (search !== seenSearch) {
+    setSeenSearch(search)
     if (wantStatus && FILTERS.some(([k]) => k === wantStatus)) setStatus(wantStatus)
     if (find) setQ(find)
-  }, [find, wantStatus])
+  }
   // A page at a time, newest first; "Load more" for older ones. From the search box: the server finds the match, however old.
   const { items, more, busy, load, loadMore } = usePaged(`/members?status=${status}${find ? `&find=${encodeURIComponent(find)}` : ''}`, 1000, { onError: (e) => setError(e.message) })
 
@@ -180,11 +186,12 @@ export default function Members() {
   const filtering = q || stateF || districtF
   const clearFilters = () => { setQ(''); setStateF(''); setDistrictF(''); clearFind() }
 
-  // Only people who are still on screen stay ticked after the search changes
-  useEffect(() => { setPicked((p) => p.filter((id) => shown.some((m) => m._id === id))) }, [shown])
+  // Only people who are on screen count as ticked: a search or filter that hides someone also leaves them out
+  const picked = useMemo(() => ticked.filter((id) => shown.some((m) => m._id === id)), [ticked, shown])
   const allPicked = shown.length > 0 && shown.every((m) => picked.includes(m._id))
 
-  useEffect(() => { setError(''); setPicked([]) }, [status])
+  // Another tab: start with nothing ticked and no old message
+  const changeStatus = (s) => { setStatus(s); setError(''); setPicked([]) }
 
   // Approve or reject many applications at once
   const isPicked = (id) => picked.includes(id)
@@ -258,7 +265,7 @@ export default function Members() {
 
       <div role="group" aria-label="Filter by status" className="mb-5 flex w-full gap-1 rounded-2xl border border-brand/10 bg-white p-1 shadow-sm sm:inline-flex sm:w-auto">
         {FILTERS.map(([key, label]) => (
-          <button key={key} onClick={() => setStatus(key)} aria-pressed={status === key}
+          <button key={key} onClick={() => changeStatus(key)} aria-pressed={status === key}
             className={`min-h-10 flex-1 rounded-xl px-3 text-sm font-semibold transition sm:flex-none sm:px-5 ${status === key ? 'bg-brand text-white shadow-md shadow-brand/25' : 'text-navy/70 hover:bg-mist'}`}>{label}</button>
         ))}
       </div>

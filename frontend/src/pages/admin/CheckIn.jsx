@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from 'react'
+import { useEffect, useEffectEvent, useRef, useState } from 'react'
 import { Link, useParams } from 'react-router-dom'
 import jsQR from 'jsqr'
 import { api } from '../../lib/api.js'
@@ -69,8 +69,13 @@ function Scanner({ onCode, paused }) {
     const [state, setState] = useState('off') // off | starting | on | denied | none
     const stream = useRef(null)
     const last = useRef({ code: '', at: 0 })
-    const pausedRef = useRef(paused)
-    pausedRef.current = paused
+    const isPaused = useEffectEvent(() => paused)
+    // A code that was read: passed on, unless it is the same card held in front of the camera again (read once, not again and again)
+    const read = useEffectEvent((data) => {
+        if (data === last.current.code && Date.now() - last.current.at < 5000) return
+        last.current = { code: data, at: Date.now() }
+        onCode(data)
+    })
 
     const stop = () => {
         stream.current?.getTracks().forEach((t) => t.stop())
@@ -99,20 +104,16 @@ function Scanner({ onCode, paused }) {
         const ctx = canvas.getContext('2d', { willReadFrequently: true })
         const timer = setInterval(() => {
             const v = video.current
-            if (!v || pausedRef.current || v.readyState < 2) return
+            if (!v || isPaused() || v.readyState < 2) return
             const w = 480
             const h = Math.round((v.videoHeight / v.videoWidth) * w) || 480
             canvas.width = w; canvas.height = h
             ctx.drawImage(v, 0, 0, w, h)
             const found = jsQR(ctx.getImageData(0, 0, w, h).data, w, h, { inversionAttempts: 'dontInvert' })
-            if (!found?.data) return
-            // The same card held in front of the camera is read once, not again and again
-            if (found.data === last.current.code && Date.now() - last.current.at < 5000) return
-            last.current = { code: found.data, at: Date.now() }
-            onCode(found.data)
+            if (found?.data) read(found.data)
         }, 160)
         return () => clearInterval(timer)
-    }, [state, onCode])
+    }, [state])
 
     return (
         <div className="relative overflow-hidden rounded-2xl bg-navy">
@@ -173,15 +174,15 @@ function EventCheckIn({ eventId }) {
     const [tab, setTab] = useState('list')
 
     const load = () => api.get(`/checkin/${eventId}`).then(setData).catch((e) => setError(e.message))
-    useEffect(() => { load() }, [eventId])
+    const refresh = useEffectEvent(() => load())
+    useEffect(() => { refresh() }, [eventId])
     // Keep the numbers fresh when several phones are scanning at the same gate
     useEffect(() => {
-        const t = setInterval(() => { if (!document.hidden) load() }, 20000)
+        const t = setInterval(() => { if (!document.hidden) refresh() }, 20000)
         return () => clearInterval(t)
     }, [eventId])
 
-    const send = useRef(null)
-    send.current = async (value) => {
+    async function send(value) {
         if (busy) return
         setBusy(true)
         try {
@@ -194,12 +195,11 @@ function EventCheckIn({ eventId }) {
             signal(false)
         } finally { setBusy(false) }
     }
-    const [onCode] = useState(() => (v) => send.current(v))
 
     async function typed(e) {
         e.preventDefault()
         if (!code.trim()) return
-        await send.current(code.trim())
+        await send(code.trim())
         setCode('')
     }
 
@@ -244,7 +244,7 @@ function EventCheckIn({ eventId }) {
 
             <div className="grid gap-5 lg:grid-cols-[minmax(0,26rem)_1fr]">
                 <section className="flex flex-col gap-3">
-                    <Scanner onCode={onCode} paused={busy} />
+                    <Scanner onCode={send} paused={busy} />
                     <Result r={result} />
                     <form onSubmit={typed} className="flex gap-2">
                         <input value={code} onChange={(e) => setCode(e.target.value)} placeholder="Member no. (BBP-00012) or phone" aria-label="Member number or phone number" className="input min-h-11 flex-1 py-2" />

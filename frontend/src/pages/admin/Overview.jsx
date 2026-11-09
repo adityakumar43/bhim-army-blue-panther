@@ -82,7 +82,7 @@ export default function Overview() {
       {/* What needs attention: 2 across on phones, the ones with something new first */}
       {alerts.length > 0 && (
         <div className="mb-6 grid grid-cols-2 gap-3 sm:gap-4 md:[grid-template-columns:repeat(auto-fit,minmax(15rem,1fr))]">
-          {alerts.map(([perm, to, label, n, icon, tile]) => (
+          {alerts.map(([, to, label, n, icon, tile]) => (
             <Link key={to} to={to}
               className={`group flex flex-col gap-2 rounded-2xl border p-3 shadow-sm max-md:last:odd:col-span-2 transition hover:-translate-y-0.5 hover:shadow-md md:flex-row md:items-center md:gap-4 md:p-4
                 ${n > 0 ? 'border-brand/15 bg-white hover:border-brand/30' : 'border-navy/5 bg-white/60 hover:bg-white'}`}>
@@ -107,7 +107,7 @@ export default function Overview() {
         <>
           <h2 className="mb-3 text-lg font-extrabold">⚡ Quick Actions</h2>
           <div className="grid grid-cols-2 gap-3 md:grid-cols-3 xl:grid-cols-6">
-            {actions.map(([perm, to, label, icon]) => (
+            {actions.map(([, to, label, icon]) => (
               <Link key={to} to={to} className="group flex items-center gap-3 rounded-2xl border border-brand/10 bg-white p-3 shadow-sm transition hover:-translate-y-0.5 hover:border-brand hover:shadow-md">
                 <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-mist text-brand transition group-hover:bg-brand group-hover:text-white">
                   <BoxIcon name={icon} size={20} />

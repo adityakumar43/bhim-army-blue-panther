@@ -1,10 +1,19 @@
-import { useEffect, useState } from 'react'
 import { createPortal } from 'react-dom'
 import { Link } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
 import { api } from '../../lib/api.js'
 import { IdCard } from '../Card.jsx'
 import { PageHeader, Notice, ListLoading } from './ui.jsx'
+import useLoad from '../../lib/useLoad.js'
+
+const NONE = [] // no cards
+
+// The members ticked on the Members page (kept for this tab only)
+function chosenCards() {
+    let ids = []
+    try { ids = JSON.parse(sessionStorage.getItem(PRINT_KEY) || '[]') } catch { /* nothing chosen */ }
+    return ids.length ? api.post('/members/cards', { ids }) : Promise.resolve(NONE)
+}
 
 export const PRINT_KEY = 'printCards' // the Members page leaves the chosen members here
 const PER_PAGE = 10 // 2 across and 5 down fit on A4 at the real size of an ID card
@@ -38,15 +47,9 @@ function Sheet({ cards, t, lang }) {
 export default function PrintCards() {
     const { t, i18n } = useTranslation()
     const lang = i18n.language
-    const [cards, setCards] = useState(null)
-    const [error, setError] = useState('')
-
-    useEffect(() => {
-        let ids = []
-        try { ids = JSON.parse(sessionStorage.getItem(PRINT_KEY) || '[]') } catch { /* nothing chosen */ }
-        if (!ids.length) { setCards([]); return }
-        api.post('/members/cards', { ids }).then(setCards).catch((e) => { setError(e.message); setCards([]) })
-    }, [])
+    const { data, error: loadError } = useLoad(chosenCards, 'print')
+    const error = loadError?.message || ''
+    const cards = loadError ? NONE : data
 
     const sheets = []
     for (let i = 0; i < (cards || []).length; i += PER_PAGE) sheets.push(cards.slice(i, i + PER_PAGE))

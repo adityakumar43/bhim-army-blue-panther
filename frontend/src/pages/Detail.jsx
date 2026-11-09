@@ -1,31 +1,25 @@
-import { useEffect, useState } from 'react'
 import { Link, useParams } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
 import { api } from '../lib/api.js'
 import { pickText, formatDate } from '../lib/text.js'
 import ZoomPhoto from '../components/ZoomPhoto.jsx'
 import EventRsvp from '../components/EventRsvp.jsx'
-import { useSeo } from '../components/Seo.jsx'
+import { useSeo } from '../lib/seo.js'
 import Loading from '../components/Loading.jsx'
 import EventActions from '../components/EventActions.jsx'
 import { timeText } from '../lib/calendar.js'
 import SharePoster from '../components/SharePoster.jsx'
-import { WhatsAppShare, ListenButton, shareLink } from '../components/ShareListen.jsx'
+import useLoad from '../lib/useLoad.js'
+import { WhatsAppShare, ListenButton } from '../components/ShareListen.jsx'
+import { shareLink } from '../lib/share.js'
 
 // One news item or one event on its own page. kind is "news" or "events".
 export default function Detail({ kind }) {
     const { id } = useParams()
     const { t, i18n } = useTranslation()
     const lang = i18n.language
-    const [item, setItem] = useState(null)
-    const [failed, setFailed] = useState('') // 'notFound', or 'offline' when the server could not be reached
-    const [tries, setTries] = useState(0)
-
-    useEffect(() => {
-        setItem(null)
-        setFailed('')
-        api.get(`/${kind}/${id}`).then(setItem).catch((err) => setFailed(err.status === 404 ? 'notFound' : 'offline'))
-    }, [kind, id, tries])
+    const { data: item, error, reload } = useLoad(() => api.get(`/${kind}/${id}`), `${kind}/${id}`)
+    const failed = error ? (error.status === 404 ? 'notFound' : 'offline') : '' // 'offline': the server could not be reached
 
     useSeo({
         title: item && pickText(item, 'title', lang),
@@ -38,7 +32,7 @@ export default function Detail({ kind }) {
         return (
             <div className="px-5 py-16 text-center">
                 <p role="alert" className="mb-4 text-lg">{failed === 'notFound' ? t('detail.notFound') : t('errors.offline')}</p>
-                {failed === 'offline' && <button onClick={() => setTries((n) => n + 1)} className="btn mb-4 bg-brand text-white hover:bg-navy">{t('errors.retry')}</button>}
+                {failed === 'offline' && <button onClick={reload} className="btn mb-4 bg-brand text-white hover:bg-navy">{t('errors.retry')}</button>}
                 <div><Link to={kind === 'events' ? '/news?tab=events' : '/news'} className="font-semibold text-brand underline">{t('detail.back')}</Link></div>
             </div>
         )

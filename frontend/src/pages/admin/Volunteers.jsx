@@ -1,8 +1,10 @@
-import { useEffect, useMemo, useState } from 'react'
+import { useMemo, useState } from 'react'
 import { useOutletContext } from 'react-router-dom'
 import { api } from '../../lib/api.js'
-import { PageHeader, Notice, ListLoading, Pill, useFind, FindNote } from './ui.jsx'
-import { usePaged, LoadMore } from './paged.jsx'
+import { PageHeader, Notice, ListLoading, Pill, FindNote } from './ui.jsx'
+import { useFind } from './find.js'
+import { LoadMore } from './paged.jsx'
+import { usePaged } from './usePaged.js'
 import { SKILLS, AVAILABILITY, skillOf } from '../../data/volunteers.js'
 import { stateByCode } from '../../data/states.js'
 import { toCsv } from '../../lib/csv.js'
@@ -54,10 +56,14 @@ export default function Volunteers() {
     const [q, setQ] = useState('')
     // Opened from the search box at the top: show that tab and fill in the search
     const { find, status: wantStatus, clear: clearFind } = useFind()
-    useEffect(() => {
+    // (a new search is applied once, while drawing)
+    const search = `${find}|${wantStatus}`
+    const [seenSearch, setSeenSearch] = useState('|null')
+    if (search !== seenSearch) {
+        setSeenSearch(search)
         if (wantStatus && TABS.some(([k]) => k === wantStatus)) setStatus(wantStatus)
         if (find) setQ(find)
-    }, [find, wantStatus])
+    }
     const [error, setError] = useState('')
     const myState = ['stateadmin', 'districtadmin'].includes(me.role) ? stateByCode(me.state) : null
     const viewOnly = me.role === 'districtadmin' // District admins can see their volunteers, not change them

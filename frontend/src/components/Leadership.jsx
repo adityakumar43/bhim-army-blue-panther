@@ -1,25 +1,18 @@
-import { useEffect, useState } from 'react'
 import { Link } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
 import { api } from '../lib/api.js'
 import Icon from './Icon.jsx'
 import LeaderCard from './LeaderCard.jsx'
 import Loading from './Loading.jsx'
-import { useJsonLd, leadersJsonLd } from './Seo.jsx'
+import { useJsonLd, leadersJsonLd } from '../lib/seo.js'
 import LoadFailed from './LoadFailed.jsx'
+import useLoad from '../lib/useLoad.js'
 
 // The Leadership part of the About page: national leaders, then the way into state leadership
 export default function Leadership() {
   const { t } = useTranslation()
-  const [national, setNational] = useState(null)
-  const [failed, setFailed] = useState(false)
-  const [tries, setTries] = useState(0)
-
-  useEffect(() => {
-    setNational(null)
-    setFailed(false)
-    api.get('/leaders?level=national').then(setNational).catch(() => setFailed(true))
-  }, [tries])
+  const { data: national, error, reload } = useLoad(() => api.get('/leaders?level=national'), 'national')
+  const failed = !!error
 
   useJsonLd('leaders-jsonld', leadersJsonLd(national, 'India'))
 
@@ -27,7 +20,7 @@ export default function Leadership() {
     <>
       <h3 className="mb-4 text-2xl font-extrabold">{t('leaders.national')}</h3>
       {national === null && !failed && <Loading />}
-      {failed && <LoadFailed onRetry={() => setTries((n) => n + 1)} className="mb-10" />}
+      {failed && <LoadFailed onRetry={reload} className="mb-10" />}
       {national?.length === 0 && <p className="mb-10 text-navy/70">{t('leaders.empty')}</p>}
       {national?.length > 0 && (
         <div className="mb-12 grid grid-cols-2 gap-4 sm:grid-cols-3 sm:gap-5">

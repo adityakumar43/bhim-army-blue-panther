@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useEffectEvent, useState } from 'react'
 import { api } from '../../lib/api.js'
 import { Notice, ListLoading } from './ui.jsx'
 import Icon from '../../components/Icon.jsx'
@@ -11,7 +11,8 @@ export default function RsvpList({ event, onClose, onChange }) {
   const title = event.titleHi || event.titleEn || 'Event'
 
   const load = () => api.get(`/rsvp/${event._id}/list`).then(setItems).catch((e) => setError(e.message))
-  useEffect(() => { load() }, [event._id])
+  const firstLoad = useEffectEvent(() => load())
+  useEffect(() => { firstLoad() }, [event._id])
   useEffect(() => {
     const esc = (e) => e.key === 'Escape' && onClose()
     window.addEventListener('keydown', esc)

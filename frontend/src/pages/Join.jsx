@@ -5,6 +5,7 @@ import { api } from '../lib/api.js'
 import { trackEvent } from '../lib/analytics.js'
 import { shrinkImage } from '../lib/shrinkImage.js'
 import Consent from '../components/Consent.jsx'
+import FilePreview from '../components/FilePreview.jsx'
 import Icon from '../components/BoxIcon.jsx' // two-tone icons for the coloured boxes
 import { STATES, stateName } from '../data/states.js'
 import { districtsOf, districtName } from '../data/districts.js'
@@ -77,14 +78,14 @@ export default function Join() {
   const [restored, setRestored] = useState(() => !!draft && Object.entries(draft).some(([k, v]) => k !== 'ref' && v))
   const [touched, setTouched] = useState({})
   const [photo, setPhoto] = useState(null)
-  const [preview, setPreview] = useState('')
-  const [applied, setApplied] = useState(false) // this mobile number has already applied
+  const [check, setCheck] = useState({ key: '', applied: false }) // whether this mobile number + date of birth has already applied
   const [error, setError] = useState('')
   const [busy, setBusy] = useState(false)
   const [done, setDone] = useState(false)
   const [agree, setAgree] = useState(false)
   const [params] = useSearchParams()
-  const [inviter, setInviter] = useState('') // the member whose invite link they opened
+  const [invite, setInvite] = useState({ ref: '', name: '' }) // the member whose invite link they opened
+  const inviter = invite.ref && invite.ref === form.ref ? invite.name : ''
 
   const set = (f, clean = (v) => v) => (e) => setForm((old) => ({ ...old, [f]: clean(e.target.value) }))
   const blur = (f) => () => setTouched((old) => ({ ...old, [f]: true }))
@@ -92,25 +93,26 @@ export default function Join() {
   // Keep what they type, so a dropped connection or a reload does not lose it (the photo cannot be kept)
   useEffect(() => { if (!done) saveDraft(form) }, [form, done])
 
-  // Opened with an invite link (/join?ref=BBP-00012): keep it with the form, and show who invited them
+  // Opened with an invite link (/join?ref=BBP-00012): keep it with the form (done once for each new link),
+  // and show who invited them
+  const linkRef = (params.get('ref') || '').trim().toUpperCase()
+  const [seenRef, setSeenRef] = useState('')
+  if (linkRef && linkRef !== seenRef) {
+    setSeenRef(linkRef)
+    setForm((old) => ({ ...old, ref: linkRef }))
+  }
   useEffect(() => {
-    const ref = (params.get('ref') || '').trim().toUpperCase()
-    if (ref) setForm((old) => ({ ...old, ref }))
-  }, [params])
-  useEffect(() => {
-    setInviter('')
     if (!form.ref) return
-    api.get(`/members/ref/${encodeURIComponent(form.ref)}`).then((r) => setInviter(r.name))
-      .catch(() => setForm(({ ref, ...rest }) => rest)) // not a real member number: forget it
+    let current = true
+    const ref = form.ref
+    api.get(`/members/ref/${encodeURIComponent(ref)}`)
+      .then((r) => { if (current) setInvite({ ref, name: r.name }) })
+      .catch(() => { // not a real member number: forget it
+        if (current) setForm((old) => { const next = { ...old }; delete next.ref; return next })
+      })
+    return () => { current = false }
   }, [form.ref])
 
-  // Show the chosen photo, and free the memory when it changes
-  useEffect(() => {
-    if (!photo) return setPreview('')
-    const url = URL.createObjectURL(photo)
-    setPreview(url)
-    return () => URL.revokeObjectURL(url)
-  }, [photo])
 
   // Date of birth from three lists. A day that does not exist (31 June) is caught here.
   const { dobDay = '', dobMonth = '', dobYear = '' } = form
@@ -131,14 +133,15 @@ export default function Join() {
 
   // As soon as the mobile number and date of birth are filled in, check whether this person has already applied.
   // (The server says so only when both match, so nobody can find out from a number alone that someone is a member.)
+  const checkKey = phoneOk && dobReal ? `${phone}|${dob}` : ''
+  const applied = !!checkKey && check.key === checkKey && check.applied // the answer is for exactly this number and date
   useEffect(() => {
-    setApplied(false)
-    if (!phoneOk || !dobReal) return
+    if (!checkKey) return
     const timer = setTimeout(() => {
-      api.post('/members/check', { phone, dob }).then((r) => setApplied(!!r.applied)).catch(() => { })
+      api.post('/members/check', { phone, dob }).then((r) => setCheck({ key: checkKey, applied: !!r.applied })).catch(() => { })
     }, 400)
     return () => clearTimeout(timer)
-  }, [phone, phoneOk, dob, dobReal])
+  }, [checkKey, phone, dob])
 
   // Districts of the chosen state, from a list, so every member of a district is spelled the same
   const districts = useMemo(() => districtsOf(form.stateCode)
@@ -324,7 +327,7 @@ export default function Join() {
         <Section icon="camera" title={t('join.photo')} done={!!photo}>
           <div className="flex flex-wrap items-center gap-4">
             <div className="flex h-24 w-24 shrink-0 items-center justify-center overflow-hidden rounded-full border-4 border-mist bg-mist text-brand/50">
-              {preview ? <img src={preview} alt="" className="h-full w-full object-cover" /> : <Svg name="user" size={40} />}
+              {photo ? <FilePreview file={photo} className="h-full w-full object-cover" /> : <Svg name="user" size={40} />}
             </div>
             <div className="min-w-0 flex-1">
               <div className="flex flex-wrap gap-2">

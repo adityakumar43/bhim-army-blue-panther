@@ -1,26 +1,24 @@
-import { useEffect, useState } from 'react'
+import { useState } from 'react'
 import { api } from '../../lib/api.js'
 import { ListLoading } from './ui.jsx'
+import useLoad from '../../lib/useLoad.js'
 
 const when = (d) => new Date(d).toLocaleString('en-IN', { dateStyle: 'medium', timeStyle: 'short' })
 const deviceEmoji = (d = '') => (/iPhone|Android|iPad/.test(d) ? '📱' : '💻')
 
 // List of admin-panel logins. mine = only my own logins (used on the Security page)
 export default function LoginHistory({ mine = false, limit = 100 }) {
-  const [items, setItems] = useState(null)
-  const [people, setPeople] = useState([])
+  const [people, setPeople] = useState([]) // kept while a new filter loads, so the list of people does not flicker
   const [person, setPerson] = useState('')
   const [failedOnly, setFailedOnly] = useState(false)
-  const [error, setError] = useState('')
 
-  useEffect(() => {
-    const p = new URLSearchParams({ limit: String(limit) })
-    if (mine) p.set('mine', '1')
-    if (person) p.set('admin', person)
-    if (failedOnly) p.set('failed', '1')
-    setItems(null)
-    api.get(`/logins?${p}`).then((r) => { setItems(r.items); setPeople(r.people) }).catch((e) => setError(e.message))
-  }, [mine, person, failedOnly, limit])
+  const p = new URLSearchParams({ limit: String(limit) })
+  if (mine) p.set('mine', '1')
+  if (person) p.set('admin', person)
+  if (failedOnly) p.set('failed', '1')
+  const query = p.toString()
+  const { data: items, error: loadError } = useLoad(() => api.get(`/logins?${query}`).then((r) => { setPeople(r.people); return r.items }), query)
+  const error = loadError?.message || ''
 
   return (
     <div>

@@ -3,6 +3,9 @@ import { useOutletContext } from 'react-router-dom'
 import { api } from '../../lib/api.js'
 import { STATES, stateByCode } from '../../data/states.js'
 import { PageHeader, Notice, ListLoading, Pill } from './ui.jsx'
+import useLoad from '../../lib/useLoad.js'
+
+const NONE = [] // no districts (the same list each time)
 
 const sortedStates = [...STATES].sort((a, b) => a.en.localeCompare(b.en))
 const when = (d) => new Date(d).toLocaleString('en-IN', { dateStyle: 'medium', timeStyle: 'short' })
@@ -14,8 +17,6 @@ export default function Mailouts() {
     const myState = me.role === 'stateadmin' ? me.state : null
     const [state, setState] = useState(myState || '')
     const [district, setDistrict] = useState('')
-    const [districts, setDistricts] = useState([])
-    const [count, setCount] = useState(null)
     const [subject, setSubject] = useState('')
     const [body, setBody] = useState('')
     const [history, setHistory] = useState(null)
@@ -35,15 +36,11 @@ export default function Mailouts() {
     }, [sending])
 
     // The districts of the chosen state, and how many members the message will reach
-    useEffect(() => {
-        setDistricts([])
-        if (state) api.get(`/mailouts/districts?state=${state}`).then(setDistricts).catch(() => { })
-    }, [state])
-    useEffect(() => {
-        setCount(null)
-        const q = new URLSearchParams({ state, district })
-        api.get(`/mailouts/count?${q}`).then((r) => setCount(r.count)).catch(() => { })
-    }, [state, district])
+    const { data: districtList } = useLoad(() => (state ? api.get(`/mailouts/districts?state=${state}`) : Promise.resolve(NONE)), state)
+    const districts = districtList || NONE
+    const reach = new URLSearchParams({ state, district }).toString()
+    const { data: countAnswer } = useLoad(() => api.get(`/mailouts/count?${reach}`), reach)
+    const count = countAnswer ? countAnswer.count : null
 
     const who = district ? `members in ${district} district` : state ? `members in ${stateByCode(state)?.en}` : 'members in every state'
     const ready = subject.trim() && body.trim().length >= 10

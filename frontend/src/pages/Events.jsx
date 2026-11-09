@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useRef, useState } from 'react'
+import { useMemo, useRef, useState } from 'react'
 import { Link } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
 import { api } from '../lib/api.js'
@@ -8,6 +8,9 @@ import { eventDay, timeText, pad } from '../lib/calendar.js'
 import EventActions from '../components/EventActions.jsx'
 import { WhatsAppShare } from '../components/ShareListen.jsx'
 import Loading from '../components/Loading.jsx'
+import useLoad from '../lib/useLoad.js'
+
+const NONE = [] // no events (the same list each time, so lists built from it are not rebuilt)
 
 // Today's date in India, like 2026-10-30
 const todayKey = () => new Intl.DateTimeFormat('en-CA', { timeZone: 'Asia/Kolkata' }).format(new Date())
@@ -34,15 +37,13 @@ export default function Events() {
     const [ym, setYm] = useState(() => ({ y: Number(today.slice(0, 4)), m: Number(today.slice(5, 7)) - 1 }))
     const [state, setState] = useState('')
     const [picked, setPicked] = useState('') // a day, or '' for the whole month
-    const [events, setEvents] = useState(null)
-    const [failed, setFailed] = useState(false)
     const listRef = useRef(null)
 
     const grid = useMemo(() => monthGrid(ym.y, ym.m), [ym])
-    useEffect(() => {
-        setEvents(null); setFailed(false); setPicked('')
-        api.get(`/calendar?from=${grid[0].key}&to=${grid[41].key}`).then(setEvents).catch(() => { setEvents([]); setFailed(true) })
-    }, [grid])
+    const range = `from=${grid[0].key}&to=${grid[41].key}`
+    const { data, error } = useLoad(() => api.get(`/calendar?${range}`), range)
+    const failed = !!error
+    const events = error ? NONE : data
 
     const shown = useMemo(() => (events || [])
         .filter((e) => !state || e.stateCode === state)
@@ -57,8 +58,9 @@ export default function Events() {
 
     const monthTitle = new Date(Date.UTC(ym.y, ym.m, 1)).toLocaleDateString(locale, { month: 'long', year: 'numeric', timeZone: 'UTC' })
     const weekdays = Array.from({ length: 7 }, (_, i) => new Date(Date.UTC(2026, 1, 1 + i)).toLocaleDateString(locale, { weekday: 'short', timeZone: 'UTC' })) // 1 Feb 2026 is a Sunday
-    const move = (n) => setYm(({ y, m }) => { const d = new Date(Date.UTC(y, m + n, 1)); return { y: d.getUTCFullYear(), m: d.getUTCMonth() } })
-    const goToday = () => setYm({ y: Number(today.slice(0, 4)), m: Number(today.slice(5, 7)) - 1 })
+    // Another month: the chosen day is cleared too
+    const move = (n) => { setPicked(''); setYm(({ y, m }) => { const d = new Date(Date.UTC(y, m + n, 1)); return { y: d.getUTCFullYear(), m: d.getUTCMonth() } }) }
+    const goToday = () => { setPicked(''); setYm({ y: Number(today.slice(0, 4)), m: Number(today.slice(5, 7)) - 1 }) }
     const states = useMemo(() => [...STATES].sort((a, b) => stateName(a, lang).localeCompare(stateName(b, lang), lang)), [lang])
     const dayTitle = (key) => new Date(`${key}T00:00:00Z`).toLocaleDateString(locale, { weekday: 'long', day: 'numeric', month: 'long', timeZone: 'UTC' })
 

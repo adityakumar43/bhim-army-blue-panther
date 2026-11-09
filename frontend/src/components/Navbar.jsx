@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react'
+import { useState } from 'react'
 import { Link, NavLink, useLocation } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
 import Icon from './Icon.jsx'
@@ -25,12 +25,12 @@ function LangSwitch({ lang, onChange }) {
 
 export default function Navbar() {
   const { t, i18n } = useTranslation()
-  const [open, setOpen] = useState(false)
   const { pathname } = useLocation()
+  // The phone menu belongs to the page it was opened on, so it closes by itself after choosing a page
+  const [menuOn, setMenuOn] = useState(null)
+  const open = menuOn === pathname
   const lang = i18n.language
 
-  // Close the phone menu after choosing a page
-  useEffect(() => setOpen(false), [pathname])
 
   const pill = ({ isActive }) =>
     `rounded-lg px-3 py-2 font-semibold ${isActive ? 'bg-white/10 text-white ring-1 ring-white/25' : 'text-white/80 hover:bg-white/5 hover:text-white'}`
@@ -56,7 +56,7 @@ export default function Navbar() {
 
         <div className="flex items-center gap-2 xl:hidden">
           <LangSwitch lang={lang} onChange={i18n.changeLanguage} />
-          <button onClick={() => setOpen(!open)} aria-expanded={open} aria-label="Menu"
+          <button onClick={() => setMenuOn(open ? null : pathname)} aria-expanded={open} aria-label="Menu"
             className="flex h-11 w-11 items-center justify-center rounded-lg bg-white/10 text-white">
             <Icon name={open ? 'close' : 'menu'} size={22} />
           </button>

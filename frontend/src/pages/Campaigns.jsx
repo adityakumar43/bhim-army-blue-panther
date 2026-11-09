@@ -3,7 +3,7 @@ import { campaigns } from '../data/compaigns.js'
 import { pickText } from '../lib/text.js'
 
 export default function Campaigns() {
-  const { t, i18n } = useTranslation()
+  const { i18n } = useTranslation()
   return (
     <div className="mx-auto max-w-7xl px-5 py-12 lg:px-16">
       

@@ -1,8 +1,9 @@
-import { useEffect, useState } from 'react'
+import { useState } from 'react'
 import { api } from '../../lib/api.js'
 import { PageHeader, Notice, ListLoading } from './ui.jsx'
 import { Tile } from './Stats.jsx'
 import { stateByCode } from '../../data/states.js'
+import useLoad from '../../lib/useLoad.js'
 
 const n = (v) => Number(v || 0).toLocaleString('en-IN')
 const RANGES = [[7, 'Last 7 days'], [30, 'Last 30 days'], [90, 'Last 90 days']]
@@ -85,13 +86,8 @@ function DayBars({ data }) {
 // Visitor numbers: counted by our own website, no cookies, nothing personal
 export default function Visitors() {
     const [days, setDays] = useState(30)
-    const [data, setData] = useState(null)
-    const [error, setError] = useState('')
-
-    useEffect(() => {
-        setData(null); setError('')
-        api.get(`/visits?days=${days}`).then(setData).catch((e) => setError(e.message))
-    }, [days])
+    const { data, error: loadError } = useLoad(() => api.get(`/visits?days=${days}`), days)
+    const error = loadError?.message || ''
 
     const perVisitor = data?.visitors ? (data.views / data.visitors).toFixed(1) : '0'
     const appShare = data?.visitors ? Math.round(((data.devices.find((d) => d.key === 'app')?.value || 0) / data.visitors) * 100) : 0

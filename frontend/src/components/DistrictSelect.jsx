@@ -1,4 +1,4 @@
-import { useEffect, useMemo } from 'react'
+import { useEffect, useEffectEvent, useMemo } from 'react'
 import { useTranslation } from 'react-i18next'
 import { districtsOf, districtName } from '../data/districts.js'
 
@@ -12,7 +12,8 @@ export default function DistrictSelect({ stateCode, value, onChange, required = 
     const current = list.some((d) => d.en === value) ? value : ''
 
     // A district that is not in this state's list (the state changed, or an old typed value) is cleared
-    useEffect(() => { if (value && !current) onChange('') }, [value, current])
+    const clear = useEffectEvent(() => onChange(''))
+    useEffect(() => { if (value && !current) clear() }, [value, current])
 
     return (
         <select value={current} onChange={(e) => onChange(e.target.value)} disabled={!stateCode} required={required}

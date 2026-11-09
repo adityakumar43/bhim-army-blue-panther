@@ -1,7 +1,9 @@
 import { useState } from 'react'
 import { api } from '../../lib/api.js'
-import { usePaged, LoadMore } from './paged.jsx'
-import { PageHeader, Notice, ListLoading, Pill, useFind, matchesFind, FindNote } from './ui.jsx'
+import { LoadMore } from './paged.jsx'
+import { usePaged } from './usePaged.js'
+import { PageHeader, Notice, ListLoading, Pill, FindNote } from './ui.jsx'
+import { useFind, matchesFind } from './find.js'
 import Icon from '../../components/BoxIcon.jsx' // two-tone icons for the coloured boxes
 
 const rupees = (n) => '₹' + Number(n).toLocaleString('en-IN')

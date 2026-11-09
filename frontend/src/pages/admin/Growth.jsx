@@ -1,9 +1,10 @@
-import { useEffect, useState } from 'react'
+import { useState } from 'react'
 import { api } from '../../lib/api.js'
 import { STATES } from '../../data/states.js'
 import { PageHeader, Notice, ListLoading } from './ui.jsx'
 import { Tile, MonthBars } from './Stats.jsx'
 import IndiaMap from './IndiaMap.jsx'
+import useLoad from '../../lib/useLoad.js'
 
 const sortedStates = [...STATES].sort((a, b) => a.en.localeCompare(b.en))
 const n = (v) => Number(v || 0).toLocaleString('en-IN')
@@ -52,14 +53,10 @@ function Places({ title, rows, onPick, empty }) {
 // Where the members are, how fast they are joining, and who brings in the most new members
 export default function Growth() {
     const [state, setState] = useState('')
-    const [data, setData] = useState(null)
-    const [error, setError] = useState('')
-    const [showEmpty, setShowEmpty] = useState(false)
-
-    useEffect(() => {
-        setData(null); setError(''); setShowEmpty(false)
-        api.get(`/growth${state ? `?state=${state}` : ''}`).then(setData).catch((e) => setError(e.message))
-    }, [state])
+    const { data, error: loadError } = useLoad(() => api.get(`/growth${state ? `?state=${state}` : ''}`), state)
+    const error = loadError?.message || ''
+    const [allFor, setAllFor] = useState(null) // the state whose full list of districts without members is open
+    const showEmpty = allFor === state
 
     const place = data?.state ? sortedStates.find((s) => s.code === data.state)?.en : 'India'
     const change = data ? data.thisMonth - data.lastMonth : 0
@@ -138,7 +135,7 @@ export default function Growth() {
                                     ))}
                                 </div>
                                 {data.emptyDistricts.length > 30 && (
-                                    <button onClick={() => setShowEmpty(!showEmpty)} className="mt-3 text-sm font-semibold text-brand hover:underline">
+                                    <button onClick={() => setAllFor(showEmpty ? null : state)} className="mt-3 text-sm font-semibold text-brand hover:underline">
                                         {showEmpty ? 'Show fewer' : `Show all ${data.emptyDistricts.length}`}
                                     </button>
                                 )}

@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react'
+import { useState } from 'react'
 import { Link, useSearchParams } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
 import { api } from '../lib/api.js'
@@ -9,6 +9,7 @@ import Loading from '../components/Loading.jsx'
 import EmptyState from '../components/EmptyState.jsx'
 import { WhatsAppShare, ListenButton } from '../components/ShareListen.jsx'
 import StickyTabs from '../components/StickyTabs.jsx'
+import useLoad from '../lib/useLoad.js'
 
 const PAGE = 50
 const todayKey = () => new Intl.DateTimeFormat('en-CA', { timeZone: 'Asia/Kolkata' }).format(new Date()) // today in India
@@ -96,10 +97,13 @@ function EventRow({ ev, today }) {
 
 export default function News() {
   const { t } = useTranslation()
-  const [news, setNews] = useState(null)
-  const [events, setEvents] = useState(null)
-  const [error, setError] = useState('')
-  const [more, setMore] = useState({ news: false, events: false }) // a full page came back: there may be older ones
+  // News and events together; "more" says whether a full page came back (so there may be older ones)
+  const { data, error: loadError, reload, setData } = useLoad(() => Promise.all([api.get(`/news?limit=${PAGE}`), api.get(`/events?limit=${PAGE}`)])
+    .then(([n, e]) => ({ news: n, events: e, more: { news: n.length === PAGE, events: e.length === PAGE } })), 'news-page')
+  const news = data?.news ?? null
+  const events = data?.events ?? null
+  const more = data?.more ?? { news: false, events: false }
+  const error = loadError?.message || ''
   const [busy, setBusy] = useState('')
   const [olderFailed, setOlderFailed] = useState('')
   const today = todayKey()
@@ -109,15 +113,6 @@ export default function News() {
   const tab = params.get('tab') === 'events' ? 'events' : 'news'
   const choose = (next) => setParams(next === 'events' ? { tab: 'events' } : {}, { replace: true })
 
-  function load() {
-    setError('')
-    setNews(null)
-    Promise.all([api.get(`/news?limit=${PAGE}`), api.get(`/events?limit=${PAGE}`)])
-      .then(([n, e]) => { setNews(n); setEvents(e); setMore({ news: n.length === PAGE, events: e.length === PAGE }) })
-      .catch((e) => setError(e.message))
-  }
-  useEffect(load, [])
-
   // The next older ones, added below
   async function older(kind) {
     const list = kind === 'news' ? news : events
@@ -126,8 +121,7 @@ export default function News() {
     try {
       const page = await api.get(`/${kind}?limit=${PAGE}&skip=${list.length}`)
       const add = page.filter((x) => !list.some((y) => y._id === x._id))
-      ;(kind === 'news' ? setNews : setEvents)([...list, ...add])
-      setMore((m) => ({ ...m, [kind]: page.length === PAGE }))
+      setData((d) => ({ ...d, [kind]: [...list, ...add], more: { ...d.more, [kind]: page.length === PAGE } }))
     } catch {
       setOlderFailed(kind)
     } finally {
@@ -150,7 +144,7 @@ export default function News() {
         <div className="rounded-2xl border border-navy/10 bg-white px-6 py-10 shadow-sm">
           <p className="text-3xl" aria-hidden="true">📡</p>
           <p role="alert" className="mt-3 font-semibold text-navy">{error}</p>
-          <button type="button" onClick={load} className="btn mt-5 bg-brand text-white hover:bg-navy">🔄 {t('errors.retry', { defaultValue: 'Try again' })}</button>
+          <button type="button" onClick={reload} className="btn mt-5 bg-brand text-white hover:bg-navy">🔄 {t('errors.retry', { defaultValue: 'Try again' })}</button>
         </div>
       </div>
     )

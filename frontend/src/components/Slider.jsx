@@ -47,7 +47,8 @@ export default function Slider({ slides, interval = 5000 }) {
 
   const go = (i) => setIndex(((i % n) + n) % n)
 
-  useEffect(() => { if (index >= n) setIndex(0) }, [n, index])
+  // After the list got shorter, an index past the end is read as the first slide
+  const at = index < n ? index : 0
 
 
   useEffect(() => {
@@ -62,13 +63,13 @@ export default function Slider({ slides, interval = 5000 }) {
   }
   function onTouchEnd(e) {
     const dx = e.changedTouches[0].clientX - (touchX.current ?? e.changedTouches[0].clientX)
-    if (Math.abs(dx) > 50) go(index + (dx < 0 ? 1 : -1))
+    if (Math.abs(dx) > 50) go(at + (dx < 0 ? 1 : -1))
     touchX.current = null
     setHold(false)
   }
   function onKeyDown(e) {
-    if (e.key === 'ArrowLeft') go(index - 1)
-    if (e.key === 'ArrowRight') go(index + 1)
+    if (e.key === 'ArrowLeft') go(at - 1)
+    if (e.key === 'ArrowRight') go(at + 1)
   }
 
   const arrow = 'absolute top-1/2 z-10 flex h-11 w-11 -translate-y-1/2 items-center justify-center bg-navy/60 text-white hover:bg-navy'
@@ -89,14 +90,14 @@ export default function Slider({ slides, interval = 5000 }) {
         className="relative aspect-4/3 w-full overflow-hidden bg-navy sm:aspect-video lg:aspect-21/9 lg:max-h-136"
       >
         <div className="absolute inset-0 flex motion-safe:transition-transform motion-safe:duration-700 motion-safe:ease-in-out"
-          style={{ transform: `translateX(-${index * 100}%)` }}>
+          style={{ transform: `translateX(-${at * 100}%)` }}>
           {slides.map((s, i) => {
             const caption = pickText(s, 'title', i18n.language)
             const url = s.image.url
             return (
               <div key={s._id} role="group" aria-roledescription="slide" aria-label={`${i + 1} / ${n}`}
-                aria-hidden={i !== index} className="relative h-full w-full shrink-0">
-                <SlideLink link={s.link} tabIndex={i === index ? 0 : -1} onZoom={() => setViewing(i)}>
+                aria-hidden={i !== at} className="relative h-full w-full shrink-0">
+                <SlideLink link={s.link} tabIndex={i === at ? 0 : -1} onZoom={() => setViewing(i)}>
                   <img
                     src={cdn(url, 1200)}
                     srcSet={`${cdn(url, 480)} 480w, ${cdn(url, 800)} 800w, ${cdn(url, 1200)} 1200w, ${cdn(url, 1920)} 1920w`}
@@ -121,18 +122,18 @@ export default function Slider({ slides, interval = 5000 }) {
 
         {n > 1 && (
           <>
-            <button onClick={() => go(index - 1)} aria-label={t('slider.prev')} className={`${arrow} left-2 sm:left-4`}>
+            <button onClick={() => go(at - 1)} aria-label={t('slider.prev')} className={`${arrow} left-2 sm:left-4`}>
               <Icon d="M15 5l-7 7 7 7" />
             </button>
-            <button onClick={() => go(index + 1)} aria-label={t('slider.next')} className={`${arrow} right-2 sm:right-4`}>
+            <button onClick={() => go(at + 1)} aria-label={t('slider.next')} className={`${arrow} right-2 sm:right-4`}>
               <Icon d="M9 5l7 7-7 7" />
             </button>
 
             <div className="absolute inset-x-0 bottom-2 z-10 flex items-center justify-center gap-1 px-14">
               {slides.map((s, i) => (
                 <button key={s._id} onClick={() => go(i)} aria-label={t('slider.goTo', { n: i + 1 })}
-                  aria-current={i === index ? 'true' : undefined} className="flex h-8 w-8 items-center justify-center">
-                  <span className={`block h-2.5 rounded-full transition-all ${i === index ? 'w-6 bg-gold' : 'w-2.5 bg-white/70'}`} />
+                  aria-current={i === at ? 'true' : undefined} className="flex h-8 w-8 items-center justify-center">
+                  <span className={`block h-2.5 rounded-full transition-all ${i === at ? 'w-6 bg-gold' : 'w-2.5 bg-white/70'}`} />
                 </button>
               ))}
             </div>

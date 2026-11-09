@@ -1,8 +1,9 @@
-import { useEffect, useState } from 'react'
+import { useState } from 'react'
 import { api } from '../../lib/api.js'
 import Icon from '../../components/BoxIcon.jsx' // two-tone icons for the coloured boxes
 import { PageHeader, Notice, ListLoading } from './ui.jsx'
 import LoginHistory from './LoginHistory.jsx'
+import useLoad from '../../lib/useLoad.js'
 
 const SECTIONS = [
   ['news', 'News'], ['events', 'Events'], ['gallery', 'Gallery'], ['slides', 'Home Slider'],
@@ -30,12 +31,10 @@ const dayLabel = (d) => {
 const time = (d) => new Date(d).toLocaleTimeString('en-IN', { hour: 'numeric', minute: '2-digit' })
 
 export default function Activity() {
-  const [items, setItems] = useState(null)
-  const [people, setPeople] = useState([])
-  const [more, setMore] = useState(false)
+  const [people, setPeople] = useState([]) // kept while a new filter loads, so the list of people does not flicker
   const [person, setPerson] = useState('')
   const [section, setSection] = useState('')
-  const [error, setError] = useState('')
+  const [moreError, setMoreError] = useState({ key: '', message: '' }) // "Load more" failed (for this filter)
   const [busy, setBusy] = useState(false)
   const [tab, setTab] = useState('changes')
 
@@ -47,20 +46,19 @@ export default function Activity() {
     return `/activity?${p}`
   }
 
-  useEffect(() => {
-    setItems(null)
-    setError('')
-    api.get(query()).then((r) => { setItems(r.items); setPeople(r.people); setMore(r.more) }).catch((e) => setError(e.message))
-  }, [person, section])
+  const key = query()
+  const { data, error: loadError, setData } = useLoad(() => api.get(key).then((r) => { setPeople(r.people); return r }), key)
+  const items = data?.items ?? null
+  const more = data?.more ?? false
+  const error = loadError?.message || (moreError.key === key ? moreError.message : '')
 
   async function loadMore() {
     setBusy(true)
     try {
       const r = await api.get(query(items[items.length - 1].createdAt))
-      setItems([...items, ...r.items])
-      setMore(r.more)
+      setData((d) => ({ ...d, items: [...d.items, ...r.items], more: r.more }))
     } catch (e) {
-      setError(e.message)
+      setMoreError({ key, message: e.message })
     } finally {
       setBusy(false)
     }
