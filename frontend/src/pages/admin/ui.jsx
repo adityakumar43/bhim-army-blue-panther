@@ -13,16 +13,17 @@ export function PageHeader({ title, subtitle, children }) {
   const { pathname } = useLocation()
   const icon = PAGE_ICON[pathname]
   return (
-    <div className="mb-5 flex flex-wrap items-center justify-between gap-3 rounded-2xl border border-brand/10 bg-white px-4 py-3 shadow-sm sm:px-5">
+    <div className="mb-4 flex flex-wrap items-center justify-between gap-x-3 gap-y-2 rounded-2xl border border-brand/10 bg-white px-3 py-2.5 shadow-sm sm:mb-5 sm:px-5 sm:py-3">
       <div className="flex min-w-0 items-center gap-3">
         {icon && (
-          <span aria-hidden="true" className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-brand text-white shadow-md shadow-brand/25">
+          <span aria-hidden="true" className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-brand text-white shadow-md shadow-brand/25 sm:h-11 sm:w-11">
             <Icon name={icon} size={22} />
           </span>
         )}
         <div className="min-w-0">
           <h1 className="text-xl font-extrabold sm:text-2xl">{title}</h1>
-          {subtitle && <p className="mt-0.5 text-sm text-navy/65">{subtitle}</p>}
+          {/* Long explanations are left out on phones, where the screen is small; short lines (like an event's date and place) stay */}
+          {subtitle && <p className={`mt-0.5 text-sm text-navy/65 ${String(subtitle).length > 60 ? 'hidden sm:block' : ''}`}>{subtitle}</p>}
         </div>
       </div>
       {children && <div className="flex flex-wrap items-center gap-2">{children}</div>}

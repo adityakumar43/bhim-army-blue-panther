@@ -5,6 +5,8 @@ import { PageHeader, Notice, ListLoading, Pill, useFind, matchesFind, FindNote }
 import Icon from '../../components/BoxIcon.jsx' // two-tone icons for the coloured boxes
 
 const rupees = (n) => '₹' + Number(n).toLocaleString('en-IN')
+// Like "9 Nov 2026" (Indian time), the same as the other admin pages, not 9/11/2026
+const day = (d) => new Date(d).toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric', timeZone: 'Asia/Kolkata' })
 
 export default function Donations() {
   const { find, clear: clearFind } = useFind() // opened from the search box at the top
@@ -66,7 +68,7 @@ export default function Donations() {
                   </div>
                   <div className="shrink-0 text-right">
                     <div className="rounded-lg bg-green-50 px-2 text-xl font-extrabold text-green-800">{rupees(d.amount)}</div>
-                    <div className="mt-0.5 text-xs text-navy/60">📅 {new Date(d.createdAt).toLocaleDateString('en-IN')}</div>
+                    <div className="mt-0.5 text-xs text-navy/60">📅 {day(d.createdAt)}</div>
                   </div>
                 </div>
                 <div className="mt-3 rounded-xl bg-mist/60 px-3 py-2 text-xs text-navy/70">
@@ -76,7 +78,7 @@ export default function Donations() {
                   {d.email ? (
                     <>
                       <Pill tone={d.receiptEmailedAt ? 'green' : 'gold'}>
-                        {d.receiptEmailedAt ? `📧 Emailed ${new Date(d.receiptEmailedAt).toLocaleDateString('en-IN')}` : '📭 Not emailed yet'}
+                        {d.receiptEmailedAt ? `📧 Emailed ${day(d.receiptEmailedAt)}` : '📭 Not emailed yet'}
                       </Pill>
                       <button onClick={() => resend(d._id)} className="abtn min-h-9 px-3">
                         📤 {d.receiptEmailedAt ? 'Send again' : 'Send receipt'}

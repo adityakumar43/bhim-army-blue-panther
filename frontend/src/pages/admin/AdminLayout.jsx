@@ -11,32 +11,49 @@ import { removeItem } from '../../lib/storage.js'
 
 const NAV = [
   { to: '/admin', label: 'Overview', icon: 'grid', end: true },
-  { to: '/admin/news', label: 'News', icon: 'news', perm: 'content' },
-  { to: '/admin/events', label: 'Events', icon: 'calendar', perm: 'content' },
-  { to: '/admin/checkin', label: 'Event Check-in', icon: 'ticket', perm: ['members', 'content', 'district', 'checkin'] },
-  { to: '/admin/gallery', label: 'Gallery', icon: 'image', perm: 'content' },
-  { to: '/admin/slides', label: 'Home Slider', icon: 'layers', perm: 'content' },
-  { to: '/admin/leaders', label: 'Leadership', icon: 'award', perm: 'leaders' },
-  { to: '/admin/videos', label: 'Videos', icon: 'video', perm: 'content' },
-  { to: '/admin/downloads', label: 'Downloads', icon: 'download', perm: 'content' },
-  { to: '/admin/updates', label: 'Home Updates', icon: 'bell', perm: 'content' },
-  { to: '/admin/notifications', label: 'Phone Notifications', icon: 'phone', perm: 'content' },
-  { to: '/admin/members', label: 'Members', icon: 'userPlus', perm: ['members', 'district'], badge: 'members' },
-  { to: '/admin/growth', label: 'Member Growth', icon: 'trend', perm: 'members' },
-  { to: '/admin/visitors', label: 'Visitors', icon: 'eye', perm: ['content', 'members'] },
-  { to: '/admin/volunteers', label: 'Volunteers', icon: 'hand', perm: ['members', 'district'], badge: 'volunteers' },
-  { to: '/admin/mailouts', label: 'Email Members', icon: 'mail', perm: 'members' },
-  { to: '/admin/polls', label: 'Polls', icon: 'poll', perm: 'members' },
-  { to: '/admin/certificates', label: 'Certificates', icon: 'award', perm: 'members' },
-  { to: '/admin/messages', label: 'Messages', icon: 'chat', perm: 'messages', badge: 'messages' },
-  { to: '/admin/helpdesk', label: 'Help Desk', icon: 'help', perm: ['helpdesk', 'district'], badge: 'helpdesk' },
-  { to: '/admin/donations', label: 'Donations', icon: 'heart', perm: 'donations', badge: 'donations' },
-  { to: '/admin/team', label: 'Team & Roles', icon: 'users', perm: 'team' },
-  { to: '/admin/activity', label: 'Activity Log', icon: 'activity', perm: 'admins' },
-  { to: '/admin/backup', label: 'Backup', icon: 'download', perm: 'admins' },
-  { to: '/admin/guide', label: 'Guide', icon: 'book' },
-  { to: '/admin/security', label: 'Security', icon: 'shield' },
+  { to: '/admin/news', group: 'content', label: 'News', icon: 'news', perm: 'content' },
+  { to: '/admin/events', group: 'content', label: 'Events', icon: 'calendar', perm: 'content' },
+  { to: '/admin/checkin', group: 'content', label: 'Event Check-in', icon: 'ticket', perm: ['members', 'content', 'district', 'checkin'] },
+  { to: '/admin/gallery', group: 'content', label: 'Gallery', icon: 'image', perm: 'content' },
+  { to: '/admin/slides', group: 'content', label: 'Home Slider', icon: 'layers', perm: 'content' },
+  { to: '/admin/leaders', group: 'content', label: 'Leadership', icon: 'award', perm: 'leaders' },
+  { to: '/admin/videos', group: 'content', label: 'Videos', icon: 'video', perm: 'content' },
+  { to: '/admin/downloads', group: 'content', label: 'Downloads', icon: 'download', perm: 'content' },
+  { to: '/admin/updates', group: 'content', label: 'Home Updates', icon: 'bell', perm: 'content' },
+  { to: '/admin/notifications', group: 'content', label: 'Phone Notifications', icon: 'phone', perm: 'content' },
+  { to: '/admin/visitors', group: 'content', label: 'Visitors', icon: 'eye', perm: ['content', 'members'] },
+  { to: '/admin/members', group: 'members', label: 'Members', icon: 'userPlus', perm: ['members', 'district'], badge: 'members' },
+  { to: '/admin/growth', group: 'members', label: 'Member Growth', icon: 'trend', perm: 'members' },
+  { to: '/admin/volunteers', group: 'members', label: 'Volunteers', icon: 'hand', perm: ['members', 'district'], badge: 'volunteers' },
+  { to: '/admin/mailouts', group: 'members', label: 'Email Members', icon: 'mail', perm: 'members' },
+  { to: '/admin/polls', group: 'members', label: 'Polls', icon: 'poll', perm: 'members' },
+  { to: '/admin/certificates', group: 'members', label: 'Certificates', icon: 'award', perm: 'members' },
+  { to: '/admin/messages', group: 'inbox', label: 'Messages', icon: 'chat', perm: 'messages', badge: 'messages' },
+  { to: '/admin/helpdesk', group: 'inbox', label: 'Help Desk', icon: 'help', perm: ['helpdesk', 'district'], badge: 'helpdesk' },
+  { to: '/admin/donations', group: 'inbox', label: 'Donations', icon: 'heart', perm: 'donations', badge: 'donations' },
+  { to: '/admin/team', group: 'admin', label: 'Team & Roles', icon: 'users', perm: 'team' },
+  { to: '/admin/activity', group: 'admin', label: 'Activity Log', icon: 'activity', perm: 'admins' },
+  { to: '/admin/backup', group: 'admin', label: 'Backup', icon: 'download', perm: 'admins' },
+  { to: '/admin/guide', group: 'admin', label: 'Guide', icon: 'book' },
+  { to: '/admin/security', group: 'admin', label: 'Security', icon: 'shield' },
 ]
+
+// The menu's groups, in this order. Pages without a group (Overview) are shown first.
+const GROUPS = [['inbox', 'Inbox'], ['members', 'Members'], ['content', 'Website'], ['admin', 'Team & settings']]
+const OPEN_KEY = 'adminMenuOpen' // the groups a person left open, on this device
+
+// The page you are on, and its group. /admin/checkin/123 belongs to /admin/checkin.
+const activeItem = (items, pathname) => items
+  .filter((n) => (n.end ? pathname === n.to : pathname === n.to || pathname.startsWith(`${n.to}/`)))
+  .sort((a, b) => b.to.length - a.to.length)[0]
+
+function readOpen() {
+  try {
+    const saved = JSON.parse(localStorage.getItem(OPEN_KEY) || 'null')
+    if (Array.isArray(saved)) return new Set(saved)
+  } catch { /* storage blocked or broken */ }
+  return new Set(['inbox'])
+}
 
 // Menu icons: thin when not chosen, two-tone for the page you are on
 const NavIcon = ({ name, on, size }) => (on ? <BoxIcon name={name} size={size - 1} className="shrink-0" /> : <Icon name={name} size={size} className="shrink-0" />)
@@ -44,6 +61,67 @@ const NavIcon = ({ name, on, size }) => (on ? <BoxIcon name={name} size={size - 
 // On phones these sit in the bar at the bottom (the first 4 a person can open); the rest are under "More"
 const PHONE_TABS = ['/admin', '/admin/members', '/admin/helpdesk', '/admin/events', '/admin/checkin', '/admin/messages', '/admin/news', '/admin/team', '/admin/security']
 const SHORT = { '/admin': 'Home', '/admin/helpdesk': 'Help Desk', '/admin/members': 'Members', '/admin/team': 'Team', '/admin/checkin': 'Check-in' }
+
+// The menu on computers: Overview, then the groups. A group opens and closes with its heading;
+// the group of the page you are on is always opened, and a closed group shows how many new items it has.
+function SideNav({ items, summary }) {
+  const { pathname } = useLocation()
+  const here = activeItem(items, pathname)?.group
+  const [open, setOpen] = useState(() => { const s = readOpen(); if (here) s.add(here); return s })
+  // Going to a page in a closed group opens that group (worked out while drawing, not in an effect)
+  const [seen, setSeen] = useState(pathname)
+  if (seen !== pathname) {
+    setSeen(pathname)
+    if (here && !open.has(here)) setOpen(new Set([...open, here]))
+  }
+  function toggle(key) {
+    const next = new Set(open)
+    if (next.has(key)) next.delete(key)
+    else next.add(key)
+    setOpen(next)
+    try { localStorage.setItem(OPEN_KEY, JSON.stringify([...next])) } catch { /* storage blocked */ }
+  }
+  const count = (n) => (n.badge ? summary[n.badge] || 0 : 0)
+  const link = (n) => (
+    <li key={n.to}>
+      <NavLink to={n.to} end={n.end}
+        className={({ isActive }) =>
+          `group flex min-h-9 items-center gap-3 rounded-xl px-3 text-[14.5px] font-semibold whitespace-nowrap transition ${isActive ? 'bg-brand text-white shadow-md shadow-brand/25' : 'text-navy/75 hover:bg-mist hover:text-brand'}`}>
+        {({ isActive }) => (
+          <>
+            <NavIcon name={n.icon} on={isActive} size={18} />
+            <span className="flex-1">{n.label}</span>
+            {count(n) > 0 && <span className="min-w-6 rounded-full bg-gold px-1.5 text-center text-xs leading-6 font-extrabold text-navy">{count(n)}</span>}
+          </>
+        )}
+      </NavLink>
+    </li>
+  )
+  return (
+    <nav aria-label="Admin pages" className="hidden border-r border-brand/15 bg-white lg:block lg:min-h-[calc(100vh-3.5rem)] lg:w-60 lg:shrink-0">
+      <div className="admin-nav sticky top-14 max-h-[calc(100vh-3.5rem)] overflow-y-auto overscroll-contain p-3">
+        <ul className="flex flex-col gap-0.5">{items.filter((n) => !n.group).map(link)}</ul>
+        {GROUPS.map(([key, label]) => {
+          const list = items.filter((n) => n.group === key)
+          if (!list.length) return null
+          const isOpen = open.has(key)
+          const waiting = list.reduce((s, n) => s + count(n), 0)
+          return (
+            <div key={key} className="mt-3 border-t border-navy/8 pt-2">
+              <button type="button" onClick={() => toggle(key)} aria-expanded={isOpen} aria-controls={`menu-${key}`}
+                className="flex min-h-8 w-full items-center gap-2 rounded-lg px-3 text-xs font-extrabold tracking-wider text-navy/50 uppercase hover:bg-mist hover:text-brand">
+                <span className="flex-1 text-left">{label}</span>
+                {!isOpen && waiting > 0 && <span className="min-w-6 rounded-full bg-red-500 px-1.5 text-center text-[11px] leading-5 font-extrabold text-white normal-case">{waiting}</span>}
+                <Icon name="chevronDown" size={16} className={`shrink-0 transition ${isOpen ? 'rotate-180' : ''}`} />
+              </button>
+              {isOpen && <ul id={`menu-${key}`} className="mt-0.5 flex flex-col gap-0.5">{list.map(link)}</ul>}
+            </div>
+          )
+        })}
+      </div>
+    </nav>
+  )
+}
 
 // The bar at the bottom of the screen on phones, like an app
 function PhoneTabs({ tabs, more, summary, moreOpen, setMoreOpen }) {
@@ -102,8 +180,14 @@ function MoreSheet({ me, items, summary, onClose, logout }) {
             <Icon name="logout" size={16} />Log out
           </button>
         </div>
-        <ul className="grid grid-cols-3 gap-2 sm:grid-cols-4">
-          {items.map((n) => {
+        {[[null, ''], ...GROUPS].map(([key, label]) => {
+          const list = items.filter((n) => (n.group || null) === key)
+          if (!list.length) return null
+          return (
+            <section key={key || 'main'} className="mb-4">
+              {label && <h2 className="mb-2 px-1 text-xs font-extrabold tracking-wider text-navy/50 uppercase">{label}</h2>}
+              <ul className="grid grid-cols-3 gap-2 sm:grid-cols-4">
+                {list.map((n) => {
             const count = n.badge ? summary[n.badge] : 0
             return (
               <li key={n.to}>
@@ -120,6 +204,11 @@ function MoreSheet({ me, items, summary, onClose, logout }) {
               </li>
             )
           })}
+              </ul>
+            </section>
+          )
+        })}
+        <ul className="grid grid-cols-3 gap-2 sm:grid-cols-4">
           <li>
             <Link to="/" className="flex h-full min-h-22 flex-col items-center justify-center gap-1.5 rounded-2xl bg-white p-2 text-center text-xs font-bold text-navy/80 shadow-sm">
               <Icon name="external" size={22} /><span>View site</span>
@@ -269,30 +358,7 @@ export default function AdminLayout() {
       </header>
 
       <div className="mx-auto flex max-w-350 flex-col lg:flex-row">
-        <nav aria-label="Admin pages" className="hidden border-r border-brand/15 bg-white lg:block lg:min-h-[calc(100vh-3.5rem)] lg:w-60 lg:shrink-0">
-          <ul className="admin-nav sticky top-14 flex max-h-[calc(100vh-3.5rem)] flex-col gap-0.5 overflow-y-auto overscroll-contain p-3">
-            {items.map((n) => {
-              const count = n.badge ? summary[n.badge] : 0
-              return (
-                <li key={n.to}>
-                  <NavLink to={n.to} end={n.end}
-                    className={({ isActive }) =>
-                      `group flex min-h-10 items-center gap-3 rounded-xl px-3 text-[15px] font-semibold whitespace-nowrap transition ${isActive ? 'bg-brand text-white shadow-md shadow-brand/25' : 'text-navy/75 hover:bg-mist hover:text-brand'}`}>
-                    {({ isActive }) => (
-                      <>
-                        <NavIcon name={n.icon} on={isActive} size={18} />
-                        <span className="flex-1">{n.label}</span>
-                        {count > 0 && (
-                          <span className="min-w-6 rounded-full bg-gold px-1.5 text-center text-xs leading-6 font-extrabold text-navy">{count}</span>
-                        )}
-                      </>
-                    )}
-                  </NavLink>
-                </li>
-              )
-            })}
-          </ul>
-        </nav>
+        <SideNav items={items} summary={summary} />
 
         <main className="admin-main min-w-0 flex-1 p-4 pb-[calc(5.5rem+env(safe-area-inset-bottom))] sm:p-6 sm:pb-[calc(6rem+env(safe-area-inset-bottom))] lg:px-8 lg:pb-6">
           {(!locked || pathname === '/admin/security') && <Outlet context={{ me, summary, refresh, refreshMe }} />}

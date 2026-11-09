@@ -5,6 +5,7 @@ import { PageHeader, Notice, ListLoading, useFind, matchesFind, FindNote } from 
 import Icon from '../../components/Icon.jsx'
 import RsvpList from './RsvpList.jsx'
 import { STATES } from '../../data/states.js'
+import { thumb as smallPicture } from '../../lib/img.js'
 
 const KINDS = {
   news: {
@@ -40,6 +41,7 @@ KINDS.slides = {
 // Publishing: live now, scheduled for later, or a draft (Indian time)
 const toInput = (d) => new Date(d).toLocaleString('sv-SE', { timeZone: 'Asia/Kolkata' }).replace(' ', 'T').slice(0, 16)
 const statusOf = (it) => (it.draft ? 'draft' : it.publishAt && new Date(it.publishAt) > new Date() ? 'scheduled' : 'live')
+const niceDay = (d) => new Date(d).toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric', timeZone: 'Asia/Kolkata' })
 const niceTime = (d) => new Date(d).toLocaleString('en-IN', { dateStyle: 'medium', timeStyle: 'short', timeZone: 'Asia/Kolkata' })
 const WHEN = [['now', '🚀 Publish now'], ['later', '🕒 Schedule'], ['draft', '📝 Save as draft']]
 
@@ -280,42 +282,49 @@ export default function Content({ kind }) {
       <FindNote find={find} clear={clearFind} />
       {!items && <ListLoading />}
       {items?.length === 0 && <p className="card text-center text-navy/70">📭 Nothing published yet. Click "{ADD_LABEL[kind]}" to add the first one.</p>}
-      <ul className="grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
-        {items?.filter((it) => matchesFind(find, it.titleEn, it.titleHi)).map((it) => (
-          <li key={it._id} className={`card flex flex-col overflow-hidden p-0 sm:p-0 ${editing?._id === it._id ? 'ring-2 ring-brand' : ''}`}>
-            {it.image?.url && <img src={it.image.url} alt="" loading="lazy" className="aspect-video w-full rounded-none object-cover" />}
-            <div className="flex flex-1 flex-col p-4">
-              <div className="line-clamp-2 font-bold">{it.titleHi || it.titleEn || config.untitled || '(no title)'}</div>
-              {it.titleHi && it.titleEn && <div className="line-clamp-1 text-sm text-navy/60">{it.titleEn}</div>}
-              <div className="mt-2 flex flex-wrap gap-1.5 text-xs">
-                {statusOf(it) === 'draft' && <span className="rounded-full bg-navy/10 px-2 py-0.5 font-semibold text-navy">📝 Draft</span>}
-                {statusOf(it) === 'scheduled' && <span className="rounded-full bg-gold/25 px-2 py-0.5 font-semibold text-navy">🕒 Goes live {niceTime(it.publishAt)}</span>}
-                {it.date && <span className="rounded-full bg-mist px-2 py-0.5 font-semibold text-brand">📅 {new Date(it.date).toLocaleDateString('en-IN')}</span>}
-                {it.location && <span className="rounded-full bg-mist px-2 py-0.5 font-semibold text-brand">📍 {it.location}</span>}
-                {it.order != null && <span className="rounded-full bg-mist px-2 py-0.5 font-semibold text-brand">#{it.order}</span>}
-                {it.section === 'adivasi' && (
-                  <span className="rounded-full bg-gold/20 px-2 py-0.5 font-semibold text-navy">
-                    🪘 Adivasi{it.kind ? ` · ${it.kind}` : ''}{it.communityEn || it.communityHi ? ` · ${it.communityEn || it.communityHi}` : ''}
-                  </span>
-                )}
+      {/* One compact row per item: small picture, title, date and status, then the buttons */}
+      <ul className="grid gap-2.5 xl:grid-cols-2">
+        {items?.filter((it) => matchesFind(find, it.titleEn, it.titleHi)).map((it) => {
+          const status = statusOf(it)
+          const wide = kind === 'slides' // slider pictures are wide, so their thumbnail is too
+          const chip = 'rounded-full px-2 py-0.5 font-semibold'
+          return (
+            <li key={it._id} className={`card flex flex-wrap items-center gap-3 p-3 sm:flex-nowrap sm:p-3 ${editing?._id === it._id ? 'ring-2 ring-brand' : ''} ${status === 'draft' ? 'bg-navy/[0.03]' : ''}`}>
+              {it.image?.url
+                ? <img src={smallPicture(it.image.url, wide ? 224 : 128, 128)} alt="" loading="lazy" className={`h-16 shrink-0 rounded-lg bg-mist object-cover ${wide ? 'w-28' : 'w-16'}`} />
+                : <span aria-hidden="true" className={`flex h-16 shrink-0 items-center justify-center rounded-lg bg-mist text-brand/60 ${wide ? 'w-28' : 'w-16'}`}><Icon name={kind === 'events' ? 'calendar' : kind === 'news' ? 'news' : 'image'} size={24} /></span>}
+              <div className="min-w-0 flex-1">
+                <div className="line-clamp-1 font-bold">{it.titleHi || it.titleEn || config.untitled || '(no title)'}</div>
+                {it.titleHi && it.titleEn && <div className="line-clamp-1 text-sm text-navy/60">{it.titleEn}</div>}
+                <div className="mt-1 flex flex-wrap gap-1.5 text-xs">
+                  {status === 'live' && <span className={`${chip} bg-green-100 text-green-900`}>● Live</span>}
+                  {status === 'draft' && <span className={`${chip} bg-navy/10 text-navy`}>📝 Draft (hidden)</span>}
+                  {status === 'scheduled' && <span className={`${chip} bg-gold/25 text-navy`}>🕒 Goes live {niceTime(it.publishAt)}</span>}
+                  {it.date
+                    ? <span className={`${chip} bg-mist text-brand`}>📅 {niceDay(it.date)}</span>
+                    : it.createdAt && <span className={`${chip} bg-navy/5 text-navy/70`}>Added {niceDay(it.createdAt)}</span>}
+                  {it.location && <span className={`${chip} bg-mist text-brand`}>📍 {it.location}</span>}
+                  {it.order != null && <span className={`${chip} bg-mist text-brand`}>#{it.order}</span>}
+                  {it.section === 'adivasi' && (
+                    <span className={`${chip} bg-gold/20 text-navy`}>
+                      🪘 Adivasi{it.kind ? ` · ${it.kind}` : ''}{it.communityEn || it.communityHi ? ` · ${it.communityEn || it.communityHi}` : ''}
+                    </span>
+                  )}
+                  {kind === 'events' && (
+                    <>
+                      <button type="button" onClick={() => setRsvpFor(it)} className={`${chip} bg-mist text-brand hover:bg-brand hover:text-white`}>🙋 {rsvps[it._id]?.people || 0} coming</button>
+                      <Link to={`/admin/checkin/${it._id}`} className={`${chip} bg-purple-50 text-purple-800 hover:bg-purple-100`}>📷 Check-in</Link>
+                    </>
+                  )}
+                </div>
               </div>
-              {kind === 'events' && (
-                <>
-                  <button onClick={() => setRsvpFor(it)} className="mt-3 flex items-center justify-between rounded-xl bg-mist/60 px-3 py-2 text-sm font-semibold text-brand hover:bg-mist">
-                    <span>🙋 {rsvps[it._id]?.people || 0} coming</span><span className="text-xs">View list →</span>
-                  </button>
-                  <Link to={`/admin/checkin/${it._id}`} className="mt-1.5 flex items-center justify-between rounded-xl bg-purple-50 px-3 py-2 text-sm font-semibold text-purple-800 hover:bg-purple-100">
-                    <span>📷 Check-in at the gate</span><span className="text-xs">Open →</span>
-                  </Link>
-                </>
-              )}
-              <div className="mt-auto flex gap-2 pt-3">
-                <button onClick={() => startEdit(it)} className="abtn min-h-9 flex-1 px-3">✏️ Edit</button>
-                <button onClick={() => remove(it._id)} className="abtn-danger min-h-9 flex-1 px-3">🗑️ Delete</button>
+              <div className="flex w-full shrink-0 gap-2 sm:w-auto">
+                <button type="button" onClick={() => startEdit(it)} className="abtn min-h-9 flex-1 px-3 sm:flex-none">✏️ Edit</button>
+                <button type="button" onClick={() => remove(it._id)} aria-label={`Delete ${it.titleEn || it.titleHi || 'this item'}`} className="abtn-danger min-h-9 flex-1 px-3 sm:flex-none">🗑️<span className="sm:sr-only"> Delete</span></button>
               </div>
-            </div>
-          </li>
-        ))}
+            </li>
+          )
+        })}
       </ul>
       {more && (
         <div className="mt-5 text-center">
