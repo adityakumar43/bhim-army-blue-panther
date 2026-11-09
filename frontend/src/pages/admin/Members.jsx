@@ -323,7 +323,8 @@ export default function Members() {
                   <div className="text-lg leading-tight font-bold">{m.name}</div>
                   <Pill tone={TONE[m.status]}>{STATUS_LABEL[m.status] || m.status}</Pill>
                 </div>
-                <div className="mt-1 space-y-0.5 text-sm text-navy/75">
+                {/* Details side by side, wrapping onto the next line only when the card is narrow */}
+                <div className="mt-1 flex flex-wrap gap-x-4 gap-y-0.5 text-sm text-navy/75">
                   <div>📞 {m.phone}{m.email ? <span className="break-all"> · ✉️ {m.email}</span> : ''}</div>
                   {m.dob && <div>🎂 Born {new Date(m.dob).toLocaleDateString('en-IN', { dateStyle: 'medium', timeZone: 'UTC' })}</div>}
                   {[m.city, m.district, m.state].some(Boolean) && <div>📍 {[m.city, m.district, m.state].filter(Boolean).join(', ')}</div>}
