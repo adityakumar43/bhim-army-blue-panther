@@ -18,3 +18,9 @@ export function portrait(url, width) {
 export function large(url, width) {
   return url && url.includes('/upload/') ? url.replace('/upload/', `/upload/c_limit,w_${width},f_auto,q_auto/`) : url
 }
+// A picture cut to an exact size (like 640 x 360 for a news card). g_auto keeps the important part in view.
+export function thumb(url, width, height) {
+  return url && url.includes('/upload/')
+    ? url.replace('/upload/', `/upload/c_fill,g_auto,w_${width},h_${height},f_auto,q_auto/`)
+    : url
+}
