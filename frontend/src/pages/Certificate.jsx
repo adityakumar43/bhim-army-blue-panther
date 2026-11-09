@@ -367,7 +367,7 @@ export default function Certificate() {
                 <div className="mb-4 flex flex-wrap gap-2">
                     <button onClick={print} className="btn gap-2 bg-brand text-white">🖨️ प्रिंट / PDF सेव करें · Print or save as PDF</button>
                 </div>
-                <p className="mb-3 text-sm text-navy/60">
+                <p className="mb-3 text-sm text-navy/65">
                     PDF के लिए: प्रिंट में "Save as PDF" चुनें। For a PDF, choose "Save as PDF" as the printer.
                 </p>
                 <div className="overflow-hidden rounded-lg shadow-xl ring-1 ring-navy/10">

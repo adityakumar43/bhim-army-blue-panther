@@ -32,17 +32,17 @@ function Bars({ title, rows, label = (r) => r.key, note }) {
     return (
         <figure className="rounded-2xl border border-brand/10 bg-white p-4 shadow-sm sm:p-5">
             <figcaption className="mb-3 font-extrabold">{title}</figcaption>
-            {rows.length === 0 && <p className="text-sm text-navy/60">Nothing yet.</p>}
+            {rows.length === 0 && <p className="text-sm text-navy/65">Nothing yet.</p>}
             <ul className="flex flex-col gap-2">
                 {rows.map((r) => (
                     <li key={r.key} className="grid grid-cols-[minmax(0,12rem)_1fr_auto] items-center gap-2 text-sm" title={`${label(r)}: ${r.value}`}>
                         <span className="truncate text-navy/80">{label(r)}</span>
                         <span className="h-3 rounded-r-[4px] bg-brand/80" style={{ width: `${Math.max(2, (r.value / max) * 100)}%` }} />
-                        <span className="w-20 text-right"><b className="text-navy">{n(r.value)}</b> <span className="text-xs text-navy/45">{total ? Math.round((r.value / total) * 100) : 0}%</span></span>
+                        <span className="w-20 text-right"><b className="text-navy">{n(r.value)}</b> <span className="text-xs text-navy/65">{total ? Math.round((r.value / total) * 100) : 0}%</span></span>
                     </li>
                 ))}
             </ul>
-            {note && <p className="mt-3 text-xs text-navy/50">{note}</p>}
+            {note && <p className="mt-3 text-xs text-navy/65">{note}</p>}
         </figure>
     )
 }
@@ -57,13 +57,13 @@ function DayBars({ data }) {
         <figure className="rounded-2xl border border-brand/10 bg-white p-4 shadow-sm sm:p-5 xl:col-span-2">
             <figcaption className="flex flex-wrap items-baseline justify-between gap-2">
                 <span className="font-extrabold">👥 Visitors per day</span>
-                <span className="text-sm text-navy/60">{label(shown.day)}: <b className="text-navy">{n(shown.visitors)}</b> visitors · {n(shown.views)} pages</span>
+                <span className="text-sm text-navy/65">{label(shown.day)}: <b className="text-navy">{n(shown.visitors)}</b> visitors · {n(shown.views)} pages</span>
             </figcaption>
             <div className="relative mt-5 h-48 sm:h-56" onMouseLeave={() => setActive(null)}>
                 <div aria-hidden="true" className="absolute inset-x-0 top-0 border-t border-dashed border-navy/10" />
                 <div aria-hidden="true" className="absolute inset-x-0 top-1/2 border-t border-dashed border-navy/10" />
-                <span aria-hidden="true" className="absolute -top-2.5 right-0 z-10 bg-white pl-1 text-xs text-navy/50">{n(max)}</span>
-                <span aria-hidden="true" className="pointer-events-none absolute top-1/2 right-0 z-10 -translate-y-1/2 rounded-l bg-white/90 pl-1 text-xs text-navy/50">{n(Math.round(max / 2))}</span>
+                <span aria-hidden="true" className="absolute -top-2.5 right-0 z-10 bg-white pl-1 text-xs text-navy/65">{n(max)}</span>
+                <span aria-hidden="true" className="pointer-events-none absolute top-1/2 right-0 z-10 -translate-y-1/2 rounded-l bg-white/90 pl-1 text-xs text-navy/65">{n(Math.round(max / 2))}</span>
                 <div className="absolute inset-0 flex items-end gap-px border-b border-navy/20 sm:gap-0.5">
                     {data.map((d, i) => (
                         <button key={d.day} type="button" onMouseEnter={() => setActive(i)} onFocus={() => setActive(i)} onClick={() => setActive(i)}
@@ -75,7 +75,7 @@ function DayBars({ data }) {
                 </div>
             </div>
             {/* A few dates under the bars (first, quarters, last) */}
-            <div aria-hidden="true" className="mt-2 flex justify-between text-xs text-navy/55">
+            <div aria-hidden="true" className="mt-2 flex justify-between text-xs text-navy/65">
                 {[...new Set([0, 0.25, 0.5, 0.75, 1].map((f) => Math.round(f * (data.length - 1))))].map((i) => <span key={i}>{label(data[i].day)}</span>)}
             </div>
         </figure>
@@ -128,7 +128,7 @@ export default function Visitors() {
                             <Bars title="🗣️ Language they read in" rows={data.langs} label={(r) => LANGS[r.key] || r.key} />
                         </div>
                     </div>
-                    <p className="mt-4 text-xs text-navy/50">
+                    <p className="mt-4 text-xs text-navy/65">
                         ℹ️ A visitor is counted once a day, so the same person visiting on 3 days counts as 3. Your team (anyone logged in to the admin panel on that device) is not counted. Search engine robots are left out.
                     </p>
                 </>

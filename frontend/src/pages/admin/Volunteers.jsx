@@ -123,7 +123,7 @@ export default function Volunteers() {
                                     <Pill tone={STATUS_TONE[v.status]}>{v.status}</Pill>
                                 </div>
                                 <div className="text-sm text-navy/65">📍 {[v.district, v.state].filter(Boolean).join(', ')}</div>
-                                <div className="text-xs text-navy/55">🕒 {availLabel(v.availability)}</div>
+                                <div className="text-xs text-navy/65">🕒 {availLabel(v.availability)}</div>
                             </div>
                         </div>
                         <div className="mt-3 flex flex-wrap gap-1">

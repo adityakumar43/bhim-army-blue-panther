@@ -207,7 +207,7 @@ export default function Receipt() {
           <button onClick={print} className="btn gap-2 bg-brand text-white shadow-md hover:bg-navy">🖨️ {t('receipt.print')}</button>
           <Link to="/" className="btn gap-2 border-2 border-brand bg-white text-brand hover:bg-mist">🏠 {t('receipt.home')}</Link>
         </div>
-        <p className="mb-4 text-center text-sm text-navy/60">💡 {t('receipt.pdfHint', { defaultValue: 'For a PDF, choose "Save as PDF" as the printer.' })}</p>
+        <p className="mb-4 text-center text-sm text-navy/65">💡 {t('receipt.pdfHint', { defaultValue: 'For a PDF, choose "Save as PDF" as the printer.' })}</p>
         <div className="overflow-hidden rounded-lg shadow-xl ring-1 ring-navy/10">
           <Paper d={data} />
         </div>

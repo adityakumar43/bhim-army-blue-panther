@@ -48,7 +48,7 @@ export default function Videos() {
                 ))}
             </ul>
 
-            {items?.length > 0 && <p className="mt-8 text-center text-sm text-navy/60">▶️ {t('videos.onYoutube')}</p>}
+            {items?.length > 0 && <p className="mt-8 text-center text-sm text-navy/65">▶️ {t('videos.onYoutube')}</p>}
         </div>
     )
 }

@@ -50,7 +50,7 @@ export default function Downloads() {
                                 <span className="text-xs font-semibold text-brand">{c.emoji} {c[lang]}</span>
                                 <h2 className="leading-snug font-extrabold">{pickText(d, 'title', lang)}</h2>
                                 {pickText(d, 'description', lang) && <p className="line-clamp-2 text-sm text-navy/70">{pickText(d, 'description', lang)}</p>}
-                                <span className="mt-0.5 block text-xs text-navy/55">{(d.format || '').toUpperCase()}{d.bytes ? ` · ${fileSize(d.bytes)}` : ''}</span>
+                                <span className="mt-0.5 block text-xs text-navy/65">{(d.format || '').toUpperCase()}{d.bytes ? ` · ${fileSize(d.bytes)}` : ''}</span>
                             </div>
                             <a href={`${BASE}/downloads/${d._id}/file`} target="_blank" rel="noopener noreferrer" className="btn min-h-11 w-full shrink-0 rounded-xl bg-brand px-4 py-2 text-sm text-white sm:w-auto">
                                 📥 {t('dl.download')}

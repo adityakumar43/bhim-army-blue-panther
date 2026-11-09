@@ -45,7 +45,7 @@ export default function StatesList() {
                   <Link to={`/leadership/states/${s.code}`} className={`flex h-full items-center gap-2 rounded-xl border p-3 transition hover:border-brand hover:shadow-md sm:gap-3 sm:p-4 ${n ? 'border-brand/25 bg-white shadow-sm' : 'border-navy/10 bg-white/60'}`}>
                     <span className="min-w-0 flex-1">
                       <span className={`block leading-tight font-extrabold max-sm:text-[15px] ${n ? '' : 'text-navy/70'}`}>{stateName(s, lang)}</span>
-                      <span className={`mt-0.5 block text-xs sm:text-sm ${n ? 'font-semibold text-brand' : 'text-navy/50'}`}>
+                      <span className={`mt-0.5 block text-xs sm:text-sm ${n ? 'font-semibold text-brand' : 'text-navy/65'}`}>
                         {n ? `👥 ${t('leaders.count', { count: n })}` : t('leaders.none')}
                       </span>
                     </span>

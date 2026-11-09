@@ -78,7 +78,7 @@ export default function Updates() {
         <form onSubmit={submit} className="card mb-6 border-brand/30">
           <div className="mb-3 flex items-center justify-between gap-3">
             <h2 className="text-lg font-extrabold">{editing ? '✏️ Edit update' : '➕ Add an update'}</h2>
-            <button type="button" onClick={reset} aria-label="Close" className="flex h-9 w-9 items-center justify-center rounded-lg text-navy/60 hover:bg-mist">
+            <button type="button" onClick={reset} aria-label="Close" className="flex h-9 w-9 items-center justify-center rounded-lg text-navy/65 hover:bg-mist">
               <Icon name="close" size={18} />
             </button>
           </div>
@@ -89,7 +89,7 @@ export default function Updates() {
             <label className="flex flex-col gap-1 font-semibold">Text (English)
               <input value={form.textEn} onChange={set('textEn')} maxLength="200" className="input" />
             </label>
-            <p className="-mt-1 text-xs text-navy/60 sm:col-span-2">Write in one or both languages, up to 200 letters each.</p>
+            <p className="-mt-1 text-xs text-navy/65 sm:col-span-2">Write in one or both languages, up to 200 letters each.</p>
           </div>
           <div className="mt-3 grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
             <label className="flex flex-col gap-1 font-semibold">🔗 Link when clicked (optional)
@@ -106,7 +106,7 @@ export default function Updates() {
               ⭐ Important (shown first)
             </label>
           </div>
-          <p className="mt-2 text-xs text-navy/60">🕒 Leave both dates empty to show it until you delete it. Days follow Indian time: an update starts at 12:00 am on its first day and stays until 11:59 pm on its last day.</p>
+          <p className="mt-2 text-xs text-navy/65">🕒 Leave both dates empty to show it until you delete it. Days follow Indian time: an update starts at 12:00 am on its first day and stays until 11:59 pm on its last day.</p>
           {error && <div className="mt-3"><Notice>{error}</Notice></div>}
           <div className="mt-4 flex justify-end gap-2">
             <button type="button" onClick={reset} className="abtn min-h-11">Cancel</button>
@@ -132,7 +132,7 @@ export default function Updates() {
               </div>
               {a.textEn && <p className="font-semibold">{a.textEn}</p>}
               {a.textHi && <p className={a.textEn ? 'text-navy/80' : 'font-semibold'}>{a.textHi}</p>}
-              <div className="mt-1 text-xs text-navy/60">
+              <div className="mt-1 text-xs text-navy/65">
                 📅 {a.startsAt ? `From ${nice(a.startsAt)}` : 'Starts at once'}{' · '}{a.endsAt ? `Until ${nice(a.endsAt)}` : 'No end date'}
                 {a.link ? ` · 🔗 ${a.link}` : ''}
               </div>

@@ -21,6 +21,15 @@ export default function Hero({ photoOnPhones = true }) {
     if (img?.naturalWidth) setRatio(img.naturalWidth / img.naturalHeight)
   }
   useEffect(measure, []) // in case the photo was already loaded from the browser's cache
+  // Large screen (1024 px and wider)? Hidden on a phone, the photo is not even downloaded.
+  const [wide, setWide] = useState(() => window.matchMedia?.('(min-width: 1024px)').matches ?? true)
+  useEffect(() => {
+    const mq = window.matchMedia?.('(min-width: 1024px)')
+    if (!mq) return
+    const change = () => setWide(mq.matches)
+    mq.addEventListener('change', change)
+    return () => mq.removeEventListener('change', change)
+  }, [])
   const lines = t('tagline').split(/,\s*/) // each part of the tagline on its own line
 
   return (
@@ -69,7 +78,7 @@ export default function Hero({ photoOnPhones = true }) {
           style={photoOk ? { aspectRatio: ratio } : undefined}
         >
           {photoOk
-            ? (
+            ? (photoOnPhones || wide) && (
               // WebP is about half the size of the JPEG; phones take the 640 px one. Very old browsers get hero.jpg.
               <picture>
                 <source type="image/webp" srcSet="/hero-640.webp 640w, /hero-1000.webp 1000w" sizes="(min-width: 1024px) 500px, 100vw" />

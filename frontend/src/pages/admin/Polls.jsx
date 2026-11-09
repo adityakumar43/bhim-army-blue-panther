@@ -23,7 +23,7 @@ function Bars({ poll, counts, total }) {
                 const pct = total ? Math.round((counts[i] / total) * 100) : 0
                 return (
                     <li key={i}>
-                        <div className="mb-1 flex justify-between gap-3 text-sm"><span className="font-semibold">{answer(o)}</span><span><b>{counts[i]}</b> <span className="text-navy/50">({pct}%)</span></span></div>
+                        <div className="mb-1 flex justify-between gap-3 text-sm"><span className="font-semibold">{answer(o)}</span><span><b>{counts[i]}</b> <span className="text-navy/65">({pct}%)</span></span></div>
                         <div className="h-3 overflow-hidden rounded-full bg-navy/10"><div className={`h-full rounded-full ${counts[i] === max && counts[i] ? 'bg-brand' : 'bg-brand/45'}`} style={{ width: `${pct}%` }} /></div>
                     </li>
                 )
@@ -84,7 +84,7 @@ function ResultsDialog({ id, onClose }) {
                                     </div>
                                     <div className="overflow-x-auto">
                                         <table className="w-full min-w-[28rem] text-sm">
-                                            <thead><tr className="border-b border-navy/10 text-left text-navy/60">
+                                            <thead><tr className="border-b border-navy/10 text-left text-navy/65">
                                                 <th className="py-2 pr-3">Place</th><th className="py-2 pr-3 text-right">Answers</th>
                                                 {data.poll.options.map((o, i) => <th key={i} className="max-w-32 truncate py-2 pr-3 text-right" title={answer(o)}>{o.textEn || o.textHi}</th>)}
                                             </tr></thead>
@@ -93,7 +93,7 @@ function ResultsDialog({ id, onClose }) {
                                                     <tr key={r.key} className="border-b border-navy/5">
                                                         <td className="py-2 pr-3 font-semibold">{r.key}</td>
                                                         <td className="py-2 pr-3 text-right">{r.total}</td>
-                                                        {r.counts.map((n, i) => <td key={i} className="py-2 pr-3 text-right">{n} <span className="text-xs text-navy/45">{r.total ? Math.round((n / r.total) * 100) : 0}%</span></td>)}
+                                                        {r.counts.map((n, i) => <td key={i} className="py-2 pr-3 text-right">{n} <span className="text-xs text-navy/65">{r.total ? Math.round((n / r.total) * 100) : 0}%</span></td>)}
                                                     </tr>
                                                 ))}
                                             </tbody>
@@ -171,7 +171,7 @@ export default function Polls() {
                     </div>
 
                     <fieldset className="flex flex-col gap-2">
-                        <legend className="mb-1 font-semibold">Answers to choose from <span className="text-sm font-normal text-navy/55">(2 to 6; Hindi, English or both)</span></legend>
+                        <legend className="mb-1 font-semibold">Answers to choose from <span className="text-sm font-normal text-navy/65">(2 to 6; Hindi, English or both)</span></legend>
                         {form.options.map((o, i) => (
                             <div key={i} className="flex items-center gap-2">
                                 <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-mist text-sm font-bold text-brand">{i + 1}</span>
@@ -179,7 +179,7 @@ export default function Polls() {
                                 <input value={o.textEn} onChange={(e) => setOption(i, 'textEn', e.target.value)} maxLength="120" placeholder="In English" aria-label={`Answer ${i + 1} in English`} className="input min-h-10 flex-1 py-2" />
                                 {form.options.length > 2 && (
                                     <button type="button" onClick={() => setForm((old) => ({ ...old, options: old.options.filter((_, j) => j !== i) }))} aria-label={`Remove answer ${i + 1}`}
-                                        className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg text-navy/40 hover:bg-red-50 hover:text-red-600"><Icon name="close" size={16} /></button>
+                                        className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg text-navy/65 hover:bg-red-50 hover:text-red-600"><Icon name="close" size={16} /></button>
                                 )}
                             </div>
                         ))}
@@ -196,11 +196,11 @@ export default function Polls() {
                             </select>
                         </label>
                         {form.stateCode && (
-                            <label className="flex flex-col gap-1 font-semibold">🏘️ District <span className="text-xs font-normal text-navy/55">(optional)</span>
+                            <label className="flex flex-col gap-1 font-semibold">🏘️ District <span className="text-xs font-normal text-navy/65">(optional)</span>
                                 <DistrictSelect stateCode={form.stateCode} value={form.district} onChange={(d) => setForm({ ...form, district: d })} english />
                             </label>
                         )}
-                        <label className="flex flex-col gap-1 font-semibold">⏳ Closes on <span className="text-xs font-normal text-navy/55">(optional)</span>
+                        <label className="flex flex-col gap-1 font-semibold">⏳ Closes on <span className="text-xs font-normal text-navy/65">(optional)</span>
                             <input type="datetime-local" value={form.closesAt} onChange={set('closesAt')} className="input" /></label>
                     </div>
                     <label className="flex items-center gap-2"><input type="checkbox" checked={form.showResults} onChange={set('showResults')} className="h-4 w-4 accent-brand" />
@@ -219,9 +219,9 @@ export default function Polls() {
                             <b className="min-w-0 flex-1 text-lg leading-snug">{q(p)}</b>
                             <Pill tone={p.open ? 'green' : 'red'}>{p.open ? '🟢 Open' : '⏹️ Closed'}</Pill>
                         </div>
-                        {p.questionEn && p.questionHi && <p className="text-sm text-navy/60">{p.questionHi}</p>}
+                        {p.questionEn && p.questionHi && <p className="text-sm text-navy/65">{p.questionHi}</p>}
                         <p className="text-sm text-navy/70">📍 {areaOf(p)} · 🗳️ <b>{p.total}</b> answers{p.closesAt ? ` · ⏳ ${p.open ? 'closes' : 'closed'} ${when(p.closesAt)}` : ''}{p.showResults === false ? ' · 🙈 results hidden from members' : ''}</p>
-                        <p className="text-xs text-navy/50">✍️ {p.createdByName} · {when(p.createdAt)}</p>
+                        <p className="text-xs text-navy/65">✍️ {p.createdByName} · {when(p.createdAt)}</p>
                         <div className="mt-auto flex flex-wrap gap-2 pt-2">
                             <button onClick={() => setOpen(p._id)} className="abtn-primary min-h-9 px-3">📊 Results</button>
                             <button onClick={() => toggle(p)} className="abtn min-h-9 px-3">{p.open ? '⏹️ Close now' : '▶️ Open again'}</button>

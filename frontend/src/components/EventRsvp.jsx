@@ -83,7 +83,7 @@ export default function EventRsvp({ eventId }) {
             <button disabled={busy} className="btn flex-1 bg-brand text-white disabled:opacity-60">{busy ? t('rsvp.sending') : t('rsvp.submit')}</button>
             <button type="button" onClick={() => setOpenForm(false)} className="btn border-2 border-navy/20">{t('rsvp.cancel')}</button>
           </div>
-          <p className="text-xs text-navy/60 sm:col-span-2">  {t('rsvp.privacy')} <Link to="/privacy" className="font-semibold text-brand underline">{t('privacy.title', { defaultValue: 'Privacy Policy' })}</Link></p>
+          <p className="text-xs text-navy/65 sm:col-span-2">  {t('rsvp.privacy')} <Link to="/privacy" className="font-semibold text-brand underline">{t('privacy.title', { defaultValue: 'Privacy Policy' })}</Link></p>
         </form>
       )}
     </section>

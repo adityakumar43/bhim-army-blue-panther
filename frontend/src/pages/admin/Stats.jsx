@@ -33,7 +33,7 @@ export function MonthBars({ title, data, format = (v) => v }) {
     <figure className="rounded-2xl border border-brand/10 bg-white p-4 shadow-sm sm:p-5">
       <figcaption className="flex flex-wrap items-baseline justify-between gap-2">
         <span className="font-extrabold">{title}</span>
-        <span className="text-sm text-navy/60">
+        <span className="text-sm text-navy/65">
           {monthName(data[shown].month, true)}: <b className="text-navy">{format(data[shown].value)}</b>
         </span>
       </figcaption>
@@ -41,7 +41,7 @@ export function MonthBars({ title, data, format = (v) => v }) {
         {/* light guide lines at the top and middle */}
         <div aria-hidden="true" className="absolute inset-x-0 top-0 border-t border-dashed border-navy/10" />
         <div aria-hidden="true" className="absolute inset-x-0 top-1/2 border-t border-dashed border-navy/10" />
-        <span aria-hidden="true" className="absolute -top-2 right-0 bg-white pl-1 text-[10px] text-navy/45">{format(max)}</span>
+        <span aria-hidden="true" className="absolute -top-2 right-0 bg-white pl-1 text-[10px] text-navy/65">{format(max)}</span>
         <div className="absolute inset-0 flex items-end gap-0.5 border-b border-navy/20 sm:gap-1">
           {data.map((d, i) => (
             <button key={d.month} type="button" onMouseEnter={() => setActive(i)} onFocus={() => setActive(i)} onClick={() => setActive(i)}
@@ -55,12 +55,12 @@ export function MonthBars({ title, data, format = (v) => v }) {
           ))}
         </div>
       </div>
-      <div aria-hidden="true" className="mt-1.5 flex gap-0.5 text-center text-[10px] text-navy/50 sm:gap-1">
+      <div aria-hidden="true" className="mt-1.5 flex gap-0.5 text-center text-[10px] text-navy/65 sm:gap-1">
         {data.map((d, i) => (
           <span key={d.month} className={`flex-1 ${i % 2 && i !== data.length - 1 ? 'max-sm:invisible' : ''}`}>{monthName(d.month)}</span>
         ))}
       </div>
-      <p className="mt-2 text-xs text-navy/50">Last 12 months · this month so far: {format(last.value)}</p>
+      <p className="mt-2 text-xs text-navy/65">Last 12 months · this month so far: {format(last.value)}</p>
     </figure>
   )
 }
@@ -73,7 +73,7 @@ function Bars({ title, data, empty, noun = 'rows' }) {
   return (
     <figure className="rounded-2xl border border-brand/10 bg-white p-4 shadow-sm sm:p-5">
       <figcaption className="mb-3 font-extrabold">{title}</figcaption>
-      {data.length === 0 && <p className="text-sm text-navy/60">{empty}</p>}
+      {data.length === 0 && <p className="text-sm text-navy/65">{empty}</p>}
       <ul className="flex flex-col gap-2">
         {top.map((d) => (
           <li key={d.label} className="grid grid-cols-[minmax(0,13rem)_1fr_auto] items-center gap-2 text-sm" title={`${d.label}: ${d.value}`}>
@@ -104,7 +104,7 @@ export default function Stats() {
       <div className="grid gap-3 [grid-template-columns:repeat(auto-fill,minmax(12rem,1fr))]">
         {Array.from({ length: 4 }, (_, i) => <div key={i} className="h-[74px] animate-pulse rounded-2xl border border-brand/10 bg-white" />)}
       </div>
-      <p className="mt-2 text-sm text-navy/50">Loading the numbers…</p>
+      <p className="mt-2 text-sm text-navy/65">Loading the numbers…</p>
     </section>
   )
   if (Object.keys(s).length === 0) return null

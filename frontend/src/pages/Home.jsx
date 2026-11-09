@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react'
+import { lazy, Suspense, useEffect, useState } from 'react'
 import { Link } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
 import Hero from '../components/Hero.jsx'
@@ -8,9 +8,12 @@ import { api } from '../lib/api.js'
 import { pickText, formatDate } from '../lib/text.js'
 import { cdn } from '../lib/img.js'
 import { campaigns } from '../data/compaigns.js'
-import InspirationsPreview from '../components/InspirationsPreview.jsx'
+import ErrorBoundary from '../components/ErrorBoundary.jsx'
 import EmptyState from '../components/EmptyState.jsx'
 import SamvidhanBanner from '../components/SamvidhanBanner.jsx'
+
+// The leaders section is near the bottom, so it (and its long texts) is loaded separately, after the top of the page
+const InspirationsPreview = lazy(() => import('../components/InspirationsPreview.jsx'))
 
 const hideBroken = (e) => { e.currentTarget.style.display = 'none' }
 // The slides from the last visit, shown at once while the new list loads (null = never loaded on this device)
@@ -78,8 +81,9 @@ export default function Home() {
       {slides === null
         ? <div aria-hidden="true" className="aspect-4/3 w-full bg-navy sm:aspect-video lg:aspect-21/9 lg:max-h-136" />
         : slides.length > 0 && <Slider slides={slides} />}
-      {/* On phones the big photo in the Hero is left out when the slider above already shows pictures */}
-      <Hero photoOnPhones={!slides?.length} />
+      {/* On phones the big photo in the Hero is left out when the slider above shows pictures. While the slides are still
+          loading it stays out too, so the page does not jump when they arrive; it appears only if there are no slides. */}
+      <Hero photoOnPhones={slides !== null && slides.length === 0} />
 
       {/* Our path: the three principles */}
       <section className="bg-white">
@@ -161,7 +165,11 @@ export default function Home() {
 
 
       {/* Opposite colour to Latest News above, so the two sections never run together */}
-      <InspirationsPreview grey={events.length === 0} />
+      <ErrorBoundary quiet>
+        <Suspense fallback={<div aria-hidden="true" className={`min-h-[36rem] ${events.length === 0 ? 'bg-[#f3f6fb]' : 'bg-white'}`} />}>
+          <InspirationsPreview grey={events.length === 0} />
+        </Suspense>
+      </ErrorBoundary>
 
       {/* Call to action */}
       <section className="bg-linear-to-br from-navy via-[#0d2a6b] to-brand text-white">

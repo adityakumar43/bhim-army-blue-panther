@@ -117,7 +117,7 @@ export default function Gallery() {
         {items && items.length > 0 && shown.length === 0 && <p className="text-navy/70">{t('gallery.noMatch')}</p>}
 
         {shown.length > 0 && (
-          <p className="mb-4 text-sm font-semibold text-navy/60">{t('gallery.count', { count: shown.length, defaultValue: '{{count}} photos' })}</p>
+          <p className="mb-4 text-sm font-semibold text-navy/65">{t('gallery.count', { count: shown.length, defaultValue: '{{count}} photos' })}</p>
         )}
 
         {/* 2 across on phones, 3 on tablets, 4 on computers. Every photo is cut to the same shape so the rows line up;
@@ -148,7 +148,7 @@ export default function Gallery() {
         {shown.length > visible && (
           <div className="mt-8 text-center">
             <button type="button" onClick={() => setVisible((v) => v + STEP)} className="btn border-2 border-brand bg-white text-brand hover:bg-mist">
-              ⬇️ {t('gallery.more', { defaultValue: 'Show more photos' })} <span className="text-navy/50">({shown.length - visible})</span>
+              ⬇️ {t('gallery.more', { defaultValue: 'Show more photos' })} <span className="text-navy/65">({shown.length - visible})</span>
             </button>
           </div>
         )}

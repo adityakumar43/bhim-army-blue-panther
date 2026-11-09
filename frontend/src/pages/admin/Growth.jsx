@@ -17,9 +17,9 @@ function Places({ title, rows, onPick, empty }) {
         <figure className="rounded-2xl border border-brand/10 bg-white p-4 shadow-sm sm:p-5">
             <figcaption className="mb-3 flex flex-wrap items-baseline justify-between gap-2">
                 <span className="font-extrabold">{title}</span>
-                <span className="text-xs text-navy/55">members · <span className="text-green-700">new in 30 days</span></span>
+                <span className="text-xs text-navy/65">members · <span className="text-green-700">new in 30 days</span></span>
             </figcaption>
-            {rows.length === 0 && <p className="text-sm text-navy/60">{empty}</p>}
+            {rows.length === 0 && <p className="text-sm text-navy/65">{empty}</p>}
             <ul className="flex flex-col gap-1">
                 {shown.map((r) => {
                     const inner = (
@@ -111,15 +111,15 @@ export default function Growth() {
                         {/* Who brings in the most new members */}
                         <figure className="rounded-2xl border border-brand/10 bg-white p-4 shadow-sm sm:p-5">
                             <figcaption className="mb-1 font-extrabold">🤝 Top inviters</figcaption>
-                            <p className="mb-3 text-xs text-navy/60">Members whose invite link brought in the most approved members{data.state ? ` in ${place}` : ''}.</p>
-                            {data.inviters.length === 0 && <p className="text-sm text-navy/60">Nobody has joined with an invite link yet. Members find their link on the “Check membership status” page.</p>}
+                            <p className="mb-3 text-xs text-navy/65">Members whose invite link brought in the most approved members{data.state ? ` in ${place}` : ''}.</p>
+                            {data.inviters.length === 0 && <p className="text-sm text-navy/65">Nobody has joined with an invite link yet. Members find their link on the “Check membership status” page.</p>}
                             <ol className="flex flex-col divide-y divide-navy/5">
                                 {data.inviters.map((r, i) => (
                                     <li key={r.memberNo || i} className="flex items-center gap-3 py-2 text-sm">
                                         <span className={`flex h-7 w-7 shrink-0 items-center justify-center rounded-full text-xs font-extrabold ${i < 3 ? 'bg-gold text-navy' : 'bg-mist text-navy/70'}`}>{i + 1}</span>
                                         <span className="min-w-0 flex-1">
                                             <b className="block truncate">{r.name}</b>
-                                            <span className="block truncate text-xs text-navy/60">{[r.memberNo, r.place].filter(Boolean).join(' · ')}</span>
+                                            <span className="block truncate text-xs text-navy/65">{[r.memberNo, r.place].filter(Boolean).join(' · ')}</span>
                                         </span>
                                         <b className="text-brand">{n(r.value)}</b>
                                     </li>
@@ -131,7 +131,7 @@ export default function Growth() {
                         {data.state && data.emptyDistricts.length > 0 && (
                             <figure className="rounded-2xl border border-amber-200 bg-amber-50/60 p-4 shadow-sm sm:p-5">
                                 <figcaption className="mb-1 font-extrabold">🌱 No members yet in {n(data.emptyDistricts.length)} {data.emptyDistricts.length === 1 ? 'district' : 'districts'}</figcaption>
-                                <p className="mb-3 text-xs text-navy/60">Where to grow next in {place}.</p>
+                                <p className="mb-3 text-xs text-navy/65">Where to grow next in {place}.</p>
                                 <div className="flex flex-wrap gap-1.5">
                                     {(showEmpty ? data.emptyDistricts : data.emptyDistricts.slice(0, 30)).map((d) => (
                                         <span key={d} className="rounded-full border border-amber-300 bg-white px-2.5 py-1 text-xs font-semibold text-navy/80">{d}</span>

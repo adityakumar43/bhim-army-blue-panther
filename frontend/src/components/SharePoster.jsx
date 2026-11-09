@@ -86,7 +86,7 @@ export default function SharePoster({ item, kind, link, className = '' }) {
                             <button type="button" onClick={download} className="btn border-2 border-brand text-brand">
                                 {t('poster.download', { defaultValue: 'Download' })}
                             </button>
-                            <button type="button" onClick={() => setPoster(null)} className="py-1 text-sm font-semibold text-navy/60 underline">{t('poster.close', { defaultValue: 'Close' })}</button>
+                            <button type="button" onClick={() => setPoster(null)} className="py-1 text-sm font-semibold text-navy/65 underline">{t('poster.close', { defaultValue: 'Close' })}</button>
                         </div>
                     </div>
                 </div>,

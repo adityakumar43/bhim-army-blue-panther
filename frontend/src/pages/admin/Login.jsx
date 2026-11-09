@@ -55,7 +55,7 @@ export default function Login() {
             <img src="/logo-160.webp" alt="" className="h-14 w-14 shrink-0 rounded-xl object-cover shadow-sm ring-2 ring-mist" />
             <div>
               <p className="leading-tight font-bold text-brand">Bhim Army Blue Panther</p>
-              <p className="text-xs text-navy/60">शिक्षित बनो, संगठित रहो, संघर्ष करो</p>
+              <p className="text-xs text-navy/65">शिक्षित बनो, संगठित रहो, संघर्ष करो</p>
             </div>
           </div>
           <div className="mt-3 flex items-center justify-between gap-2 border-t border-navy/10 pt-3">
@@ -77,18 +77,18 @@ export default function Login() {
             <>
               <label className="flex flex-col gap-1 font-semibold">Email
                 <div className="relative">
-                  <Icon name="mail" size={18} className="pointer-events-none absolute top-1/2 left-3.5 -translate-y-1/2 text-navy/40" />
+                  <Icon name="mail" size={18} className="pointer-events-none absolute top-1/2 left-3.5 -translate-y-1/2 text-navy/65" />
                   <input type="email" required autoComplete="username" value={form.email} placeholder="you@example.com"
                     onChange={(e) => setForm({ ...form, email: e.target.value })} className="input pl-11" />
                 </div>
               </label>
               <label className="flex flex-col gap-1 font-semibold">Password
                 <div className="relative">
-                  <Icon name="lock" size={18} className="pointer-events-none absolute top-1/2 left-3.5 -translate-y-1/2 text-navy/40" />
+                  <Icon name="lock" size={18} className="pointer-events-none absolute top-1/2 left-3.5 -translate-y-1/2 text-navy/65" />
                   <input type={show ? 'text' : 'password'} required autoComplete="current-password" value={form.password}
                     onChange={(e) => setForm({ ...form, password: e.target.value })} className="input pr-12 pl-11" />
                   <button type="button" onClick={() => setShow(!show)} aria-label={show ? 'Hide password' : 'Show password'}
-                    className="absolute top-1/2 right-1.5 flex h-10 w-10 -translate-y-1/2 items-center justify-center rounded-lg text-navy/50 hover:bg-mist hover:text-brand">
+                    className="absolute top-1/2 right-1.5 flex h-10 w-10 -translate-y-1/2 items-center justify-center rounded-lg text-navy/65 hover:bg-mist hover:text-brand">
                     <Icon name={show ? 'eyeOff' : 'eye'} size={18} />
                   </button>
                 </div>
@@ -105,7 +105,7 @@ export default function Login() {
             </button>
           )}
         </form>
-        <Link to="/" className="mt-3 flex items-center justify-center gap-1 text-sm font-semibold text-navy/60 hover:text-brand">← Back to the website</Link>
+        <Link to="/" className="mt-3 flex items-center justify-center gap-1 text-sm font-semibold text-navy/65 hover:text-brand">← Back to the website</Link>
       </div>
     </div>
   )

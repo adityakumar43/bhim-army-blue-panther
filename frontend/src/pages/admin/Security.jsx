@@ -109,7 +109,7 @@ export default function Security() {
                 </ol>
                 <div className="flex flex-col items-center gap-2 md:row-span-2">
                   <img src={setup.qr} alt="QR code for your authenticator app" className="h-48 w-48 rounded-xl border border-brand/15 bg-white p-2 shadow-sm" />
-                  <p className="max-w-48 text-center text-xs text-navy/60">Cannot scan? Type this key into the app instead:</p>
+                  <p className="max-w-48 text-center text-xs text-navy/65">Cannot scan? Type this key into the app instead:</p>
                   <code className="max-w-48 rounded-lg bg-mist px-2 py-1 text-center text-xs font-semibold break-all">{setup.secret}</code>
                 </div>
                 <div className="flex flex-col gap-3">
@@ -145,7 +145,7 @@ export default function Security() {
                   </label>
                 </div>
                 <div><button disabled={busy} className="abtn-danger min-h-11">🔓 Turn off two-step login</button></div>
-                <p className="text-xs text-navy/60">📱 Lost your phone? Another super admin can reset it from the Team &amp; roles page.</p>
+                <p className="text-xs text-navy/65">📱 Lost your phone? Another super admin can reset it from the Team &amp; roles page.</p>
               </form>
             )}
           </section>
@@ -165,7 +165,7 @@ export default function Security() {
 
       <section className="mt-6">
         <h2 className="mb-1 text-lg font-extrabold">🕘 Your recent logins</h2>
-        <p className="mb-3 text-sm text-navy/60">If you see a login you don't recognise, change your password at once and tell a super admin.</p>
+        <p className="mb-3 text-sm text-navy/65">If you see a login you don't recognise, change your password at once and tell a super admin.</p>
         <LoginHistory mine limit={10} />
       </section>
     </>

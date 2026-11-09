@@ -83,7 +83,7 @@ export default function Events() {
                             <button onClick={() => move(1)} aria-label={t('cal.next', { defaultValue: 'Next month' })} className={navBtn}>›</button>
                         </div>
 
-                        <div className="grid grid-cols-7 text-center text-[11px] font-bold text-navy/45 uppercase">
+                        <div className="grid grid-cols-7 text-center text-[11px] font-bold text-navy/65 uppercase">
                             {weekdays.map((w) => <div key={w} className="pb-1.5">{w}</div>)}
                         </div>
                         <div className="grid grid-cols-7 gap-0.5">
@@ -109,7 +109,7 @@ export default function Events() {
                             })}
                         </div>
 
-                        <div className="mt-3 flex items-center justify-between gap-2 border-t border-navy/5 pt-3 text-xs text-navy/55">
+                        <div className="mt-3 flex items-center justify-between gap-2 border-t border-navy/5 pt-3 text-xs text-navy/65">
                             <span className="flex items-center gap-1.5"><span className="h-1.5 w-1.5 rounded-full bg-gold" aria-hidden="true" />{t('cal.hasEvents', { defaultValue: 'Has events' })}</span>
                             <button onClick={() => { goToday(); setPicked('') }} className="rounded-lg px-2 py-1 font-semibold text-brand hover:bg-mist">{t('cal.today', { defaultValue: 'Today' })}</button>
                         </div>

@@ -50,7 +50,7 @@ function Attendance({ m }) {
     setOpen(!open)
     if (!list) api.get(`/members/${m._id}/attendance`).then(setList).catch((e) => setError(e.message))
   }
-  if (!m.attended) return <div className="text-navy/50">🎟️ No events attended yet</div>
+  if (!m.attended) return <div className="text-navy/65">🎟️ No events attended yet</div>
   return (
     <div>
       🎟️ Came to <b className="text-navy">{m.attended}</b> {m.attended === 1 ? 'event' : 'events'}
@@ -267,7 +267,7 @@ export default function Members() {
         <div className="card mb-5 flex flex-wrap items-center gap-2 p-3 sm:p-3">
           <label className="relative min-w-60 flex-[2]">
             <span className="sr-only">Search</span>
-            <span aria-hidden="true" className="pointer-events-none absolute top-1/2 left-3.5 -translate-y-1/2 text-navy/40">🔍</span>
+            <span aria-hidden="true" className="pointer-events-none absolute top-1/2 left-3.5 -translate-y-1/2 text-navy/65">🔍</span>
             <input type="search" value={q} onChange={(e) => setQ(e.target.value)} placeholder="Search name, phone, email or member no."
               className="input min-h-10 py-2 pl-10" />
           </label>
@@ -288,7 +288,7 @@ export default function Members() {
           {filtering && (
             <button onClick={clearFilters} className="abtn min-h-10 px-3"><Icon name="close" size={16} /> Clear</button>
           )}
-          <p className="w-full px-1 text-xs text-navy/60">
+          <p className="w-full px-1 text-xs text-navy/65">
             Showing <b className="text-navy">{shown.length}</b> of {items.length} {status} applications
           </p>
         </div>
@@ -409,7 +409,7 @@ export default function Members() {
             <button onClick={() => printCards(picked)} className="abtn min-h-9 border-0 bg-gold px-4 text-navy hover:bg-white">🖨️ Print cards</button>
           )}
           {!progress && status === 'pending' && (
-            <button onClick={() => bulk('rejected')} className="abtn min-h-9 border-0 bg-white/15 px-4 text-white hover:bg-red-500 hover:text-white">❌ Reject all</button>
+            <button onClick={() => bulk('rejected')} className="abtn min-h-9 border-0 bg-white/15 px-4 text-white hover:bg-red-600 hover:text-white">❌ Reject all</button>
           )}
           {!progress && <button onClick={() => setPicked([])} className="min-h-9 px-2 text-sm text-white/70 underline hover:text-white">Clear</button>}
         </div>

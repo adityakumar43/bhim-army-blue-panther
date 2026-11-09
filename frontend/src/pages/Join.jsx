@@ -41,7 +41,7 @@ function Field({ label, icon, prefix, required, ok, problem, hint, className = '
         {ok && <Svg name="check" size={18} className="pointer-events-none absolute top-1/2 right-3 -translate-y-1/2 text-green-600" />}
       </span>
       {problem ? <span className="text-xs font-semibold text-red-700">⚠️ {problem}</span>
-        : hint && <span className="text-xs font-normal text-navy/60">{hint}</span>}
+        : hint && <span className="text-xs font-normal text-navy/65">{hint}</span>}
     </label>
   )
 }
@@ -339,7 +339,7 @@ export default function Join() {
                   <input type="file" accept="image/jpeg,image/png,image/webp" onChange={(e) => e.target.files[0] && setPhoto(e.target.files[0])} className="sr-only" />
                 </label>
               </div>
-              <p className="mt-2 text-sm text-navy/60">{t('join.photoHint')}</p>
+              <p className="mt-2 text-sm text-navy/65">{t('join.photoHint')}</p>
               {photo && <p className="mt-1 truncate text-xs text-navy/70">📎 {photo.name}</p>}
             </div>
           </div>

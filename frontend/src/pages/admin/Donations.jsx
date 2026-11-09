@@ -56,7 +56,7 @@ export default function Donations() {
           {/* One line per donation, like a table: who, how much, when and the receipt, then the email */}
           {items.length > 0 && (
             <div className="card overflow-hidden p-0 sm:p-0">
-              <div aria-hidden="true" className="hidden grid-cols-[minmax(0,1fr)_6.5rem_13rem_18rem] gap-4 border-b border-navy/10 bg-mist/50 px-4 py-2 text-xs font-extrabold tracking-wider text-navy/55 uppercase lg:grid">
+              <div aria-hidden="true" className="hidden grid-cols-[minmax(0,1fr)_6.5rem_13rem_18rem] gap-4 border-b border-navy/10 bg-mist/50 px-4 py-2 text-xs font-extrabold tracking-wider text-navy/65 uppercase lg:grid">
                 <span>Donor</span><span className="text-right">Amount</span><span>Date · Receipt</span><span>Receipt email</span>
               </div>
               <ul className="divide-y divide-navy/8">

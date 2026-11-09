@@ -10,7 +10,7 @@ export const inspirations = [
     yearsHi: '1891 – 1956',
     titleEn: 'Architect of the Indian Constitution',
     titleHi: 'भारतीय संविधान के निर्माता',
-    photo: '/inspirations/ambedkar.jpg?v=3',
+    photo: '/inspirations/ambedkar.webp?v=3',
     shortEn: "Born into a family treated as 'untouchable', Babasaheb became one of India's most highly educated leaders. He chaired the committee that drafted the Constitution and spent his life fighting caste discrimination.",
     shortHi: "जिस परिवार को 'अछूत' माना जाता था, उसमें जन्मे बाबासाहेब भारत के सबसे शिक्षित नेताओं में से एक बने। उन्होंने संविधान की प्रारूप समिति की अध्यक्षता की और पूरा जीवन जातिगत भेदभाव के विरुद्ध संघर्ष में लगाया।",
     contributionsEn: [
@@ -44,7 +44,7 @@ export const inspirations = [
     yearsHi: '1874 – 1922',
     titleEn: 'Ruler of Kolhapur and pioneer of reservation',
     titleHi: 'कोल्हापुर के शासक और आरक्षण के अग्रदूत',
-    photo: '/inspirations/shahu-maharaj.jpg',
+    photo: '/inspirations/shahu-maharaj.webp',
     shortEn: 'As ruler of the princely state of Kolhapur, Shahu Maharaj used the power of the state to open education and government jobs to communities that had been kept out for centuries.',
     shortHi: 'कोल्हापुर रियासत के शासक के रूप में शाहू महाराज ने सत्ता का उपयोग उन समुदायों के लिए शिक्षा और सरकारी नौकरियों के दरवाज़े खोलने में किया, जिन्हें सदियों से बाहर रखा गया था।',
     contributionsEn: [
@@ -78,7 +78,7 @@ export const inspirations = [
     yearsHi: '1879 – 1973',
     titleEn: 'Founder of the Self-Respect Movement',
     titleHi: 'आत्मसम्मान आंदोलन के संस्थापक',
-    photo: '/inspirations/periyar.jpg',
+    photo: '/inspirations/periyar.webp',
     shortEn: 'Periyar fought caste hierarchy, superstition and the subordination of women. His Self-Respect Movement asked every person to live with dignity and to question blind faith.',
     shortHi: 'पेरियार ने जातिगत ऊँच-नीच, अंधविश्वास और महिलाओं की अधीनता के विरुद्ध संघर्ष किया। उनके आत्मसम्मान आंदोलन ने हर व्यक्ति से सम्मान के साथ जीने और अंधश्रद्धा पर सवाल उठाने को कहा।',
     contributionsEn: [
@@ -112,7 +112,7 @@ export const inspirations = [
     yearsHi: '1827 – 1890',
     titleEn: 'Pioneer of education and social revolution',
     titleHi: 'शिक्षा और सामाजिक क्रांति के अग्रदूत',
-    photo: '/inspirations/jyotirao-phule.jpg',
+    photo: '/inspirations/jyotirao-phule.webp',
     shortEn: 'Mahatma Jyotirao Phule opened schools for girls and for children of oppressed castes at a time when this was considered unthinkable. He founded the Satyashodhak Samaj to fight caste and priestly domination.',
     shortHi: 'महात्मा ज्योतिराव फुले ने ऐसे समय में लड़कियों और शोषित जातियों के बच्चों के लिए स्कूल खोले, जब यह सोचना भी कठिन था। जाति और पुरोहितवाद के वर्चस्व के विरुद्ध उन्होंने सत्यशोधक समाज की स्थापना की।',
     contributionsEn: [
@@ -146,7 +146,7 @@ export const inspirations = [
     yearsHi: '1831 – 1897',
     titleEn: "Pioneer of women's education",
     titleHi: 'स्त्री शिक्षा की अग्रदूत',
-    photo: '/inspirations/savitribai-phule.jpg',
+    photo: '/inspirations/savitribai-phule.webp',
     shortEn: 'Savitribai Phule taught girls even when people abused her and threw dirt at her for doing so. A teacher, poet and reformer, she gave her life serving plague patients.',
     shortHi: 'सावित्रीबाई फुले ने तब भी लड़कियों को पढ़ाया, जब इसके लिए लोग उन्हें गालियाँ देते और उन पर कीचड़ फेंकते थे। शिक्षिका, कवयित्री और समाज सुधारक सावित्रीबाई ने प्लेग रोगियों की सेवा करते हुए अपना जीवन दे दिया।',
     contributionsEn: [
@@ -180,7 +180,7 @@ export const inspirations = [
     yearsHi: '19वीं सदी',
     titleEn: 'Teacher and companion of Savitribai Phule',
     titleHi: 'शिक्षिका और सावित्रीबाई फुले की सहयोगी',
-    photo: '/inspirations/fatima-sheikh.jpg',
+    photo: '/inspirations/fatima-sheikh.webp',
     shortEn: 'Fatima Sheikh is remembered as a teacher who worked alongside Savitribai Phule in the early schools for girls and children of oppressed castes in Pune.',
     shortHi: 'फ़ातिमा शेख को उस शिक्षिका के रूप में याद किया जाता है, जिन्होंने पुणे में लड़कियों और शोषित जातियों के बच्चों के शुरुआती स्कूलों में सावित्रीबाई फुले के साथ काम किया।',
     contributionsEn: [
@@ -216,7 +216,7 @@ export const inspirations = [
     yearsHi: '1911 – 1993',
     titleEn: 'Anti-caste writer and publisher',
     titleHi: 'जाति-विरोधी लेखक और प्रकाशक',
-    photo: '/inspirations/lalai-singh-yadav.jpg',
+    photo: '/inspirations/lalai-singh-yadav.webp',
     shortEn: "Periyar Lalai Singh Yadav brought Periyar's anti-caste ideas to Hindi readers. When his book was banned, he fought the case all the way to the Supreme Court and won.",
     shortHi: 'पेरियार ललई सिंह यादव ने पेरियार के जाति-विरोधी विचार हिंदी पाठकों तक पहुँचाए। जब उनकी किताब पर प्रतिबंध लगा, तो उन्होंने सुप्रीम कोर्ट तक मुक़दमा लड़ा और जीते।',
     contributionsEn: [
@@ -250,7 +250,7 @@ export const inspirations = [
     yearsHi: 'लगभग 1750 – 1785',
     titleEn: 'Adivasi hero of early resistance to British rule',
     titleHi: 'अंग्रेज़ी शासन के विरुद्ध शुरुआती प्रतिरोध के आदिवासी नायक',
-    photo: '/inspirations/tilka-manjhi.jpg',
+    photo: '/inspirations/tilka-manjhi.webp',
     shortEn: 'In Adivasi memory, Tilka Manjhi is honoured as one of the first to take up arms against the East India Company, long before 1857.',
     shortHi: 'आदिवासी स्मृति में तिलका मांझी को 1857 से बहुत पहले ईस्ट इंडिया कंपनी के विरुद्ध हथियार उठाने वाले शुरुआती योद्धाओं में सम्मान से याद किया जाता है।',
     contributionsEn: [
@@ -286,7 +286,7 @@ export const inspirations = [
     yearsHi: 'शहादत 1857',
     titleEn: 'Dalit heroine of the 1857 uprising',
     titleHi: '1857 की क्रांति की दलित वीरांगना',
-    photo: '/inspirations/uda-devi.jpg',
+    photo: '/inspirations/uda-devi.webp',
     shortEn: 'Uda Devi, a Pasi woman from Awadh, fought the British during the 1857 uprising in Lucknow and gave her life at the Battle of Sikandar Bagh.',
     shortHi: 'अवध के पासी समुदाय की वीरांगना ऊदा देवी ने 1857 की क्रांति में लखनऊ में अंग्रेज़ों से लड़ाई की और सिकंदर बाग़ की लड़ाई में अपने प्राण न्योछावर किए।',
     contributionsEn: [
@@ -320,7 +320,7 @@ export const inspirations = [
     yearsHi: '1934 – 2006',
     titleEn: 'Organiser of the Bahujan movement',
     titleHi: 'बहुजन आंदोलन के संगठक',
-    photo: '/inspirations/kanshi-ram.jpg',
+    photo: '/inspirations/kanshi-ram.webp',
     shortEn: 'Manyavar Kanshi Ram Sahib gave his whole life to organising the Bahujan communities, so that the oppressed majority would have its own voice in public life.',
     shortHi: 'मान्यवर कांशीराम साहब ने अपना पूरा जीवन बहुजन समाज को संगठित करने में लगाया, ताकि शोषित बहुसंख्यक समाज की सार्वजनिक जीवन में अपनी आवाज़ हो।',
     contributionsEn: [
@@ -388,7 +388,7 @@ export const inspirations = [
     yearsHi: '1856 – 1928',
     titleEn: 'Saint and social reformer of Kerala',
     titleHi: 'केरल के संत और समाज सुधारक',
-    photo: '/inspirations/narayana-guru.jpg',
+    photo: '/inspirations/narayana-guru.webp',
     shortEn: "Sree Narayana Guru challenged caste barriers in Kerala through education, temples open to all, and his message 'One caste, one religion, one God for all'.",
     shortHi: "श्री नारायण गुरु ने शिक्षा, सबके लिए खुले मंदिरों और अपने संदेश 'सभी मनुष्यों के लिए एक जाति, एक धर्म, एक ईश्वर' के ज़रिए केरल में जाति की दीवारों को चुनौती दी।",
     contributionsEn: [

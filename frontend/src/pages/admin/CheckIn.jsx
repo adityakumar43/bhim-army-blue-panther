@@ -50,7 +50,7 @@ function EventPicker() {
                                 <span className="min-w-0 flex-1">
                                     {isToday && <span className="mb-1 inline-block rounded-full bg-gold px-2 py-0.5 text-xs font-extrabold text-navy">Today</span>}
                                     <b className="line-clamp-2 leading-snug">{title(e)}</b>
-                                    <span className="block text-xs text-navy/60">📅 {when(e)}{e.location ? ` · 📍 ${e.location}` : ''}</span>
+                                    <span className="block text-xs text-navy/65">📅 {when(e)}{e.location ? ` · 📍 ${e.location}` : ''}</span>
                                     <span className="mt-1 block text-sm font-semibold text-brand">✅ {n(e.members)} members{e.guests ? ` · +${n(e.guests)} guests` : ''}</span>
                                 </span>
                                 <Icon name="arrow" size={18} className="shrink-0 text-brand/50" />
@@ -139,7 +139,7 @@ function Scanner({ onCode, paused }) {
 // What happened with the last card: green (let in), amber (already in), red (not a valid member)
 function Result({ r }) {
     if (!r) return (
-        <div className="flex min-h-28 items-center justify-center rounded-2xl border-2 border-dashed border-navy/15 p-4 text-center text-navy/55">
+        <div className="flex min-h-28 items-center justify-center rounded-2xl border-2 border-dashed border-navy/15 p-4 text-center text-navy/65">
             The result of each scan shows here.
         </div>
     )
@@ -237,7 +237,7 @@ function EventCheckIn({ eventId }) {
                 {[['Members', data.members, 'text-green-700'], ['Guests', data.guests, 'text-amber-700'], ['Total', data.total, 'text-brand']].map(([label, v, tone]) => (
                     <div key={label} className="rounded-2xl border border-brand/10 bg-white p-3 text-center shadow-sm">
                         <div className={`text-2xl font-extrabold sm:text-3xl ${tone}`}>{n(v)}</div>
-                        <div className="text-xs font-semibold text-navy/60 sm:text-sm">{label}</div>
+                        <div className="text-xs font-semibold text-navy/65 sm:text-sm">{label}</div>
                     </div>
                 ))}
             </div>
@@ -257,11 +257,11 @@ function EventCheckIn({ eventId }) {
                     <div role="tablist" className="flex border-b border-brand/10">
                         {[['list', `Who came (${n(data.list.length)})`], ['district', 'By district']].map(([k, label]) => (
                             <button key={k} role="tab" aria-selected={tab === k} onClick={() => setTab(k)}
-                                className={`flex-1 px-4 py-3 text-sm font-bold ${tab === k ? 'border-b-2 border-brand text-brand' : 'text-navy/60'}`}>{label}</button>
+                                className={`flex-1 px-4 py-3 text-sm font-bold ${tab === k ? 'border-b-2 border-brand text-brand' : 'text-navy/65'}`}>{label}</button>
                         ))}
                     </div>
                     <div className="max-h-[32rem] overflow-y-auto p-3 sm:p-4">
-                        {data.list.length === 0 && <p className="py-6 text-center text-navy/60">Nobody checked in yet.</p>}
+                        {data.list.length === 0 && <p className="py-6 text-center text-navy/65">Nobody checked in yet.</p>}
                         {tab === 'list' && (
                             <ul className="divide-y divide-brand/10">
                                 {data.list.map((r) => (
@@ -271,9 +271,9 @@ function EventCheckIn({ eventId }) {
                                         </span>
                                         <div className="min-w-0 flex-1">
                                             <b className="block truncate">{r.member ? r.name : `${r.guests} guest${r.guests === 1 ? '' : 's'} (not members)`}</b>
-                                            <span className="block truncate text-xs text-navy/60">{[r.memberNo, r.district, clock(r.createdAt), r.byName && `by ${r.byName}`].filter(Boolean).join(' · ')}</span>
+                                            <span className="block truncate text-xs text-navy/65">{[r.memberNo, r.district, clock(r.createdAt), r.byName && `by ${r.byName}`].filter(Boolean).join(' · ')}</span>
                                         </div>
-                                        <button onClick={() => undo(r)} title="Undo" aria-label={`Undo ${r.name || 'guests'}`} className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg text-navy/40 hover:bg-red-50 hover:text-red-600"><Icon name="close" size={16} /></button>
+                                        <button onClick={() => undo(r)} title="Undo" aria-label={`Undo ${r.name || 'guests'}`} className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg text-navy/65 hover:bg-red-50 hover:text-red-600"><Icon name="close" size={16} /></button>
                                     </li>
                                 ))}
                             </ul>

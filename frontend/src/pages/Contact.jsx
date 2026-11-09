@@ -154,7 +154,7 @@ export default function Contact() {
                 <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-mist text-brand" aria-hidden="true"><Icon name="mail" size={20} /></span>
                 {t('contact.formTitle', { defaultValue: 'Send us a message' })}
               </h2>
-              <p className="mb-5 text-sm text-navy/60">{t('contact.formIntro', { defaultValue: 'We read every message and reply on your mobile or email.' })}</p>
+              <p className="mb-5 text-sm text-navy/65">{t('contact.formIntro', { defaultValue: 'We read every message and reply on your mobile or email.' })}</p>
 
               <fieldset>
                 <legend className="mb-2 font-semibold">{t('contact.topic', { defaultValue: 'What is it about?' })}</legend>
@@ -193,13 +193,13 @@ export default function Contact() {
                   </span>
                 </label>
               </div>
-              <p className="mt-1.5 text-xs text-navy/55">ℹ️ {t('contact.needOne', { defaultValue: 'Give a mobile number or an email so we can reply to you.' })}</p>
+              <p className="mt-1.5 text-xs text-navy/65">ℹ️ {t('contact.needOne', { defaultValue: 'Give a mobile number or an email so we can reply to you.' })}</p>
 
               <label className="mt-4 flex flex-col gap-1.5 font-semibold">{t('contact.message')}
                 <textarea required rows="5" maxLength={MAX} value={form.message} onChange={set('message')}
                   placeholder={t('contact.messageHint', { defaultValue: 'Write your message here…' })} className="input resize-y" />
               </label>
-              <div className={`mt-1 text-right text-xs ${form.message.length > MAX - 100 ? 'font-bold text-red-600' : 'text-navy/50'}`}>{form.message.length} / {MAX}</div>
+              <div className={`mt-1 text-right text-xs ${form.message.length > MAX - 100 ? 'font-bold text-red-600' : 'text-navy/65'}`}>{form.message.length} / {MAX}</div>
 
               {/* Hidden from people; bots fill it and their message is dropped */}
               <input type="text" name="website" tabIndex="-1" autoComplete="off" aria-hidden="true" value={form.website}
@@ -215,7 +215,7 @@ export default function Contact() {
               <button disabled={busy} className="btn mt-5 w-full gap-2 bg-brand text-white shadow-md hover:bg-navy disabled:opacity-60">
                 <span aria-hidden="true">📨</span> {busy ? t('contact.sending') : t('contact.send')}
               </button>
-              <p className="mt-3 text-center text-xs text-navy/55">🔒 {t('contact.privacy', { defaultValue: 'Your details are only used to reply to you.' })}</p>
+              <p className="mt-3 text-center text-xs text-navy/65">🔒 {t('contact.privacy', { defaultValue: 'Your details are only used to reply to you.' })}</p>
             </form>
           )}
         </div>
@@ -226,7 +226,7 @@ export default function Contact() {
       {/* Common questions: answers people often need, before they write to us */}
       <section className="mt-16 border-t border-navy/10 pt-12 sm:mt-20 sm:pt-16">
         <h2 className="mb-1 text-center text-2xl font-extrabold">❓ {t('contact.faqTitle', { defaultValue: 'Common questions' })}</h2>
-        <p className="mb-6 text-center text-navy/60">{t('contact.faqIntro', { defaultValue: 'Your answer may already be here.' })}</p>
+        <p className="mb-6 text-center text-navy/65">{t('contact.faqIntro', { defaultValue: 'Your answer may already be here.' })}</p>
         <div className="mx-auto flex max-w-3xl flex-col gap-3">
           {FAQ.map(([key, to]) => (
             <details key={key} className="group rounded-2xl border border-navy/10 bg-white shadow-sm open:border-brand/30 open:shadow-md">

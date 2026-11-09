@@ -59,7 +59,7 @@ export default function VideosAdmin() {
                 <form onSubmit={submit} className="card mb-6 border-brand/30">
                     <div className="mb-3 flex items-center justify-between gap-3">
                         <h2 className="text-lg font-extrabold">{editing ? '✏️ Edit video' : '➕ Add a video'}</h2>
-                        <button type="button" onClick={reset} aria-label="Close" className="flex h-9 w-9 items-center justify-center rounded-lg text-navy/60 hover:bg-mist"><Icon name="close" size={18} /></button>
+                        <button type="button" onClick={reset} aria-label="Close" className="flex h-9 w-9 items-center justify-center rounded-lg text-navy/65 hover:bg-mist"><Icon name="close" size={18} /></button>
                     </div>
                     <div className="grid gap-4 lg:grid-cols-[1fr_16rem]">
                         <div className="grid gap-3 sm:grid-cols-2">
@@ -80,7 +80,7 @@ export default function VideosAdmin() {
                             <p className="mb-1 text-sm font-semibold">Preview</p>
                             {id
                                 ? <img src={thumb(id)} alt="Video thumbnail" className="aspect-video w-full rounded-xl object-cover" />
-                                : <div className="flex aspect-video w-full items-center justify-center rounded-xl bg-mist text-sm text-navy/50">Paste a link to see it</div>}
+                                : <div className="flex aspect-video w-full items-center justify-center rounded-xl bg-mist text-sm text-navy/65">Paste a link to see it</div>}
                         </div>
                     </div>
                     {error && <div className="mt-3"><Notice>{error}</Notice></div>}
@@ -106,8 +106,8 @@ export default function VideosAdmin() {
                         </a>
                         <div className="min-w-0 flex-1">
                             <div className="line-clamp-1 font-bold">{v.titleHi || v.titleEn}</div>
-                            {v.titleHi && v.titleEn && <div className="line-clamp-1 text-sm text-navy/60">{v.titleEn}</div>}
-                            <div className="mt-1 text-xs text-navy/60">{videoCategory(v.category).emoji} {videoCategory(v.category).en}{v.order ? ` · #${v.order}` : ''}</div>
+                            {v.titleHi && v.titleEn && <div className="line-clamp-1 text-sm text-navy/65">{v.titleEn}</div>}
+                            <div className="mt-1 text-xs text-navy/65">{videoCategory(v.category).emoji} {videoCategory(v.category).en}{v.order ? ` · #${v.order}` : ''}</div>
                         </div>
                         <div className="flex w-full shrink-0 gap-2 sm:w-auto">
                             <button type="button" onClick={() => startEdit(v)} className="abtn min-h-9 flex-1 px-3 sm:flex-none">✏️ Edit</button>

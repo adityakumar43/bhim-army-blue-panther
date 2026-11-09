@@ -50,10 +50,10 @@ export default function LoginHistory({ mine = false, limit = 100 }) {
                 <p className="text-navy/90">
                   {!mine && <b>{l.name || l.email} </b>}
                   {l.success
-                    ? <>{mine ? 'Logged in' : 'logged in'} <span className="text-navy/60">{l.reason}</span></>
+                    ? <>{mine ? 'Logged in' : 'logged in'} <span className="text-navy/65">{l.reason}</span></>
                     : <span className="font-semibold text-red-700">{mine ? 'Failed login' : 'failed to log in'}: {l.reason}</span>}
                 </p>
-                <p className="text-xs text-navy/55">
+                <p className="text-xs text-navy/65">
                   🕒 {when(l.createdAt)} · {deviceEmoji(l.device)} {l.device} · 🌐 {l.ip}
                   {!l.name && l.email && <> · ✉️ {l.email}</>}
                 </p>

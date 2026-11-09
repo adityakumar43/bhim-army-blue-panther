@@ -109,9 +109,9 @@ function SideNav({ items, summary }) {
           return (
             <div key={key} className="mt-3 border-t border-navy/8 pt-2">
               <button type="button" onClick={() => toggle(key)} aria-expanded={isOpen} aria-controls={`menu-${key}`}
-                className="flex min-h-8 w-full items-center gap-2 rounded-lg px-3 text-xs font-extrabold tracking-wider text-navy/50 uppercase hover:bg-mist hover:text-brand">
+                className="flex min-h-8 w-full items-center gap-2 rounded-lg px-3 text-xs font-extrabold tracking-wider text-navy/65 uppercase hover:bg-mist hover:text-brand">
                 <span className="flex-1 text-left">{label}</span>
-                {!isOpen && waiting > 0 && <span className="min-w-6 rounded-full bg-red-500 px-1.5 text-center text-[11px] leading-5 font-extrabold text-white normal-case">{waiting}</span>}
+                {!isOpen && waiting > 0 && <span className="min-w-6 rounded-full bg-red-600 px-1.5 text-center text-[11px] leading-5 font-extrabold text-white normal-case">{waiting}</span>}
                 <Icon name="chevronDown" size={16} className={`shrink-0 transition ${isOpen ? 'rotate-180' : ''}`} />
               </button>
               {isOpen && <ul id={`menu-${key}`} className="mt-0.5 flex flex-col gap-0.5">{list.map(link)}</ul>}
@@ -127,14 +127,14 @@ function SideNav({ items, summary }) {
 function PhoneTabs({ tabs, more, summary, moreOpen, setMoreOpen }) {
   const moreCount = more.reduce((s, n) => s + (n.badge ? summary[n.badge] || 0 : 0), 0)
   const tab = 'relative flex min-h-14 flex-1 flex-col items-center justify-center gap-0.5 text-[11px] font-bold transition'
-  const dot = (n) => n > 0 && <span className="absolute top-1.5 left-1/2 ml-1.5 min-w-5 rounded-full bg-red-500 px-1 text-center text-[10px] leading-5 text-white ring-2 ring-white">{n > 99 ? '99+' : n}</span>
+  const dot = (n) => n > 0 && <span className="absolute top-1.5 left-1/2 ml-1.5 min-w-5 rounded-full bg-red-600 px-1 text-center text-[10px] leading-5 text-white ring-2 ring-white">{n > 99 ? '99+' : n}</span>
   return (
     <nav aria-label="Admin" className="fixed inset-x-0 bottom-0 z-40 border-t border-navy/10 bg-white/95 pb-[env(safe-area-inset-bottom)] shadow-[0_-4px_20px_rgba(11,31,77,0.08)] backdrop-blur lg:hidden">
       <ul className="mx-auto flex max-w-xl">
         {tabs.map((n) => (
           <li key={n.to} className="flex flex-1">
             <NavLink to={n.to} end={n.end} onClick={() => setMoreOpen(false)}
-              className={({ isActive }) => `${tab} ${isActive && !moreOpen ? 'text-brand' : 'text-navy/55'}`}>
+              className={({ isActive }) => `${tab} ${isActive && !moreOpen ? 'text-brand' : 'text-navy/65'}`}>
               {({ isActive }) => (
                 <>
                   <span className={`flex h-7 w-12 items-center justify-center rounded-full transition ${isActive && !moreOpen ? 'bg-brand/12' : ''}`}><NavIcon name={n.icon} on={isActive && !moreOpen} size={20} /></span>
@@ -146,7 +146,7 @@ function PhoneTabs({ tabs, more, summary, moreOpen, setMoreOpen }) {
           </li>
         ))}
         <li className="flex flex-1">
-          <button type="button" onClick={() => setMoreOpen(!moreOpen)} aria-expanded={moreOpen} className={`${tab} ${moreOpen ? 'text-brand' : 'text-navy/55'}`}>
+          <button type="button" onClick={() => setMoreOpen(!moreOpen)} aria-expanded={moreOpen} className={`${tab} ${moreOpen ? 'text-brand' : 'text-navy/65'}`}>
             <span className={`flex h-7 w-12 items-center justify-center rounded-full transition ${moreOpen ? 'bg-brand/12' : ''}`}><Icon name={moreOpen ? 'close' : 'menu'} size={20} /></span>
             <span>More</span>
             {!moreOpen && dot(moreCount)}
@@ -174,7 +174,7 @@ function MoreSheet({ me, items, summary, onClose, logout }) {
           <span aria-hidden="true" className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full bg-brand text-lg font-extrabold text-white ring-2 ring-gold/70">{me.name?.[0]?.toUpperCase()}</span>
           <span className="min-w-0 flex-1 leading-tight">
             <b className="block truncate">{me.name}</b>
-            <span className="block truncate text-xs text-navy/60">{ROLE_INFO[me.role]?.label}{me.district ? ` · ${me.district}` : ''}{me.state ? ` · ${stateByCode(me.state)?.en}` : ''}</span>
+            <span className="block truncate text-xs text-navy/65">{ROLE_INFO[me.role]?.label}{me.district ? ` · ${me.district}` : ''}{me.state ? ` · ${stateByCode(me.state)?.en}` : ''}</span>
           </span>
           <button onClick={logout} className="flex h-10 shrink-0 items-center gap-1.5 rounded-xl border border-red-200 px-3 text-sm font-bold text-red-700 hover:bg-red-50">
             <Icon name="logout" size={16} />Log out
@@ -185,7 +185,7 @@ function MoreSheet({ me, items, summary, onClose, logout }) {
           if (!list.length) return null
           return (
             <section key={key || 'main'} className="mb-4">
-              {label && <h2 className="mb-2 px-1 text-xs font-extrabold tracking-wider text-navy/50 uppercase">{label}</h2>}
+              {label && <h2 className="mb-2 px-1 text-xs font-extrabold tracking-wider text-navy/65 uppercase">{label}</h2>}
               <ul className="grid grid-cols-3 gap-2 sm:grid-cols-4">
                 {list.map((n) => {
             const count = n.badge ? summary[n.badge] : 0
@@ -197,7 +197,7 @@ function MoreSheet({ me, items, summary, onClose, logout }) {
                     <>
                       <NavIcon name={n.icon} on={isActive} size={22} />
                       <span>{n.label}</span>
-                      {count > 0 && <span className="absolute top-1.5 right-1.5 min-w-5 rounded-full bg-red-500 px-1 text-center text-[10px] leading-5 text-white">{count}</span>}
+                      {count > 0 && <span className="absolute top-1.5 right-1.5 min-w-5 rounded-full bg-red-600 px-1 text-center text-[10px] leading-5 text-white">{count}</span>}
                     </>
                   )}
                 </NavLink>

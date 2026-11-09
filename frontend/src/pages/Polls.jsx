@@ -34,7 +34,7 @@ function Results({ poll, results, mine, lang, t }) {
                     </div>
                 )
             })}
-            <p className="text-xs text-navy/55">{t('poll.total', { count: results.total, defaultValue: '{{count}} members answered' })}</p>
+            <p className="text-xs text-navy/65">{t('poll.total', { count: results.total, defaultValue: '{{count}} members answered' })}</p>
         </div>
     )
 }
@@ -86,7 +86,7 @@ function PollCard({ poll, me, lang, t }) {
                     </p>
                     {done.results
                         ? <Results poll={poll} results={done.results} mine={done.option} lang={lang} t={t} />
-                        : <p className="mt-3 text-sm text-navy/60">{t('poll.resultsLater', { defaultValue: 'The results will be shared by the team.' })}</p>}
+                        : <p className="mt-3 text-sm text-navy/65">{t('poll.resultsLater', { defaultValue: 'The results will be shared by the team.' })}</p>}
                 </div>
             )}
 
@@ -161,7 +161,7 @@ export default function Polls() {
                         <input type="checkbox" checked={remember} onChange={(e) => setRemember(e.target.checked)} className="h-4 w-4 accent-brand" />
                         {t('poll.remember', { defaultValue: 'Remember on this phone' })}
                     </label>
-                    <p className="mt-2 text-xs text-navy/60">
+                    <p className="mt-2 text-xs text-navy/65">
                         {t('poll.notMember', { defaultValue: 'Not a member yet?' })} <Link to="/join" className="font-semibold text-brand underline">{t('poll.join', { defaultValue: 'Join now' })}</Link>
                         {' · '}<Link to="/membership/status" className="font-semibold text-brand underline">{t('poll.forgot', { defaultValue: 'Forgot your member number?' })}</Link>
                     </p>

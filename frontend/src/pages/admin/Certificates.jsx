@@ -189,7 +189,7 @@ export default function Certificates() {
                 <form onSubmit={submit} className="card mb-6 border-brand/30">
                     <div className="mb-3 flex items-center justify-between gap-3">
                         <h2 className="text-lg font-extrabold">{editing ? `✏️ Edit ${editing.refNo}` : '➕ Issue a certificate or letter'}</h2>
-                        <button type="button" onClick={close} aria-label="Close" className="flex h-9 w-9 items-center justify-center rounded-lg text-navy/60 hover:bg-mist"><Icon name="close" size={18} /></button>
+                        <button type="button" onClick={close} aria-label="Close" className="flex h-9 w-9 items-center justify-center rounded-lg text-navy/65 hover:bg-mist"><Icon name="close" size={18} /></button>
                     </div>
 
                     {!editing && (
@@ -198,7 +198,7 @@ export default function Certificates() {
                                 <button key={t.key} type="button" role="radio" aria-checked={form.type === t.key} onClick={() => chooseType(t.key)}
                                     className={`flex items-center gap-3 rounded-xl border-2 p-3 text-left transition ${form.type === t.key ? 'border-brand bg-mist' : 'border-navy/10 hover:border-brand/40'}`}>
                                     <span className="text-2xl" aria-hidden="true">{t.emoji}</span>
-                                    <span><span className="block font-bold leading-tight">{t.en}</span><span className="text-sm text-navy/60">{t.hi}</span></span>
+                                    <span><span className="block font-bold leading-tight">{t.en}</span><span className="text-sm text-navy/65">{t.hi}</span></span>
                                 </button>
                             ))}
                         </div>
@@ -210,14 +210,14 @@ export default function Certificates() {
                                 <label className={`${field} sm:col-span-2 lg:col-span-3`}>सेवा में (To) *
                                     <textarea value={form.to} onChange={set('to')} required maxLength="500" rows="4" className="input"
                                         placeholder={'श्री स्वामी प्रसाद मौर्या जी,\nमाननीय राष्ट्रीय अध्यक्ष\n(अपनी जनता पार्टी),\nपूर्व कैबिनेट मंत्री, उत्तर प्रदेश।'} />
-                                    <span className="text-xs font-normal text-navy/60">One line per row, exactly as it should be printed. The first line names the letter in your list.</span>
+                                    <span className="text-xs font-normal text-navy/65">One line per row, exactly as it should be printed. The first line names the letter in your list.</span>
                                 </label>
                                 <label className={`${field} sm:col-span-2`}>विषय (Subject, optional)<input value={form.subject} onChange={set('subject')} maxLength="300" className="input" /></label>
                                 <label className={field}>Greeting<input value={form.salutation} onChange={set('salutation')} maxLength="60" className="input" placeholder="महोदय," /></label>
                                 <label className={`${field} sm:col-span-2 lg:col-span-3`}>पत्र (The letter) *
                                     <textarea value={form.body} onChange={set('body')} required maxLength="6000" rows="12" className="input leading-relaxed"
                                         placeholder="सविनय निवेदन है कि..." />
-                                    <span className="text-xs font-normal text-navy/60">Leave an empty line between paragraphs. A long letter carries on to a second page.</span>
+                                    <span className="text-xs font-normal text-navy/65">Leave an empty line between paragraphs. A long letter carries on to a second page.</span>
                                 </label>
                             </>
                         ) : (
@@ -237,7 +237,7 @@ export default function Certificates() {
                                 <label className={field}>Post *<input value={form.post} onChange={set('post')} required maxLength="120" className="input" placeholder="like जिला अध्यक्ष / District President" /></label>
                                 <label className={field}>Area (optional)<input value={form.area} onChange={set('area')} maxLength="120" className="input" placeholder="like मेरठ जिला" /></label>
                                 <label className={field}>Valid until (optional)<input type="date" value={form.validUntil} onChange={set('validUntil')} min={form.issueDate} className="input" />
-                                    <span className="text-xs font-normal text-navy/60">Empty = until further orders</span>
+                                    <span className="text-xs font-normal text-navy/65">Empty = until further orders</span>
                                 </label>
                                 <label className={`${field} sm:col-span-2 lg:col-span-3`}>Address (पता) on the letter
                                     <input value={form.address} onChange={set('address')} maxLength="300" className="input" placeholder="like ग्राम टेमनी कला, पोस्ट सिराठा, तहसील नादनवाड़ी, जिला पांढुरना (म.प्र.)" />
@@ -247,7 +247,7 @@ export default function Certificates() {
                             <label className={`${field} sm:col-span-2 lg:col-span-3`}>{form.type === 'appreciation' ? 'For (the work or event) *' : 'Event they took part in *'}
                                 <input value={form.reason} onChange={set('reason')} required maxLength="300" className="input"
                                     placeholder={form.type === 'appreciation' ? 'like बाढ़ राहत शिविर, मेरठ 2026' : 'like संविधान दिवस रैली, 26 नवंबर 2026'} />
-                                <span className="text-xs font-normal text-navy/60">This is printed inside the sentence, in both the Hindi and English lines.</span>
+                                <span className="text-xs font-normal text-navy/65">This is printed inside the sentence, in both the Hindi and English lines.</span>
                             </label>
                         )}
 
@@ -286,7 +286,7 @@ export default function Certificates() {
                             ) : (
                                 <input type="file" accept="image/png,image/jpeg,image/webp" onChange={uploadSignature} disabled={uploading} className="file-pick" />
                             )}
-                            <span className="text-xs font-normal text-navy/60">{uploading ? 'Uploading...' : 'Sign on white paper and take a clear photo. Empty = sign by hand after printing.'}</span>
+                            <span className="text-xs font-normal text-navy/65">{uploading ? 'Uploading...' : 'Sign on white paper and take a clear photo. Empty = sign by hand after printing.'}</span>
                         </div>
                     </div>
 
@@ -369,7 +369,7 @@ export default function Certificates() {
                                 </div>
                                 <div className="text-sm font-semibold text-brand">{c.refNo}</div>
                                 <div className="line-clamp-1 text-sm text-navy/70">{c.type === 'appointment' ? `${c.post}${c.area ? ` (${c.area})` : ''}` : c.type === 'letter' ? c.subject || c.body : c.reason}</div>
-                                <div className="text-xs text-navy/55">📅 {day(c.issueDate)}{c.district || c.state ? ` · 📍 ${[c.district, c.state].filter(Boolean).join(', ')}` : ''}{c.issuedByName ? ` · by ${c.issuedByName}` : ''}</div>
+                                <div className="text-xs text-navy/65">📅 {day(c.issueDate)}{c.district || c.state ? ` · 📍 ${[c.district, c.state].filter(Boolean).join(', ')}` : ''}{c.issuedByName ? ` · by ${c.issuedByName}` : ''}</div>
                                 <div className="mt-auto flex flex-wrap gap-2 pt-2">
                                     <a href={linkOf(c)} target="_blank" rel="noreferrer" className="abtn min-h-8 px-2 text-xs">👁️ Open</a>
                                     {!revoked && <a href={waLink(c)} target="_blank" rel="noopener noreferrer" className="abtn min-h-8 px-2 text-xs">💬 WhatsApp</a>}

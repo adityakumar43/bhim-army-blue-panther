@@ -33,7 +33,7 @@ function Steps({ status, t }) {
     [t('status.stepReview', { defaultValue: 'Team review' }), status === 'pending' ? 'now' : 'done'],
     [t('status.stepDone', { defaultValue: 'Decision' }), status === 'approved' || status === 'cancelled' ? 'done' : status === 'rejected' ? 'no' : 'todo'],
   ]
-  const dot = { done: 'bg-green-600 text-white', now: 'bg-gold text-navy ring-4 ring-gold/30', no: 'bg-red-600 text-white', todo: 'bg-white text-navy/40 border-2 border-navy/15' }
+  const dot = { done: 'bg-green-600 text-white', now: 'bg-gold text-navy ring-4 ring-gold/30', no: 'bg-red-600 text-white', todo: 'bg-white text-navy/65 border-2 border-navy/15' }
   return (
     <ol className="mt-5 grid grid-cols-3">
       {steps.map(([label, state], i) => (
@@ -42,7 +42,7 @@ function Steps({ status, t }) {
           <span className={`relative z-10 flex h-8 w-8 items-center justify-center rounded-full text-sm font-extrabold ${dot[state]}`}>
             {state === 'done' ? <Svg name="check" size={16} /> : state === 'no' ? <Svg name="x" size={16} /> : i + 1}
           </span>
-          <span className={`mt-2 text-xs font-semibold sm:text-sm ${state === 'todo' ? 'text-navy/45' : 'text-navy'}`}>{label}</span>
+          <span className={`mt-2 text-xs font-semibold sm:text-sm ${state === 'todo' ? 'text-navy/65' : 'text-navy'}`}>{label}</span>
         </li>
       ))}
     </ol>
@@ -65,7 +65,7 @@ function InviteBox({ memberNo, invites, t }) {
         className="input mt-3 bg-mist/40 text-sm" />
       <div className="mt-2 grid grid-cols-2 gap-2">
         <a href={`https://wa.me/?text=${encodeURIComponent(text)}`} target="_blank" rel="noreferrer"
-          className="btn min-h-11 gap-2 bg-[#25d366] px-3 text-sm text-white hover:bg-[#1da851]">📲 WhatsApp</a>
+          className="btn min-h-11 gap-2 bg-[#15803d] px-3 text-sm text-white hover:bg-[#166534]">📲 WhatsApp</a>
         <button type="button" onClick={copy} className="btn min-h-11 gap-2 border-2 border-brand bg-white px-3 text-sm text-brand">
           {copied ? `✅ ${t('invite.copied', { defaultValue: 'Copied' })}` : `📋 ${t('invite.copy', { defaultValue: 'Copy link' })}`}
         </button>
@@ -160,7 +160,7 @@ export default function MemberStatus() {
           <button disabled={busy} className="btn mt-5 w-full gap-2 bg-brand text-white shadow-md hover:bg-navy disabled:opacity-60">
             <Svg name="search" /> {busy ? t('status.checking') : t('status.check')}
           </button>
-          <p className="mt-4 flex items-start justify-center gap-1.5 text-center text-xs text-navy/55">
+          <p className="mt-4 flex items-start justify-center gap-1.5 text-center text-xs text-navy/65">
             <Svg name="lock" size={14} className="mt-px shrink-0" />
             {t('status.privacy', { defaultValue: 'We only show the status of your application. Your details stay private.' })}
           </p>
@@ -179,8 +179,8 @@ export default function MemberStatus() {
           <Steps status={result.status} t={t} />
 
           <dl className="mt-6 grid gap-2 rounded-xl bg-white/70 p-4 text-sm sm:grid-cols-2">
-            <div><dt className="text-navy/60">📅 {t('status.appliedOn')}</dt><dd className="font-bold">{date(result.appliedAt)}</dd></div>
-            {result.memberNo && <div><dt className="text-navy/60">🪪 {t('status.memberNo')}</dt><dd className="font-bold tracking-wide">{result.memberNo}</dd></div>}
+            <div><dt className="text-navy/65">📅 {t('status.appliedOn')}</dt><dd className="font-bold">{date(result.appliedAt)}</dd></div>
+            {result.memberNo && <div><dt className="text-navy/65">🪪 {t('status.memberNo')}</dt><dd className="font-bold tracking-wide">{result.memberNo}</dd></div>}
           </dl>
 
           {result.cardToken && (

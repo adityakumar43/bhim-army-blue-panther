@@ -33,9 +33,10 @@ export function SearchButton({ onOpen }) {
         return () => document.removeEventListener('keydown', key)
     }, [onOpen])
     return (
-        <button type="button" onClick={onOpen} aria-label="Search" title="Search (Ctrl+K)"
+        <button type="button" onClick={onOpen} title="Search (Ctrl+K)"
             className="flex h-9 items-center gap-2 rounded-lg px-2.5 text-white/85 hover:bg-white/10 hover:text-white lg:w-64 lg:border lg:border-white/20 lg:bg-white/10 lg:px-3 lg:text-sm lg:text-white/70 xl:w-96 2xl:w-[28rem]">
             <Icon name="search" size={18} />
+            <span className="sr-only lg:hidden">Search</span>
             <span className="hidden flex-1 truncate text-left lg:inline">Search members, cases…</span>
             <kbd className="hidden rounded border border-white/25 px-1.5 text-[11px] whitespace-nowrap text-white/60 xl:inline">Ctrl K</kbd>
         </button>
@@ -108,23 +109,23 @@ export default function AdminSearch({ pages, onClose }) {
                         role="combobox" aria-expanded={results.length > 0} aria-controls="search-results" aria-activedescendant={results.length ? `search-hit-${active}` : undefined}
                         placeholder="Name, phone, member no., case no. or receipt no." className="min-h-11 flex-1 bg-transparent text-lg outline-none placeholder:text-navy/40" />
                     {busy && <span aria-hidden="true" className="h-5 w-5 shrink-0 animate-spin rounded-full border-2 border-brand/20 border-t-brand" />}
-                    <button type="button" onClick={onClose} className="shrink-0 rounded-lg px-2 py-1 text-sm font-semibold text-navy/60 hover:bg-mist">Esc</button>
+                    <button type="button" onClick={onClose} className="shrink-0 rounded-lg px-2 py-1 text-sm font-semibold text-navy/65 hover:bg-mist">Esc</button>
                 </div>
 
                 <div id="search-results" role="listbox" className="flex-1 overflow-y-auto overscroll-contain p-2">
                     {text.length < 2 && (
-                        <div className="px-4 py-8 text-center text-navy/60">
+                        <div className="px-4 py-8 text-center text-navy/65">
                             <p className="font-semibold text-navy/80">Find anything in the admin panel</p>
                             <p className="mt-1 text-sm">Try a name like <b>Ravi</b>, a phone number, <b>BBP-00012</b>, a case number like <b>HD-2026-0042</b> or a receipt number.</p>
                         </div>
                     )}
                     {error && <p role="alert" className="m-2 rounded-xl bg-red-50 px-3 py-2 text-sm text-red-700">{error}</p>}
                     {text.length >= 2 && !busy && found && results.length === 0 && !error && (
-                        <p className="px-4 py-8 text-center text-navy/60">Nothing found for “{q.trim()}”.</p>
+                        <p className="px-4 py-8 text-center text-navy/65">Nothing found for “{q.trim()}”.</p>
                     )}
                     {groups.map((g) => (
                         <section key={g.kind + g.rows[0][1]} className="mb-1">
-                            <h3 className="px-3 pt-2 pb-1 text-xs font-bold tracking-wide text-navy/50 uppercase">{KINDS[g.kind]?.[0] || g.kind}</h3>
+                            <h3 className="px-3 pt-2 pb-1 text-xs font-bold tracking-wide text-navy/65 uppercase">{KINDS[g.kind]?.[0] || g.kind}</h3>
                             <ul>
                                 {g.rows.map(([r, i]) => (
                                     <li key={`${r.kind}-${r.id}`} id={`search-hit-${i}`} role="option" aria-selected={i === active}>
@@ -137,9 +138,9 @@ export default function AdminSearch({ pages, onClose }) {
                                                 </span>}
                                             <span className="min-w-0 flex-1">
                                                 <b className="block truncate">{r.title}</b>
-                                                <span className="block truncate text-sm text-navy/60">{r.sub}</span>
+                                                <span className="block truncate text-sm text-navy/65">{r.sub}</span>
                                             </span>
-                                            {r.urgent && <span className="shrink-0 rounded-full bg-red-500 px-2 py-0.5 text-xs font-bold text-white">Urgent</span>}
+                                            {r.urgent && <span className="shrink-0 rounded-full bg-red-600 px-2 py-0.5 text-xs font-bold text-white">Urgent</span>}
                                             {r.status && <span className="shrink-0 rounded-full bg-navy/5 px-2 py-0.5 text-xs font-semibold text-navy/70">{STATUS[r.status] || r.status}</span>}
                                             {i === active && <Icon name="arrow" size={16} className="hidden shrink-0 text-brand sm:block" />}
                                         </button>
@@ -149,7 +150,7 @@ export default function AdminSearch({ pages, onClose }) {
                         </section>
                     ))}
                 </div>
-                <p className="hidden border-t border-navy/10 px-4 py-2 text-xs text-navy/50 sm:block">↑ ↓ to move · Enter to open · Esc to close</p>
+                <p className="hidden border-t border-navy/10 px-4 py-2 text-xs text-navy/65 sm:block">↑ ↓ to move · Enter to open · Esc to close</p>
             </div>
         </div>,
         document.body,

@@ -20,7 +20,7 @@ export function WhatsAppShare({ item, kind, small = false, icon = false, classNa
             target="_blank" rel="noopener noreferrer"
             onClick={() => trackEvent('share', { method: 'whatsapp', content_type: kind, item_id: item._id })}
             {...(icon ? { 'aria-label': t('detail.share'), title: t('detail.share') } : {})}
-            className={`inline-flex items-center justify-center bg-[#25d366] text-white hover:bg-[#1da851] ${size} ${className}`}
+            className={`inline-flex items-center justify-center bg-[#15803d] text-white hover:bg-[#166534] ${size} ${className}`}
         >
             <svg viewBox="0 0 24 24" width={small && !icon ? 16 : 20} height={small && !icon ? 16 : 20} fill="currentColor" aria-hidden="true"><path d={WA_PATH} /></svg>
             {icon ? null : small ? t('detail.shareShort', { defaultValue: 'Share' }) : t('detail.share')}

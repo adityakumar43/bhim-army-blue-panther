@@ -60,7 +60,7 @@ export default function RsvpList({ event, onClose, onChange }) {
                   <span aria-hidden="true" className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-brand text-sm font-bold text-white">{r.name?.[0]?.toUpperCase()}</span>
                   <div className="min-w-0 flex-1">
                     <div className="font-semibold">{r.name} {r.people > 1 && <span className="rounded-full bg-mist px-2 text-xs text-brand">+{r.people - 1}</span>}</div>
-                    <div className="text-xs text-navy/60">
+                    <div className="text-xs text-navy/65">
                       <a href={`tel:${r.phone}`} className="hover:underline">📞 {r.phone}</a>{r.district ? ` · 📍 ${r.district}` : ''}
                     </div>
                   </div>

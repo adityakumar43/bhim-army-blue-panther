@@ -120,7 +120,7 @@ export default function Leaders() {
         <form key={formKey} onSubmit={submit} className="card mb-6 border-brand/30">
           <div className="mb-3 flex items-center justify-between gap-3">
             <h2 className="text-lg font-extrabold">{editing ? '✏️ Edit leader' : '➕ Add a leader'}</h2>
-            <button type="button" onClick={reset} aria-label="Close" className="flex h-9 w-9 items-center justify-center rounded-lg text-navy/60 hover:bg-mist">
+            <button type="button" onClick={reset} aria-label="Close" className="flex h-9 w-9 items-center justify-center rounded-lg text-navy/65 hover:bg-mist">
               <Icon name="close" size={18} />
             </button>
           </div>
@@ -174,7 +174,7 @@ export default function Leaders() {
                 {editing?.photo && <img src={portrait(editing.photo, 120)} alt="" className="h-12 w-9 rounded-lg object-cover" />}
                 <input type="file" accept="image/jpeg,image/png,image/webp" onChange={(e) => setFile(e.target.files[0] || null)} className="file-pick min-w-0 flex-1" />
               </span>
-              <span className="text-xs font-normal text-navy/60">A clear face photo, JPG, PNG or WebP, up to 5 MB</span>
+              <span className="text-xs font-normal text-navy/65">A clear face photo, JPG, PNG or WebP, up to 5 MB</span>
             </label>
           </div>
           {editing?.photo && !file && (
@@ -218,7 +218,7 @@ export default function Leaders() {
                   <Pill tone={l.level === 'national' ? 'gold' : l.level === 'district' ? 'green' : 'blue'}>{l.level === 'national' ? '🏛️' : l.level === 'district' ? '🏘️' : '📍'} {where(l)}</Pill>
                   {l.order ? <Pill tone="gray">#{l.order}</Pill> : null}
                 </div>
-                {l.phone && <div className="mt-1 text-xs text-navy/60">📞 {l.phone}</div>}
+                {l.phone && <div className="mt-1 text-xs text-navy/65">📞 {l.phone}</div>}
               </div>
             </div>
             <div className="mt-auto flex gap-2 pt-3">

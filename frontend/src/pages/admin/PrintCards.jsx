@@ -78,7 +78,7 @@ export default function PrintCards() {
                     <div className="flex flex-col items-center gap-6 overflow-x-auto pb-4">
                         {sheets.map((group, i) => (
                             <div key={i} className="shrink-0 bg-white p-[8mm] shadow-lg ring-1 ring-navy/10" style={{ width: '210mm', minHeight: '297mm' }}>
-                                <p className="mb-2 text-right text-xs text-navy/40">Sheet {i + 1} of {sheets.length}</p>
+                                <p className="mb-2 text-right text-xs text-navy/65">Sheet {i + 1} of {sheets.length}</p>
                                 <Sheet cards={group} t={t} lang={lang} />
                             </div>
                         ))}

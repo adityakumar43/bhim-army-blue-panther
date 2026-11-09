@@ -108,7 +108,7 @@ export default function Activity() {
           <div className="flex flex-col gap-5">
             {days.map((day) => (
               <section key={day.label}>
-                <h2 className="mb-2 text-sm font-bold tracking-wide text-navy/60 uppercase">📅 {day.label}</h2>
+                <h2 className="mb-2 text-sm font-bold tracking-wide text-navy/65 uppercase">📅 {day.label}</h2>
                 <ul className="card divide-y divide-brand/10 p-0 sm:p-0">
                   {day.list.map((it) => {
                     const [icon, tile] = LOOK[it.action] || ['activity', 'bg-mist text-brand']
@@ -120,7 +120,7 @@ export default function Activity() {
                             <b>{it.adminName || 'An admin'}</b> {it.text}
                             {it.target && <> <b className="text-brand">“{it.target}”</b></>}
                           </p>
-                          <p className="text-xs text-navy/55">
+                          <p className="text-xs text-navy/65">
                             🕒 {time(it.createdAt)}
                             {SECTION_NAME[it.section] && <> · {SECTION_NAME[it.section]}</>}
                           </p>

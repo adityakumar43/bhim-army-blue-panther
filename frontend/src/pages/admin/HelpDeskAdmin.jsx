@@ -77,7 +77,7 @@ function Case({ c, team, canDelete, onSaved, onDelete }) {
                     </div>
                     <h3 className="mt-1 text-lg font-bold">{cat.emoji} {cat.en}</h3>
                 </div>
-                <span className="text-xs text-navy/55">🕒 {when(c.createdAt)}</span>
+                <span className="text-xs text-navy/65">🕒 {when(c.createdAt)}</span>
             </div>
 
             <div className="mt-1 flex flex-wrap gap-x-3 gap-y-0.5 text-sm text-navy/70">
@@ -118,7 +118,7 @@ function Case({ c, team, canDelete, onSaved, onDelete }) {
                     <ol className="mt-2 space-y-1.5">
                         {[...c.history].reverse().map((h, i) => (
                             <li key={i} className="border-l-2 border-brand/20 pl-3">
-                                <span className="text-xs text-navy/55">{day(h.at)}</span> · <b>{STATUS[h.status]?.emoji} {STATUS[h.status]?.en}</b>
+                                <span className="text-xs text-navy/65">{day(h.at)}</span> · <b>{STATUS[h.status]?.emoji} {STATUS[h.status]?.en}</b>
                                 {h.note && <div className="text-navy/80">💬 {h.note}</div>}
                             </li>
                         ))}
@@ -132,7 +132,7 @@ function Case({ c, team, canDelete, onSaved, onDelete }) {
                 <ul className="mt-2 space-y-1">
                     {c.notes.map((n, i) => (
                         <li key={i} className="rounded-lg bg-gold/10 px-3 py-1.5 text-sm">
-                            <span className="text-xs font-semibold text-navy/60">🗒️ {n.byName} · {when(n.at)}</span><br />{n.text}
+                            <span className="text-xs font-semibold text-navy/65">🗒️ {n.byName} · {when(n.at)}</span><br />{n.text}
                         </li>
                     ))}
                 </ul>
@@ -259,8 +259,8 @@ export default function HelpDeskAdmin() {
                 <div role="status" className="sticky top-2 z-20 mb-4 flex flex-wrap items-center gap-2 rounded-xl border border-green-300 bg-green-50 px-4 py-3 text-sm shadow-md">
                     <span className="font-semibold text-green-800">✅ {saved.refNo} saved ({STATUS[saved.status]?.emoji} {STATUS[saved.status]?.en}). Let {saved.name} know?</span>
                     <a href={whatsappUpdate(saved)} target="_blank" rel="noreferrer" onClick={() => setSaved(null)}
-                        className="abtn min-h-9 border-0 bg-[#25d366] px-3 text-white hover:bg-[#1da851] hover:text-white">📲 Send update on WhatsApp</a>
-                    <button onClick={() => setSaved(null)} className="ml-auto min-h-9 px-2 text-navy/60 underline">Not now</button>
+                        className="abtn min-h-9 border-0 bg-[#15803d] px-3 text-white hover:bg-[#166534] hover:text-white">📲 Send update on WhatsApp</a>
+                    <button onClick={() => setSaved(null)} className="ml-auto min-h-9 px-2 text-navy/65 underline">Not now</button>
                 </div>
             )}
 

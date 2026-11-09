@@ -194,7 +194,7 @@ export default function Content({ kind }) {
         <form key={formKey} onSubmit={submit} className="card mb-6 border-brand/30">
           <div className="mb-3 flex items-center justify-between gap-3">
             <h2 className="text-lg font-extrabold">{editing ? '✏️ Edit item' : `➕ ${ADD_LABEL[kind]}`}</h2>
-            <button type="button" onClick={reset} aria-label="Close" className="flex h-9 w-9 items-center justify-center rounded-lg text-navy/60 hover:bg-mist">
+            <button type="button" onClick={reset} aria-label="Close" className="flex h-9 w-9 items-center justify-center rounded-lg text-navy/65 hover:bg-mist">
               <Icon name="close" size={18} />
             </button>
           </div>
@@ -247,7 +247,7 @@ export default function Content({ kind }) {
                   <input type="datetime-local" required value={at} min={toInput(Date.now())} onChange={(e) => setAt(e.target.value)} className="input" />
                 </label>
               )}
-              {when === 'draft' && <p className="mt-1.5 text-xs text-navy/60">Only admins can see drafts. Publish it later by editing it.</p>}
+              {when === 'draft' && <p className="mt-1.5 text-xs text-navy/65">Only admins can see drafts. Publish it later by editing it.</p>}
             </div>
 
             <div className="sm:col-span-2">
@@ -260,7 +260,7 @@ export default function Content({ kind }) {
                   : <span className="flex h-12 w-12 shrink-0 items-center justify-center rounded-lg bg-white text-brand"><Icon name="image" size={22} /></span>}
                 <span className="min-w-0 flex-1 text-sm">
                   <span className="block truncate font-semibold text-brand">{file ? file.name : 'Choose a photo'}</span>
-                  <span className="text-navy/60">JPG, PNG or WebP, up to 5 MB</span>
+                  <span className="text-navy/65">JPG, PNG or WebP, up to 5 MB</span>
                 </span>
                 <input type="file" accept="image/jpeg,image/png,image/webp" required={config.needImage && !editing}
                   onChange={(e) => setFile(e.target.files[0] || null)} className="sr-only" />
@@ -295,7 +295,7 @@ export default function Content({ kind }) {
                 : <span aria-hidden="true" className={`flex h-16 shrink-0 items-center justify-center rounded-lg bg-mist text-brand/60 ${wide ? 'w-28' : 'w-16'}`}><Icon name={kind === 'events' ? 'calendar' : kind === 'news' ? 'news' : 'image'} size={24} /></span>}
               <div className="min-w-0 flex-1">
                 <div className="line-clamp-1 font-bold">{it.titleHi || it.titleEn || config.untitled || '(no title)'}</div>
-                {it.titleHi && it.titleEn && <div className="line-clamp-1 text-sm text-navy/60">{it.titleEn}</div>}
+                {it.titleHi && it.titleEn && <div className="line-clamp-1 text-sm text-navy/65">{it.titleEn}</div>}
                 <div className="mt-1 flex flex-wrap gap-1.5 text-xs">
                   {status === 'live' && <span className={`${chip} bg-green-100 text-green-900`}>● Live</span>}
                   {status === 'draft' && <span className={`${chip} bg-navy/10 text-navy`}>📝 Draft (hidden)</span>}
@@ -329,7 +329,7 @@ export default function Content({ kind }) {
       {more && (
         <div className="mt-5 text-center">
           <button onClick={loadMore} disabled={busyMore} className="abtn min-h-10 px-5">{busyMore ? 'Loading…' : '⬇️ Load older items'}</button>
-          <p className="mt-1.5 text-xs text-navy/60">{items.length} loaded. The search on this page covers only the loaded ones.</p>
+          <p className="mt-1.5 text-xs text-navy/65">{items.length} loaded. The search on this page covers only the loaded ones.</p>
         </div>
       )}
       {rsvpFor && <RsvpList event={rsvpFor} onClose={() => setRsvpFor(null)} onChange={loadRsvps} />}

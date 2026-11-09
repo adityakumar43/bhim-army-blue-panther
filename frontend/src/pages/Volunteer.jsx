@@ -96,7 +96,7 @@ export default function Volunteer() {
                     </ol>
                 </section>
                 <div className="mt-5 grid gap-3 sm:grid-cols-2">
-                    <a href={`https://wa.me/?text=${encodeURIComponent(invite)}`} target="_blank" rel="noopener noreferrer" className="btn gap-2 bg-[#25d366] text-white hover:bg-[#1da851]">
+                    <a href={`https://wa.me/?text=${encodeURIComponent(invite)}`} target="_blank" rel="noopener noreferrer" className="btn gap-2 bg-[#15803d] text-white hover:bg-[#166534]">
                         💬 {t('vol.invite', { defaultValue: 'Invite friends on WhatsApp' })}
                     </a>
                     <Link to="/join" className="btn gap-2 border-2 border-brand bg-white text-brand hover:bg-mist">🪪 {t('vol.becomeMember', { defaultValue: 'Also become a member' })}</Link>
@@ -108,10 +108,10 @@ export default function Volunteer() {
     return (
         <div className="mx-auto max-w-3xl px-5 py-10 sm:py-12">
             <form onSubmit={submit} noValidate className="flex flex-col gap-5">
-                <p className="-mb-1 text-sm text-navy/60"><Req /> {t('help.requiredNote', { defaultValue: 'Required fields' })}</p>
+                <p className="-mb-1 text-sm text-navy/65"><Req /> {t('help.requiredNote', { defaultValue: 'Required fields' })}</p>
 
                 <Part n="1" title={<>{t('vol.skillsTitle', { defaultValue: 'How can you help?' })}<Req /></>} done={done1}>
-                    <p className="-mt-2 mb-3 text-sm text-navy/60">{t('vol.skillsHint', { defaultValue: 'Choose one or more.' })}</p>
+                    <p className="-mt-2 mb-3 text-sm text-navy/65">{t('vol.skillsHint', { defaultValue: 'Choose one or more.' })}</p>
                     <div className="grid gap-2 sm:grid-cols-2">
                         {SKILLS.map((s) => {
                             const on = form.skills.includes(s.key)
@@ -177,7 +177,7 @@ export default function Volunteer() {
                         <label className="flex flex-col gap-1.5 font-semibold sm:col-span-2">💬 {t('vol.message')}
                             <textarea rows="3" maxLength="500" value={form.message} onChange={set('message')}
                                 placeholder={t('vol.messageHint', { defaultValue: 'For example your work, your experience, or a time that suits you.' })} className="input resize-y" />
-                            <span className="text-right text-xs font-normal text-navy/50">{form.message.length} / 500</span>
+                            <span className="text-right text-xs font-normal text-navy/65">{form.message.length} / 500</span>
                         </label>
                     </div>
                 </Part>
@@ -190,7 +190,7 @@ export default function Volunteer() {
 
                 {error && <p role="alert" className="flex gap-2 rounded-xl border border-red-200 bg-red-50 p-3 text-sm text-red-800"><span aria-hidden="true">⚠️</span>{say(t, error)}</p>}
                 <button disabled={busy} className="btn w-full gap-2 bg-brand text-white shadow-md hover:bg-navy disabled:opacity-60">{busy ? t('vol.sending') : `🙋 ${t('vol.submit')}`}</button>
-                <p className="-mt-2 text-center text-xs text-navy/60">🔒 {t('vol.privacy', { defaultValue: 'Your details are only used by our team to contact you.' })}</p>
+                <p className="-mt-2 text-center text-xs text-navy/65">🔒 {t('vol.privacy', { defaultValue: 'Your details are only used by our team to contact you.' })}</p>
             </form>
         </div>
     )

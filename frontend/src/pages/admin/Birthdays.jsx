@@ -36,12 +36,12 @@ export default function Birthdays() {
                     <span aria-hidden="true" className="flex h-9 w-9 items-center justify-center rounded-xl bg-pink-100 text-pink-700"><Icon name="cake" size={20} /></span>
                     Birthdays
                 </h2>
-                <span className="text-xs text-navy/60">
+                <span className="text-xs text-navy/65">
                     {data.emailOn ? '✉️ Wishes are emailed automatically every morning' : '⚠️ Birthday emails are off (email is not set up)'}
                 </span>
             </div>
 
-            {today.length === 0 && soon.length === 0 && <p className="text-sm text-navy/60">No member birthdays this week.</p>}
+            {today.length === 0 && soon.length === 0 && <p className="text-sm text-navy/65">No member birthdays this week.</p>}
 
             {today.length > 0 && (
                 <ul className="mb-3 divide-y divide-brand/10 rounded-xl border border-gold/50 bg-gold/10">
@@ -49,7 +49,7 @@ export default function Birthdays() {
                         <li key={m._id} className="flex flex-wrap items-center gap-x-3 gap-y-2 px-3 py-2.5">
                             <span className="min-w-0 flex-1">
                                 <span className="font-bold">🎉 {m.name}</span>
-                                <span className="ml-2 text-sm text-navy/60">turns {m.turning}{m.district ? ` · ${m.district}` : ''}{m.memberNo ? ` · ${m.memberNo}` : ''}</span>
+                                <span className="ml-2 text-sm text-navy/65">turns {m.turning}{m.district ? ` · ${m.district}` : ''}{m.memberNo ? ` · ${m.memberNo}` : ''}</span>
                             </span>
                             {m.emailed ? <Pill tone="green">✉️ Emailed</Pill> : m.email ? <Pill tone="gold">Email later today</Pill> : <Pill tone="gray">No email</Pill>}
                             <a href={waLink(m.phone, m.name)} target="_blank" rel="noopener noreferrer" className="abtn-primary">
@@ -67,7 +67,7 @@ export default function Birthdays() {
                         {shownSoon.map((m) => (
                             <li key={m._id} className="flex items-center gap-3 py-2 text-sm">
                                 <span className="w-28 shrink-0 font-semibold text-brand">{when(m.daysAway)}</span>
-                                <span className="min-w-0 flex-1 truncate"><strong>{m.name}</strong> <span className="text-navy/60">· {dayLabel(m.date)} · turns {m.turning}</span></span>
+                                <span className="min-w-0 flex-1 truncate"><strong>{m.name}</strong> <span className="text-navy/65">· {dayLabel(m.date)} · turns {m.turning}</span></span>
                             </li>
                         ))}
                     </ul>

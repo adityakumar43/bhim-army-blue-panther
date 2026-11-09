@@ -64,7 +64,7 @@ export default function DownloadsAdmin() {
                 <form key={formKey} onSubmit={submit} className="card mb-6 border-brand/30">
                     <div className="mb-3 flex items-center justify-between gap-3">
                         <h2 className="text-lg font-extrabold">{editing ? '✏️ Edit file' : '➕ Add a file'}</h2>
-                        <button type="button" onClick={reset} aria-label="Close" className="flex h-9 w-9 items-center justify-center rounded-lg text-navy/60 hover:bg-mist"><Icon name="close" size={18} /></button>
+                        <button type="button" onClick={reset} aria-label="Close" className="flex h-9 w-9 items-center justify-center rounded-lg text-navy/65 hover:bg-mist"><Icon name="close" size={18} /></button>
                     </div>
                     <div className="grid gap-3 sm:grid-cols-2">
                         <label className="flex flex-col gap-1 font-semibold">Title (Hindi)<input value={form.titleHi} onChange={set('titleHi')} maxLength="150" className="input" /></label>
@@ -81,7 +81,7 @@ export default function DownloadsAdmin() {
                             📎 {editing ? 'Replace file (leave empty to keep the current one)' : 'File'}
                             <input type="file" accept="application/pdf,image/jpeg,image/png,image/webp" required={!editing}
                                 onChange={(e) => setFile(e.target.files[0] || null)} className="file-pick" />
-                            <span className="text-xs font-normal text-navy/60">PDF, JPG, PNG or WebP, up to 10 MB</span>
+                            <span className="text-xs font-normal text-navy/65">PDF, JPG, PNG or WebP, up to 10 MB</span>
                         </label>
                     </div>
                     {error && <div className="mt-3"><Notice>{error}</Notice></div>}
@@ -106,7 +106,7 @@ export default function DownloadsAdmin() {
                                 : <span aria-hidden="true" className="flex h-20 w-16 shrink-0 items-center justify-center rounded-lg bg-mist text-3xl">{d.format === 'pdf' ? '📕' : c.emoji}</span>}
                             <div className="flex min-w-0 flex-1 flex-col">
                                 <div className="line-clamp-2 font-bold">{d.titleHi || d.titleEn}</div>
-                                <div className="text-xs text-navy/60">{c.emoji} {c.en} · {(d.format || '').toUpperCase()} {fileSize(d.bytes)}</div>
+                                <div className="text-xs text-navy/65">{c.emoji} {c.en} · {(d.format || '').toUpperCase()} {fileSize(d.bytes)}</div>
                                 <div className="text-xs font-semibold text-brand">📥 {d.count || 0} downloads</div>
                                 <div className="mt-auto flex flex-wrap gap-2 pt-2">
                                     <a href={`${BASE}/downloads/${d._id}/file`} target="_blank" rel="noreferrer" className="abtn min-h-8 px-2 text-xs">👁️ Open</a>

@@ -153,7 +153,7 @@ export default function UpdateDetails() {
                         <button disabled={busy} className="btn mt-5 w-full gap-2 bg-brand text-white shadow-md hover:bg-navy disabled:opacity-60">
                             📧 {busy ? '…' : t('upd.sendCode', { defaultValue: 'Send me a code' })}
                         </button>
-                        <p className="mt-4 text-center text-xs text-navy/55">🔒 {t('upd.codeNote', { defaultValue: 'The code goes to the email address on your membership.' })}</p>
+                        <p className="mt-4 text-center text-xs text-navy/65">🔒 {t('upd.codeNote', { defaultValue: 'The code goes to the email address on your membership.' })}</p>
                     </Box>
                 </form>
             )}
@@ -171,7 +171,7 @@ export default function UpdateDetails() {
                         </button>
                         <div className="mt-4 flex flex-wrap justify-between gap-2 text-sm">
                             <button type="button" onClick={() => sendCode()} disabled={busy} className="font-semibold text-brand underline">{t('upd.resend', { defaultValue: 'Send a new code' })}</button>
-                            <button type="button" onClick={() => { setStep('find'); setError('') }} className="font-semibold text-navy/60 underline">{t('upd.back', { defaultValue: 'Back' })}</button>
+                            <button type="button" onClick={() => { setStep('find'); setError('') }} className="font-semibold text-navy/65 underline">{t('upd.back', { defaultValue: 'Back' })}</button>
                         </div>
                     </Box>
                 </form>
@@ -180,7 +180,7 @@ export default function UpdateDetails() {
             {step === 'edit' && (
                 <form onSubmit={save} className="flex flex-col gap-5">
                     <Box icon="user" title={form.name}>
-                        {form.memberNo && <p className="-mt-3 mb-4 text-sm font-semibold text-navy/60">🪪 {form.memberNo}</p>}
+                        {form.memberNo && <p className="-mt-3 mb-4 text-sm font-semibold text-navy/65">🪪 {form.memberNo}</p>}
                         <div className="grid gap-4 sm:grid-cols-2">
                             <label className="flex flex-col gap-1.5 font-semibold">{t('join.phone')}
                                 {phoneBox(form.phone, set('phone', onlyPhone))}
@@ -217,7 +217,7 @@ export default function UpdateDetails() {
                                 <input type="file" accept="image/jpeg,image/png,image/webp" className="sr-only"
                                     onChange={(e) => { const f = e.target.files?.[0]; if (f) setPhoto(f); e.target.value = '' }} />
                             </label>
-                            {photo && <button type="button" onClick={() => setPhoto(null)} className="text-sm font-semibold text-navy/60 underline">{t('upd.keepPhoto', { defaultValue: 'Keep my old photo' })}</button>}
+                            {photo && <button type="button" onClick={() => setPhoto(null)} className="text-sm font-semibold text-navy/65 underline">{t('upd.keepPhoto', { defaultValue: 'Keep my old photo' })}</button>}
                         </div>
                     </Box>
 

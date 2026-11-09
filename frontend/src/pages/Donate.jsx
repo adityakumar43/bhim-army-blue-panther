@@ -175,7 +175,7 @@ export default function Donate() {
             <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-mist text-brand" aria-hidden="true"><Icon name="receipt" size={20} /></span>
             {t('donate.detailsTitle', { defaultValue: 'Details for your receipt' })}
           </h2>
-          <p className="mb-4 text-sm text-navy/60">{t('donate.detailsHint', { defaultValue: 'You can leave these empty to donate without your name.' })}</p>
+          <p className="mb-4 text-sm text-navy/65">{t('donate.detailsHint', { defaultValue: 'You can leave these empty to donate without your name.' })}</p>
           <div className="grid gap-4 sm:grid-cols-2">
             <label className="flex flex-col gap-1.5 font-semibold sm:col-span-2">{t('donate.name')}
               <span className="relative block">
@@ -198,14 +198,14 @@ export default function Donate() {
               </span>
             </label>
           </div>
-          <p className="mt-2 text-xs text-navy/60">📧 {t('donate.receiptHint')}</p>
+          <p className="mt-2 text-xs text-navy/65">📧 {t('donate.receiptHint')}</p>
         </div>
 
         {error && <p role="alert" className="flex gap-2 rounded-xl border border-red-200 bg-red-50 p-3 text-sm text-red-800"><span aria-hidden="true">⚠️</span>{say(t, error)}</p>}
         <button disabled={busy} className="btn min-h-14 w-full gap-2 bg-gold text-lg font-extrabold text-navy shadow-md hover:brightness-95 disabled:opacity-60">
           {busy ? t('donate.wait') : <>💙 {t('donate.pay')} {amountOk ? rupees(value) : ''}</>}
         </button>
-        <p className="-mt-2 text-center text-xs text-navy/55">🔒 {t('donate.secure', { defaultValue: 'Secure payment by Razorpay' })} · {t('privacy.byDonating', { defaultValue: 'By donating, you agree to our' })} <Link to="/privacy" className="font-semibold text-brand underline">{t('privacy.title', { defaultValue: 'Privacy Policy' })}</Link></p>
+        <p className="-mt-2 text-center text-xs text-navy/65">🔒 {t('donate.secure', { defaultValue: 'Secure payment by Razorpay' })} · {t('privacy.byDonating', { defaultValue: 'By donating, you agree to our' })} <Link to="/privacy" className="font-semibold text-brand underline">{t('privacy.title', { defaultValue: 'Privacy Policy' })}</Link></p>
       </form>
     </div>
   )

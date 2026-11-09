@@ -73,7 +73,7 @@ export default function Overview() {
             <Icon name="arrow" size={18} className="shrink-0" />
           </Link>
           <button type="button" onClick={closeTip} title="Hide for a week" aria-label="Hide this reminder for a week"
-            className="flex h-11 w-11 shrink-0 items-center justify-center rounded-r-2xl border-l border-gold/60 text-navy/60 hover:bg-gold/25 hover:text-navy">
+            className="flex h-11 w-11 shrink-0 items-center justify-center rounded-r-2xl border-l border-gold/60 text-navy/65 hover:bg-gold/25 hover:text-navy">
             <Icon name="close" size={16} />
           </button>
         </div>
@@ -88,14 +88,14 @@ export default function Overview() {
                 ${n > 0 ? 'border-brand/15 bg-white hover:border-brand/30' : 'border-navy/5 bg-white/60 hover:bg-white'}`}>
               <span className="flex items-center justify-between gap-2 md:contents">
                 <span aria-hidden="true" className={`flex h-10 w-10 shrink-0 items-center justify-center rounded-xl md:h-12 md:w-12 ${tile} ${n > 0 ? '' : 'opacity-60 grayscale'}`}><BoxIcon name={icon} size={22} className="md:h-7 md:w-7" /></span>
-                {n > 0 && <span className="rounded-full bg-red-500 px-2 py-0.5 text-[11px] font-bold text-white md:hidden">New</span>}
+                {n > 0 && <span className="rounded-full bg-red-600 px-2 py-0.5 text-[11px] font-bold text-white md:hidden">New</span>}
               </span>
               <span className="min-w-0 flex-1">
                 <span className="flex items-center gap-2">
                   <span className={`text-2xl leading-none font-extrabold md:text-3xl ${n > 0 ? 'text-brand' : 'text-navy/35'}`}>{n}</span>
-                  {n > 0 && <span className="hidden rounded-full bg-red-500 px-2 py-0.5 text-xs font-bold text-white md:inline">New</span>}
+                  {n > 0 && <span className="hidden rounded-full bg-red-600 px-2 py-0.5 text-xs font-bold text-white md:inline">New</span>}
                 </span>
-                <span className={`mt-1 block text-[13px] leading-snug font-semibold md:text-sm ${n > 0 ? 'text-navy/75' : 'text-navy/50'}`}>{label}</span>
+                <span className={`mt-1 block text-[13px] leading-snug font-semibold md:text-sm ${n > 0 ? 'text-navy/75' : 'text-navy/65'}`}>{label}</span>
               </span>
               <Icon name="arrow" size={18} className="hidden shrink-0 text-brand opacity-40 transition group-hover:translate-x-0.5 group-hover:opacity-100 md:block" />
             </Link>

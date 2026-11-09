@@ -95,11 +95,11 @@ export default function Notifications() {
                     </p>
                     <label className="flex flex-col gap-1 font-semibold">Title
                         <input value={form.title} onChange={set('title')} maxLength="80" placeholder="e.g. बड़ी रैली 14 अप्रैल को लखनऊ में" className="input" />
-                        <span className="text-right text-xs font-normal text-navy/50">{form.title.length} / 80</span>
+                        <span className="text-right text-xs font-normal text-navy/65">{form.title.length} / 80</span>
                     </label>
-                    <label className="flex flex-col gap-1 font-semibold">Message <span className="text-xs font-normal text-navy/55">(optional, keep it short)</span>
+                    <label className="flex flex-col gap-1 font-semibold">Message <span className="text-xs font-normal text-navy/65">(optional, keep it short)</span>
                         <textarea rows="3" value={form.body} onChange={set('body')} maxLength="200" placeholder="e.g. सुबह 10 बजे अंबेडकर पार्क पहुँचें। Jai Bhim!" className="input resize-y py-2" />
-                        <span className="text-right text-xs font-normal text-navy/50">{form.body.length} / 200</span>
+                        <span className="text-right text-xs font-normal text-navy/65">{form.body.length} / 200</span>
                     </label>
                     <label className="mt-1 flex flex-col gap-1 font-semibold">Opens when tapped
                         <select value={form.url} onChange={set('url')} className="input">
@@ -115,7 +115,7 @@ export default function Notifications() {
                             {busy === 'send' ? 'Starting…' : `📤 Send to ${info?.count ?? '…'} devices`}
                         </button>
                     </div>
-                    {sending && <p className="mt-2 text-right text-xs text-navy/60">Wait until the current one finishes.</p>}
+                    {sending && <p className="mt-2 text-right text-xs text-navy/65">Wait until the current one finishes.</p>}
                 </section>
 
                 {/* How it looks on a phone */}
@@ -153,7 +153,7 @@ export default function Notifications() {
                                 <Pill tone={tone}>{label}</Pill>
                             </div>
                             {h.body && <p className="mt-1 text-sm text-navy/75">{h.body}</p>}
-                            <p className="mt-1 text-xs text-navy/60">🔗 {h.url} · ✍️ {h.byName} · 🕒 {when(h.createdAt)}</p>
+                            <p className="mt-1 text-xs text-navy/65">🔗 {h.url} · ✍️ {h.byName} · 🕒 {when(h.createdAt)}</p>
                             <div className="mt-3 h-2 overflow-hidden rounded-full bg-navy/10" role="progressbar" aria-valuenow={pct} aria-valuemin="0" aria-valuemax="100">
                                 <div className={`h-full ${h.status === 'stopped' ? 'bg-red-400' : 'bg-green-500'}`} style={{ width: `${pct}%` }} />
                             </div>

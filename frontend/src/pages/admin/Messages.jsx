@@ -69,7 +69,7 @@ export default function Messages() {
             return (
               <button key={key || 'all'} onClick={() => setTopic(key)} aria-pressed={topic === key}
                 className={`min-h-9 rounded-full border px-3 text-sm font-semibold transition ${topic === key ? 'border-brand bg-brand text-white' : 'border-brand/15 bg-white text-navy/75 hover:bg-mist'}`}>
-                {label} <span className="opacity-70">({n})</span>
+                {label} <span className="opacity-85">({n})</span>
               </button>
             )
           })}
@@ -89,7 +89,7 @@ export default function Messages() {
                     {!m.read && <Pill tone="gold">🆕 New</Pill>}
                     {m.topic && m.topic !== 'general' && <Pill tone="blue">{TOPICS[m.topic] || m.topic}</Pill>}
                   </div>
-                  <span className="text-xs text-navy/60">🕒 {new Date(m.createdAt).toLocaleString('en-IN', { dateStyle: 'medium', timeStyle: 'short' })}</span>
+                  <span className="text-xs text-navy/65">🕒 {new Date(m.createdAt).toLocaleString('en-IN', { dateStyle: 'medium', timeStyle: 'short' })}</span>
                 </div>
                 <div className="mt-0.5 flex flex-wrap gap-x-3 text-sm text-navy/70">
                   {m.phone && <a href={`tel:${m.phone}`} className="hover:text-brand hover:underline">📞 {m.phone}</a>}
@@ -113,7 +113,7 @@ export default function Messages() {
                       <textarea rows="5" value={replyText} onChange={(e) => setReplyText(e.target.value)} maxLength="5000" autoFocus
                         className="input min-h-28 py-2 font-normal" />
                     </label>
-                    <p className="mt-1 text-xs text-navy/55">Their original message is added below your reply automatically.</p>
+                    <p className="mt-1 text-xs text-navy/65">Their original message is added below your reply automatically.</p>
                     <div className="mt-2 flex justify-end gap-2">
                       <button onClick={() => setReplyFor(null)} className="abtn min-h-9 px-3">Cancel</button>
                       <button onClick={() => sendReply(m)} disabled={sending || !replyText.trim()} className="abtn-primary min-h-9 px-4">

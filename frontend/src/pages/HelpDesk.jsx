@@ -42,7 +42,7 @@ function Rights({ t }) {
         <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-mist text-brand" aria-hidden="true"><Icon name="scale" size={20} /></span>
         <span className="flex-1">
           <span className="block font-extrabold">{t('help.rightsTitle', { defaultValue: 'Know your rights' })}</span>
-          <span className="block text-sm text-navy/60">{t('help.rightsIntro', { defaultValue: 'What the police and the law must do for you' })}</span>
+          <span className="block text-sm text-navy/65">{t('help.rightsIntro', { defaultValue: 'What the police and the law must do for you' })}</span>
         </span>
         <span aria-hidden="true" className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-mist text-lg text-brand transition group-open:rotate-45">+</span>
       </summary>
@@ -111,7 +111,7 @@ function VoiceRecorder({ t, value, onChange }) {
   return (
     <div className="mt-4 rounded-xl border-2 border-dashed border-red-200 bg-red-50/40 p-4">
       <p className="font-semibold">🎤 {t('help.voiceTitle', { defaultValue: 'Or record a voice message' })}</p>
-      <p className="mt-0.5 text-xs text-navy/60">{t('help.voiceHint', { defaultValue: 'Hard to type? Speak and tell us what happened (up to 3 minutes).' })}</p>
+      <p className="mt-0.5 text-xs text-navy/65">{t('help.voiceHint', { defaultValue: 'Hard to type? Speak and tell us what happened (up to 3 minutes).' })}</p>
 
       {!recording && !value && (
         <button type="button" onClick={start} className="mt-3 inline-flex min-h-11 items-center gap-2 rounded-xl bg-red-600 px-4 text-sm font-bold text-white shadow-sm hover:bg-red-700">
@@ -121,7 +121,7 @@ function VoiceRecorder({ t, value, onChange }) {
       {recording && (
         <div className="mt-3 flex flex-wrap items-center gap-3" role="status">
           <span className="flex items-center gap-2 font-mono text-lg font-bold text-red-700">
-            <span aria-hidden="true" className="h-3 w-3 animate-pulse rounded-full bg-red-600" /> {clock(secs)} <span className="text-sm font-normal text-navy/50">/ {clock(MAX_VOICE)}</span>
+            <span aria-hidden="true" className="h-3 w-3 animate-pulse rounded-full bg-red-600" /> {clock(secs)} <span className="text-sm font-normal text-navy/65">/ {clock(MAX_VOICE)}</span>
           </span>
           <button type="button" onClick={stop} className="inline-flex min-h-11 items-center gap-2 rounded-xl bg-navy px-4 text-sm font-bold text-white hover:bg-brand">
             <span aria-hidden="true">⏹️</span> {t('help.voiceStop', { defaultValue: 'Stop' })}
@@ -167,12 +167,12 @@ function Progress({ status, lang }) {
     <ol className="mt-5 grid grid-cols-3">
       {order.map((key, i) => {
         const state = status === 'closed' ? 'done' : i < at ? 'done' : i === at ? (key === 'resolved' ? 'done' : 'now') : 'todo'
-        const dot = { done: 'bg-green-600 text-white', now: 'bg-gold text-navy ring-4 ring-gold/30', todo: 'border-2 border-navy/15 bg-white text-navy/40' }[state]
+        const dot = { done: 'bg-green-600 text-white', now: 'bg-gold text-navy ring-4 ring-gold/30', todo: 'border-2 border-navy/15 bg-white text-navy/65' }[state]
         return (
           <li key={key} className="relative flex flex-col items-center text-center">
             {i > 0 && <span aria-hidden="true" className={`absolute top-4 right-1/2 h-1 w-full -translate-y-1/2 ${state === 'todo' ? 'bg-navy/10' : 'bg-green-500'}`} />}
             <span className={`relative z-10 flex h-8 w-8 items-center justify-center rounded-full text-sm font-extrabold ${dot}`}>{state === 'done' ? '✓' : i + 1}</span>
-            <span className={`mt-2 text-xs font-semibold sm:text-sm ${state === 'todo' ? 'text-navy/45' : 'text-navy'}`}>{STATUS[key][lang]}</span>
+            <span className={`mt-2 text-xs font-semibold sm:text-sm ${state === 'todo' ? 'text-navy/65' : 'text-navy'}`}>{STATUS[key][lang]}</span>
           </li>
         )
       })}
@@ -293,7 +293,7 @@ export default function HelpDesk() {
         <div className="mt-3 grid gap-2 sm:grid-cols-2">
           <a href="tel:112" className="flex min-h-12 items-center gap-3 rounded-xl bg-red-600 px-4 text-white shadow-sm hover:bg-red-700">
             <span className="text-xl" aria-hidden="true">📞</span>
-            <span className="leading-tight"><b className="text-lg">112</b><span className="block text-xs text-white/85">{t('help.police', { defaultValue: 'Police / emergency' })}</span></span>
+            <span className="leading-tight"><b className="text-lg">112</b><span className="block text-xs text-white">{t('help.police', { defaultValue: 'Police / emergency' })}</span></span>
           </a>
           <a href="tel:14566" className="flex min-h-12 items-center gap-3 rounded-xl border-2 border-red-600 bg-white px-4 text-red-700 hover:bg-red-100">
             <span className="text-xl" aria-hidden="true">📞</span>
@@ -336,7 +336,7 @@ export default function HelpDesk() {
 
       {tab === 'report' && !sent && (
         <form onSubmit={report} noValidate className="flex flex-col gap-5">
-          <p className="-mb-1 text-sm text-navy/60"><Req /> {t('help.requiredNote', { defaultValue: 'Required fields' })}</p>
+          <p className="-mb-1 text-sm text-navy/65"><Req /> {t('help.requiredNote', { defaultValue: 'Required fields' })}</p>
           <Part n="1" title={<>{t('help.category')}<Req /></>} done={done1}>
             <div className="grid gap-2 sm:grid-cols-2">
               {CATEGORIES.map((c) => (
@@ -390,10 +390,10 @@ export default function HelpDesk() {
                 <textarea required rows="6" maxLength={MAX} value={form.description} onChange={set('description')}
                   placeholder={t('help.descriptionHint')} className="input resize-y" />
                 <span className="flex justify-between text-xs font-normal">
-                  <span className={descLen >= MIN || voice ? 'text-green-700' : 'text-navy/50'}>
+                  <span className={descLen >= MIN || voice ? 'text-green-700' : 'text-navy/65'}>
                     {descLen >= MIN ? `✓ ${t('help.enough', { defaultValue: 'Good' })}` : voice ? `✓ ${t('help.voiceInstead', { defaultValue: 'Voice message added' })}` : t('help.minHintVoice', { defaultValue: 'At least 20 letters, or record a voice message below' })}
                   </span>
-                  <span className={form.description.length > MAX - 150 ? 'font-bold text-red-600' : 'text-navy/50'}>{form.description.length} / {MAX}</span>
+                  <span className={form.description.length > MAX - 150 ? 'font-bold text-red-600' : 'text-navy/65'}>{form.description.length} / {MAX}</span>
                 </span>
               </label>
             </div>
@@ -402,7 +402,7 @@ export default function HelpDesk() {
 
             {/* Photos or documents (up to 3) */}
             <div className="mt-4 rounded-xl border-2 border-dashed border-navy/15 p-4">
-              <p className="font-semibold">📎 {t('help.photo')} <span className="text-sm font-normal text-navy/55">({photos.length}/{MAX_PHOTOS})</span></p>
+              <p className="font-semibold">📎 {t('help.photo')} <span className="text-sm font-normal text-navy/65">({photos.length}/{MAX_PHOTOS})</span></p>
               {photos.length > 0 && (
                 <ul className="mt-3 flex flex-wrap gap-3">
                   {previews.map((src, i) => (
@@ -428,7 +428,7 @@ export default function HelpDesk() {
                   </label>
                 </div>
               )}
-              <p className="mt-2 text-xs text-navy/55">{t('help.photosHint', { defaultValue: 'Up to 3 photos. For example a photo of the incident, an FIR copy or an application.' })}</p>
+              <p className="mt-2 text-xs text-navy/65">{t('help.photosHint', { defaultValue: 'Up to 3 photos. For example a photo of the incident, an FIR copy or an application.' })}</p>
             </div>
           </Part>
 
@@ -465,7 +465,7 @@ export default function HelpDesk() {
 
           {error && <p role="alert" className="flex gap-2 rounded-xl border border-red-200 bg-red-50 p-3 text-sm text-red-800"><span aria-hidden="true">⚠️</span>{say(t, error)}</p>}
           <button disabled={busy} className="btn w-full gap-2 bg-brand text-white shadow-md hover:bg-navy disabled:opacity-60">{busy ? t('help.sending') : `📤 ${t('help.submit')}`}</button>
-          <p className="-mt-2 text-center text-xs text-navy/60">🔒 {t('help.privacy')}</p>
+          <p className="-mt-2 text-center text-xs text-navy/65">🔒 {t('help.privacy')}</p>
         </form>
       )}
 
@@ -476,7 +476,7 @@ export default function HelpDesk() {
               <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-mist text-brand" aria-hidden="true"><Icon name="search" size={20} /></span>
               {t('help.trackTitle', { defaultValue: 'Check your complaint' })}
             </h2>
-            <p className="mb-5 text-sm text-navy/60">{t('help.trackIntro', { defaultValue: 'Enter the reference number you got and the mobile number you gave.' })}</p>
+            <p className="mb-5 text-sm text-navy/65">{t('help.trackIntro', { defaultValue: 'Enter the reference number you got and the mobile number you gave.' })}</p>
             <div className="grid gap-4 sm:grid-cols-2">
               <label className="flex flex-col gap-1.5 font-semibold"><span>🎫 {t('help.refNo')}<Req /></span>
                 <input required placeholder="HD-261026-7KQ3" value={track.refNo} onChange={(e) => setTrack({ ...track, refNo: e.target.value.toUpperCase().replace(/\s/g, '') })}
@@ -497,15 +497,15 @@ export default function HelpDesk() {
             <section aria-live="polite" className="mt-5 rounded-2xl border border-navy/10 bg-white p-5 shadow-sm sm:p-7">
               <div className="flex flex-wrap items-start justify-between gap-2">
                 <div>
-                  <p className="font-mono text-sm text-navy/60">{found.refNo}</p>
+                  <p className="font-mono text-sm text-navy/65">{found.refNo}</p>
                   <h2 className="mt-1 text-2xl font-extrabold">{STATUS[found.status]?.emoji} {STATUS[found.status]?.[lang]}</h2>
                 </div>
                 <span className="rounded-full bg-mist px-3 py-1 text-sm font-semibold text-brand">{categoryOf(found.category).emoji} {categoryOf(found.category)[lang]}</span>
               </div>
               <Progress status={found.status} lang={lang} />
               <dl className="mt-5 grid gap-2 rounded-xl bg-mist/50 p-4 text-sm sm:grid-cols-2">
-                <div><dt className="text-navy/60">📅 {t('help.reportedOn')}</dt><dd className="font-bold">{date(found.createdAt)}</dd></div>
-                <div><dt className="text-navy/60">🔄 {t('help.updatedOn')}</dt><dd className="font-bold">{date(found.updatedAt)}</dd></div>
+                <div><dt className="text-navy/65">📅 {t('help.reportedOn')}</dt><dd className="font-bold">{date(found.createdAt)}</dd></div>
+                <div><dt className="text-navy/65">🔄 {t('help.updatedOn')}</dt><dd className="font-bold">{date(found.updatedAt)}</dd></div>
               </dl>
               {found.history?.length > 0 && (
                 <div className="mt-6">
@@ -514,7 +514,7 @@ export default function HelpDesk() {
                     {[...found.history].reverse().map((h, i) => (
                       <li key={i} className="mb-5 ml-6 last:mb-0">
                         <span aria-hidden="true" className={`absolute -left-[9px] mt-1 h-4 w-4 rounded-full ring-4 ring-white ${i === 0 ? 'bg-brand' : 'bg-navy/25'}`} />
-                        <div className="text-xs font-semibold text-navy/55">{date(h.at)}</div>
+                        <div className="text-xs font-semibold text-navy/65">{date(h.at)}</div>
                         <div className="font-bold">{STATUS[h.status]?.emoji} {STATUS[h.status]?.[lang] || h.status}</div>
                         {h.note && <p className="mt-1.5 rounded-lg bg-mist/60 px-3 py-2 text-sm whitespace-pre-line">💬 {h.note}</p>}
                       </li>

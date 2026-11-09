@@ -90,7 +90,7 @@ export default function Backup() {
                             </li>
                         ))}
                     </ul>
-                    <p className="mt-3 text-xs text-navy/55">🔒 Passwords and two-step login keys are never included. Photos stay safe on Cloudinary; the backup keeps their links.</p>
+                    <p className="mt-3 text-xs text-navy/65">🔒 Passwords and two-step login keys are never included. Photos stay safe on Cloudinary; the backup keeps their links.</p>
                 </section>
             )}
         </>

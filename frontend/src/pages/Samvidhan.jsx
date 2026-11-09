@@ -118,7 +118,7 @@ function CertificateWindow({ cert, name, onClose }) {
                         className="btn gap-2 border-2 border-[#25D366] text-[#128c4a] hover:bg-green-50">💬 {t('samvidhan.sendLink')}</a>
                     <button type="button" onClick={download} className="btn border-2 border-brand text-brand">⬇️ {t('poster.download', { defaultValue: 'Download' })}</button>
                 </div>
-                <button type="button" onClick={onClose} className="-mt-1 self-center py-1 text-sm font-semibold text-navy/60 underline">{t('poster.close', { defaultValue: 'Close' })}</button>
+                <button type="button" onClick={onClose} className="-mt-1 self-center py-1 text-sm font-semibold text-navy/65 underline">{t('poster.close', { defaultValue: 'Close' })}</button>
             </div>
         </div>,
         document.body,
@@ -237,7 +237,7 @@ function Pledge({ onPledged, status }) {
                         <button type="submit" disabled={busy} className="btn w-full bg-brand text-white hover:bg-navy disabled:opacity-60 sm:w-auto">
                             ✋ {busy ? t('samvidhan.busy') : t('samvidhan.submit')}
                         </button>
-                        <p className="mt-3 text-xs text-navy/55">{t('samvidhan.privacy')}</p>
+                        <p className="mt-3 text-xs text-navy/65">{t('samvidhan.privacy')}</p>
                     </div>
                 </form>
             )}
@@ -264,13 +264,13 @@ function Speech() {
                 {SPEECH.map((q, i) => (
                     <figure key={i} className="flex flex-col rounded-xl border-l-4 border-gold bg-[#fffaf0] p-5">
                         <figcaption className="text-sm font-extrabold tracking-wide text-brand uppercase">{pick(q, 'title')}</figcaption>
-                        {q.contextEn && <p className="mt-2 text-sm text-navy/60 italic">{pick(q, 'context')}</p>}
+                        {q.contextEn && <p className="mt-2 text-sm text-navy/65 italic">{pick(q, 'context')}</p>}
                         <blockquote className="mt-2 flex-1 text-lg leading-relaxed text-navy">“{pick(q, 'body')}”</blockquote>
                         <ListenButton item={q} kind="samvidhan" small className="mt-4 self-start" />
                     </figure>
                 ))}
             </div>
-            {t('samvidhan.translated') && <p className="mt-4 text-xs text-navy/55">{t('samvidhan.translated')}</p>}
+            {t('samvidhan.translated') && <p className="mt-4 text-xs text-navy/65">{t('samvidhan.translated')}</p>}
         </section>
     )
 }
@@ -338,7 +338,7 @@ function Quiz({ myName = '' }) {
 
             {q && (
                 <div className="mt-6">
-                    <div className="mb-3 flex items-center justify-between gap-3 text-sm font-semibold text-navy/60">
+                    <div className="mb-3 flex items-center justify-between gap-3 text-sm font-semibold text-navy/65">
                         <span>{t('samvidhan.qOf', { n: step + 1, total })}</span>
                         <span aria-hidden="true">⭐ {score}</span>
                     </div>
@@ -382,7 +382,7 @@ function Quiz({ myName = '' }) {
                             : <div className="flex aspect-square w-full items-center justify-center rounded-2xl bg-navy text-white/70">{t('samvidhan.makingCard')}</div>}
                     </div>
                     <div className="text-center lg:text-left">
-                        <p className="text-5xl font-extrabold text-brand">{score}<span className="text-2xl text-navy/50">/{total}</span></p>
+                        <p className="text-5xl font-extrabold text-brand">{score}<span className="text-2xl text-navy/65">/{total}</span></p>
                         <p role="status" className="mt-2 text-lg font-extrabold">{t('samvidhan.score', { score, total })}</p>
                         <p className="mt-1 text-navy/70">{verdict}</p>
                         <label className="mt-5 flex flex-col gap-1 text-left text-sm font-semibold">{t('samvidhan.cardName')}
@@ -391,7 +391,7 @@ function Quiz({ myName = '' }) {
                         </label>
                         {note && <p role="status" className="mt-3 rounded-xl bg-green-50 px-3 py-2 text-left text-sm text-green-800">{say(t, note)}</p>}
                         <div className="mt-4 grid gap-2 sm:grid-cols-2">
-                            <button type="button" onClick={shareCard} disabled={!card} className="btn gap-2 bg-[#25d366] text-white hover:bg-[#1da851] disabled:opacity-60">
+                            <button type="button" onClick={shareCard} disabled={!card} className="btn gap-2 bg-[#15803d] text-white hover:bg-[#166534] disabled:opacity-60">
                                 📸 {t('samvidhan.shareCard')}
                             </button>
                             <a href={whatsappLink(shareText)} target="_blank" rel="noopener noreferrer"

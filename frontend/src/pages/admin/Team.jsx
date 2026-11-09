@@ -21,7 +21,7 @@ function PasswordInput({ className = '', ...props }) {
     <span className={`relative block ${className}`}>
       <input {...props} type={show ? 'text' : 'password'} className="input pr-12" />
       <button type="button" onClick={() => setShow(!show)} aria-label={show ? 'Hide password' : 'Show password'}
-        className="absolute top-1/2 right-1.5 flex h-9 w-9 -translate-y-1/2 items-center justify-center rounded-lg text-navy/50 hover:bg-mist hover:text-brand">
+        className="absolute top-1/2 right-1.5 flex h-9 w-9 -translate-y-1/2 items-center justify-center rounded-lg text-navy/65 hover:bg-mist hover:text-brand">
         <Icon name={show ? 'eyeOff' : 'eye'} size={18} />
       </button>
     </span>
@@ -108,7 +108,7 @@ export default function Team() {
         <form onSubmit={create} className="card mb-5">
           <div className="mb-3 flex items-center justify-between gap-3">
             <h2 className="text-lg font-extrabold">➕ Add a team member</h2>
-            <button type="button" onClick={() => { setAdding(false); setForm(fresh()) }} aria-label="Close" className="flex h-9 w-9 items-center justify-center rounded-lg text-navy/60 hover:bg-mist">
+            <button type="button" onClick={() => { setAdding(false); setForm(fresh()) }} aria-label="Close" className="flex h-9 w-9 items-center justify-center rounded-lg text-navy/65 hover:bg-mist">
               <Icon name="close" size={18} />
             </button>
           </div>

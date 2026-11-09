@@ -112,9 +112,9 @@ export default function Mailouts() {
                     <label className="mt-3 flex flex-col gap-1 font-semibold">Message
                         <textarea rows="9" value={body} onChange={(e) => setBody(e.target.value)} maxLength="5000"
                             placeholder={'Write in Hindi, English or both.\n\nLeave an empty line between paragraphs.'} className="input resize-y py-2" />
-                        <span className="text-right text-xs font-normal text-navy/50">{body.length} / 5000</span>
+                        <span className="text-right text-xs font-normal text-navy/65">{body.length} / 5000</span>
                     </label>
-                    <p className="text-xs text-navy/60">Each email starts with "जय भीम &lt;member's name&gt;," and ends with a link to stop these emails.</p>
+                    <p className="text-xs text-navy/65">Each email starts with "जय भीम &lt;member's name&gt;," and ends with a link to stop these emails.</p>
 
                     <div className="mt-4 flex flex-wrap justify-end gap-2">
                         <button onClick={test} disabled={!ready || !!busy} className="abtn min-h-11 px-4">{busy === 'test' ? 'Sending…' : '🧪 Send a test to me'}</button>
@@ -122,7 +122,7 @@ export default function Mailouts() {
                             {busy === 'send' ? 'Starting…' : `📤 Send to ${count ?? '…'} members`}
                         </button>
                     </div>
-                    {sending && <p className="mt-2 text-right text-xs text-navy/60">Wait until the current announcement finishes.</p>}
+                    {sending && <p className="mt-2 text-right text-xs text-navy/65">Wait until the current announcement finishes.</p>}
                 </section>
 
                 {/* How it looks */}
@@ -131,15 +131,15 @@ export default function Mailouts() {
                     <div className="overflow-hidden rounded-xl border border-brand/15 bg-white text-sm shadow-sm">
                         <div className="bg-brand px-4 py-3 text-white"><b>भीम आर्मी ब्लू पैंथर</b><div className="text-xs opacity-80">Bhim Army Blue Panther</div></div>
                         <div className="px-4 py-3">
-                            <p className="mb-1 text-xs text-navy/50">Subject: <b className="text-navy">{subject || '…'}</b></p>
+                            <p className="mb-1 text-xs text-navy/65">Subject: <b className="text-navy">{subject || '…'}</b></p>
                             <p className="mb-2">जय भीम <b>Ravi Kumar</b>,</p>
                             {(body.trim() ? body.split(/\n\s*\n/) : ['Your message will appear here.']).map((p, i) => (
-                                <p key={i} className={`mb-2 whitespace-pre-line ${body.trim() ? '' : 'text-navy/40'}`}>{p.trim()}</p>
+                                <p key={i} className={`mb-2 whitespace-pre-line ${body.trim() ? '' : 'text-navy/65'}`}>{p.trim()}</p>
                             ))}
                             <p className="mb-1">— Bhim Army Blue Panther</p>
                         </div>
                     </div>
-                    <p className="mt-2 text-xs text-navy/50">Stop these emails · ये ईमेल बंद करें</p>
+                    <p className="mt-2 text-xs text-navy/65">Stop these emails · ये ईमेल बंद करें</p>
                     <p className="mt-4 rounded-lg bg-gold/10 px-3 py-2 text-xs text-navy/70">
                         💡 Emails go out one by one with a short pause, so a big list can take a while. Free email accounts (like Gmail) allow about 500 emails a day.
                     </p>
@@ -160,7 +160,7 @@ export default function Mailouts() {
                                 <b className="min-w-0 flex-1 leading-tight">{m.subject}</b>
                                 <Pill tone={tone}>{label}</Pill>
                             </div>
-                            <p className="mt-1 text-xs text-navy/60">
+                            <p className="mt-1 text-xs text-navy/65">
                                 👥 {m.district ? `${m.district}, ` : ''}{m.stateCode ? stateByCode(m.stateCode)?.en : 'All members'} · ✍️ {m.byName} · 🕒 {when(m.createdAt)}
                             </p>
                             <div className="mt-3 h-2 overflow-hidden rounded-full bg-navy/10" role="progressbar" aria-valuenow={pct} aria-valuemin="0" aria-valuemax="100">

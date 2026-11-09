@@ -39,7 +39,7 @@ export default function NotFound() {
                 <p className="text-6xl leading-none font-extrabold text-brand/20 sm:text-7xl" aria-hidden="true">404</p>
                 <h1 className="mt-3 text-2xl font-extrabold sm:text-3xl">{t('notFound.title', { defaultValue: 'Page not found' })}</h1>
                 <p className="mt-3 text-lg text-navy/70">{t('notFound.body', { defaultValue: 'The page you are looking for does not exist or has moved. Check the address, or choose a page below.' })}</p>
-                <p className="mx-auto mt-3 max-w-full truncate rounded-lg bg-white px-3 py-1.5 font-mono text-sm text-navy/50 shadow-sm sm:inline-block" title={pathname}>{pathname}</p>
+                <p className="mx-auto mt-3 max-w-full truncate rounded-lg bg-white px-3 py-1.5 font-mono text-sm text-navy/65 shadow-sm sm:inline-block" title={pathname}>{pathname}</p>
 
                 <div className="mt-6 flex flex-wrap justify-center gap-3">
                     <Link to="/" className="btn bg-brand text-white hover:brightness-110">🏠 {t('notFound.home', { defaultValue: 'Go to the home page' })}</Link>

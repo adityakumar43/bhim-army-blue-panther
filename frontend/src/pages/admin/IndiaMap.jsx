@@ -44,9 +44,9 @@ export default function IndiaMap({ rows, onPick }) {
         <figure className="rounded-2xl border border-brand/10 bg-white p-4 shadow-sm sm:p-5">
             <figcaption className="mb-1 flex flex-wrap items-baseline justify-between gap-2">
                 <span className="font-extrabold">🗺️ Members across India</span>
-                <span className="text-xs text-navy/55">{covered} of {Object.keys(TILES).length} states and UTs have members</span>
+                <span className="text-xs text-navy/65">{covered} of {Object.keys(TILES).length} states and UTs have members</span>
             </figcaption>
-            <p className="mb-3 text-xs text-navy/60">Each square is a state or union territory, placed roughly where it is. Darker = more members. Tap one to see its districts.</p>
+            <p className="mb-3 text-xs text-navy/65">Each square is a state or union territory, placed roughly where it is. Darker = more members. Tap one to see its districts.</p>
 
             <div className="mx-auto grid max-w-md grid-cols-9 gap-1" onMouseLeave={() => setFocus(null)}>
                 {Object.entries(TILES).map(([code, [col, row, short]]) => {
@@ -76,7 +76,7 @@ export default function IndiaMap({ rows, onPick }) {
             <p className="mt-3 min-h-10 rounded-xl bg-mist/70 px-3 py-2 text-center text-sm" aria-live="polite">
                 {info
                     ? <><b>{info.label}</b>: {n(info.value)} {info.value === 1 ? 'member' : 'members'}{info.recent ? <span className="text-green-700"> · +{n(info.recent)} in 30 days</span> : ''}</>
-                    : <span className="text-navy/55">Point at a square to see its numbers</span>}
+                    : <span className="text-navy/65">Point at a square to see its numbers</span>}
             </p>
 
             {/* Key */}

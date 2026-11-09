@@ -79,11 +79,11 @@ export default function Leaderboard() {
                                 </span>
                                 <span className="min-w-0 flex-1">
                                     <b className="block truncate text-lg">{r.name}</b>
-                                    {place(r) && <span className="block truncate text-sm text-navy/60">📍 {place(r)}</span>}
+                                    {place(r) && <span className="block truncate text-sm text-navy/65">📍 {place(r)}</span>}
                                 </span>
                                 <span className="shrink-0 text-right">
                                     <b className="block text-xl text-brand">{r.value.toLocaleString(lang === 'hi' ? 'hi-IN' : 'en-IN')}</b>
-                                    <span className="text-xs text-navy/55">{t('board.members', { count: r.value })}</span>
+                                    <span className="text-xs text-navy/65">{t('board.members', { count: r.value })}</span>
                                 </span>
                             </li>
                         ))}
@@ -96,7 +96,7 @@ export default function Leaderboard() {
                 <h2 className="text-lg font-extrabold">🤝 {t('board.howTitle')}</h2>
                 <p className="mt-1 text-navy/80">{t('board.how')}</p>
                 <Link to="/membership/status" className="btn mt-4 bg-brand text-white hover:bg-navy">{t('board.howLink')} →</Link>
-                <p className="mt-4 text-xs text-navy/55">{t('board.privacy')}</p>
+                <p className="mt-4 text-xs text-navy/65">{t('board.privacy')}</p>
             </section>
         </div>
     )

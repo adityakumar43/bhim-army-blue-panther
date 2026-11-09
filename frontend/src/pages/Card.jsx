@@ -129,7 +129,7 @@ export default function Card() {
         <button onClick={() => window.print()} className="btn gap-2 bg-brand text-white shadow-md hover:bg-navy">🖨️ {t('card.print')}</button>
         <a href={share} target="_blank" rel="noopener noreferrer" className="btn gap-2 border-2 border-brand bg-white text-brand hover:bg-mist">💬 {t('card.share', { defaultValue: 'Share on WhatsApp' })}</a>
       </div>
-      <p className="mt-3 text-center text-sm text-navy/60">✂️ {t('card.printHint', { defaultValue: 'Prints at the real size of an ID card, ready to cut out and laminate.' })}</p>
+      <p className="mt-3 text-center text-sm text-navy/65">✂️ {t('card.printHint', { defaultValue: 'Prints at the real size of an ID card, ready to cut out and laminate.' })}</p>
 
       {/* The copy that is printed */}
       {createPortal(<div className="card-print"><IdCard card={card} t={t} lang={lang} /></div>, document.body)}

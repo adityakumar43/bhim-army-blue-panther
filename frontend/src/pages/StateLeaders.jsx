@@ -95,7 +95,7 @@ export default function StateLeaders() {
             <nav aria-label={t('leaders.districtTeams', { defaultValue: 'District teams' })} className="mt-4 mb-8 flex flex-wrap gap-2">
               {districts.map((d) => (
                 <a key={d.key} href={`#${slug(d.key)}`} className="inline-flex min-h-10 items-center gap-1.5 rounded-full border border-brand/20 bg-white px-4 text-sm font-semibold text-brand shadow-sm hover:bg-mist">
-                  📍 {d.name} <span className="text-navy/45">({d.people.length})</span>
+                  📍 {d.name} <span className="text-navy/65">({d.people.length})</span>
                 </a>
               ))}
             </nav>
@@ -106,7 +106,7 @@ export default function StateLeaders() {
                   <h3 className="mb-4 flex items-center gap-2 text-xl font-extrabold">
                     <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-mist text-brand" aria-hidden="true"><Icon name="pin" size={18} /></span>
                     {d.name}
-                    <span className="text-base font-semibold text-navy/50">· {t('leaders.district', { defaultValue: 'District' })}</span>
+                    <span className="text-base font-semibold text-navy/65">· {t('leaders.district', { defaultValue: 'District' })}</span>
                   </h3>
                   <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-5">
                     {d.people.map((l) => <LeaderCard key={l._id} leader={l} hideArea />)}
