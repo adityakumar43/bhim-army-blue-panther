@@ -39,7 +39,7 @@ export default function Detail({ kind }) {
             <div className="px-5 py-16 text-center">
                 <p role="alert" className="mb-4 text-lg">{failed === 'notFound' ? t('detail.notFound') : t('errors.offline')}</p>
                 {failed === 'offline' && <button onClick={() => setTries((n) => n + 1)} className="btn mb-4 bg-brand text-white hover:bg-navy">{t('errors.retry')}</button>}
-                <div><Link to="/news" className="font-semibold text-brand underline">{t('detail.back')}</Link></div>
+                <div><Link to={kind === 'events' ? '/news?tab=events' : '/news'} className="font-semibold text-brand underline">{t('detail.back')}</Link></div>
             </div>
         )
     }
@@ -48,7 +48,7 @@ export default function Detail({ kind }) {
     const date = kind === 'events' ? item.date : item.createdAt
     return (
         <article className="mx-auto max-w-3xl px-5 py-12 lg:px-16">
-            <Link to="/news" className="font-semibold text-brand">← {t('detail.back')}</Link>
+            <Link to={kind === 'events' ? '/news?tab=events' : '/news'} className="font-semibold text-brand">← {t('detail.back')}</Link>
             <div className="panel mt-6">
                 {item.image?.url && <ZoomPhoto item={item} width={1200} buttonClassName="mb-6" className="max-h-112 w-full object-cover" />}
                 <div className="font-semibold text-brand">

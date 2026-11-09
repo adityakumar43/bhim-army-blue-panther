@@ -1,5 +1,5 @@
-import { useEffect, useState } from 'react'
-import { Link } from 'react-router-dom'
+import { useEffect, useLayoutEffect, useRef, useState } from 'react'
+import { Link, useSearchParams } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
 import { api } from '../lib/api.js'
 import { pickText, formatDate } from '../lib/text.js'
@@ -102,6 +102,40 @@ export default function News() {
   const [busy, setBusy] = useState('')
   const [olderFailed, setOlderFailed] = useState('')
   const today = todayKey()
+  // One list at a time, chosen with the tabs. The tab is in the address (/news?tab=events), so it can be shared
+  // and the back link on an event's page returns to the Events tab.
+  const [params, setParams] = useSearchParams()
+  const tab = params.get('tab') === 'events' ? 'events' : 'news'
+  const tabsRef = useRef(null)
+  const [headerH, setHeaderH] = useState(0)
+
+  // The tabs stick just under the site's header. Its height changes with the screen size, so it is measured.
+  useEffect(() => {
+    const header = document.querySelector('header')
+    if (!header) return
+    const measure = () => setHeaderH(header.offsetHeight)
+    measure()
+    const ro = new ResizeObserver(measure)
+    ro.observe(header)
+    return () => ro.disconnect()
+  }, [])
+
+  const switched = useRef(false)
+  function choose(next) {
+    if (next === tab) return
+    switched.current = true
+    setParams(next === 'events' ? { tab: 'events' } : {}, { replace: true })
+  }
+  // After switching, when you were far down the other list: start the new one at its top (just under the tabs).
+  // Done once the new list is on screen, so the page's new height is known.
+  useLayoutEffect(() => {
+    if (!switched.current) return
+    switched.current = false
+    const box = tabsRef.current?.parentElement
+    if (!box) return
+    const top = box.getBoundingClientRect().top + window.scrollY - headerH
+    if (window.scrollY > top) window.scrollTo({ top, behavior: 'instant' })
+  }, [tab]) // eslint-disable-line react-hooks/exhaustive-deps
 
   function load() {
     setError('')
@@ -152,28 +186,50 @@ export default function News() {
   if (!news) return <Loading page />
 
   const [first, ...rest] = news
+  const upcoming = events.filter((ev) => eventDay(ev) >= today).length
+  const tabClass = (on) => `inline-flex min-h-11 flex-1 items-center justify-center gap-2 rounded-xl px-4 font-bold motion-safe:transition sm:flex-none sm:px-6 ${on ? 'bg-brand text-white shadow-sm' : 'text-navy hover:bg-mist'}`
   return (
-    <div className="mx-auto max-w-6xl px-5 py-10 sm:py-12 lg:px-8">
-      {/* News: the newest one large, the rest as a grid of cards (3 across on computers, 2 on tablets, 1 on phones) */}
-      {news.length === 0 && <EmptyState icon="news" />}
-      {first && <NewsCard item={first} featured />}
-      {rest.length > 0 && (
-        <div className="mt-6 grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
-          {rest.map((n) => <NewsCard key={n._id} item={n} />)}
+    <div>
+      {/* News | Events tabs. They stay on screen while scrolling, so the other list is always one tap away. */}
+      <div ref={tabsRef} style={{ top: headerH }} className="sticky z-30 border-b border-navy/10 bg-white/95 shadow-sm backdrop-blur">
+        <div role="tablist" aria-label={t('detail.back')} className="mx-auto flex max-w-6xl gap-2 px-5 py-2 lg:px-8">
+          <button type="button" role="tab" id="tab-news" aria-selected={tab === 'news'} aria-controls="panel-news" onClick={() => choose('news')} className={tabClass(tab === 'news')}>
+            📰 {t('nav.news')}
+          </button>
+          <button type="button" role="tab" id="tab-events" aria-selected={tab === 'events'} aria-controls="panel-events" onClick={() => choose('events')} className={tabClass(tab === 'events')}>
+            📅 {t('sections.events')}
+            {upcoming > 0 && <span className={`rounded-full px-2 text-sm ${tab === 'events' ? 'bg-white/25' : 'bg-brand text-white'}`}>{upcoming}</span>}
+          </button>
         </div>
-      )}
-      {olderButton('news')}
-
-      {/* Events: compact rows with the date, not big picture cards */}
-      <div className="mt-14 mb-5 flex flex-wrap items-center justify-between gap-3">
-        <h2 className="text-3xl font-extrabold">{t('sections.events')}</h2>
-        <Link to="/events" className="inline-flex min-h-10 items-center gap-2 rounded-xl border border-brand/20 bg-white px-4 font-semibold text-brand hover:bg-mist">📅 {t('cal.open')}</Link>
       </div>
-      {events.length === 0 && <EmptyState icon="calendar" />}
-      <ul className="grid gap-3 lg:grid-cols-2">
-        {events.map((ev) => <EventRow key={ev._id} ev={ev} today={today} />)}
-      </ul>
-      {olderButton('events')}
+
+      <div className="mx-auto max-w-6xl px-5 py-8 sm:py-10 lg:px-8">
+        {tab === 'news' ? (
+          <section id="panel-news" role="tabpanel" aria-labelledby="tab-news">
+            {/* The newest one large, the rest as a grid of cards (3 across on computers, 2 on tablets, 1 on phones) */}
+            {news.length === 0 && <EmptyState icon="news" />}
+            {first && <NewsCard item={first} featured />}
+            {rest.length > 0 && (
+              <div className="mt-6 grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
+                {rest.map((n) => <NewsCard key={n._id} item={n} />)}
+              </div>
+            )}
+            {olderButton('news')}
+          </section>
+        ) : (
+          <section id="panel-events" role="tabpanel" aria-labelledby="tab-events">
+            {/* Compact rows with the date, and a link to the full calendar */}
+            <div className="mb-5 flex justify-end">
+              <Link to="/events" className="inline-flex min-h-10 items-center gap-2 rounded-xl border border-brand/20 bg-white px-4 font-semibold text-brand hover:bg-mist">📅 {t('cal.open')}</Link>
+            </div>
+            {events.length === 0 && <EmptyState icon="calendar" />}
+            <ul className="grid gap-3 lg:grid-cols-2">
+              {events.map((ev) => <EventRow key={ev._id} ev={ev} today={today} />)}
+            </ul>
+            {olderButton('events')}
+          </section>
+        )}
+      </div>
     </div>
   )
 }

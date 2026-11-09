@@ -5,6 +5,7 @@ import { useLocation, useNavigationType } from 'react-router-dom'
 // clicked in the footer opened the next page at its footer).
 // - A link with #part (like /privacy#rights) goes to that part once the page has loaded.
 // - The browser's Back and Forward buttons keep the place you were at.
+// - Changing only the ?part of the address (a tab or a filter on the same page) keeps the place too.
 export default function ScrollToTop() {
     const { pathname, hash } = useLocation()
     const nav = useNavigationType() // 'PUSH' (a link), 'REPLACE', or 'POP' (Back / Forward)
@@ -24,7 +25,7 @@ export default function ScrollToTop() {
         }
         let timer = setTimeout(find, 0)
         return () => clearTimeout(timer)
-    }, [pathname, hash, nav])
+    }, [pathname, hash]) // eslint-disable-line react-hooks/exhaustive-deps -- not nav: a tab switch changes it without opening a new page
 
     return null
 }
