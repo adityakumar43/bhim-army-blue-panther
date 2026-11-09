@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react'
 import { api } from '../../lib/api.js'
 import { PageHeader, Notice, ListLoading } from './ui.jsx'
 import { Tile } from './Stats.jsx'
+import { stateByCode } from '../../data/states.js'
 
 const n = (v) => Number(v || 0).toLocaleString('en-IN')
 const RANGES = [[7, 'Last 7 days'], [30, 'Last 30 days'], [90, 'Last 90 days']]
@@ -20,7 +21,9 @@ const SOURCES = {
 }
 const DEVICES = { phone: '📱 Phone', computer: '💻 Computer', app: '📲 Installed app' }
 const LANGS = { hi: 'हिंदी', en: 'English' }
-const pageName = (p) => p.title ? `${p.key.startsWith('/events') ? '📅' : '📰'} ${p.title}` : PAGE_NAMES[p.key] || p.key
+// A state's leaders page reads "Leaders · Uttar Pradesh" instead of /leadership/states/uttar-pradesh
+const statePage = (key) => { const code = key.match(/^\/leadership\/states\/([^/]+)$/)?.[1]; return code && stateByCode(code) ? `Leaders · ${stateByCode(code).en}` : null }
+const pageName = (p) => p.title ? `${p.key.startsWith('/events') ? '📅' : '📰'} ${p.title}` : PAGE_NAMES[p.key] || statePage(p.key) || p.key
 
 // A list of bars, biggest first, with the share of the total
 function Bars({ title, rows, label = (r) => r.key, note }) {
@@ -51,15 +54,16 @@ function DayBars({ data }) {
     const shown = data[active ?? data.length - 1]
     const label = (day) => new Date(`${day}T00:00:00Z`).toLocaleDateString('en-IN', { day: 'numeric', month: 'short', timeZone: 'UTC' })
     return (
-        <figure className="rounded-2xl border border-brand/10 bg-white p-4 shadow-sm sm:p-5">
+        <figure className="rounded-2xl border border-brand/10 bg-white p-4 shadow-sm sm:p-5 xl:col-span-2">
             <figcaption className="flex flex-wrap items-baseline justify-between gap-2">
                 <span className="font-extrabold">👥 Visitors per day</span>
                 <span className="text-sm text-navy/60">{label(shown.day)}: <b className="text-navy">{n(shown.visitors)}</b> visitors · {n(shown.views)} pages</span>
             </figcaption>
-            <div className="relative mt-4 h-40" onMouseLeave={() => setActive(null)}>
+            <div className="relative mt-5 h-48 sm:h-56" onMouseLeave={() => setActive(null)}>
                 <div aria-hidden="true" className="absolute inset-x-0 top-0 border-t border-dashed border-navy/10" />
                 <div aria-hidden="true" className="absolute inset-x-0 top-1/2 border-t border-dashed border-navy/10" />
-                <span aria-hidden="true" className="absolute -top-2 right-0 bg-white pl-1 text-[10px] text-navy/45">{n(max)}</span>
+                <span aria-hidden="true" className="absolute -top-2.5 right-0 z-10 bg-white pl-1 text-xs text-navy/50">{n(max)}</span>
+                <span aria-hidden="true" className="pointer-events-none absolute top-1/2 right-0 z-10 -translate-y-1/2 rounded-l bg-white/90 pl-1 text-xs text-navy/50">{n(Math.round(max / 2))}</span>
                 <div className="absolute inset-0 flex items-end gap-px border-b border-navy/20 sm:gap-0.5">
                     {data.map((d, i) => (
                         <button key={d.day} type="button" onMouseEnter={() => setActive(i)} onFocus={() => setActive(i)} onClick={() => setActive(i)}
@@ -70,8 +74,9 @@ function DayBars({ data }) {
                     ))}
                 </div>
             </div>
-            <div aria-hidden="true" className="mt-1.5 flex justify-between text-[10px] text-navy/50">
-                <span>{label(data[0].day)}</span><span>{label(data.at(-1).day)}</span>
+            {/* A few dates under the bars (first, quarters, last) */}
+            <div aria-hidden="true" className="mt-2 flex justify-between text-xs text-navy/55">
+                {[...new Set([0, 0.25, 0.5, 0.75, 1].map((f) => Math.round(f * (data.length - 1))))].map((i) => <span key={i}>{label(data[i].day)}</span>)}
             </div>
         </figure>
     )
@@ -113,7 +118,7 @@ export default function Visitors() {
                         <Tile icon="phone" tint="bg-purple-100 text-purple-700" value={`${appShare}%`} label="Came through the installed app" />
                     </div>
 
-                    <div className="grid gap-4 xl:grid-cols-2">
+                    <div className="grid items-start gap-4 xl:grid-cols-2">
                         <DayBars data={data.perDay} />
                         <Bars title="📄 Most read pages" rows={data.pages} label={pageName} note="How many times each page was opened." />
                         <Bars title="🧭 How people found the website" rows={data.sources} label={(r) => SOURCES[r.key] || `🌐 ${r.key}`}
