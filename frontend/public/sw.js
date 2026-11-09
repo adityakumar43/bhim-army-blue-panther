@@ -79,7 +79,7 @@ self.addEventListener('fetch', (event) => {
 
 // Phone notifications sent from the admin panel ("Phone notifications" page)
 self.addEventListener('push', (event) => {
-    let data = {}
+    let data
     try { data = event.data ? event.data.json() : {} } catch { data = { body: event.data ? event.data.text() : '' } }
     event.waitUntil(
         self.registration.showNotification(data.title || 'भीम आर्मी ब्लू पैंथर', {
