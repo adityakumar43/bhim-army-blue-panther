@@ -71,8 +71,8 @@ export default function Growth() {
             <Notice>{error}</Notice>
 
             <div className="mb-5 flex flex-wrap items-center gap-2">
-                <label className="flex items-center gap-2 font-semibold">📍 Showing
-                    <select value={data?.locked ? data.state : state} onChange={(e) => setState(e.target.value)} disabled={data?.locked} className="input min-h-10 w-auto py-2">
+                <label className="flex w-full items-center gap-2 font-semibold sm:w-auto"><span className="shrink-0 whitespace-nowrap">📍 Showing</span>
+                    <select value={data?.locked ? data.state : state} onChange={(e) => setState(e.target.value)} disabled={data?.locked} className="input min-h-10 min-w-0 flex-1 py-2 sm:w-auto sm:flex-none">
                         {!data?.locked && <option value="">All of India</option>}
                         {sortedStates.map((s) => <option key={s.code} value={s.code}>{s.en}</option>)}
                     </select>

@@ -95,17 +95,23 @@ export default function VideosAdmin() {
             <h2 className="mb-3 text-lg font-extrabold">🎞️ All videos {items && `(${items.length})`}</h2>
             {!items && <ListLoading />}
             {items?.length === 0 && <p className="card text-center text-navy/70">📭 No videos yet. Click "Add video" to add the first one.</p>}
-            <ul className="grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
+            {/* One compact row per video (like the News and Events lists): small picture, title, kind, buttons */}
+            <ul className="grid gap-2.5 xl:grid-cols-2">
                 {items?.map((v) => (
-                    <li key={v._id} className={`card flex flex-col overflow-hidden p-0 sm:p-0 ${editing?._id === v._id ? 'ring-2 ring-brand' : ''}`}>
-                        <a href={`https://youtu.be/${v.youtubeId}`} target="_blank" rel="noreferrer"><img src={thumb(v.youtubeId)} alt="" className="aspect-video w-full rounded-none object-cover" /></a>
-                        <div className="flex flex-1 flex-col p-4">
-                            <div className="line-clamp-2 font-bold">{v.titleHi || v.titleEn}</div>
+                    <li key={v._id} className={`card flex flex-wrap items-center gap-3 p-3 sm:flex-nowrap sm:p-3 ${editing?._id === v._id ? 'ring-2 ring-brand' : ''}`}>
+                        <a href={`https://youtu.be/${v.youtubeId}`} target="_blank" rel="noreferrer" aria-label={`Watch ${v.titleEn || v.titleHi} on YouTube`}
+                            className="relative block h-16 w-28 shrink-0 overflow-hidden rounded-lg bg-navy/10">
+                            <img src={thumb(v.youtubeId)} alt="" loading="lazy" className="h-full w-full object-cover" />
+                            <span aria-hidden="true" className="absolute inset-0 flex items-center justify-center"><span className="flex h-7 w-7 items-center justify-center rounded-full bg-red-600 text-xs text-white shadow">▶</span></span>
+                        </a>
+                        <div className="min-w-0 flex-1">
+                            <div className="line-clamp-1 font-bold">{v.titleHi || v.titleEn}</div>
+                            {v.titleHi && v.titleEn && <div className="line-clamp-1 text-sm text-navy/60">{v.titleEn}</div>}
                             <div className="mt-1 text-xs text-navy/60">{videoCategory(v.category).emoji} {videoCategory(v.category).en}{v.order ? ` · #${v.order}` : ''}</div>
-                            <div className="mt-auto flex gap-2 pt-3">
-                                <button onClick={() => startEdit(v)} className="abtn min-h-9 flex-1 px-3">✏️ Edit</button>
-                                <button onClick={() => remove(v)} className="abtn-danger min-h-9 flex-1 px-3">🗑️ Remove</button>
-                            </div>
+                        </div>
+                        <div className="flex w-full shrink-0 gap-2 sm:w-auto">
+                            <button type="button" onClick={() => startEdit(v)} className="abtn min-h-9 flex-1 px-3 sm:flex-none">✏️ Edit</button>
+                            <button type="button" onClick={() => remove(v)} aria-label={`Remove ${v.titleEn || v.titleHi}`} className="abtn-danger min-h-9 flex-1 px-3 sm:flex-none">🗑️<span className="sm:sr-only"> Remove</span></button>
                         </div>
                     </li>
                 ))}
