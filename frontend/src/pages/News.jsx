@@ -1,4 +1,4 @@
-import { useEffect, useLayoutEffect, useRef, useState } from 'react'
+import { useEffect, useState } from 'react'
 import { Link, useSearchParams } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
 import { api } from '../lib/api.js'
@@ -8,6 +8,7 @@ import { eventDay, timeText } from '../lib/calendar.js'
 import Loading from '../components/Loading.jsx'
 import EmptyState from '../components/EmptyState.jsx'
 import { WhatsAppShare, ListenButton } from '../components/ShareListen.jsx'
+import StickyTabs from '../components/StickyTabs.jsx'
 
 const PAGE = 50
 const todayKey = () => new Intl.DateTimeFormat('en-CA', { timeZone: 'Asia/Kolkata' }).format(new Date()) // today in India
@@ -106,36 +107,7 @@ export default function News() {
   // and the back link on an event's page returns to the Events tab.
   const [params, setParams] = useSearchParams()
   const tab = params.get('tab') === 'events' ? 'events' : 'news'
-  const tabsRef = useRef(null)
-  const [headerH, setHeaderH] = useState(0)
-
-  // The tabs stick just under the site's header. Its height changes with the screen size, so it is measured.
-  useEffect(() => {
-    const header = document.querySelector('header')
-    if (!header) return
-    const measure = () => setHeaderH(header.offsetHeight)
-    measure()
-    const ro = new ResizeObserver(measure)
-    ro.observe(header)
-    return () => ro.disconnect()
-  }, [])
-
-  const switched = useRef(false)
-  function choose(next) {
-    if (next === tab) return
-    switched.current = true
-    setParams(next === 'events' ? { tab: 'events' } : {}, { replace: true })
-  }
-  // After switching, when you were far down the other list: start the new one at its top (just under the tabs).
-  // Done once the new list is on screen, so the page's new height is known.
-  useLayoutEffect(() => {
-    if (!switched.current) return
-    switched.current = false
-    const box = tabsRef.current?.parentElement
-    if (!box) return
-    const top = box.getBoundingClientRect().top + window.scrollY - headerH
-    if (window.scrollY > top) window.scrollTo({ top, behavior: 'instant' })
-  }, [tab]) // eslint-disable-line react-hooks/exhaustive-deps
+  const choose = (next) => setParams(next === 'events' ? { tab: 'events' } : {}, { replace: true })
 
   function load() {
     setError('')
@@ -187,25 +159,17 @@ export default function News() {
 
   const [first, ...rest] = news
   const upcoming = events.filter((ev) => eventDay(ev) >= today).length
-  const tabClass = (on) => `inline-flex min-h-11 flex-1 items-center justify-center gap-2 rounded-xl px-4 font-bold motion-safe:transition sm:flex-none sm:px-6 ${on ? 'bg-brand text-white shadow-sm' : 'text-navy hover:bg-mist'}`
   return (
     <div>
       {/* News | Events tabs. They stay on screen while scrolling, so the other list is always one tap away. */}
-      <div ref={tabsRef} style={{ top: headerH }} className="sticky z-30 border-b border-navy/10 bg-white/95 shadow-sm backdrop-blur">
-        <div role="tablist" aria-label={t('detail.back')} className="mx-auto flex max-w-6xl gap-2 px-5 py-2 lg:px-8">
-          <button type="button" role="tab" id="tab-news" aria-selected={tab === 'news'} aria-controls="panel-news" onClick={() => choose('news')} className={tabClass(tab === 'news')}>
-            📰 {t('nav.news')}
-          </button>
-          <button type="button" role="tab" id="tab-events" aria-selected={tab === 'events'} aria-controls="panel-events" onClick={() => choose('events')} className={tabClass(tab === 'events')}>
-            📅 {t('sections.events')}
-            {upcoming > 0 && <span className={`rounded-full px-2 text-sm ${tab === 'events' ? 'bg-white/25' : 'bg-brand text-white'}`}>{upcoming}</span>}
-          </button>
-        </div>
-      </div>
+      <StickyTabs label={t('detail.back')} value={tab} onChange={choose} tabs={[
+        { key: 'news', label: `📰 ${t('nav.news')}` },
+        { key: 'events', label: `📅 ${t('sections.events')}`, badge: upcoming },
+      ]} />
 
       <div className="mx-auto max-w-6xl px-5 py-8 sm:py-10 lg:px-8">
         {tab === 'news' ? (
-          <section id="panel-news" role="tabpanel" aria-labelledby="tab-news">
+          <section id="tab-panel-news" role="tabpanel" aria-labelledby="tab-news">
             {/* The newest one large, the rest as a grid of cards (3 across on computers, 2 on tablets, 1 on phones) */}
             {news.length === 0 && <EmptyState icon="news" />}
             {first && <NewsCard item={first} featured />}
@@ -217,7 +181,7 @@ export default function News() {
             {olderButton('news')}
           </section>
         ) : (
-          <section id="panel-events" role="tabpanel" aria-labelledby="tab-events">
+          <section id="tab-panel-events" role="tabpanel" aria-labelledby="tab-events">
             {/* Compact rows with the date, and a link to the full calendar */}
             <div className="mb-5 flex justify-end">
               <Link to="/events" className="inline-flex min-h-10 items-center gap-2 rounded-xl border border-brand/20 bg-white px-4 font-semibold text-brand hover:bg-mist">📅 {t('cal.open')}</Link>
