@@ -19,7 +19,8 @@ export default function StatesList() {
   const q = query.trim().toLowerCase()
   const listOf = (type) => STATES
     .filter((s) => s.type === type && (!q || s.en.toLowerCase().includes(q) || s.hi.includes(q)))
-    .sort((a, b) => stateName(a, lang).localeCompare(stateName(b, lang), lang))
+    // States that already have a team come first, then the rest; A to Z within each
+    .sort((a, b) => (counts[b.code] ? 1 : 0) - (counts[a.code] ? 1 : 0) || stateName(a, lang).localeCompare(stateName(b, lang), lang))
   const groups = [['state', t('leaders.states')], ['ut', t('leaders.uts')]].map(([type, label]) => [type, label, listOf(type)])
 
   return (
@@ -35,19 +36,20 @@ export default function StatesList() {
       {groups.map(([type, label, list]) => list.length > 0 && (
         <section key={type} className="mb-10">
           <h2 className="mb-4 text-2xl font-extrabold">{label}</h2>
-          <ul className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
+          <ul className="grid grid-cols-2 gap-2.5 sm:gap-3 lg:grid-cols-3">
             {list.map((s) => {
               const n = counts[s.code] || 0
               return (
                 <li key={s.code}>
-                  <Link to={`/leadership/states/${s.code}`} className="flex h-full items-center gap-3 rounded-xl border border-navy/10 bg-white p-4 shadow-sm transition hover:border-brand hover:shadow-md">
+                  {/* With a team: a white card with the number of leaders. Without one yet: a lighter card. */}
+                  <Link to={`/leadership/states/${s.code}`} className={`flex h-full items-center gap-2 rounded-xl border p-3 transition hover:border-brand hover:shadow-md sm:gap-3 sm:p-4 ${n ? 'border-brand/25 bg-white shadow-sm' : 'border-navy/10 bg-white/60'}`}>
                     <span className="min-w-0 flex-1">
-                      <span className="block font-extrabold">{stateName(s, lang)}</span>
-                      <span className={`block text-sm ${n ? 'text-brand' : 'text-navy/60'}`}>
-                        {n ? t('leaders.count', { count: n }) : t('leaders.none')}
+                      <span className={`block leading-tight font-extrabold max-sm:text-[15px] ${n ? '' : 'text-navy/70'}`}>{stateName(s, lang)}</span>
+                      <span className={`mt-0.5 block text-xs sm:text-sm ${n ? 'font-semibold text-brand' : 'text-navy/50'}`}>
+                        {n ? `👥 ${t('leaders.count', { count: n })}` : t('leaders.none')}
                       </span>
                     </span>
-                    <Icon name="arrow" size={18} className="shrink-0 text-brand" />
+                    <Icon name="arrow" size={18} className={`shrink-0 max-sm:hidden ${n ? 'text-brand' : 'text-navy/30'}`} />
                   </Link>
                 </li>
               )

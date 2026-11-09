@@ -8,7 +8,8 @@ import { stats } from '../data/stats.js'
 
 const dots = { backgroundImage: 'radial-gradient(rgba(255,255,255,0.07) 1px, transparent 1px)', backgroundSize: '22px 22px' }
 
-export default function Hero() {
+// photoOnPhones=false: the photo is shown only on large screens (the Home slider already shows pictures on phones)
+export default function Hero({ photoOnPhones = true }) {
   const { t, i18n } = useTranslation()
   const [photoOk, setPhotoOk] = useState(true)
   // The photo's own width ÷ height, measured when it loads, so the frame takes exactly its shape
@@ -62,9 +63,9 @@ export default function Hero() {
         {/* Your photo (public/hero.jpg), shown whole in its own shape and lined up with the top of the text.
             Without a photo, the wheel is shown instead. */}
         <div
-          className={photoOk
+          className={`${photoOnPhones ? '' : 'max-lg:hidden '}${photoOk
             ? 'relative w-full overflow-hidden rounded-2xl bg-white/5 shadow-2xl ring-1 ring-white/15 lg:h-[30rem] lg:w-auto lg:max-w-full lg:self-start lg:justify-self-end'
-            : 'relative aspect-4/3 w-full overflow-hidden rounded-2xl bg-white/5 shadow-2xl ring-1 ring-white/15 lg:self-start'}
+            : 'relative aspect-4/3 w-full overflow-hidden rounded-2xl bg-white/5 shadow-2xl ring-1 ring-white/15 lg:self-start'}`}
           style={photoOk ? { aspectRatio: ratio } : undefined}
         >
           {photoOk
