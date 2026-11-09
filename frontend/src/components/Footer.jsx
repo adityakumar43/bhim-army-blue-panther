@@ -85,7 +85,7 @@ export default function Footer() {
         {(loggedIn || installed) && (
           <>
             <span className="opacity-40">·</span>
-            <Link to={loggedIn ? '/admin' : '/admin/login'} className="whitespace-nowrap opacity-60 hover:opacity-100 hover:underline">
+            <Link to={loggedIn ? '/admin' : '/admin/login'} className="whitespace-nowrap opacity-80 hover:opacity-100 hover:underline">
               {loggedIn ? 'Admin Panel' : 'Staff Login'}
             </Link>
           </>
