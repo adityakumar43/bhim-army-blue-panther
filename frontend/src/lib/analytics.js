@@ -1,6 +1,7 @@
 // Google Analytics 4 (page views) and Microsoft Clarity (heatmaps and session recordings) for the public site.
 // Runs only on the live site, never in the admin area, never for team members logged in on this device,
-// and not when the browser asks not to be tracked. The scripts load after the page, so they never slow it down.
+// and not when the browser asks not to be tracked. The scripts start only after the visitor's first scroll, tap or key,
+// or after 6 quiet seconds, so they never compete with the page while it is loading (Clarity is heavy on phones).
 // Neither id is secret: they are visible in every site's page code.
 const GA_ID = 'G-TFWCTJQMZ6'
 const CLARITY_ID = 'z8gj537mqz'
@@ -32,12 +33,20 @@ function setUp() {
         s.src = src
         document.head.appendChild(s)
     }
+    let loaded = false
+    const EVENTS = ['pointerdown', 'keydown', 'scroll', 'touchstart']
     const load = () => {
+        if (loaded) return
+        loaded = true
+        EVENTS.forEach((e) => window.removeEventListener(e, load))
         add(`https://www.googletagmanager.com/gtag/js?id=${GA_ID}`)
         add(`https://www.clarity.ms/tag/${CLARITY_ID}`)
     }
-    if (document.readyState === 'complete') load()
-    else window.addEventListener('load', load, { once: true })
+    // Page views sent before this wait in dataLayer / clarity.q, so nothing is lost
+    EVENTS.forEach((e) => window.addEventListener(e, load, { once: true, passive: true }))
+    const later = () => setTimeout(() => (window.requestIdleCallback ? requestIdleCallback(load, { timeout: 2000 }) : load()), 6000)
+    if (document.readyState === 'complete') later()
+    else window.addEventListener('load', later, { once: true })
 }
 
 // Called by App.jsx whenever the address changes
