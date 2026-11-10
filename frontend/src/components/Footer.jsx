@@ -1,8 +1,32 @@
+import { useState } from 'react'
 import { Link } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
 import { ORG } from '../lib/orgInfo.js'
 import { NotifyButton } from './Notify.jsx'
+import Icon from './Icon.jsx'
 import { isSamvidhanSeason } from '../data/samvidhanDates.js'
+
+const head = 'mb-3 text-sm font-extrabold tracking-wide text-gold uppercase'
+// A wrapped name (two lines) keeps its own spacing, so the names beside and below it stay in line
+const link = 'inline-flex min-h-8 items-center py-1 text-sm leading-snug text-white/75 hover:text-white'
+
+// One list of links with its heading. On phones the list is folded away until its heading is tapped
+// (the footer was two screens long); on tablets and computers it is always open.
+function LinkList({ title, links, columns }) {
+  const [open, setOpen] = useState(false)
+  return (
+    <nav aria-label={title} className="max-sm:border-y max-sm:border-white/10 max-sm:[&+nav]:-mt-8 max-sm:[&+nav]:border-t-0">
+      <h2 className={`${head} max-sm:hidden`}>{title}</h2>
+      <button type="button" onClick={() => setOpen(!open)} aria-expanded={open}
+        className="flex min-h-12 w-full items-center justify-between text-sm font-extrabold tracking-wide text-gold uppercase sm:hidden">
+        {title}<Icon name="chevronDown" size={18} className={`motion-safe:transition ${open ? 'rotate-180' : ''}`} />
+      </button>
+      <ul className={`${columns} ${open ? 'max-sm:pb-3' : 'max-sm:hidden'}`}>
+        {links.map(([to, label]) => <li key={to}><Link to={to} className={link}>{label}</Link></li>)}
+      </ul>
+    </nav>
+  )
+}
 
 export default function Footer() {
   const { t } = useTranslation()
@@ -19,15 +43,13 @@ export default function Footer() {
   ...(isSamvidhanSeason() ? [['/samvidhan', t('samvidhan.link')]] : [])]
   const involved = [['/join', t('nav.join')], ['/volunteer', t('vol.link')], ['/leaderboard', t('board.link')], ['/donate', t('cta.donate')], ['/help', t('help.link')], ['/downloads', t('dl.link')]]
   const path = ['educate', 'organize', 'struggle'].map((k) => t(`about.${k}.title`))
-  const head = 'mb-3 text-sm font-extrabold tracking-wide text-gold uppercase'
-  const link = 'inline-flex min-h-8 items-center text-sm text-white/75 hover:text-white'
   // Social media pages that have a link in lib/orgInfo.js
   const SOCIAL_NAMES = { facebook: 'Facebook', instagram: 'Instagram', youtube: 'YouTube', x: 'X (Twitter)', whatsapp: 'WhatsApp', linkedin: 'LinkedIn' }
   const social = Object.entries(ORG.social || {}).filter(([, url]) => /^https?:\/\//.test(url || ''))
 
   return (
     <footer className="print:hidden bg-[#06112c] text-white">
-      <div className="mx-auto grid max-w-7xl gap-8 px-5 py-10 sm:grid-cols-2 lg:grid-cols-[1.4fr_1.5fr_0.9fr_1.4fr] lg:gap-10 lg:px-16">
+      <div className="mx-auto grid max-w-7xl gap-8 px-5 py-10 sm:grid-cols-2 lg:grid-cols-[1.3fr_1.7fr_0.9fr_1.3fr] lg:gap-10 lg:px-16">
         <div>
           <div className="mb-4 flex items-center gap-3">
             <img src="/logo-160.webp" alt="" className="h-12 w-12 rounded-md object-contain" />
@@ -39,19 +61,8 @@ export default function Footer() {
           <NotifyButton />
         </div>
 
-        <nav aria-label={t('footer.explore')}>
-          <h2 className={head}>{t('footer.explore')}</h2>
-          <ul className="grid grid-cols-2 gap-x-6">
-            {explore.map(([to, label]) => <li key={to}><Link to={to} className={link}>{label}</Link></li>)}
-          </ul>
-        </nav>
-
-        <nav aria-label={t('footer.involved')}>
-          <h2 className={head}>{t('footer.involved')}</h2>
-          <ul className="grid grid-cols-2 gap-x-4 sm:grid-cols-1">
-            {involved.map(([to, label]) => <li key={to}><Link to={to} className={link}>{label}</Link></li>)}
-          </ul>
-        </nav>
+        <LinkList title={t('footer.explore')} links={explore} columns="grid grid-cols-2 gap-x-4" />
+        <LinkList title={t('footer.involved')} links={involved} columns="grid grid-cols-2 gap-x-4 sm:grid-cols-1" />
 
         <div>
           <h2 className={head}>{t('nav.contact')}</h2>
