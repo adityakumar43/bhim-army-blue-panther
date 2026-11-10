@@ -4,6 +4,7 @@ import { useTranslation } from 'react-i18next'
 import Hero from '../components/Hero.jsx'
 import Slider from '../components/Slider.jsx'
 import Icon from '../components/Icon.jsx'
+import Chakra from '../components/Chakra.jsx'
 import { api } from '../lib/api.js'
 import { pickText, formatDate } from '../lib/text.js'
 import { cdn } from '../lib/img.js'
@@ -19,6 +20,9 @@ const hideBroken = (e) => { e.currentTarget.style.display = 'none' }
 // The slides from the last visit, shown at once while the new list loads (null = never loaded on this device)
 const cachedSlides = () => { try { return JSON.parse(localStorage.getItem('slidesCache')) } catch { return null } }
 const cacheSlides = (list) => { try { localStorage.setItem('slidesCache', JSON.stringify(list)) } catch { /* ignore */ } }
+// The numbers under the main heading (members, states ...), kept from the last visit so they are there at once
+const cachedNumbers = () => { try { return JSON.parse(localStorage.getItem('numbersCache')) } catch { return null } }
+const cacheNumbers = (n) => { try { localStorage.setItem('numbersCache', JSON.stringify(n)) } catch { /* ignore */ } }
 const wrap = 'mx-auto max-w-7xl px-5 py-10 sm:py-16 lg:px-16' // a little less space between sections on phones
 const cardBox = 'flex h-full flex-col overflow-hidden rounded-2xl border border-navy/10 bg-white shadow-sm transition hover:shadow-md'
 
@@ -34,6 +38,22 @@ function SectionHead({ title, intro, to, label }) {
       </Link>
     </div>
   )
+}
+
+// The picture of an event or news card. Without one (or when it does not load) a blue box with an icon takes its
+// place, so every card in the row has the same shape.
+const photoBox = 'aspect-[5/2] w-full max-sm:ml-3 max-sm:aspect-square max-sm:w-20 max-sm:shrink-0 max-sm:rounded-xl'
+function CardPhoto({ url, icon }) {
+  const [broken, setBroken] = useState(false)
+  if (!url || broken) {
+    return (
+      <span aria-hidden="true" className={`${photoBox} relative flex items-center justify-center overflow-hidden bg-linear-to-br from-navy to-brand text-white/85`}>
+        <Chakra className="pointer-events-none absolute -right-8 -bottom-12 h-36 w-36 text-white/10 max-sm:hidden" />
+        <Icon name={icon} size={30} />
+      </span>
+    )
+  }
+  return <img src={cdn(url, 600)} alt="" loading="lazy" onError={() => setBroken(true)} className={`${photoBox} object-cover`} />
 }
 
 function DateLine({ date, place, lang }) {
@@ -53,9 +73,11 @@ export default function Home() {
   const [news, setNews] = useState([])
   const [slides, setSlides] = useState(cachedSlides) // null while the first load is still on its way
   const [events, setEvents] = useState([])
+  const [numbers, setNumbers] = useState(cachedNumbers)
 
   useEffect(() => {
     api.get('/news?limit=3').then(setNews).catch(() => setNews([]))
+    api.get('/growth/numbers').then((n) => { setNumbers(n); cacheNumbers(n) }).catch(() => { /* the row stays as it was */ })
     // Use the list index.html already started loading, if there is one
     const early = window.__slides
     window.__slides = undefined
@@ -83,7 +105,7 @@ export default function Home() {
         : slides.length > 0 && <Slider slides={slides} />}
       {/* On phones the big photo in the Hero is left out when the slider above shows pictures. While the slides are still
           loading it stays out too, so the page does not jump when they arrive; it appears only if there are no slides. */}
-      <Hero photoOnPhones={slides !== null && slides.length === 0} />
+      <Hero photoOnPhones={slides !== null && slides.length === 0} numbers={numbers} />
 
       {/* Our path: the three principles */}
       <section className="bg-white">
@@ -115,6 +137,7 @@ export default function Home() {
               <article key={c.id} className={`${cardBox} ${c.image ? '' : 'border-t-4 border-t-brand'}`}>
                 {c.image && <img src={c.image} alt="" loading="lazy" onError={hideBroken} className="aspect-video w-full object-cover object-top" />}
                 <div className="flex-1 p-5 sm:p-6">
+                  {c.icon && <span className="mb-3 inline-flex h-11 w-11 items-center justify-center rounded-xl bg-mist text-brand" aria-hidden="true"><Icon name={c.icon} size={24} /></span>}
                   <h3 className="mb-2 text-lg font-extrabold sm:text-xl">{pickText(c, 'title', lang)}</h3>
                   <p className="line-clamp-4 text-navy/75">{pickText(c, 'body', lang)}</p>
                 </div>
@@ -131,7 +154,7 @@ export default function Home() {
             <div className="grid gap-3 sm:grid-cols-2 sm:gap-5 lg:grid-cols-3">
               {events.map((ev) => (
                 <Link key={ev._id} to={`/events/${ev._id}`} className={`${cardBox} max-sm:flex-row max-sm:items-center`}>
-                  {ev.image?.url && <img src={cdn(ev.image.url, 600)} alt="" loading="lazy" onError={hideBroken} className="aspect-[5/2] w-full object-cover max-sm:ml-3 max-sm:aspect-square max-sm:w-20 max-sm:shrink-0 max-sm:rounded-xl" />}
+                  <CardPhoto url={ev.image?.url} icon="calendar" />
                   <div className="min-w-0 flex-1 p-5 max-sm:p-3">
                     <DateLine date={ev.date} place={ev.location} lang={lang} />
                     <h3 className="mb-1.5 line-clamp-2 text-lg leading-snug font-extrabold max-sm:mb-0 max-sm:text-base">{pickText(ev, 'title', lang)}</h3>
@@ -151,7 +174,7 @@ export default function Home() {
           <div className="grid gap-3 sm:grid-cols-2 sm:gap-5 lg:grid-cols-3">
             {news.map((n) => (
               <Link key={n._id} to={`/news/${n._id}`} className={`${cardBox} max-sm:flex-row max-sm:items-center`}>
-                {n.image?.url && <img src={cdn(n.image.url, 600)} alt="" loading="lazy" onError={hideBroken} className="aspect-[5/2] w-full object-cover max-sm:ml-3 max-sm:aspect-square max-sm:w-20 max-sm:shrink-0 max-sm:rounded-xl" />}
+                <CardPhoto url={n.image?.url} icon="news" />
                 <div className="min-w-0 flex-1 p-5 max-sm:p-3">
                   <DateLine date={n.createdAt} lang={lang} />
                   <h3 className="mb-1.5 line-clamp-2 text-lg leading-snug font-extrabold max-sm:mb-0 max-sm:text-base">{pickText(n, 'title', lang)}</h3>

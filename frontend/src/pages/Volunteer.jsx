@@ -7,6 +7,7 @@ import { STATES, stateName } from '../data/states.js'
 import { SKILLS, AVAILABILITY } from '../data/volunteers.js'
 import Consent from '../components/Consent.jsx'
 import DistrictSelect from '../components/DistrictSelect.jsx'
+import FieldIcon from '../components/FieldIcon.jsx'
 import { msg, say, fromError } from '../lib/msg.js'
 
 const EMPTY = { name: '', phone: '', email: '', stateCode: '', district: '', availability: 'anytime', message: '', skills: [], website: '' }
@@ -147,7 +148,7 @@ export default function Volunteer() {
                     <div className="grid gap-4 sm:grid-cols-2">
                         <label className="flex flex-col gap-1.5 font-semibold"><span>{t('vol.name')}<Req /></span>
                             <span className="relative block">
-                                <span className="pointer-events-none absolute top-1/2 left-3 -translate-y-1/2" aria-hidden="true">👤</span>
+                                <FieldIcon name="user" />
                                 <input required maxLength="100" autoComplete="name" value={form.name} onChange={set('name')} className="input pl-10" />
                             </span>
                         </label>
@@ -161,7 +162,7 @@ export default function Volunteer() {
                         </label>
                         <label className="flex flex-col gap-1.5 font-semibold sm:col-span-2">{t('vol.email')}
                             <span className="relative block">
-                                <span className="pointer-events-none absolute top-1/2 left-3 -translate-y-1/2" aria-hidden="true">📧</span>
+                                <FieldIcon name="mail" />
                                 <input type="email" autoComplete="email" placeholder="name@gmail.com" value={form.email} onChange={set('email', (v) => v.trim())} className="input pl-10" />
                             </span>
                         </label>

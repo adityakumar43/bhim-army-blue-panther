@@ -1,5 +1,6 @@
 import { Router } from 'express'
 import Member from '../models/Member.js'
+import { Event } from '../models/Content.js'
 import { protect, requirePermission, stateScope } from '../middleware/auth.js'
 import { STATE_CODES } from '../config/states.js'
 import { memberStateFilter, memberInState, codeFromName, stateNameEn } from '../config/stateNames.js'
@@ -58,6 +59,33 @@ router.get('/leaderboard', async (req, res) => {
             value: r.n,
         })),
     })
+})
+
+// Public numbers for the Home page: how big the movement is. Whole counts only, never a name.
+// A number is sent only once it is big enough to be worth showing, so a young website does not announce "3 members".
+const SHOW_FROM = { members: 100, states: 3, districts: 10, events: 5 }
+router.get('/numbers', async (req, res) => {
+    const approved = { status: 'approved' }
+    const [members, places, events] = await Promise.all([
+        Member.countDocuments(approved),
+        Member.aggregate([{ $match: approved }, { $group: { _id: { code: '$stateCode', state: '$state', district: '$district' } } }]),
+        // Programmes that have taken place and are on the public website (no drafts, nothing scheduled for later)
+        Event.countDocuments({ date: { $lte: new Date() }, draft: { $ne: true }, $or: [{ publishAt: null }, { publishAt: { $lte: new Date() } }] }),
+    ])
+    // States and districts with at least one approved member. A district counts only when it is on the state's
+    // official list, so a spelling mistake typed by hand never adds a district that does not exist.
+    const states = new Set()
+    const districts = new Set()
+    for (const { _id: place } of places) {
+        const code = place.code || codeFromName(place.state)
+        if (!code || !STATE_CODES.includes(code)) continue
+        states.add(code)
+        const district = canonicalDistrict(code, place.district || '')
+        if (district) districts.add(`${code}|${district}`)
+    }
+    const all = { members, states: states.size, districts: districts.size, events }
+    res.set('Cache-Control', 'public, max-age=3600') // an hour: these move slowly
+    res.json(Object.fromEntries(Object.entries(all).filter(([key, n]) => n >= SHOW_FROM[key])))
 })
 
 router.get('/', protect, requirePermission('members'), async (req, res) => {

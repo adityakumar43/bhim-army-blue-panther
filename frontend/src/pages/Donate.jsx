@@ -4,6 +4,7 @@ import { useTranslation } from 'react-i18next'
 import { api } from '../lib/api.js'
 import { trackEvent } from '../lib/analytics.js'
 import Icon from '../components/BoxIcon.jsx' // two-tone icons for the coloured boxes
+import FieldIcon from '../components/FieldIcon.jsx'
 import { msg, say, fromError } from '../lib/msg.js'
 
 const PRESETS = [100, 500, 1000, 2500, 5000]
@@ -179,7 +180,7 @@ export default function Donate() {
           <div className="grid gap-4 sm:grid-cols-2">
             <label className="flex flex-col gap-1.5 font-semibold sm:col-span-2">{t('donate.name')}
               <span className="relative block">
-                <span className="pointer-events-none absolute top-1/2 left-3 -translate-y-1/2" aria-hidden="true">👤</span>
+                <FieldIcon name="user" />
                 <input value={form.name} onChange={set('name')} maxLength="100" autoComplete="name" className="input pl-10" />
               </span>
             </label>
@@ -192,7 +193,7 @@ export default function Donate() {
             </label>
             <label className="flex flex-col gap-1.5 font-semibold">{t('donate.email')}
               <span className="relative block">
-                <span className="pointer-events-none absolute top-1/2 left-3 -translate-y-1/2" aria-hidden="true">📧</span>
+                <FieldIcon name="mail" />
                 <input type="email" placeholder="name@gmail.com" value={form.email} onChange={set('email', (v) => v.trim())} autoComplete="email" className="input pr-9 pl-10" />
                 {emailOk && <span className="pointer-events-none absolute top-1/2 right-3 -translate-y-1/2 font-bold text-green-600" aria-hidden="true">✓</span>}
               </span>

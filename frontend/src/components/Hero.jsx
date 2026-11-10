@@ -8,8 +8,18 @@ import { stats } from '../data/stats.js'
 
 const dots = { backgroundImage: 'radial-gradient(rgba(255,255,255,0.07) 1px, transparent 1px)', backgroundSize: '22px 22px' }
 
+// The live numbers the server may send, in the order they are shown
+const LIVE = [['members', 'Members'], ['states', 'States'], ['districts', 'Districts'], ['events', 'Events held']]
+// 37 stays "37"; larger numbers are rounded down and get a plus: 842 -> "840+", 12,345 -> "12,000+"
+function rounded(n) {
+  if (n < 100) return String(n)
+  const step = 10 ** (String(n).length - 2)
+  return `${(Math.floor(n / step) * step).toLocaleString('en-IN')}+`
+}
+
 // photoOnPhones=false: the photo is shown only on large screens (the Home slider already shows pictures on phones)
-export default function Hero({ photoOnPhones = true }) {
+// numbers: { members, states, districts, events } counted by the server (only the ones big enough to show)
+export default function Hero({ photoOnPhones = true, numbers = null }) {
   const { t, i18n } = useTranslation()
   const [photoOk, setPhotoOk] = useState(true)
   // The photo's own width ÷ height, measured when it loads, so the frame takes exactly its shape
@@ -31,12 +41,17 @@ export default function Hero({ photoOnPhones = true }) {
     return () => mq.removeEventListener('change', change)
   }, [])
   const lines = t('tagline').split(/,\s*/) // each part of the tagline on its own line
+  // Numbers typed by hand in data/stats.js come first; otherwise the live ones counted by the server
+  const shown = stats.length > 0
+    ? stats.map((s) => ({ value: s.value, label: pickText(s, 'label', i18n.language) }))
+    : LIVE.filter(([key]) => Number.isFinite(numbers?.[key]) && numbers[key] > 0)
+      .map(([key, en]) => ({ value: rounded(numbers[key]), label: t(`home.numbers.${key}`, { defaultValue: en }) }))
 
   return (
     <section className="relative overflow-hidden bg-navy text-white">
       <div className="pointer-events-none absolute inset-0" style={dots} />
       <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(ellipse_at_top_left,rgba(11,60,157,0.55),transparent_60%)]" />
-      <Chakra className="pointer-events-none absolute -right-40 -bottom-40 h-130 w-130 text-white/5" />
+      <Chakra className="pointer-events-none absolute -right-40 -bottom-40 h-130 w-130 text-white/5 max-lg:hidden" />
 
       <div className="relative mx-auto grid max-w-7xl items-center gap-10 px-5 py-12 lg:grid-cols-[1.15fr_0.85fr] lg:gap-14 lg:px-16 lg:py-20">
         <div>
@@ -56,13 +71,12 @@ export default function Hero({ photoOnPhones = true }) {
             </Link>
           </div>
 
-          {stats.length > 0 && (
+          {shown.length > 0 && (
             <dl className="mt-10 grid grid-cols-2 gap-6 border-t border-white/10 pt-8 sm:grid-cols-4">
-              {stats.map((s) => (
-                <div key={s.value + s.labelEn}>
-                  <dt className="sr-only">{pickText(s, 'label', i18n.language)}</dt>
+              {shown.map((s) => (
+                <div key={s.label} className="flex flex-col-reverse">
+                  <dt className="text-sm text-white/70">{s.label}</dt>
                   <dd className="text-3xl font-extrabold text-gold">{s.value}</dd>
-                  <dd className="text-sm text-white/70">{pickText(s, 'label', i18n.language)}</dd>
                 </div>
               ))}
             </dl>

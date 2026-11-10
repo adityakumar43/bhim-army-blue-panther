@@ -5,6 +5,7 @@ import { api } from '../lib/api.js'
 import { trackEvent } from '../lib/analytics.js'
 import Consent from '../components/Consent.jsx'
 import Icon from '../components/BoxIcon.jsx' // two-tone icons for the coloured boxes
+import FieldIcon from '../components/FieldIcon.jsx'
 import { msg, say, fromError } from '../lib/msg.js'
 
 const PHONE_OK = /^[6-9]\d{9}$/
@@ -170,7 +171,7 @@ export default function Contact() {
 
               <label className="mt-5 flex flex-col gap-1.5 font-semibold">{t('contact.name')}
                 <span className="relative block">
-                  <span className="pointer-events-none absolute top-1/2 left-3 -translate-y-1/2" aria-hidden="true">👤</span>
+                  <FieldIcon name="user" />
                   <input required maxLength="80" value={form.name} onChange={set('name')} autoComplete="name" className="input pl-10" />
                 </span>
               </label>
@@ -187,7 +188,7 @@ export default function Contact() {
                 </label>
                 <label className="flex flex-col gap-1.5 font-semibold">{t('contact.email')}
                   <span className="relative block">
-                    <span className="pointer-events-none absolute top-1/2 left-3 -translate-y-1/2" aria-hidden="true">📧</span>
+                    <FieldIcon name="mail" />
                     <input type="email" placeholder="name@gmail.com" value={form.email} onChange={set('email', (v) => v.trim())} autoComplete="email" className="input pr-9 pl-10" />
                     {emailOk && <span className="pointer-events-none absolute top-1/2 right-3 -translate-y-1/2 font-bold text-green-600" aria-hidden="true">✓</span>}
                   </span>
