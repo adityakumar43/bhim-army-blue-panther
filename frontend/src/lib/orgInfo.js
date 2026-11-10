@@ -9,8 +9,8 @@ export const ORG = {
   // An empty one is simply skipped. Each filled link shows as a button in the footer and tells
   // Google and AI assistants that this page belongs to the same organisation as the website.
   social: {
-    facebook: '',
-    instagram: '',
+    facebook: 'https://www.facebook.com/bhimarmybluepanther',
+    instagram: 'https://www.instagram.com/bhimarmybluepanther',
     youtube: '',
     x: '', // Twitter / X
     whatsapp: '', // WhatsApp channel link
