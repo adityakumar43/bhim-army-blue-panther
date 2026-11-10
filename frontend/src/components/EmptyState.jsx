@@ -1,9 +1,14 @@
+import { Link } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
 import BoxIcon from './BoxIcon.jsx'
 
 // Shown when a page has nothing in it yet (no photos, no news): a friendly box instead of one small line
 // hint={false} leaves out the "check back later" line (when the text already says it)
-export default function EmptyState({ icon = 'news', text, hint = true }) {
+// action: { to: '/news', label } for a page of this site, or { href: 'https://...', label } for another site:
+// a button with somewhere to go next, so the visitor is not left at a dead end
+const button = 'mt-6 inline-flex min-h-11 items-center gap-1.5 rounded-xl border-2 border-brand px-5 font-bold text-brand hover:bg-brand hover:text-white'
+
+export default function EmptyState({ icon = 'news', text, hint = true, action = null }) {
     const { t } = useTranslation()
     return (
         <div className="flex flex-col items-center rounded-2xl border border-dashed border-navy/15 bg-white px-6 py-14 text-center shadow-sm sm:py-16">
@@ -12,6 +17,9 @@ export default function EmptyState({ icon = 'news', text, hint = true }) {
             </span>
             <p className="text-lg font-bold text-navy">{text || t('empty')}</p>
             {hint && <p className="mt-1 max-w-sm text-navy/65">{t('emptyHint', { defaultValue: 'New posts will appear here soon. Please check back later.' })}</p>}
+            {action && (action.href
+                ? <a href={action.href} target="_blank" rel="noopener noreferrer" className={button}>{action.label} <span aria-hidden="true">→</span></a>
+                : <Link to={action.to} className={button}>{action.label} <span aria-hidden="true">→</span></Link>)}
         </div>
     )
 }

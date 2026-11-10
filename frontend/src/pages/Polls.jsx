@@ -6,6 +6,7 @@ import { pickText, formatDate } from '../lib/text.js'
 import { stateName, stateByCode } from '../data/states.js'
 import BoxIcon from '../components/BoxIcon.jsx'
 import Loading from '../components/Loading.jsx'
+import EmptyState from '../components/EmptyState.jsx'
 import { msg, say, fromError } from '../lib/msg.js'
 
 const SAVED = 'pollMember' // member number and mobile, remembered on this phone if the person wants
@@ -169,9 +170,9 @@ export default function Polls() {
             )}
 
             {polls && open.length === 0 && !failed && (
-                <div className="mb-8 rounded-2xl border border-dashed border-navy/15 bg-white px-6 py-10 text-center text-navy/65">
-                    <p className="text-3xl" aria-hidden="true">🗳️</p>
-                    <p className="mt-2">{t('poll.none', { defaultValue: 'There are no polls right now. Please check again later.' })}</p>
+                <div className="mb-8">
+                    <EmptyState icon="poll" text={t('poll.none', { defaultValue: 'There are no polls right now. Please check again later.' })} hint={false}
+                        action={details.memberNo?.trim() ? null : { to: '/join', label: `${t('poll.notMember', { defaultValue: 'Not a member yet?' })} ${t('poll.join', { defaultValue: 'Join now' })}` }} />
                 </div>
             )}
 

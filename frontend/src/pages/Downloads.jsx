@@ -35,7 +35,7 @@ export default function Downloads() {
             )}
             {error && <p role="alert" className="text-red-700">{error}</p>}
             {!items && !error && <Loading />}
-            {items?.length === 0 && <EmptyState icon="download" text={t('dl.empty')} hint={false} />}
+            {items?.length === 0 && <EmptyState icon="download" text={t('dl.empty')} hint={false} action={{ to: '/news', label: t('sections.news') }} />}
 
             {/* One row per file: small picture, what it is, size, and the Download button */}
             <ul className="grid gap-3 lg:grid-cols-2">

@@ -10,6 +10,7 @@ import { STATES, stateName } from '../data/states.js'
 import { PREAMBLE, SPEECH, QUIZ_SIZE, pickQuiz, newQuizSeed, isQuizSeed, SEASON, isSamvidhanSeason } from '../data/samvidhan.js'
 import DistrictSelect from '../components/DistrictSelect.jsx'
 import { ListenButton } from '../components/ShareListen.jsx'
+import Icon from '../components/Icon.jsx'
 import { msg, say, fromError } from '../lib/msg.js'
 
 // Shared links go through the backend's /share/samvidhan page: WhatsApp then shows the Samvidhan picture
@@ -63,7 +64,7 @@ function Preamble() {
     const item = { titleEn: 'The Preamble', titleHi: 'उद्देशिका', bodyEn: PREAMBLE.en.join(' '), bodyHi: PREAMBLE.hi.join(' ') }
     return (
         <section id="preamble" className={`${section} scroll-mt-28 border-t-4 border-t-gold`}>
-            <h2 className="text-2xl font-extrabold sm:text-3xl">📜 {t('samvidhan.preambleTitle')}</h2>
+            <h2 className="flex items-center gap-2.5 text-2xl font-extrabold sm:text-3xl"><Icon name="book" size={28} className="shrink-0 text-gold" />{t('samvidhan.preambleTitle')}</h2>
             <p className="mt-1 text-navy/70">{t('samvidhan.preambleIntro')}</p>
             <ListenButton item={item} kind="samvidhan" small className="mt-4" />
             <blockquote className="mt-6 rounded-xl bg-[#fffaf0] px-5 py-6 text-center text-lg leading-relaxed text-navy sm:px-10 sm:text-xl">
@@ -184,7 +185,7 @@ function Pledge({ onPledged, status }) {
 
     return (
         <section id="pledge" className={`${section} scroll-mt-28 border-t-4 border-t-brand`}>
-            <h2 className="text-2xl font-extrabold sm:text-3xl">✋ {t('samvidhan.pledgeTitle')}</h2>
+            <h2 className="flex items-center gap-2.5 text-2xl font-extrabold sm:text-3xl"><Icon name="hand" size={28} className="shrink-0 text-brand" />{t('samvidhan.pledgeTitle')}</h2>
             <p className="mt-1 text-navy/70">{t('samvidhan.pledgeIntro')}</p>
 
             {!done && (status ? status.open === false : !isSamvidhanSeason()) ? (
@@ -193,8 +194,8 @@ function Pledge({ onPledged, status }) {
                     <p className="mt-2 text-lg font-extrabold">{t('samvidhan.closedTitle', { date: dayMonth(status?.opensOn || SEASON.from, lang) })}</p>
                     <p className="mx-auto mt-1 max-w-xl text-navy/70">{t('samvidhan.closedText')}</p>
                     <div className="mt-4 flex flex-wrap justify-center gap-2">
-                        <a href="#preamble" className="btn border-2 border-brand text-brand hover:bg-brand hover:text-white">📜 {t('samvidhan.preambleTitle')}</a>
-                        <a href="#quiz" className="btn bg-brand text-white hover:bg-navy">🧠 {t('samvidhan.quizTitle')}</a>
+                        <a href="#preamble" className="btn gap-2 border-2 border-brand text-brand hover:bg-brand hover:text-white"><Icon name="book" size={20} className="shrink-0" />{t('samvidhan.preambleTitle')}</a>
+                        <a href="#quiz" className="btn gap-2 bg-brand text-white hover:bg-navy"><Icon name="help" size={20} className="shrink-0" />{t('samvidhan.quizTitle')}</a>
                     </div>
                 </div>
             ) : done ? (
@@ -234,8 +235,8 @@ function Pledge({ onPledged, status }) {
                     </label>
                     {error && <p role="alert" className="text-red-700 sm:col-span-2">{say(t, error)}</p>}
                     <div className="sm:col-span-2">
-                        <button type="submit" disabled={busy} className="btn w-full bg-brand text-white hover:bg-navy disabled:opacity-60 sm:w-auto">
-                            ✋ {busy ? t('samvidhan.busy') : t('samvidhan.submit')}
+                        <button type="submit" disabled={busy} className="btn w-full gap-2 bg-brand text-white hover:bg-navy disabled:opacity-60 sm:w-auto">
+                            <Icon name="hand" size={20} className="shrink-0" />{busy ? t('samvidhan.busy') : t('samvidhan.submit')}
                         </button>
                         <p className="mt-3 text-xs text-navy/65">{t('samvidhan.privacy')}</p>
                     </div>
@@ -336,7 +337,7 @@ function Quiz({ myName = '' }) {
 
     return (
         <section id="quiz" className={`${section} scroll-mt-28 border-t-4 border-t-gold`}>
-            <h2 className="text-2xl font-extrabold sm:text-3xl">🧠 {t('samvidhan.quizTitle')}</h2>
+            <h2 className="flex items-center gap-2.5 text-2xl font-extrabold sm:text-3xl"><Icon name="help" size={28} className="shrink-0 text-gold" />{t('samvidhan.quizTitle')}</h2>
             <p className="mt-1 text-navy/70">{t('samvidhan.quizIntro')}</p>
 
             {step === -1 && <button type="button" onClick={() => setStep(0)} className="btn mt-5 bg-brand text-white hover:bg-navy">{t('samvidhan.start')} →</button>}
@@ -427,8 +428,8 @@ function Welcome() {
             <p className="flex-1 text-lg font-extrabold text-navy">
                 {quiz ? t('samvidhan.welcomeQuiz', { name, score, total: QUIZ_SIZE }) : t('samvidhan.welcomePledge', { name })}
             </p>
-            <a href={quiz ? '#quiz' : '#pledge'} className="btn shrink-0 bg-brand text-white hover:bg-navy">
-                {quiz ? `🧠 ${t('samvidhan.acceptQuiz')}` : `✋ ${t('samvidhan.acceptPledge')}`}
+            <a href={quiz ? '#quiz' : '#pledge'} className="btn shrink-0 gap-2 bg-brand text-white hover:bg-navy">
+                <Icon name={quiz ? 'help' : 'hand'} size={20} className="shrink-0" />{quiz ? t('samvidhan.acceptQuiz') : t('samvidhan.acceptPledge')}
             </a>
         </div>
     )
@@ -448,18 +449,21 @@ export default function Samvidhan() {
             <Welcome />
             {/* How many have pledged, and quick links to each part */}
             <div className="flex flex-col items-center gap-3 rounded-2xl bg-navy px-5 py-5 text-center text-white sm:flex-row sm:justify-between sm:text-left">
-                <p className="text-lg font-extrabold">
+                <p className="flex items-start gap-2 text-lg font-extrabold">
+                    <Icon name="hand" size={22} className="mt-0.5 shrink-0 text-gold" />
+                    <span>
                     {/* This season's pledges first, the all-time total beside it. Before this season's first pledge, just the total. */}
-                    ✋ {count?.thisYear
+                    {count?.thisYear
                         ? <>{t('samvidhan.season', { count: count.thisYear, n: num(count.thisYear, lang) })}{(count.total > count.thisYear || count.states > 1) && <span className="font-semibold text-white/75"> · {count.total > count.thisYear ? t('samvidhan.since', { n: num(count.total, lang), year: count.since }) : t('samvidhan.states', { count: count.states })}</span>}</>
                         : count?.total
                             ? <>{t('samvidhan.count', { count: count.total, n: num(count.total, lang) })}{count.states > 1 && <span className="font-semibold text-white/75"> · {t('samvidhan.states', { count: count.states })}</span>}</>
                             : t('samvidhan.first')}
+                    </span>
                 </p>
                 <nav className="flex flex-wrap justify-center gap-2 text-sm font-bold">
-                    <a href="#preamble" className="rounded-full bg-white/10 px-3 py-2 hover:bg-white/20">📜 {t('samvidhan.preambleTitle')}</a>
-                    <a href="#pledge" className="rounded-full bg-gold px-3 py-2 text-navy hover:brightness-95">✋ {t('samvidhan.pledgeTitle')}</a>
-                    <a href="#quiz" className="rounded-full bg-white/10 px-3 py-2 hover:bg-white/20">🧠 {t('samvidhan.quizTitle')}</a>
+                    <a href="#preamble" className="inline-flex items-center gap-1.5 rounded-full bg-white/10 px-3 py-2 hover:bg-white/20"><Icon name="book" size={16} className="shrink-0" />{t('samvidhan.preambleTitle')}</a>
+                    <a href="#pledge" className="inline-flex items-center gap-1.5 rounded-full bg-gold px-3 py-2 text-navy hover:brightness-95"><Icon name="hand" size={16} className="shrink-0" />{t('samvidhan.pledgeTitle')}</a>
+                    <a href="#quiz" className="inline-flex items-center gap-1.5 rounded-full bg-white/10 px-3 py-2 hover:bg-white/20"><Icon name="help" size={16} className="shrink-0" />{t('samvidhan.quizTitle')}</a>
                 </nav>
             </div>
 

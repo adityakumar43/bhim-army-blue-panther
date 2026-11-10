@@ -590,6 +590,7 @@
     "title": "Videos",
     "intro": "Speeches, rallies and events of Bhim Army Blue Panther.",
     "empty": "No videos yet. Please check back soon.",
+    "follow": "Follow us on {{name}}",
     "onYoutube": "Videos play from YouTube. Subscribe to our channel to see new ones first.",
     "link": "Videos"
   },

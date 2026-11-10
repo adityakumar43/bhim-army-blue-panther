@@ -6,6 +6,15 @@ import YouTubeLite from '../components/YouTubeLite.jsx'
 import { VIDEO_CATEGORIES, videoCategory } from '../data/videos.js'
 import Loading from '../components/Loading.jsx'
 import EmptyState from '../components/EmptyState.jsx'
+import { socialLinks } from '../lib/orgInfo.js'
+
+const SOCIAL_NAMES = { youtube: 'YouTube', facebook: 'Facebook', instagram: 'Instagram', x: 'X', whatsapp: 'WhatsApp', linkedin: 'LinkedIn' }
+// Where to send someone when there are no videos here yet: YouTube first, then Facebook, then any other page
+function followLink() {
+    const links = Object.fromEntries(socialLinks())
+    const key = ['youtube', 'facebook', 'instagram', 'x', 'whatsapp', 'linkedin'].find((k) => links[k])
+    return key ? { href: links[key], name: SOCIAL_NAMES[key] } : null
+}
 
 // Public page: speeches, rallies and events on YouTube
 export default function Videos() {
@@ -34,7 +43,8 @@ export default function Videos() {
             )}
             {error && <p role="alert" className="text-red-700">{error}</p>}
             {!items && !error && <Loading />}
-            {items?.length === 0 && <EmptyState icon="video" text={t('videos.empty')} hint={false} />}
+            {items?.length === 0 && <EmptyState icon="video" text={t('videos.empty')} hint={false}
+                action={followLink() ? { href: followLink().href, label: t('videos.follow', { name: followLink().name, defaultValue: 'Follow us on {{name}}' }) } : { to: '/news', label: t('sections.news') }} />}
 
             <ul className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
                 {shown.map((v) => (
