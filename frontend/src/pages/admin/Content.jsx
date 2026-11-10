@@ -302,7 +302,7 @@ export default function Content({ kind }) {
                   {it.order != null && <span className={`${chip} bg-mist text-brand`}>#{it.order}</span>}
                   {it.section === 'adivasi' && (
                     <span className={`${chip} bg-gold/20 text-navy`}>
-                      🪘 Adivasi{it.kind ? ` · ${it.kind}` : ''}{it.communityEn || it.communityHi ? ` · ${it.communityEn || it.communityHi}` : ''}
+                      🥁 Adivasi{it.kind ? ` · ${it.kind}` : ''}{it.communityEn || it.communityHi ? ` · ${it.communityEn || it.communityHi}` : ''}
                     </span>
                   )}
                   {kind === 'events' && (

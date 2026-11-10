@@ -180,7 +180,7 @@ export default function MemberStatus() {
 
           <dl className="mt-6 grid gap-2 rounded-xl bg-white/70 p-4 text-sm sm:grid-cols-2">
             <div><dt className="text-navy/65">📅 {t('status.appliedOn')}</dt><dd className="font-bold">{date(result.appliedAt)}</dd></div>
-            {result.memberNo && <div><dt className="text-navy/65">🪪 {t('status.memberNo')}</dt><dd className="font-bold tracking-wide">{result.memberNo}</dd></div>}
+            {result.memberNo && <div><dt className="text-navy/65">🆔 {t('status.memberNo')}</dt><dd className="font-bold tracking-wide">{result.memberNo}</dd></div>}
           </dl>
 
           {result.cardToken && (

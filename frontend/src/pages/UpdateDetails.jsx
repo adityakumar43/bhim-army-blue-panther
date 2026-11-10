@@ -173,7 +173,7 @@ export default function UpdateDetails() {
             {step === 'edit' && (
                 <form onSubmit={save} className="flex flex-col gap-5">
                     <Box icon="user" title={form.name}>
-                        {form.memberNo && <p className="-mt-3 mb-4 text-sm font-semibold text-navy/65">🪪 {form.memberNo}</p>}
+                        {form.memberNo && <p className="-mt-3 mb-4 text-sm font-semibold text-navy/65">🆔 {form.memberNo}</p>}
                         <div className="grid gap-4 sm:grid-cols-2">
                             <label className="flex flex-col gap-1.5 font-semibold">{t('join.phone')}
                                 {phoneBox(form.phone, set('phone', onlyPhone))}
@@ -231,7 +231,7 @@ export default function UpdateDetails() {
                         ? t('upd.doneBody', { defaultValue: 'Thank you. Our team has been told about the change.' })
                         : t('upd.noChange', { defaultValue: 'Nothing was changed.' })}</p>
                     {result?.cardToken && (
-                        <Link to={`/card/${result.cardToken}`} className="btn mt-6 w-full gap-2 bg-brand text-white hover:bg-navy">🪪 {t('status.openCard')}</Link>
+                        <Link to={`/card/${result.cardToken}`} className="btn mt-6 w-full gap-2 bg-brand text-white hover:bg-navy">🆔 {t('status.openCard')}</Link>
                     )}
                     <Link to="/" className="mt-4 inline-block text-sm font-semibold text-brand underline">{t('nav.home', { defaultValue: 'Home' })}</Link>
                 </section>

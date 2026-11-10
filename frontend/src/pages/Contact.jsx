@@ -14,7 +14,7 @@ const MAX = 2000
 // What the message is about. Saved with the message, so the team can filter by it.
 const TOPICS = [
   ['general', '💬', 'General'],
-  ['membership', '🪪', 'Membership'],
+  ['membership', '🆔', 'Membership'],
   ['event', '📅', 'Event / programme'],
   ['media', '📰', 'Media / press'],
   ['other', '✏️', 'Other'],

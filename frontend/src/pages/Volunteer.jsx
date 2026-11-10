@@ -99,7 +99,7 @@ export default function Volunteer() {
                     <a href={`https://wa.me/?text=${encodeURIComponent(invite)}`} target="_blank" rel="noopener noreferrer" className="btn gap-2 bg-[#15803d] text-white hover:bg-[#166534]">
                         💬 {t('vol.invite', { defaultValue: 'Invite friends on WhatsApp' })}
                     </a>
-                    <Link to="/join" className="btn gap-2 border-2 border-brand bg-white text-brand hover:bg-mist">🪪 {t('vol.becomeMember', { defaultValue: 'Also become a member' })}</Link>
+                    <Link to="/join" className="btn gap-2 border-2 border-brand bg-white text-brand hover:bg-mist">🆔 {t('vol.becomeMember', { defaultValue: 'Also become a member' })}</Link>
                 </div>
             </div>
         )

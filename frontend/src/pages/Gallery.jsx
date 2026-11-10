@@ -40,7 +40,7 @@ export default function Gallery() {
         onChange={(key) => setParams(key === 'adivasi' ? { section: 'adivasi' } : {}, { replace: true })}
         tabs={[
           { key: 'general', label: `📷 ${t('gallery.photos')}` },
-          { key: 'adivasi', label: `🪶 ${t('gallery.culture')}`, short: `🪶 ${t('gallery.cultureShort', { defaultValue: t('gallery.culture') })}` },
+          { key: 'adivasi', label: `🥁 ${t('gallery.culture')}`, short: `🥁 ${t('gallery.cultureShort', { defaultValue: t('gallery.culture') })}` },
         ]} />
 
       {/* key: each tab is started fresh, so its filters, the open photo and "Show more" begin anew */}

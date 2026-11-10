@@ -362,13 +362,13 @@ export default function Members() {
             {m.status === 'approved' && m.memberNo && (
               <div className="mt-3 border-t border-brand/10 pt-3">
                 <div className="mb-2 flex flex-wrap items-center gap-1.5">
-                  <Pill tone="blue">🪪 {m.memberNo}</Pill>
+                  <Pill tone="blue">🆔 {m.memberNo}</Pill>
                   {m.email && (
                     <Pill tone={m.cardEmailedAt ? 'green' : 'gold'}>{m.cardEmailedAt ? '📧 Card emailed' : '📭 Card not emailed'}</Pill>
                   )}
                 </div>
                 <div className="flex flex-wrap gap-2">
-                  <a href={`/card/${m.cardToken}`} target="_blank" rel="noreferrer" className="abtn min-h-9 px-3">🪪 Open card</a>
+                  <a href={`/card/${m.cardToken}`} target="_blank" rel="noreferrer" className="abtn min-h-9 px-3">🆔 Open card</a>
                   <a href={whatsappLink(m)} target="_blank" rel="noreferrer" className="abtn min-h-9 border-green-300 px-3 text-green-800 hover:border-green-500 hover:text-green-900">💬 WhatsApp</a>
                   {m.email && !viewOnly && (
                     <button onClick={() => act(() => api.post(`/members/${m._id}/send-card`))} className="abtn min-h-9 px-3">

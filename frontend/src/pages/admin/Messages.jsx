@@ -8,7 +8,7 @@ import { useFind, matchesFind } from './find.js'
 
 
 
-const TOPICS = { general: '💬 General', membership: '🪪 Membership', event: '📅 Event', media: '📰 Media', other: '✏️ Other' }
+const TOPICS = { general: '💬 General', membership: '🆔 Membership', event: '📅 Event', media: '📰 Media', other: '✏️ Other' }
 
 export default function Messages() {
   const { refresh } = useOutletContext()
