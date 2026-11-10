@@ -6,6 +6,8 @@ import { trackEvent } from '../lib/analytics.js'
 import Consent from '../components/Consent.jsx'
 import Icon from '../components/BoxIcon.jsx' // two-tone icons for the coloured boxes
 import FieldIcon from '../components/FieldIcon.jsx'
+import SocialLinks from '../components/SocialLinks.jsx'
+import { socialLinks } from '../lib/orgInfo.js'
 import { msg, say, fromError } from '../lib/msg.js'
 
 const PHONE_OK = /^[6-9]\d{9}$/
@@ -117,6 +119,17 @@ export default function Contact() {
               ))}
             </ul>
           </section>
+
+          {/* Shown once at least one social media link is filled in (lib/orgInfo.js) */}
+          {socialLinks().length > 0 && (
+            <section className="rounded-2xl border border-navy/10 bg-white p-5 shadow-sm sm:p-6">
+              <h2 className="mb-4 flex items-center gap-3 text-lg font-extrabold">
+                <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-mist text-brand" aria-hidden="true"><Icon name="megaphone" size={20} /></span>
+                {t('contact.follow', { defaultValue: 'Follow us' })}
+              </h2>
+              <SocialLinks />
+            </section>
+          )}
 
           <section className="rounded-2xl bg-gradient-to-br from-navy to-brand p-5 text-white shadow-md sm:p-6">
             <h2 className="mb-3 font-extrabold">⚡ {t('contact.faster', { defaultValue: 'Get it done faster' })}</h2>

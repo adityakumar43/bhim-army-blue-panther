@@ -17,3 +17,6 @@ export const ORG = {
     linkedin: '',
   },
 }
+
+// The social media pages that have a link above, as [name, link] pairs. Empty ones are left out.
+export const socialLinks = () => Object.entries(ORG.social || {}).filter(([, url]) => /^https?:\/\//.test(url || ''))
