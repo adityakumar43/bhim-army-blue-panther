@@ -31,6 +31,9 @@ RewriteRule ^ index.html [L]
   # Browsers that have opened the site once over HTTPS always use HTTPS for it, for a year
   # (browsers ignore this line on a plain HTTP page, so it is safe to send on every answer)
   Header always set Strict-Transport-Security "max-age=31536000"
+  # Device features: only this site may use the camera (admin check-in scanner) and microphone (help desk voice
+  # messages); nothing may ask for the visitor's location
+  Header always set Permissions-Policy "camera=(self), microphone=(self), geolocation=()"
 </IfModule>
 
 # 3. Caching: the page itself and the app's service worker are always checked for a new version,
