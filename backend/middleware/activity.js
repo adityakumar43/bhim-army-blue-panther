@@ -67,7 +67,8 @@ function describe(section, method, part, body = {}, last = '') {
             return null
         case 'admins':
             if (method === 'POST' && part === 'reset-2fa') return ['security', 'reset two-step login for']
-            if (method === 'POST') return ['create', 'added the team member']
+            if (method === 'POST' && part === 'send-link') return ['email', 'sent a set-password link to']
+            if (method === 'POST' && !part) return ['create', 'added the team member']
             if (method === 'DELETE') return ['delete', 'deleted the account of']
             if ((body.state || body.district) && !body.role) return ['role', 'changed the area of']
             if (body.role) return ['role', `changed the role to ${ROLE_NAMES[body.role] || 'another role'} for`]

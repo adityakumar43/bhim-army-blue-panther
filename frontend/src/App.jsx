@@ -44,6 +44,7 @@ const Donate = page(() => import('./pages/Donate.jsx'))
 const Receipt = page(() => import('./pages/Receipt.jsx'))
 const Card = page(() => import('./pages/Card.jsx'))
 const Login = page(() => import('./pages/admin/Login.jsx'))
+const SetPassword = page(() => import('./pages/admin/SetPassword.jsx'))
 const AdminLayout = page(() => import('./pages/admin/AdminLayout.jsx'))
 const Overview = page(() => import('./pages/admin/Overview.jsx'))
 const Content = page(() => import('./pages/admin/Content.jsx'))
@@ -132,6 +133,7 @@ export default function App() {
             <Route path="/unsubscribe/:token" element={<Unsubscribe />} />
 
             <Route path="/admin/login" element={<Login />} />
+            <Route path="/admin/set-password" element={<SetPassword />} />
             <Route path="/admin" element={<ProtectedRoute><SessionWatch /><AdminLayout /></ProtectedRoute>}>
               <Route index element={<Overview />} />
               <Route path="news" element={<Perm perm="content"><Content key="news" kind="news" /></Perm>} />

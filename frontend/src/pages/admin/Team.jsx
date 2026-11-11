@@ -1,9 +1,9 @@
 import { useEffect, useState } from 'react'
-import { useOutletContext } from 'react-router-dom'
+import { Link, useOutletContext } from 'react-router-dom'
 import { api } from '../../lib/api.js'
 import { ROLE_INFO } from '../../lib/roles.js'
 import { STATES, stateByCode } from '../../data/states.js'
-import { PageHeader, Notice, ListLoading, Pill } from './ui.jsx'
+import { PageHeader, Notice, ListLoading, Pill, PasswordInput } from './ui.jsx'
 import Icon from '../../components/Icon.jsx'
 import DistrictSelect from '../../components/DistrictSelect.jsx'
 
@@ -14,17 +14,32 @@ const stateLabel = (code) => stateByCode(code)?.en || code
 const hasState = (role) => ['stateadmin', 'districtadmin', 'gate'].includes(role)
 const areaLabel = (a) => [a.district, a.state && stateLabel(a.state)].filter(Boolean).join(', ')
 
-// Password box with an eye button to show or hide what was typed
-function PasswordInput({ className = '', ...props }) {
-  const [show, setShow] = useState(false)
+const duration = (hours) => (hours >= 24 ? `${hours / 24} day${hours === 24 ? '' : 's'}` : `${hours} hour${hours === 1 ? '' : 's'}`)
+
+// After adding someone (or sending them a new link): the set-password link, emailed to them, and here to copy
+// or send on WhatsApp in case the email does not arrive
+function LinkBox({ sent, onClose }) {
+  const [copied, setCopied] = useState(false)
+  const message = `Jai Bhim ${sent.name}, please choose your password for the Bhim Army Blue Panther admin panel with this link (it works for ${duration(sent.hours)}, once). Your login email is ${sent.email}.\n${sent.link}`
+  const copy = () => navigator.clipboard?.writeText(sent.link).then(() => setCopied(true)).catch(() => {})
   return (
-    <span className={`relative block ${className}`}>
-      <input {...props} type={show ? 'text' : 'password'} className="input pr-12" />
-      <button type="button" onClick={() => setShow(!show)} aria-label={show ? 'Hide password' : 'Show password'}
-        className="absolute top-1/2 right-1.5 flex h-9 w-9 -translate-y-1/2 items-center justify-center rounded-lg text-navy/65 hover:bg-mist hover:text-brand">
-        <Icon name={show ? 'eyeOff' : 'eye'} size={18} />
-      </button>
-    </span>
+    <div role="status" className="card mb-5 border-2 border-green-300 bg-green-50/60">
+      <div className="mb-2 flex items-start justify-between gap-3">
+        <h2 className="text-lg font-extrabold">{sent.emailed ? `📧 Link emailed to ${sent.name}` : `⚠️ The email to ${sent.name} could not be sent`}</h2>
+        <button type="button" onClick={onClose} aria-label="Close" className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg text-navy/65 hover:bg-white"><Icon name="close" size={18} /></button>
+      </div>
+      <p className="mb-3 text-sm text-navy/80">
+        {sent.emailed
+          ? <>They will get an email at <b>{sent.email}</b> with a link to choose their own password. Nobody else, not even you, will know it. If the email does not arrive, send them this link yourself:</>
+          : <>Send this link to <b>{sent.name}</b> yourself, on WhatsApp or by message. With it they choose their own password.</>}
+      </p>
+      <div className="flex flex-wrap gap-2">
+        <input readOnly value={sent.link} aria-label="Set-password link" onFocus={(e) => e.target.select()} className="input min-w-0 flex-1 text-sm" />
+        <button type="button" onClick={copy} className="abtn min-h-11 px-4">{copied ? '✅ Copied' : '📋 Copy link'}</button>
+        <a href={`https://wa.me/?text=${encodeURIComponent(message)}`} target="_blank" rel="noopener noreferrer" className="abtn min-h-11 border-green-300 px-4 text-green-800">💬 WhatsApp</a>
+      </div>
+      <p className="mt-2 text-xs text-navy/65">🔒 The link works once, for {duration(sent.hours)}. Send it only to {sent.name}: whoever opens it can choose the password.</p>
+    </div>
   )
 }
 
@@ -41,7 +56,8 @@ export default function Team() {
   const [busy, setBusy] = useState(false)
   const [resetFor, setResetFor] = useState(null)
   const [newPw, setNewPw] = useState('')
-  const [curPw, setCurPw] = useState('') // your current password, when changing your own
+  const [ownPw, setOwnPw] = useState(false) // "set a password myself" instead of emailing a link
+  const [sent, setSent] = useState(null) // the set-password link just made: { name, email, link, emailed, hours }
   const [adding, setAdding] = useState(false)
   const [pick, setPick] = useState(null) // { id, role, state, district } while choosing the area of a State or District admin
 
@@ -64,10 +80,12 @@ export default function Team() {
     e.preventDefault()
     setBusy(true)
     await run(async () => {
-      await api.post('/admins', form)
+      const r = await api.post('/admins', ownPw ? form : { ...form, password: '' })
+      setSent(r.link ? { name: r.name, email: r.email, link: r.link, emailed: r.emailed, hours: r.hours } : null)
       setForm(fresh())
+      setOwnPw(false)
       setAdding(false)
-    }, `${ROLE_INFO[form.role]?.label || 'Team member'} added. Share the password with them privately.`)
+    }, ownPw ? `${ROLE_INFO[form.role]?.label || 'Team member'} added. Share the password with them privately.` : `${form.name} was added.`)
     setBusy(false)
   }
 
@@ -84,11 +102,15 @@ export default function Team() {
   const pickReady = pick && pick.state && (pick.role !== 'districtadmin' || pick.district)
   const toggle = (a) => run(() => api.patch(`/admins/${a.id}`, { active: !a.active }), a.active ? `${a.name} was disabled.` : `${a.name} was enabled.`)
   const savePw = (a) => run(async () => {
-    await api.patch(`/admins/${a.id}`, a.id === me.id ? { password: newPw, currentPassword: curPw } : { password: newPw })
+    await api.patch(`/admins/${a.id}`, { password: newPw })
     setResetFor(null)
     setNewPw('')
-    setCurPw('')
   }, 'Password changed.')
+  const sendLink = (a) => run(async () => {
+    const r = await api.post(`/admins/${a.id}/send-link`)
+    setSent({ name: r.name, email: r.email, link: r.link, emailed: r.emailed, hours: r.hours })
+    setResetFor(null)
+  }, '')
   const reset2fa = (a) => {
     if (window.confirm(`Reset two-step login for ${a.name}? They can set it up again after logging in.`)) {
       run(() => api.post(`/admins/${a.id}/reset-2fa`), `Two-step login was reset for ${a.name}.`)
@@ -105,6 +127,7 @@ export default function Team() {
       </PageHeader>
       <Notice>{error}</Notice>
       <Notice kind="success">{note}</Notice>
+      {sent && <LinkBox sent={sent} onClose={() => setSent(null)} />}
 
       {adding && (
         <form onSubmit={create} className="card mb-5">
@@ -121,10 +144,12 @@ export default function Team() {
             <label className="flex flex-col gap-1 font-semibold">✉️ Email (used to log in)
               <input type="email" required value={form.email} onChange={(e) => setForm({ ...form, email: e.target.value })} className="input" />
             </label>
-            <label className="flex flex-col gap-1 font-semibold">🔑 Password (8+ characters)
-              <PasswordInput required minLength="8" autoComplete="new-password" value={form.password}
-                onChange={(e) => setForm({ ...form, password: e.target.value })} />
-            </label>
+            {ownPw && (
+              <label className="flex flex-col gap-1 font-semibold">🔑 Password (8+ characters)
+                <PasswordInput required minLength="8" autoComplete="new-password" value={form.password}
+                  onChange={(e) => setForm({ ...form, password: e.target.value })} />
+              </label>
+            )}
             <label className="flex flex-col gap-1 font-semibold">🎭 Role
               <select value={form.role} onChange={(e) => setForm({ ...form, role: e.target.value, district: '' })} className="input">
                 {roleChoices.map(([key, r]) => <option key={key} value={key}>{r.label}</option>)}
@@ -144,10 +169,18 @@ export default function Team() {
               </label>
             )}
           </div>
+          <p className="mt-3 rounded-xl bg-mist/60 p-3 text-sm text-navy/80">
+            {ownPw
+              ? <>🔑 You choose the password and pass it on to them privately.</>
+              : <>📧 They get an email with a link to <b>choose their own password</b>. You will also see the link here, to send on WhatsApp if the email does not arrive.</>}
+            {' '}<button type="button" onClick={() => { setOwnPw(!ownPw); setForm((f) => ({ ...f, password: '' })) }} className="font-semibold text-brand underline">
+              {ownPw ? 'Send them a link instead' : 'Set a password myself instead'}
+            </button>
+          </p>
           <div className="mt-3 flex flex-wrap items-center justify-between gap-3">
             <p className="text-sm text-navy/65">ℹ️ <b>{ROLE_INFO[form.role].label}:</b> {ROLE_INFO[form.role].desc}</p>
             <div className="flex gap-2">
-              <button type="button" onClick={() => { setAdding(false); setForm(fresh()) }} className="abtn">Cancel</button>
+              <button type="button" onClick={() => { setAdding(false); setOwnPw(false); setForm(fresh()) }} className="abtn">Cancel</button>
               <button disabled={busy} className="abtn-primary">{busy ? 'Adding...' : '✅ Add team member'}</button>
             </div>
           </div>
@@ -184,6 +217,7 @@ export default function Team() {
                     <Pill tone="gold">{ROLE_INFO[a.role]?.label || a.role}{a.state ? ` · 📍 ${areaLabel(a)}` : ''}</Pill>
                     <Pill tone={a.twoFactorEnabled ? 'green' : 'gray'}>{a.twoFactorEnabled ? '🔐 2-step on' : '🔓 2-step off'}</Pill>
                     {!a.active && <Pill tone="red">🚫 Disabled</Pill>}
+                    {!a.passwordSet && <Pill tone="gold">⏳ Invited, has not chosen a password yet</Pill>}
                   </div>
                 </div>
               </div>
@@ -222,24 +256,33 @@ export default function Team() {
                   </div>
                 )}
                 <div className="flex flex-wrap gap-2">
-                  <button onClick={() => { setResetFor(resetFor === a.id ? null : a.id); setNewPw(''); setCurPw('') }} className="abtn min-h-9 px-3">
-                    🔑 {self ? 'Change my password' : 'Reset password'}
-                  </button>
+                  {self
+                    ? <Link to="/admin/security#password" className="abtn min-h-9 px-3">🔑 Change my password</Link>
+                    : <button onClick={() => { setResetFor(resetFor === a.id ? null : a.id); setNewPw('') }} aria-expanded={resetFor === a.id} className="abtn min-h-9 px-3">
+                      🔑 {a.passwordSet ? 'Password' : 'Resend invite'}
+                    </button>}
                   {!self && <button onClick={() => toggle(a)} className="abtn min-h-9 px-3">{a.active ? '⏸️ Disable' : '▶️ Enable'}</button>}
                   {!self && a.twoFactorEnabled && <button onClick={() => reset2fa(a)} className="abtn min-h-9 px-3">🔄 Reset 2-step</button>}
                   {!self && <button onClick={() => remove(a)} className="abtn-danger min-h-9 px-3">🗑️ Delete</button>}
                 </div>
               </div>
 
-              {resetFor === a.id && (
-                <div className="mt-3 flex flex-wrap gap-2 rounded-xl bg-mist/60 p-3">
-                  {self && (
-                    <PasswordInput autoComplete="current-password" placeholder="Current password" aria-label="Current password"
-                      value={curPw} onChange={(e) => setCurPw(e.target.value)} className="min-w-52 flex-1" />
-                  )}
-                  <PasswordInput autoComplete="new-password" placeholder="New password (8+ characters)" aria-label="New password"
-                    value={newPw} onChange={(e) => setNewPw(e.target.value)} className="min-w-52 flex-1" />
-                  <button onClick={() => savePw(a)} disabled={newPw.length < 8 || (self && !curPw)} className="abtn-primary">💾 Save</button>
+              {resetFor === a.id && !self && (
+                <div className="mt-3 flex flex-col gap-3 rounded-xl bg-mist/60 p-3">
+                  <div>
+                    <button onClick={() => sendLink(a)} disabled={!a.active} className="abtn-primary min-h-10 px-4">
+                      📧 {a.passwordSet ? 'Send a link to choose a new password' : 'Send a new invite link'}
+                    </button>
+                    <p className="mt-1 text-xs text-navy/65">{a.active ? `${a.name} chooses the password; nobody else knows it. Recommended.` : 'Enable this account first.'}</p>
+                  </div>
+                  <div className="border-t border-navy/10 pt-3">
+                    <p className="mb-1.5 text-xs font-semibold text-navy/70">Or set a password yourself and pass it on privately:</p>
+                    <div className="flex flex-wrap gap-2">
+                      <PasswordInput autoComplete="new-password" placeholder="New password (8+ characters)" aria-label="New password"
+                        value={newPw} onChange={(e) => setNewPw(e.target.value)} className="min-w-52 flex-1" />
+                      <button onClick={() => savePw(a)} disabled={newPw.length < 8} className="abtn min-h-11">💾 Save</button>
+                    </div>
+                  </div>
                 </div>
               )}
             </li>

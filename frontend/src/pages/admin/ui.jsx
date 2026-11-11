@@ -1,3 +1,4 @@
+import { useState } from 'react'
 import { useLocation } from 'react-router-dom'
 import Icon from '../../components/Icon.jsx'
 
@@ -49,6 +50,20 @@ const TONES = {
   green: 'bg-green-100 text-green-900',
   red: 'bg-red-100 text-red-900',
   gray: 'bg-navy/10 text-navy',
+}
+
+// Password box with an eye button to show or hide what was typed
+export function PasswordInput({ className = '', ...props }) {
+  const [show, setShow] = useState(false)
+  return (
+    <span className={`relative block ${className}`}>
+      <input {...props} type={show ? 'text' : 'password'} className="input pr-12" />
+      <button type="button" onClick={() => setShow(!show)} aria-label={show ? 'Hide password' : 'Show password'}
+        className="absolute top-1/2 right-1.5 flex h-9 w-9 -translate-y-1/2 items-center justify-center rounded-lg text-navy/65 hover:bg-mist hover:text-brand">
+        <Icon name={show ? 'eyeOff' : 'eye'} size={18} />
+      </button>
+    </span>
+  )
 }
 
 export function Pill({ tone = 'blue', children }) {

@@ -19,6 +19,12 @@ const adminSchema = new mongoose.Schema(
     twoFactorPending: { type: String, select: false },
     twoFactorLastStep: { type: Number, default: 0 },
     seenDonationsAt: Date,
+    // false while a new team member has not chosen their own password yet (they were sent a link)
+    passwordSet: { type: Boolean, default: true },
+    // A one-time link to choose a password (new account, or a forgotten password). Only a scrambled copy is kept.
+    setupTokenHash: { type: String, select: false, index: true, sparse: true },
+    setupTokenExpires: { type: Date, select: false },
+    setupLinkAt: { type: Date, select: false }, // when the last link was made (stops a flood of emails)
   },
   { timestamps: true }
 )

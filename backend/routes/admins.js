@@ -7,6 +7,7 @@ import { ROLES, can } from '../config/roles.js'
 import { STATE_CODES } from '../config/states.js'
 import { canonicalDistrict } from '../config/districts.js'
 import LoginLock from '../models/LoginLock.js'
+import { makeLink, emailLink, INVITE_HOURS, RESET_HOURS } from '../services/passwordLinks.js'
 
 // Team & roles. Super admins manage everyone. A State admin manages only the District admins of their own state.
 const router = Router()
@@ -15,7 +16,17 @@ router.use(protect, requirePermission('team'))
 const view = (a) => ({
   id: a._id, name: a.name, email: a.email, role: a.role, active: a.active !== false, createdAt: a.createdAt,
   twoFactorEnabled: a.twoFactorEnabled === true, state: a.state || null, district: a.district || null,
+  passwordSet: a.passwordSet !== false, // false: invited, has not chosen a password yet
 })
+
+// Emails a set-password link. Also gives the link itself, so it can be sent on WhatsApp if the email does not arrive.
+async function sendLink(admin, kind) {
+  const hours = kind === 'invite' ? INVITE_HOURS : RESET_HOURS * 24 // a link sent by the team works for a day
+  const url = await makeLink(admin._id, hours)
+  let emailed = false
+  try { emailed = await emailLink(admin, url, kind, hours) } catch (err) { console.error('Password link email failed:', err.message) }
+  return { link: url, emailed, hours }
+}
 
 // A State admin needs a state; a District admin needs a state and one of its districts; every other role has neither
 const NEED_STATE = 'Choose the state this person will look after'
@@ -57,7 +68,10 @@ router.post('/', async (req, res) => {
   const state = limited(req) ? req.admin.state : req.body?.state
   if (!name || !String(name).trim()) return res.status(400).json({ message: 'Enter a name' })
   if (!/^\S+@\S+\.\S+$/.test(email || '')) return res.status(400).json({ message: 'Enter a valid email address' })
-  if (!password || String(password).length < 8) {
+  // No password: the new member gets a link by email and chooses their own (nobody else ever knows it).
+  // A password typed here still works, for when email is not available.
+  const invite = password === undefined || password === null || password === ''
+  if (!invite && String(password).length < 8) {
     return res.status(400).json({ message: 'Password must be at least 8 characters' })
   }
   if (!ROLES[role]) return res.status(400).json({ message: 'Choose a role' })
@@ -65,8 +79,12 @@ router.post('/', async (req, res) => {
   if (where.problem) return res.status(400).json({ message: where.problem })
 
   try {
-    const admin = await Admin.create({ name: String(name).trim(), email, password, role, state: where.state, district: where.district })
-    res.status(201).json(view(admin))
+    const admin = await Admin.create({
+      name: String(name).trim(), email, role, state: where.state, district: where.district,
+      // Until they choose one, the account has a long random password that nobody knows
+      password: invite ? crypto.randomBytes(32).toString('hex') : password, passwordSet: !invite,
+    })
+    res.status(201).json({ ...view(admin), ...(invite ? await sendLink(admin, 'invite') : {}) })
   } catch (err) {
     if (err.code === 11000) return res.status(409).json({ message: 'An account with this email already exists' })
     throw err
@@ -116,6 +134,15 @@ router.patch('/:id', ownPasswordTries, async (req, res) => {
   }
   await target.save()
   res.json(view(target))
+})
+
+// A new set-password link for someone in the team: a new member whose first link ran out, or someone who forgot their password
+router.post('/:id/send-link', async (req, res) => {
+  const target = await Admin.findById(req.params.id).catch(() => null)
+  if (!target || !mine(req, target)) return res.status(404).json({ message: 'Not found' })
+  if (target._id.equals(req.admin._id)) return res.status(400).json({ message: 'Change your own password on the Security page' })
+  if (target.active === false) return res.status(400).json({ message: 'Enable this account first' })
+  res.json({ ...view(target), ...(await sendLink(target, target.passwordSet === false ? 'invite' : 'reset')) })
 })
 
 router.post('/:id/reset-2fa', async (req, res) => {

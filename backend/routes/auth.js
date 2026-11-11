@@ -13,6 +13,7 @@ import { recordLogin } from '../services/loginlog.js'
 import bcrypt from 'bcryptjs'
 import LoginLock from '../models/LoginLock.js'
 import KnownDevice from '../models/KnownDevice.js'
+import { makeLink, adminForToken, usePasswordLink, emailLink, RESET_HOURS } from '../services/passwordLinks.js'
 
 const router = Router()
 
@@ -214,6 +215,61 @@ router.post('/2fa/disable', limiter(10), protect, async (req, res) => {
     { $set: { twoFactorEnabled: false, twoFactorLastStep: 0 }, $unset: { twoFactorSecret: 1, twoFactorPending: 1 } }
   )
   res.json({ ok: true })
+})
+
+// ----- Passwords -----
+
+// Change your own password (every admin, from the Security page): needs the current one
+router.post('/password', limiter(10), protect, async (req, res) => {
+  const { currentPassword, newPassword } = req.body || {}
+  if (String(newPassword || '').length < 8) return res.status(400).json({ message: 'The new password must be at least 8 characters' })
+  if (String(newPassword).length > 200) return res.status(400).json({ message: 'The new password is too long' })
+  const admin = await Admin.findById(req.admin._id).select('+password')
+  if (!(await admin.matchPassword(String(currentPassword || '')))) return res.status(400).json({ message: 'Your current password is not correct' })
+  if (await admin.matchPassword(String(newPassword))) return res.status(400).json({ message: 'The new password must be different from the current one' })
+  admin.password = String(newPassword)
+  admin.passwordSet = true
+  await admin.save() // the session in use stays: with one session per account, it is this one
+  recordLogin(req, { admin, success: true, reason: 'changed their own password' })
+  res.json({ ok: true })
+})
+
+// "Forgot password?" on the login page: emails a link to choose a new password.
+// The answer is the same whether or not the email belongs to an admin, and comes at once (the email is sent
+// afterwards), so this cannot be used to find out who the admins are.
+router.post('/forgot', limiter(5), async (req, res) => {
+  const email = String(req.body?.email || '').trim().toLowerCase().slice(0, 200)
+  res.json({ ok: true })
+  try {
+    if (!/^\S+@\S+\.\S+$/.test(email)) return
+    const admin = await Admin.findOne({ email }).select('+setupLinkAt')
+    if (!admin || admin.active === false) return
+    if (admin.setupLinkAt && Date.now() - admin.setupLinkAt < 2 * 60e3) return // one email every 2 minutes at most
+    const url = await makeLink(admin._id, RESET_HOURS)
+    await emailLink(admin, url, 'reset')
+    recordLogin(req, { admin, success: false, reason: 'asked for a "forgot password" link' })
+  } catch (err) {
+    console.error('Forgot-password email failed:', err.message)
+  }
+})
+
+// The set-password page checks its link first, to greet the person by name
+router.post('/set-password/check', limiter(20), async (req, res) => {
+  const admin = await adminForToken(req.body?.token)
+  if (!admin) return res.status(410).json({ message: 'This link has expired or was already used. Ask for a new one.' })
+  res.json({ name: admin.name, email: admin.email, isNew: admin.passwordSet === false })
+})
+
+// Saves the password chosen through the link. Two-step login (if on) is still asked for at the next login.
+router.post('/set-password', limiter(20), async (req, res) => {
+  const password = String(req.body?.password || '')
+  if (password.length < 8) return res.status(400).json({ message: 'The password must be at least 8 characters' })
+  if (password.length > 200) return res.status(400).json({ message: 'The password is too long' })
+  const admin = await adminForToken(req.body?.token)
+  if (!admin) return res.status(410).json({ message: 'This link has expired or was already used. Ask for a new one.' })
+  await usePasswordLink(admin, password)
+  recordLogin(req, { admin, success: true, reason: 'chose a password with an emailed link' })
+  res.json({ ok: true, email: admin.email })
 })
 
 export default router

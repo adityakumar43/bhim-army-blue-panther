@@ -18,6 +18,23 @@ export default function Login() {
   const [busy, setBusy] = useState(false)
   const [show, setShow] = useState(false)
   const [notice] = useState(() => { try { return sessionStorage.getItem('loginNotice') || '' } catch { return '' } })
+  const [forgot, setForgot] = useState(false) // "Forgot password?": ask for a link by email
+  const [forgotSent, setForgotSent] = useState(false)
+
+  async function askLink(e) {
+    e.preventDefault()
+    setBusy(true)
+    setError('')
+    try {
+      await api.post('/auth/forgot', { email: form.email })
+      setForgotSent(true)
+    } catch (err) {
+      setError(err.message)
+    } finally {
+      setBusy(false)
+    }
+  }
+  const backToLogin = () => { setForgot(false); setForgotSent(false); setError('') }
 
   async function submit(e) {
     e.preventDefault()
@@ -64,8 +81,35 @@ export default function Login() {
           </div>
         </div>
 
-        {notice && <p role="status" className="mb-3 rounded-xl border border-gold/50 bg-gold/10 px-3 py-2 text-sm text-navy">{notice}</p>}
+        {notice && !forgot && <p role="status" className="mb-3 rounded-xl border border-gold/50 bg-gold/10 px-3 py-2 text-sm text-navy">{notice}</p>}
 
+        {forgot ? (
+          forgotSent ? (
+            <div role="status" className="flex flex-col gap-3">
+              <p className="rounded-xl border border-green-200 bg-green-50 p-3 text-green-900">
+                📧 If <b>{form.email}</b> belongs to an admin account, we have sent it a link to choose a new password. It works for 1 hour.
+              </p>
+              <p className="text-sm text-navy/70">No email after a few minutes? Check the spam folder, or ask a super admin to send you a link from the Team page.</p>
+              <button type="button" onClick={backToLogin} className="btn w-full rounded-xl border-2 border-brand text-brand hover:bg-mist">← Back to login</button>
+            </div>
+          ) : (
+            <form onSubmit={askLink} className="flex flex-col gap-3">
+              <p className="text-navy/80">Enter your login email. We will send you a link to choose a new password.</p>
+              <label className="flex flex-col gap-1 font-semibold">Email
+                <div className="relative">
+                  <Icon name="mail" size={18} className="pointer-events-none absolute top-1/2 left-3.5 -translate-y-1/2 text-navy/65" />
+                  <input type="email" required autoFocus autoComplete="username" value={form.email} placeholder="you@example.com"
+                    onChange={(e) => setForm({ ...form, email: e.target.value })} className="input pl-11" />
+                </div>
+              </label>
+              {error && <p role="alert" className="border border-red-300 bg-red-50 p-3 text-red-900">{error}</p>}
+              <button disabled={busy} className="btn w-full gap-2 rounded-xl bg-brand text-white shadow-md transition hover:bg-navy disabled:opacity-60">
+                {busy ? 'Please wait...' : <>Send me a link <Icon name="mail" size={18} /></>}
+              </button>
+              <button type="button" onClick={backToLogin} className="text-brand underline">Back to login</button>
+            </form>
+          )
+        ) : (
         <form onSubmit={submit} className="flex flex-col gap-3">
           {challenge ? (
             <label className="flex flex-col gap-1 font-semibold">
@@ -104,7 +148,13 @@ export default function Login() {
               Back
             </button>
           )}
+          {!challenge && (
+            <button type="button" onClick={() => { setForgot(true); setError('') }} className="text-sm font-semibold text-brand underline">
+              Forgot password?
+            </button>
+          )}
         </form>
+        )}
         <Link to="/" className="mt-3 flex items-center justify-center gap-1 text-sm font-semibold text-navy/65 hover:text-brand">← Back to the website</Link>
       </div>
     </div>

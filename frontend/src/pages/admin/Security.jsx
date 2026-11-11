@@ -1,9 +1,60 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { useOutletContext } from 'react-router-dom'
 import { api } from '../../lib/api.js'
-import { PageHeader, Notice, ListLoading, Pill } from './ui.jsx'
+import { PageHeader, Notice, ListLoading, Pill, PasswordInput } from './ui.jsx'
 import Icon from '../../components/Icon.jsx'
 import LoginHistory from './LoginHistory.jsx'
+
+// Change your own password: the current one, then the new one twice
+function ChangePassword() {
+  const [form, setForm] = useState({ current: '', next: '', again: '' })
+  const [error, setError] = useState('')
+  const [done, setDone] = useState(false)
+  const [busy, setBusy] = useState(false)
+  const box = useRef(null)
+  // Opened from "Change my password" on the Team page (#password): bring this box into view
+  useEffect(() => { if (window.location.hash === '#password') box.current?.scrollIntoView({ block: 'center' }) }, [])
+  const mismatch = form.again && form.next !== form.again
+  const set = (k) => (e) => { setForm({ ...form, [k]: e.target.value }); setDone(false) }
+
+  async function save(e) {
+    e.preventDefault()
+    if (form.next !== form.again) return setError('The two new passwords are not the same')
+    setBusy(true); setError(''); setDone(false)
+    try {
+      await api.post('/auth/password', { currentPassword: form.current, newPassword: form.next })
+      setForm({ current: '', next: '', again: '' })
+      setDone(true)
+    } catch (err) { setError(err.message) } finally { setBusy(false) }
+  }
+
+  return (
+    <section id="password" ref={box} className="card mt-6 scroll-mt-24">
+      <h2 className="mb-1 text-xl font-extrabold">🔑 Change my password</h2>
+      <p className="mb-4 text-sm text-navy/70">Use at least 8 characters. A long phrase you can remember is safer than a short word.</p>
+      <Notice>{error}</Notice>
+      <Notice kind="success">{done && 'Your password was changed. Use the new one next time you log in.'}</Notice>
+      <form onSubmit={save} className="grid gap-3 sm:grid-cols-3">
+        <label className="flex flex-col gap-1 font-semibold">Current password
+          <PasswordInput required autoComplete="current-password" value={form.current} onChange={set('current')} />
+        </label>
+        <label className="flex flex-col gap-1 font-semibold">New password
+          <PasswordInput required minLength="8" autoComplete="new-password" value={form.next} onChange={set('next')} />
+        </label>
+        <label className="flex flex-col gap-1 font-semibold">New password again
+          <PasswordInput required minLength="8" autoComplete="new-password" value={form.again} onChange={set('again')}
+            aria-invalid={mismatch || undefined} />
+          {mismatch && <span className="text-xs font-semibold text-red-700">⚠️ Not the same as the new password</span>}
+        </label>
+        <div className="sm:col-span-3">
+          <button disabled={busy || form.next.length < 8 || form.next !== form.again || !form.current} className="abtn-primary min-h-11 px-5">
+            {busy ? 'Saving…' : '💾 Change password'}
+          </button>
+        </div>
+      </form>
+    </section>
+  )
+}
 
 export default function Security() {
   const [enabled, setEnabled] = useState(null)
@@ -162,6 +213,8 @@ export default function Security() {
           </aside>
         </div>
       )}
+
+      <ChangePassword />
 
       <section className="mt-6">
         <h2 className="mb-1 text-lg font-extrabold">🕘 Your recent logins</h2>
