@@ -10,7 +10,7 @@ import { STATE_CODES } from '../config/states.js'
 import { stateNameEn } from '../config/stateNames.js'
 import { ORG } from '../config/org.js'
 import { sendMail } from '../services/mailer.js'
-import { button } from '../services/emailLayout.js'
+import { button, hero, greet, both, details, note, signoff } from '../services/emailLayout.js'
 
 const router = Router()
 const PREFIX = () => process.env.CERT_PREFIX || 'BBP'
@@ -117,10 +117,9 @@ async function nextRefNo(type, issueDate) {
   return `${PREFIX()}/${code}/${year}/${String(c.seq).padStart(4, '0')}`
 }
 
-function certEmail(c) {
+export function certEmail(c) {
   const [hi, en] = TITLES[c.type]
   const link = linkFor(c)
-  const esc = (s) => String(s ?? '').replace(/[&<>"']/g, (ch) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[ch]))
   return {
     subject: `${hi} / ${en} — ${c.refNo}`,
     text: [
@@ -133,13 +132,13 @@ function certEmail(c) {
       `Reference no.: ${c.refNo}`,
       ORG.name,
     ].join('\n'),
-    html: `<div style="font-family:Arial,sans-serif;max-width:520px;margin:auto;color:#0A1A3F">
-
-<p>जय भीम <strong>${esc(c.name)}</strong>!<br>${esc(ORG.name)} की ओर से आपका <strong>${hi}</strong> जारी किया गया है।</p>
-<p>Jai Bhim <strong>${esc(c.name)}</strong>! Your <strong>${en}</strong> has been issued.</p>
+    html: `${hero('📜', hi, en)}
+${greet(c.name)}
+${both(`${ORG.name} की ओर से आपका ${hi} जारी कर दिया गया है। इसे नीचे के बटन से देखें, डाउनलोड करें या प्रिंट करें।`, `Your ${en} from ${ORG.name} has been issued. View, download or print it with the button below.`)}
+${details([['संदर्भ संख्या / Reference no.', c.refNo]])}
 ${button('देखें और डाउनलोड करें / View and download', link)}
-<p style="color:#555;font-size:13px">Reference no.: <strong>${esc(c.refNo)}</strong><br>${esc(link)}</p>
-</div>`,
+${note('इसके QR कोड से कोई भी जाँच सकता है कि यह असली है। / Anyone can scan its QR code to check that it is real.')}
+${signoff()}`,
   }
 }
 

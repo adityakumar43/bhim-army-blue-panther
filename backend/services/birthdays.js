@@ -1,7 +1,7 @@
 import Member from '../models/Member.js'
 import { ORG } from '../config/org.js'
 import { sendMail } from './mailer.js'
-import { button } from './emailLayout.js'
+import { button, hero, greet, both, quote, details, signoff } from './emailLayout.js'
 
 // Birthday wishes: every morning (from 8 AM Indian time) approved members whose birthday is today
 // get a greeting email. Each member gets at most one per year, even if the server restarts.
@@ -9,9 +9,6 @@ import { button } from './emailLayout.js'
 const TZ = 'Asia/Kolkata'
 const FROM_HOUR = 8 // don't send before 8 AM
 const UNTIL_HOUR = 22 // or after 10 PM
-
-const esc = (s) =>
-    String(s ?? '').replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]))
 
 // Today's date and hour in India
 export function indiaNow(now = new Date()) {
@@ -52,20 +49,13 @@ export function birthdayEmail(m) {
         ORG.name,
     ].filter((l) => l !== '').join('\n')
 
-    const html = `<div style="text-align:center;padding:0 0 20px;margin-bottom:6px;border-bottom:1px solid #E3E8F3">
-<div style="font-size:52px;line-height:1">🎂</div>
-<h1 style="margin:12px 0 4px;font-size:27px;color:#0A1A3F">जन्मदिन मुबारक हो!</h1>
-<div style="color:#B8860B;font-weight:bold;letter-spacing:3px;font-size:13px">HAPPY BIRTHDAY</div>
-</div>
-<div>
-<p style="font-size:17px">जय भीम <strong>${esc(m.name)}</strong> जी!</p>
-<p>${esc(ORG.name)} परिवार की ओर से आपको जन्मदिन की हार्दिक शुभकामनाएँ। आप स्वस्थ रहें, आगे बढ़ते रहें और समाज के हक़ की लड़ाई में यूँ ही साथ खड़े रहें।</p>
-<p>Jai Bhim <strong>${esc(m.name)}</strong>! The whole ${esc(ORG.name)} family wishes you a very happy birthday. Stay healthy, keep growing, and keep standing with us for justice and equality.</p>
-<p style="margin:22px 0;padding:14px 16px;border-left:4px solid #F2B705;background:#FFF8E1;font-weight:bold">“शिक्षित बनो, संगठित रहो, संघर्ष करो”<br><span style="font-weight:normal;color:#555">— डॉ. बी. आर. आंबेडकर</span></p>
-${m.memberNo ? `<p style="color:#555;font-size:14px">सदस्यता संख्या / Member no.: <strong>${esc(m.memberNo)}</strong></p>` : ''}
-${card ? button('अपना सदस्यता कार्ड देखें / View your card', card) : ''}
-<p style="margin-top:24px">— ${esc(ORG.name)}</p>
-</div>`
+    const html = `${hero('🎂', 'जन्मदिन मुबारक हो!', 'Happy Birthday')}
+${greet(m.name)}
+${both(`${ORG.name} परिवार की ओर से आपको जन्मदिन की हार्दिक शुभकामनाएँ। आप स्वस्थ रहें, आगे बढ़ते रहें और समाज के हक़ की लड़ाई में यूँ ही साथ खड़े रहें।`, `The whole ${ORG.name} family wishes you a very happy birthday. Stay healthy, keep growing, and keep standing with us for justice and equality.`)}
+${quote()}
+${details([['सदस्यता संख्या / Member no.', m.memberNo]])}
+${card ? button('अपना सदस्यता कार्ड देखें / View your card', card, { fallback: false }) : ''}
+${signoff()}`
     return { subject, text, html }
 }
 

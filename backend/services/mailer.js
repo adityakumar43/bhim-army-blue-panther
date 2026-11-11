@@ -14,11 +14,21 @@ function getTransport() {
 }
 
 
+let capture = null
+// For `npm run preview-emails`: runs fn and gives back the email it would have sent, without sending anything
+export async function captureMail(fn) {
+  const got = []
+  capture = got
+  try { await fn() } finally { capture = null }
+  return got[0]
+}
+
 export async function sendMail({ to, subject, text, html }) {
-  const t = getTransport()
-  if (!t) return false
   // Every email gets the same look (logo, name, slogan); an email written only as text is made into HTML too
   const body = emailLayout({ html: html || textToHtml(text), text, subject })
+  if (capture) return capture.push({ to, subject, text, body }) > 0
+  const t = getTransport()
+  if (!t) return false
   const info = await t.sendMail({ from: process.env.MAIL_FROM || process.env.SMTP_USER, to, subject, text, html: body })
   // A mail server can answer "ok" while refusing every address. That is not a success.
   if (Array.isArray(info.accepted) && info.accepted.length === 0) {

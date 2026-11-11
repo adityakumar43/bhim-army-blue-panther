@@ -1,8 +1,5 @@
 import { ORG } from '../config/org.js'
-import { button } from './emailLayout.js'
-
-const esc = (s) =>
-    String(s ?? '').replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]))
+import { button, hero, greet, both, codeBox, signoff } from './emailLayout.js'
 
 // The email a member gets when their application is approved
 export function welcomeEmail(m) {
@@ -20,12 +17,12 @@ export function welcomeEmail(m) {
         ORG.name,
     ].join('\n')
 
-    const html = `<div style="font-family:Arial,sans-serif;max-width:520px;margin:auto;color:#0A1A3F">
-
-<p>जय भीम <strong>${esc(m.name)}</strong>!<br>आपका सदस्यता आवेदन स्वीकार हो गया है।<br>आपकी सदस्यता संख्या: <strong>${esc(m.memberNo)}</strong></p>
-<p>Jai Bhim <strong>${esc(m.name)}</strong>!<br>Your membership application has been approved.<br>Your member number: <strong>${esc(m.memberNo)}</strong></p>
+    const html = `${hero('🎉', 'सदस्यता स्वीकार हो गई', 'Welcome to the family')}
+${greet(m.name)}
+${both('आपका सदस्यता आवेदन स्वीकार हो गया है। अब आप ' + ORG.name + ' परिवार का हिस्सा हैं।', 'Your membership application has been approved. You are now part of the ' + ORG.name + ' family.')}
+${codeBox('सदस्यता संख्या / Member number', m.memberNo, { spacing: 1 })}
+${both('अपना सदस्यता कार्ड नीचे के बटन से देखें, डाउनलोड करें या प्रिंट करें।', 'See, download or print your membership card with the button below.')}
 ${button('अपना कार्ड देखें / View your membership card', link)}
-<p style="color:#555;font-size:13px">${esc(link)}</p>
-</div>`
+${signoff()}`
     return { subject, text, html }
 }

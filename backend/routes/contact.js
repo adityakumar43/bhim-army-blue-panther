@@ -3,6 +3,7 @@ import rateLimit from 'express-rate-limit'
 import Message from '../models/Message.js'
 import { protect, requirePermission } from '../middleware/auth.js'
 import { notifyAdmin, sendMail } from '../services/mailer.js'
+import { contactReceivedEmail, contactReplyEmail } from '../services/emails.js'
 import { cursorOf, after, pageSize, NEWEST, withFind } from '../services/paging.js'
 
 const router = Router()
@@ -45,13 +46,7 @@ router.post('/', limiter, async (req, res) => {
   // It repeats nothing they typed (not the message, not the name): anyone can type any address here,
   // and an email that echoed their words could be used to send spam from our address.
   if (b.email) {
-    const text = `Jai Bhim,\n\nWe have received your message. Our team will get back to you soon.\n\nIf you did not write to us, you can ignore this email.\n\n— Bhim Army Blue Panther`
-    const html = `<div style="font-family:Arial,sans-serif;font-size:15px;color:#0a1a3f;line-height:1.6">
-      <p>जय भीम,</p>
-      <p>आपका संदेश हमें मिल गया है। हमारी टीम जल्द ही आपसे संपर्क करेगी।<br>We have received your message. Our team will get back to you soon.</p>
-      <p style="color:#666;font-size:13px">अगर आपने हमें नहीं लिखा, तो इस ईमेल को अनदेखा करें।<br>If you did not write to us, you can ignore this email.</p>
-      <p>— Bhim Army Blue Panther</p></div>`
-    sendMail({ to: b.email, subject: 'We received your message – Bhim Army Blue Panther', text, html })
+    sendMail({ to: b.email, ...contactReceivedEmail() })
       .catch((err) => console.error('Contact confirmation email failed:', err.message))
   }
   res.status(201).json({ ok: true })
@@ -77,9 +72,6 @@ router.delete('/:id', protect, requirePermission('messages'), async (req, res) =
 })
 
 // Reply to a message by email, straight from the admin panel
-const escape = (s) => String(s).replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' })[c])
-const asHtml = (s) => escape(s).replace(/\n/g, '<br>')
-
 router.post('/:id/reply', protect, requirePermission('messages'), async (req, res) => {
   const text = String(req.body?.text || '').trim()
   if (!text) return res.status(400).json({ message: 'Write your reply first' })
@@ -91,18 +83,10 @@ router.post('/:id/reply', protect, requirePermission('messages'), async (req, re
     return res.status(400).json({ message: `${m.name} did not give an email address.${m.phone ? ` Call or WhatsApp them on ${m.phone}.` : ''}` })
   }
 
-  const org = 'Bhim Army Blue Panther'
   const sent = new Date(m.createdAt).toLocaleDateString('en-IN', { dateStyle: 'medium', timeZone: 'Asia/Kolkata' })
   const ok = await sendMail({
     to: m.email,
-    subject: `Re: Your message to ${org}`,
-    text: `${text}\n\n— ${org}\n\n----- Your message (${sent}) -----\n${m.message}`,
-    html: `<div style="font-family:Arial,sans-serif;font-size:15px;line-height:1.6;color:#0a1a3f">
-      <p>${asHtml(text)}</p>
-      <p style="margin-top:20px">— <b>${org}</b><br><span style="color:#0b3c9d">शिक्षित बनो, संगठित रहो, संघर्ष करो</span></p>
-      <div style="margin-top:24px;padding:12px 16px;border-left:4px solid #f2b705;background:#f3f6fb;color:#3a4a70;font-size:13px">
-        <b>Your message (${escape(sent)}):</b><br>${asHtml(m.message)}
-      </div></div>`,
+    ...contactReplyEmail({ text, sent, message: m.message }),
   }).catch((err) => { throw Object.assign(new Error(`Email could not be sent: ${err.message}`), { status: 400 }) })
   if (!ok) return res.status(400).json({ message: 'Email is not set up on the server (SMTP settings are missing in .env).' })
 

@@ -3,6 +3,7 @@ import Member from '../models/Member.js'
 import Mailout from '../models/Mailout.js'
 import { sendMail } from './mailer.js'
 import { ORG } from '../config/org.js'
+import { greet, signoff } from './emailLayout.js'
 import { memberStateFilter } from '../config/stateNames.js'
 
 const esc = (s) => String(s ?? '').replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' })[c])
@@ -22,14 +23,13 @@ export function mailoutEmail({ subject, body }, m) {
     const stop = `${process.env.CLIENT_URL}/unsubscribe/${m.unsubToken}`
     const paras = body.split(/\n\s*\n/).map((p) => p.trim()).filter(Boolean)
     const text = [`जय भीम ${m.name},`, '', body, '', `— ${ORG.name}`, '', `ये ईमेल बंद करने के लिए / To stop these emails: ${stop}`].join('\n')
-    const html = `<div>
-<p>जय भीम <b>${esc(m.name)}</b>,</p>
-${paras.map((p) => `<p>${esc(p).replace(/\n/g, '<br>')}</p>`).join('\n')}
-<p>— ${esc(ORG.name)}</p>
+    const html = `<div style="margin:0 0 18px;padding:0 0 14px;border-bottom:1px solid #E3E8F3;font-size:20px;line-height:1.35;font-weight:bold">📢 ${esc(subject)}</div>
+${greet(m.name)}
+${paras.map((p) => `<p style="margin:0 0 14px">${esc(p).replace(/\n/g, '<br>')}</p>`).join('\n')}
+${signoff()}
 
 <p style="color:#777;font-size:12px;margin-top:26px;padding-top:14px;border-top:1px solid #E3E8F3">आपको यह ईमेल इसलिए मिला क्योंकि आप ${esc(ORG.name)} के सदस्य हैं${m.memberNo ? ` (${esc(m.memberNo)})` : ''}। You get this email because you are a member.<br>
-<a href="${esc(stop)}" style="color:#777">ये ईमेल बंद करें / Stop these emails</a></p>
-</div>`
+<a href="${esc(stop)}" style="color:#777">ये ईमेल बंद करें / Stop these emails</a></p>`
     return { subject, text, html }
 }
 

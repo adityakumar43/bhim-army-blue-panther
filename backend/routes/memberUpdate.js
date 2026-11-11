@@ -9,6 +9,7 @@ import { ORG } from '../config/org.js'
 import { upload } from '../middleware/upload.js'
 import { uploadImage, deleteImage } from '../config/cloudinary.js'
 import { sendMail, notifyAdmin } from '../services/mailer.js'
+import { updateCodeEmail } from '../services/emails.js'
 
 // "Update my details": a member proves who they are with their mobile number, date of birth and
 // a 6-digit code sent to their email, then changes their phone, email, address or photo themselves.
@@ -21,7 +22,6 @@ const MAX_TRIES = 5 // wrong codes allowed before a new code is needed
 const hash = (s) => crypto.createHash('sha256').update(String(s)).digest('hex')
 const same = (a, b) => a && b && a.length === b.length && crypto.timingSafeEqual(Buffer.from(a), Buffer.from(b))
 const cleanPhone = (v) => String(v || '').replace(/\s|-/g, '').replace(/^(\+91|91)(?=\d{10}$)/, '')
-const esc = (s) => String(s ?? '').replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' })[c])
 // ra*****@gmail.com: enough for them to know which inbox to open, not enough for anyone else
 const mask = (email) => { const [user, domain] = email.split('@'); return `${user.slice(0, 2)}${'*'.repeat(Math.max(2, user.length - 2))}@${domain}` }
 const NOT_FOUND = 'We could not find a membership with these details.'
@@ -69,16 +69,8 @@ router.post('/start', startLimiter, async (req, res) => {
         $set: { editCodeHash: hash(`${m._id}:${code}`), editCodeExpires: new Date(Date.now() + CODE_MINUTES * 60e3), editCodeTries: 0 },
     }, { timestamps: false })
 
-    const text = `Jai Bhim ${m.name},\n\nYour code to update your membership details: ${code}\nIt works for ${CODE_MINUTES} minutes.\n\nIf you did not ask for this, ignore this email. Nothing will change.\n\n— ${ORG.name}`
-    const html = `<div style="font-family:Arial,sans-serif;font-size:15px;color:#0a1a3f;line-height:1.6;max-width:520px">
-<p>जय भीम <b>${esc(m.name)}</b>,</p>
-<p>अपनी सदस्यता की जानकारी बदलने के लिए आपका कोड / Your code to update your membership details:</p>
-<p style="font-size:32px;font-weight:bold;letter-spacing:8px;color:#0b3c9d;margin:18px 0">${code}</p>
-<p>यह कोड ${CODE_MINUTES} मिनट तक काम करेगा। / It works for ${CODE_MINUTES} minutes.</p>
-<p style="color:#666;font-size:13px">अगर आपने यह नहीं माँगा, तो इस ईमेल को अनदेखा करें। कुछ नहीं बदलेगा।<br>If you did not ask for this, ignore this email. Nothing will change.</p>
-<p>— ${esc(ORG.name)}</p></div>`
     try {
-        const sent = await sendMail({ to: m.email, subject: `${code} is your code to update your details`, text, html })
+        const sent = await sendMail({ to: m.email, ...updateCodeEmail(m, code, CODE_MINUTES) })
         if (!sent) return res.status(503).json({ message: 'Email is not set up yet. Please contact us to change your details.' })
     } catch (err) {
         console.error('Update code email failed:', err.message)

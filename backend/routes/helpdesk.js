@@ -11,6 +11,7 @@ import { STATE_CODES } from '../config/states.js'
 import { stateNameEn } from '../config/stateNames.js'
 import { canonicalDistrict } from '../config/districts.js'
 import { notifyAdmin, sendMail } from '../services/mailer.js'
+import { complaintReceivedEmail } from '../services/emails.js'
 import { cursorOf, after, pageSize, NEWEST, withFind } from '../services/paging.js'
 
 const router = Router()
@@ -93,15 +94,7 @@ router.post('/', reportLimiter, helpdeskUpload, async (req, res) => {
       // If they gave an email, send them their reference number so they don't lose it.
       // Only the reference number we made: nothing they typed is repeated, so the email cannot carry spam.
       if (c.email) {
-        const text = `Jai Bhim,\n\nWe have received your complaint.\nYour reference number: ${c.refNo}\n\nUse this number with your mobile number on the Help desk page to check progress.\nIn an emergency, call 112.\n\n— Bhim Army Blue Panther`
-        const html = `<div style="font-family:Arial,sans-serif;font-size:15px;color:#0a1a3f;line-height:1.6">
-          <p>जय भीम,</p>
-          <p>आपकी शिकायत हमें मिल गई है। / We have received your complaint.</p>
-          <p>संदर्भ संख्या / Reference number:<br><b style="font-size:22px;letter-spacing:2px;color:#0b3c9d">${c.refNo}</b></p>
-          <p>इस संख्या और अपने मोबाइल नंबर से सहायता केंद्र पेज पर प्रगति देखें।<br>Use this number with your mobile number on the Help desk page to check progress.</p>
-          <p style="color:#b91c1c">आपात स्थिति में 112 पर कॉल करें। / In an emergency, call 112.</p>
-          <p>— Bhim Army Blue Panther</p></div>`
-        sendMail({ to: c.email, subject: `Your complaint reference number: ${c.refNo}`, text, html })
+        sendMail({ to: c.email, ...complaintReceivedEmail(c.refNo) })
           .catch((err) => console.error('Help desk email failed:', err.message))
       }
       return res.status(201).json({ refNo: c.refNo })

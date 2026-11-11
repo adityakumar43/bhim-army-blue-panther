@@ -3,6 +3,7 @@ import Admin from '../models/Admin.js'
 import { ORG } from '../config/org.js'
 import { can } from '../config/roles.js'
 import { sendMail } from './mailer.js'
+import { button, hero } from './emailLayout.js'
 import { indiaNow } from './birthdays.js'
 
 // Help desk reminders: an open case where the person has heard nothing from us for 3 days
@@ -41,14 +42,14 @@ export function reminderEmail(cases, now = Date.now()) {
         link ? `Open the help desk: ${link}` : '',
         `— ${ORG.name}`,
     ].filter((l, i, a) => l !== '' || a[i - 1] !== '').join('\n')
-    const html = `<div style="font-family:Arial,sans-serif;font-size:15px;color:#0a1a3f;line-height:1.5;max-width:600px">
+    const html = `${hero('⏰', 'Cases waiting for an update', `${n} ${n === 1 ? 'case' : 'cases'}`)}
 <p>These help desk cases have had <b>no update for ${days()} days or more</b>. The people who reported them are waiting to hear from us.</p>
 <table style="border-collapse:collapse;width:100%;font-size:14px">
 ${cases.map((c) => `<tr style="border-top:1px solid #e3e8f3"><td style="padding:8px 6px;vertical-align:top"><b>${esc(c.refNo)}</b>${c.urgent ? ' <b style="color:#b91c1c">URGENT</b>' : ''}<br><span style="color:#555">${esc(c.category)} · ${esc([c.district, c.state].filter(Boolean).join(', '))}</span></td>
 <td style="padding:8px 6px;vertical-align:top;text-align:right;white-space:nowrap"><b style="color:#b45309">${ago(lastUpdate(c), now)} days</b><br><span style="color:#555">${c.assignedTo?.name ? esc(c.assignedTo.name) : 'Not given to anyone'}</span></td></tr>`).join('\n')}
 </table>
-${link ? `<p style="margin-top:18px"><a href="${esc(link)}" style="display:inline-block;background:#0B3C9D;color:#fff;padding:11px 18px;border-radius:10px;text-decoration:none;font-weight:bold">Open the help desk</a></p>` : ''}
-<p style="color:#777;font-size:12px">You get this because you look after these cases. A case is reminded again only if it is still waiting ${days()} days later.</p></div>`
+${link ? button('Open the help desk', link, { fallback: false }) : ''}
+<p style="color:#777;font-size:12px">You get this because you look after these cases. A case is reminded again only if it is still waiting ${days()} days later.</p>`
     return { subject, text, html }
 }
 
@@ -141,14 +142,14 @@ export function escalationEmail(cases, level, now = Date.now()) {
         link ? `Open the help desk: ${link}` : '',
         `— ${ORG.name}`,
     ].filter((l, i, a) => l !== '' || a[i - 1] !== '').join('\n')
-    const html = `<div style="font-family:Arial,sans-serif;font-size:15px;color:#0a1a3f;line-height:1.5;max-width:600px">
+    const html = `${hero('🚨', 'Escalated cases', `${n} ${n === 1 ? 'case' : 'cases'}`)}
 <p style="background:#fef2f2;border-left:4px solid #b91c1c;padding:10px 12px;margin:0 0 14px"><b style="color:#b91c1c">Escalated to you (${LEVEL_NAME[level]})</b><br>These cases have had <b>no update for ${limit} days or more</b>, even after reminders. ${esc(who)}</p>
 <table style="border-collapse:collapse;width:100%;font-size:14px">
 ${cases.map((c) => `<tr style="border-top:1px solid #e3e8f3"><td style="padding:8px 6px;vertical-align:top"><b>${esc(c.refNo)}</b>${c.urgent ? ' <b style="color:#b91c1c">URGENT</b>' : ''}<br><span style="color:#555">${esc(c.category)} · ${esc([c.district, c.state].filter(Boolean).join(', '))}</span></td>
 <td style="padding:8px 6px;vertical-align:top;text-align:right;white-space:nowrap"><b style="color:#b91c1c">${ago(lastUpdate(c), now)} days</b><br><span style="color:#555">${c.assignedTo?.name ? esc(c.assignedTo.name) : 'Not given to anyone'}</span></td></tr>`).join('\n')}
 </table>
-${link ? `<p style="margin-top:18px"><a href="${esc(link)}" style="display:inline-block;background:#b91c1c;color:#fff;padding:11px 18px;border-radius:10px;text-decoration:none;font-weight:bold">Open the help desk</a></p>` : ''}
-<p style="color:#777;font-size:12px">You are told about each case once at this level. If the case gets an update and then goes quiet again, it can be escalated again.</p></div>`
+${link ? button('Open the help desk', link, { color: '#B91C1C', fallback: false }) : ''}
+<p style="color:#777;font-size:12px">You are told about each case once at this level. If the case gets an update and then goes quiet again, it can be escalated again.</p>`
     return { subject, text, html }
 }
 
@@ -229,4 +230,4 @@ export function startCaseReminderTimer() {
     }
     setTimeout(tick, 2 * 60e3) // two minutes after start-up
     setInterval(tick, 60 * 60e3)
-}
+}
