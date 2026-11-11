@@ -1,5 +1,6 @@
 import { Router } from 'express'
 import crypto from 'crypto'
+import rateLimit from 'express-rate-limit'
 import Admin from '../models/Admin.js'
 import { protect, requirePermission } from '../middleware/auth.js'
 import { ROLES, can } from '../config/roles.js'
@@ -37,6 +38,10 @@ function area(role, state, district) {
   return d ? { state, district: d } : { problem: NEED_DISTRICT }
 }
 
+// Wrong current passwords when changing your own: at most 10 tries per 15 minutes
+const ownPasswordLimiter = rateLimit({ windowMs: 15 * 60 * 1000, max: 10, message: { message: 'Too many attempts. Try again in 15 minutes.' } })
+const ownPasswordTries = (req, res, next) => (req.body?.password !== undefined && String(req.params.id) === String(req.admin._id) ? ownPasswordLimiter(req, res, next) : next())
+
 const otherActiveSuperadmins = (excludeId) =>
   Admin.countDocuments({ _id: { $ne: excludeId }, role: 'superadmin', active: { $ne: false } })
 
@@ -68,7 +73,7 @@ router.post('/', async (req, res) => {
   }
 })
 
-router.patch('/:id', async (req, res) => {
+router.patch('/:id', ownPasswordTries, async (req, res) => {
   const target = await Admin.findById(req.params.id).select('+password').catch(() => null)
   if (!target || !mine(req, target)) return res.status(404).json({ message: 'Not found' })
 
@@ -93,6 +98,9 @@ router.patch('/:id', async (req, res) => {
   if (where.problem) return res.status(400).json({ message: where.problem })
   if (password !== undefined && String(password).length < 8) {
     return res.status(400).json({ message: 'Password must be at least 8 characters' })
+  }
+  if (password !== undefined && isSelf && !(await target.matchPassword(String(req.body?.currentPassword || '')))) {
+    return res.status(400).json({ message: 'Your current password is not correct' })
   }
 
   if (name !== undefined && String(name).trim()) target.name = String(name).trim()

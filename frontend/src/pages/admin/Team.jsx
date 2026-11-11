@@ -41,6 +41,7 @@ export default function Team() {
   const [busy, setBusy] = useState(false)
   const [resetFor, setResetFor] = useState(null)
   const [newPw, setNewPw] = useState('')
+  const [curPw, setCurPw] = useState('') // your current password, when changing your own
   const [adding, setAdding] = useState(false)
   const [pick, setPick] = useState(null) // { id, role, state, district } while choosing the area of a State or District admin
 
@@ -83,9 +84,10 @@ export default function Team() {
   const pickReady = pick && pick.state && (pick.role !== 'districtadmin' || pick.district)
   const toggle = (a) => run(() => api.patch(`/admins/${a.id}`, { active: !a.active }), a.active ? `${a.name} was disabled.` : `${a.name} was enabled.`)
   const savePw = (a) => run(async () => {
-    await api.patch(`/admins/${a.id}`, { password: newPw })
+    await api.patch(`/admins/${a.id}`, a.id === me.id ? { password: newPw, currentPassword: curPw } : { password: newPw })
     setResetFor(null)
     setNewPw('')
+    setCurPw('')
   }, 'Password changed.')
   const reset2fa = (a) => {
     if (window.confirm(`Reset two-step login for ${a.name}? They can set it up again after logging in.`)) {
@@ -220,7 +222,7 @@ export default function Team() {
                   </div>
                 )}
                 <div className="flex flex-wrap gap-2">
-                  <button onClick={() => { setResetFor(resetFor === a.id ? null : a.id); setNewPw('') }} className="abtn min-h-9 px-3">
+                  <button onClick={() => { setResetFor(resetFor === a.id ? null : a.id); setNewPw(''); setCurPw('') }} className="abtn min-h-9 px-3">
                     🔑 {self ? 'Change my password' : 'Reset password'}
                   </button>
                   {!self && <button onClick={() => toggle(a)} className="abtn min-h-9 px-3">{a.active ? '⏸️ Disable' : '▶️ Enable'}</button>}
@@ -231,9 +233,13 @@ export default function Team() {
 
               {resetFor === a.id && (
                 <div className="mt-3 flex flex-wrap gap-2 rounded-xl bg-mist/60 p-3">
-                  <PasswordInput autoComplete="new-password" placeholder="New password (8+ characters)"
+                  {self && (
+                    <PasswordInput autoComplete="current-password" placeholder="Current password" aria-label="Current password"
+                      value={curPw} onChange={(e) => setCurPw(e.target.value)} className="min-w-52 flex-1" />
+                  )}
+                  <PasswordInput autoComplete="new-password" placeholder="New password (8+ characters)" aria-label="New password"
                     value={newPw} onChange={(e) => setNewPw(e.target.value)} className="min-w-52 flex-1" />
-                  <button onClick={() => savePw(a)} disabled={newPw.length < 8} className="abtn-primary">💾 Save</button>
+                  <button onClick={() => savePw(a)} disabled={newPw.length < 8 || (self && !curPw)} className="abtn-primary">💾 Save</button>
                 </div>
               )}
             </li>

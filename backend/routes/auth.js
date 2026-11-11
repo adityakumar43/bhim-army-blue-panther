@@ -196,7 +196,7 @@ router.post('/2fa/enable', protect, async (req, res) => {
 })
 
 
-router.post('/2fa/disable', protect, async (req, res) => {
+router.post('/2fa/disable', limiter(10), protect, async (req, res) => {
   const { password, code } = req.body || {}
   const admin = await Admin.findById(req.admin._id).select('+password +twoFactorSecret')
   if (!admin.twoFactorEnabled) return res.status(400).json({ message: 'Two-step login is not on' })
