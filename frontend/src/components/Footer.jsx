@@ -68,7 +68,7 @@ export default function Footer() {
             <div><div className="font-semibold text-white">{t('offices.head')}</div><div>{t('offices.headAddress')}</div></div>
             <div><div className="font-semibold text-white">{t('offices.delhi')}</div><div>{t('offices.delhiAddress')}</div></div>
             {ORG.phone && <a href={`tel:${ORG.phone.replace(/\s/g, '')}`} className="text-gold hover:underline">{ORG.phone}</a>}
-            {ORG.email && <a href={`mailto:${ORG.email}`} className="break-all hover:text-white hover:underline">{ORG.email}</a>}
+            {ORG.email && <a href={`mailto:${ORG.email}`} className="-my-2 inline-block py-2 break-all hover:text-white hover:underline">{ORG.email}</a>}
           </address>
           {/* The social media pages that have a link in lib/orgInfo.js */}
           <div className="mt-4"><SocialLinks dark /></div>
@@ -80,7 +80,7 @@ export default function Footer() {
       <div className="flex flex-wrap items-center justify-center gap-x-2 gap-y-1 border-t border-white/10 px-4 py-4 text-center text-xs text-white/60 sm:text-sm">
         <span className="whitespace-nowrap">© {new Date().getFullYear()} {t('org')}</span>
         <span className="opacity-40">·</span>
-        <Link to="/privacy" className="whitespace-nowrap hover:text-white hover:underline">{t('privacy.title', { defaultValue: 'Privacy Policy' })}</Link>
+        <Link to="/privacy" className="-my-2 inline-block py-2 whitespace-nowrap hover:text-white hover:underline">{t('privacy.title', { defaultValue: 'Privacy Policy' })}</Link>
         {(loggedIn || installed) && (
           <>
             <span className="opacity-40">·</span>

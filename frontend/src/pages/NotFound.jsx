@@ -36,7 +36,7 @@ export default function NotFound() {
                     <span aria-hidden="true" className="absolute inset-0 rounded-full bg-brand/10" />
                     <img src="/logo.png" alt="" className="relative h-24 w-24 object-contain opacity-90" />
                 </div>
-                <p className="text-6xl leading-none font-extrabold text-brand/20 sm:text-7xl" aria-hidden="true">404</p>
+                <p className="text-6xl leading-none font-extrabold text-brand/60 sm:text-7xl" aria-hidden="true">404</p>
                 <h1 className="mt-3 text-2xl font-extrabold sm:text-3xl">{t('notFound.title', { defaultValue: 'Page not found' })}</h1>
                 <p className="mt-3 text-lg text-navy/70">{t('notFound.body', { defaultValue: 'The page you are looking for does not exist or has moved. Check the address, or choose a page below.' })}</p>
                 <p className="mx-auto mt-3 max-w-full truncate rounded-lg bg-white px-3 py-1.5 font-mono text-sm text-navy/65 shadow-sm sm:inline-block" title={pathname}>{pathname}</p>

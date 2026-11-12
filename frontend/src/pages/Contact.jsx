@@ -113,7 +113,7 @@ export default function Contact() {
                     <div className="font-bold text-brand">{title}</div>
                     <div className="text-sm leading-relaxed text-navy/75">{address}</div>
                     <a href={mapLink(search)} target="_blank" rel="noopener noreferrer"
-                      className="mt-1 inline-flex text-xs font-semibold text-brand underline">🗺️ {t('contact.map', { defaultValue: 'Open in Maps' })}</a>
+                      className="inline-flex min-h-10 items-center gap-1 text-sm font-semibold text-brand underline">🗺️ {t('contact.map', { defaultValue: 'Open in Maps' })}</a>
                   </div>
                 </li>
               ))}
@@ -250,7 +250,7 @@ export default function Contact() {
               </summary>
               <div className="px-5 pb-4 text-navy/80">
                 <p>{t(`contact.faq.${key}.a`, { defaultValue: FAQ_EN[key][1] })}</p>
-                <Link to={to} className="mt-2 inline-flex font-semibold text-brand underline">{t('contact.faqGo', { defaultValue: 'Go there' })} →</Link>
+                <Link to={to} className="mt-1 inline-flex min-h-10 items-center font-semibold text-brand underline">{t('contact.faqGo', { defaultValue: 'Go there' })} →</Link>
               </div>
             </details>
           ))}

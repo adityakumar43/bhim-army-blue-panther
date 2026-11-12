@@ -45,7 +45,7 @@ export default function Inspiration() {
       <div className="mx-auto max-w-7xl px-5 py-10 lg:px-16">
         {back}
         <div className="grid gap-8 lg:grid-cols-[20rem_1fr] lg:items-start">
-          <InspirationPhoto person={person} name={name} className="aspect-3/4 w-full max-w-xs rounded-2xl shadow-md lg:sticky lg:top-28 lg:max-w-none" />
+          <InspirationPhoto person={person} name={name} sizes="(min-width: 1024px) 320px, min(320px, 90vw)" className="aspect-3/4 w-full max-w-xs rounded-2xl shadow-md lg:sticky lg:top-28 lg:max-w-none" />
           <div className="space-y-6">
             <section className="panel">
               <h2 className="mb-3 text-2xl font-extrabold">{t('inspire.biography')}</h2>
