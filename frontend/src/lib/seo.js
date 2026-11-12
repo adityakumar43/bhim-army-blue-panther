@@ -6,6 +6,9 @@ import i18n from '../i18n.js'
 // for ordinary pages and by pages with their own content (one news item, one event, one leader, one state).
 
 const DEFAULT_IMAGE = '/og-default.jpg'
+// The site's name for Google, the same in Hindi and English, so it matches the "WebSite" name in index.html.
+// Google takes the name it shows above search results from the home page, and wants one name everywhere there.
+const SITE_NAME = 'Bhim Army Blue Panther'
 
 const absolute = (url) => (!url ? '' : /^https?:\/\//.test(url) ? url : `${window.location.origin}${url}`)
 
@@ -29,7 +32,8 @@ const setMeta = (attr, key, content) => headTag('meta', attr, key).setAttribute(
 
 export function applySeo({ title, description, image, type = 'website', noindex = false }) {
     const site = i18n.t('org')
-    const fullTitle = title && title !== site ? `${title} | ${site}` : site
+    // The home page (no title of its own) is called by the site's name; other pages: "Page | भीम आर्मी ब्लू पैंथर"
+    const fullTitle = title && title !== site ? `${title} | ${site}` : SITE_NAME
     const desc = shorten(description || i18n.t('mission'))
     const url = `${window.location.origin}${window.location.pathname}`
     const img = absolute(image || DEFAULT_IMAGE)
@@ -39,7 +43,7 @@ export function applySeo({ title, description, image, type = 'website', noindex 
     setMeta('name', 'robots', noindex ? 'noindex, nofollow' : 'index, follow')
     headTag('link', 'rel', 'canonical').setAttribute('href', url)
 
-    setMeta('property', 'og:site_name', site)
+    setMeta('property', 'og:site_name', SITE_NAME)
     setMeta('property', 'og:type', type)
     setMeta('property', 'og:title', fullTitle)
     setMeta('property', 'og:description', desc)
