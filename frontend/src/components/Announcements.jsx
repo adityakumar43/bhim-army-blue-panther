@@ -56,7 +56,7 @@ export default function Announcements({ interval = 6000 }) {
   }, [n, playing, hold, index, interval, lang, items])
 
   // While loading for the first time, keep the bar's space so the page does not jump down when it appears
-  if (items === null) return <div aria-hidden="true" className="border-b border-white/10 bg-[linear-gradient(90deg,#0a1a3f_0%,#0b3c9d_50%,#0a1a3f_100%)]"><div className="min-h-13" /></div>
+  if (items === null) return <div id="updates-shell" aria-hidden="true" className="border-b border-white/10 bg-[linear-gradient(90deg,#0a1a3f_0%,#0b3c9d_50%,#0a1a3f_100%)]"><div className="min-h-13" /></div>
 
   if (n === 0 || hidden) return null
 

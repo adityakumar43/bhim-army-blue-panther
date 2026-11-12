@@ -27,6 +27,24 @@
       }
     })()
   </script>
+  <!-- The Home page comes ready-drawn inside this file (scripts/prerender.js adds it while building, in Hindi).
+       It is shown only where it looks exactly like what the app will draw a moment later: the Home page, in Hindi,
+       and not on Samvidhan Divas (25-26 November), when the Home page has an extra banner at the top.
+       Everywhere else it stays hidden, and the page loads as before. -->
+  <style>#prerendered{display:none}html.pre #prerendered{display:block}</style>
+  <script>
+    (function () {
+      try {
+        if (location.pathname !== '/' || /[?&]samvidhan=1/.test(location.search)) return
+        var lang = null
+        try { lang = localStorage.getItem('lang') } catch (e) { /* storage blocked: the app uses Hindi too */ }
+        if (lang && lang !== 'hi') return
+        var day = new Intl.DateTimeFormat('en-CA', { timeZone: 'Asia/Kolkata', month: '2-digit', day: '2-digit' }).format(new Date())
+        if (day === '11-25' || day === '11-26') return
+        document.documentElement.classList.add('pre')
+      } catch (e) { /* very old browser: load as before */ }
+    })()
+  </script>
   <meta name="theme-color" content="#0B3C9D" />
   <title>Bhim Army Blue Panther</title>
   <link rel="preconnect" href="https://fonts.googleapis.com" />
@@ -112,7 +130,7 @@
       window.__slides.then(preload)
     })()
   </script>
-  <div id="root">
+  <div id="root"><!--prerender-start--><!--prerender-end-->
     <!-- A plain-text version of the site for search engines and AI crawlers that do not run JavaScript.
          Visitors never see it: it is hidden, and the app replaces it as soon as it loads. -->
     <div style="position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap">
@@ -125,6 +143,43 @@
       </nav>
     </div>
   </div>
+  <script>
+    // The ready-drawn Home page has an empty box where the slider goes. Put the first slide's picture in it as soon as
+    // its address is known (from the last visit, or from the slides list loading above), so the biggest picture on the
+    // screen shows up without waiting for the app. Same addresses as Slider.jsx, so the picture is downloaded only once.
+    (function () {
+      if (!document.documentElement.classList.contains('pre')) return
+      // The updates bar: the ready-drawn page keeps its space, as the app does on a first visit. When this phone saved
+      // "no updates" last time (or the visitor closed them), the app leaves the bar out at once, so do the same here.
+      try {
+        var bar = document.getElementById('updates-shell')
+        var saved = JSON.parse(localStorage.getItem('updatesCache'))
+        if (bar && Array.isArray(saved) && (saved.length === 0
+          || sessionStorage.getItem('hiddenUpdates') === saved.map(function (a) { return a._id }).join(','))) bar.style.display = 'none'
+      } catch (e) { /* nothing saved */ }
+
+      var box = document.getElementById('slide-shell')
+      if (!box) return
+      function cdn(u, w) { return u.indexOf('/upload/') > -1 ? u.replace('/upload/', '/upload/f_auto,q_auto,w_' + w + '/') : u }
+      function show(list) {
+        if (!box.isConnected || box.firstChild) return // the app has already taken over, or the picture is in
+        var u = list && list[0] && list[0].image && list[0].image.url
+        if (!u) return
+        var img = document.createElement('img')
+        img.alt = ''
+        // Fills the box without changing its size, like the slider's picture
+        img.style.cssText = 'position:absolute;inset:0;width:100%;height:100%;object-fit:contain'
+        box.style.position = 'relative'
+        img.sizes = '100vw'
+        img.srcset = [480, 800, 1200, 1920].map(function (w) { return cdn(u, w) + ' ' + w + 'w' }).join(', ')
+        img.src = cdn(u, 1200)
+        img.setAttribute('fetchpriority', 'high')
+        box.appendChild(img)
+      }
+      try { show(JSON.parse(localStorage.getItem('slidesCache'))) } catch (e) { /* nothing saved */ }
+      if (window.__slides) window.__slides.then(show)
+    })()
+  </script>
   <script type="module" src="/src/main.jsx"></script>
 </body>
 

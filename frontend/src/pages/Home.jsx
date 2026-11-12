@@ -101,7 +101,7 @@ export default function Home() {
 
       {/* While the slides load for the first time, an empty box of the same size keeps the page from jumping */}
       {slides === null
-        ? <div aria-hidden="true" className="aspect-4/3 w-full bg-navy sm:aspect-video lg:aspect-21/9 lg:max-h-136" />
+        ? <div id="slide-shell" aria-hidden="true" className="aspect-4/3 w-full bg-navy sm:aspect-video lg:aspect-21/9 lg:max-h-136" />
         : slides.length > 0 && <Slider slides={slides} />}
       {/* On phones the big photo in the Hero is left out when the slider above shows pictures. While the slides are still
           loading it stays out too, so the page does not jump when they arrive; it appears only if there are no slides. */}
@@ -207,4 +207,4 @@ export default function Home() {
       </section>
     </>
   )
-}
+}
