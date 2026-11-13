@@ -1,7 +1,7 @@
 import { useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { pickText } from '../lib/text.js'
-import { portrait } from '../lib/img.js'
+import { large } from '../lib/img.js'
 
 // First letters of the name, shown when there is no photo
 const initials = (name) => name.split(/\s+/).filter(Boolean).slice(0, 2).map((w) => w[0]).join('').toUpperCase()
@@ -18,9 +18,11 @@ export default function LeaderCard({ leader, hideArea = false }) {
   return (
     <article className="overflow-hidden rounded-2xl border border-navy/10 bg-white shadow-sm">
       {leader.photo && !broken
-        ? <img src={portrait(leader.photo, 400)} alt={name} loading="lazy" onError={() => setBroken(true)}
-          className="aspect-3/4 w-full bg-mist object-cover object-top" />
-        : <div aria-hidden="true" className="flex aspect-3/4 w-full items-center justify-center bg-navy text-4xl font-extrabold text-white/80">{initials(name)}</div>}
+        // Leader photos are often posters with the name printed at the bottom, so they are never cropped:
+        // the whole picture is shown (Cloudinary c_limit) in a frame of the posters' usual shape (7:8)
+        ? <img src={large(leader.photo, 500)} alt={name} loading="lazy" onError={() => setBroken(true)}
+          className="aspect-7/8 w-full bg-white object-contain" />
+        : <div aria-hidden="true" className="flex aspect-7/8 w-full items-center justify-center bg-navy text-4xl font-extrabold text-white/80">{initials(name)}</div>}
       <div className="p-4 text-center">
         <h4 className="font-extrabold">{name}</h4>
         {role && <p className="text-sm font-semibold text-brand">{role}</p>}
