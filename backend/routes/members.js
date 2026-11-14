@@ -53,32 +53,26 @@ const joinLimiter = rateLimit({
 })
 
 
-router.post('/', joinLimiter, upload.single('photo'), async (req, res) => {
-  const b = req.body || {}
-
-
-  if (b.website) return res.status(201).json({ ok: true })
-
+// Checks an application (the Join page's, or a paper form typed in by an admin) and tidies it.
+// Gives { error } with the message to show, or { data } ready to save. paper: the email is optional, and the
+// tick means "the applicant signed the declaration on the paper form".
+async function readApplication(b, { paper = false } = {}) {
   const name = String(b.name || '').trim()
   const phone = String(b.phone || '').replace(/\s|-/g, '').replace(/^(\+91|91)(?=\d{10}$)/, '')
-  if (!name) return res.status(400).json({ message: 'Please enter your name' })
-  if (!/^[6-9]\d{9}$/.test(phone)) {
-    return res.status(400).json({ message: 'Enter a valid 10-digit mobile number' })
-  }
-  if (!/^\S+@\S+\.\S+$/.test(String(b.email || '').trim())) {
-    return res.status(400).json({ message: 'Enter a valid email address' })
-  }
+  if (!name) return { error: 'Please enter your name' }
+  if (!/^[6-9]\d{9}$/.test(phone)) return { error: 'Enter a valid 10-digit mobile number' }
+  const email = String(b.email || '').trim()
+  if ((email || !paper) && !/^\S+@\S+\.\S+$/.test(email)) return { error: 'Enter a valid email address' }
 
   const dob = parseDob(b.dob)
-  if (!dob) return res.status(400).json({ message: 'Enter your date of birth' })
-  if (!isAdult(dob)) return res.status(400).json({ message: 'You must be 18 or older to become a member' })
+  if (!dob) return { error: 'Enter your date of birth' }
+  if (!isAdult(dob)) return { error: 'You must be 18 or older to become a member' }
   const agreed = b.consent === true || b.consent === 'true' // the "I agree" tick box
-  if (!agreed) return res.status(400).json({ message: 'Please tick the box to agree to the Privacy Policy' })
+  if (!agreed) return { error: paper ? 'Tick the box to confirm the applicant signed the declaration on the paper form' : 'Please tick the box to agree to the Privacy Policy' }
   const assemblyNo = parseConstituency(b.assemblyNo)
   const lokSabhaNo = parseConstituency(b.lokSabhaNo)
-  if (assemblyNo === null) return res.status(400).json({ message: 'Assembly constituency number must be a number, like 12' })
-  if (lokSabhaNo === null) return res.status(400).json({ message: 'Lok Sabha constituency number must be a number, like 3' })
-  if (!req.file) return res.status(400).json({ message: 'Please add your photo' })
+  if (assemblyNo === null) return { error: 'Assembly constituency number must be a number, like 12' }
+  if (lokSabhaNo === null) return { error: 'Lok Sabha constituency number must be a number, like 3' }
 
   // The state comes from the list on the Join form; older forms sent typed text
   const stateCode = STATE_CODES.includes(String(b.stateCode || '')) ? String(b.stateCode) : codeFromName(b.state)
@@ -86,18 +80,33 @@ router.post('/', joinLimiter, upload.single('photo'), async (req, res) => {
 
   // The district comes from the state's list, and is saved in the list's spelling
   const district = canonicalDistrict(stateCode, b.district)
-  if (!district) return res.status(400).json({ message: 'Please choose your district from the list' })
+  if (!district) return { error: 'Please choose your district from the list' }
   // Joined through a member's invite link (/join?ref=BBP-00012): remember who invited them
   const refNo = String(b.ref || '').trim().toUpperCase()
   const inviter = /^[A-Z]{2,5}-\d{1,8}$/.test(refNo) ? await Member.findOne({ memberNo: refNo, status: 'approved' }).select('_id') : null
 
+  return {
+    data: {
+      name, phone, dob, assemblyNo, lokSabhaNo, email: email || undefined, city: b.city, district, state,
+      stateCode: stateCode || undefined, message: b.message, referredBy: inviter?._id, consentAt: new Date(),
+    },
+  }
+}
+
+router.post('/', joinLimiter, upload.single('photo'), async (req, res) => {
+  const b = req.body || {}
+
+
+  if (b.website) return res.status(201).json({ ok: true })
+
+  const { error, data } = await readApplication(b)
+  if (error) return res.status(400).json({ message: error })
+  if (!req.file) return res.status(400).json({ message: 'Please add your photo' })
+  const { name, phone, dob } = data
+
   const photo = await uploadImage(req.file.buffer, 'bluepanther/members')
   try {
-    await Member.create({
-      name, phone, dob, photo, assemblyNo, lokSabhaNo,
-      email: b.email, city: b.city, district, state, stateCode: stateCode || undefined, message: b.message, referredBy: inviter?._id,
-      consentAt: new Date(),
-    })
+    await Member.create({ ...data, photo })
   } catch (err) {
     if (err.code === 11000 && err.keyPattern?.phone) {
       // This number has already applied. Only someone who also gave the right date of birth is told so; anyone else
@@ -114,6 +123,34 @@ router.post('/', joinLimiter, upload.single('photo'), async (req, res) => {
   }
   notifyAdmin('New membership application', `${name} (${phone}) applied to join.`)
   res.status(201).json({ ok: true })
+})
+
+// Admin panel: an application from a paper membership form, typed in by an admin or District admin.
+// No hourly limit (only logged-in team members get here), the email is optional (the card can go by WhatsApp),
+// and it is saved with who typed it in and the paper form's number. It still waits for approval like any other.
+// State and District admins can only add people from their own state / district.
+router.post('/paper', protect, requireAny('members', 'district'), upload.single('photo'), async (req, res) => {
+  const b = req.body || {}
+  const { error, data } = await readApplication(b, { paper: true })
+  if (error) return res.status(400).json({ message: error })
+  const scope = stateScope(req.admin)
+  if (scope && data.stateCode !== scope) return res.status(403).json({ message: 'You can only add members from your own state' })
+  const area = districtScope(req.admin)
+  if (area && !sameDistrict(area.district).test(data.district)) return res.status(403).json({ message: 'You can only add members from your own district' })
+  if (!req.file) return res.status(400).json({ message: 'Add the photo from the paper form' })
+  if (await Member.exists({ phone: data.phone })) return res.status(409).json({ message: 'This mobile number is already registered as a member or applicant' })
+
+  const paperRef = String(b.paperRef || '').trim().slice(0, 40)
+  const photo = await uploadImage(req.file.buffer, 'bluepanther/members')
+  try {
+    const m = await Member.create({ ...data, photo, source: 'paper', paperRef: paperRef || undefined, addedById: req.admin._id, addedByName: req.admin.name })
+    res.status(201).json(m)
+  } catch (err) {
+    await deleteImage(photo.publicId) // do not leave a photo behind for an application that was not saved
+    if (err.code === 11000 && err.keyPattern?.phone) return res.status(409).json({ message: 'This mobile number is already registered as a member or applicant' })
+    if (err.name === 'ValidationError') return res.status(400).json({ message: 'Some details are too long. Please shorten them.' })
+    throw err
+  }
 })
 
 // Public: an applicant checks their own application with their mobile number and date of birth
@@ -210,7 +247,7 @@ router.get('/', protect, requireAny('members', 'district'), async (req, res) => 
   if (area) filter.district = sameDistrict(area.district) // District admins: only their district
   const c = cursorOf(req) // a page at a time, newest first
   if (c === false) return res.status(400).json({ message: 'Bad page' })
-  const list = await Member.find(after(withFind(filter, req, ['name', 'memberNo', 'phone', 'email']), c)).sort(NEWEST).limit(pageSize(req, 1000)).populate('referredBy', 'name memberNo').lean()
+  const list = await Member.find(after(withFind(filter, req, ['name', 'memberNo', 'phone', 'email', 'paperRef']), c)).sort(NEWEST).limit(pageSize(req, 1000)).populate('referredBy', 'name memberNo').lean()
   res.json(await withAttendance(list))
 })
 

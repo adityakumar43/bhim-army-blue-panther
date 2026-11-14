@@ -16,6 +16,11 @@ const memberSchema = new mongoose.Schema(
     stateCode: { type: String, index: true }, // like 'uttar-pradesh', chosen from the list on the Join form
     message: { type: String, trim: true, maxlength: 500 },
     consentAt: Date, // when they ticked "I agree" to the Privacy Policy
+    // How the application came in: 'online' (the Join page) or 'paper' (a paper form typed in from the admin panel)
+    source: { type: String, enum: ['online', 'paper'], default: 'online' },
+    paperRef: { type: String, trim: true, maxlength: 40 }, // the number written on the paper form, to find it again
+    addedById: { type: mongoose.Schema.Types.ObjectId, ref: 'Admin' }, // the team member who typed in a paper form
+    addedByName: String,
     status: { type: String, enum: ['pending', 'approved', 'rejected', 'cancelled'], default: 'pending' },
     memberNo: { type: String, unique: true, sparse: true },
 

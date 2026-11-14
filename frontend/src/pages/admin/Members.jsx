@@ -10,6 +10,7 @@ import { useFind } from './find.js'
 import Icon from '../../components/Icon.jsx'
 import BoxIcon from '../../components/BoxIcon.jsx'
 import { stateByCode } from '../../data/states.js'
+import PaperForm from './PaperForm.jsx'
 
 const FILTERS = [['pending', '⏳ Pending'], ['approved', '✅ Approved'], ['rejected', '❌ Rejected'], ['cancelled', '🚫 Ended']]
 const TONE = { pending: 'gold', approved: 'green', rejected: 'red', cancelled: 'red' }
@@ -20,10 +21,12 @@ function downloadCsv(rows) {
   const when = (d) => (d ? new Date(d).toLocaleString('en-IN', { dateStyle: 'medium', timeStyle: 'short' }) : '')
   const born = (d) => (d ? new Date(d).toLocaleDateString('en-IN', { dateStyle: 'medium', timeZone: 'UTC' }) : '')
   const head = ['Name', 'Phone', 'Email', 'Date of birth', 'City', 'District', 'State', 'Status', 'Member no',
-    'Applied on', 'Approved/Rejected on', 'Approved/Rejected by', 'Photo link', 'Assembly constituency no', 'Lok Sabha constituency no', 'Events attended']
+    'Applied on', 'Approved/Rejected on', 'Approved/Rejected by', 'Photo link', 'Assembly constituency no', 'Lok Sabha constituency no', 'Events attended',
+    'Came from', 'Paper form no', 'Typed in by']
   const lines = rows.map((m) => [
     m.name, m.phone, m.email, born(m.dob), m.city, m.district, m.state, m.status, m.memberNo,
     when(m.createdAt), when(m.reviewedAt), m.reviewedByName, m.photo?.url, m.assemblyNo, m.lokSabhaNo, m.attended ?? '',
+    m.source === 'paper' ? 'Paper form' : 'Website', m.paperRef, m.addedByName,
   ])
   const csv = toCsv([head, ...lines])
   // The BOM makes Excel show Hindi text correctly.
@@ -143,6 +146,7 @@ export default function Members() {
   const [ticked, setPicked] = useState([])
   const [progress, setProgress] = useState('')
   const [note, setNote] = useState('')
+  const [paperOpen, setPaperOpen] = useState(false) // the "Add from a paper form" panel
 
   const [q, setQ] = useState('')
   const [stateF, setStateF] = useState('')
@@ -177,7 +181,7 @@ export default function Members() {
       if (stateF && clean(m.state) !== stateF) return false
       if (districtF && clean(m.district) !== districtF) return false
       if (!text) return true
-      const words = [m.name, m.email, m.memberNo, m.city, m.district].join(' ').toLowerCase()
+      const words = [m.name, m.email, m.memberNo, m.city, m.district, m.paperRef].join(' ').toLowerCase()
       return words.includes(text) || (digits.length >= 3 && String(m.phone || '').replace(/\D/g, '').includes(digits))
     })
     // Most active first: the members who came to the most events
@@ -245,7 +249,8 @@ export default function Members() {
   return (
     <>
 
-      <PageHeader title="Members" subtitle="Review the applications that come from the Join page.">
+      <PageHeader title="Members" subtitle="Review the applications that come from the Join page or from paper forms.">
+        {!paperOpen && <button onClick={() => setPaperOpen(true)} className="abtn-primary">📝 Add from paper form</button>}
         {shown.length > 0 && !viewOnly && (
           <button onClick={() => (!more || window.confirm(`Only the ${items.length} applications loaded so far are included. To add older ones, press "Load older applications" at the bottom first.\n\nDownload these ${shown.length}?`)) && downloadCsv(shown)} className="abtn">📥 Download Excel ({shown.length})</button>
         )}
@@ -256,6 +261,8 @@ export default function Members() {
           </button>
         )}
       </PageHeader>
+
+      {paperOpen && <PaperForm me={me} onClose={() => setPaperOpen(false)} onSaved={() => { if (status === 'pending') load(); refresh() }} />}
 
       {myState && (
         <p className="mb-4 flex items-center gap-2 rounded-xl bg-mist px-4 py-2.5 text-sm font-semibold text-brand">
@@ -342,7 +349,8 @@ export default function Members() {
                       {m.lokSabhaNo ? `Lok Sabha no. ${m.lokSabhaNo}` : ''}
                     </div>
                   )}
-                  <div>🗓️ Applied {when(m.createdAt)}</div>
+                  <div>🗓️ {m.source === 'paper' ? 'Added' : 'Applied'} {when(m.createdAt)}</div>
+                  {m.source === 'paper' && <div>📝 Paper form{m.paperRef ? ` no. ${m.paperRef}` : ''}{m.addedByName ? `, typed in by ${m.addedByName}` : ''}</div>}
                   {m.referredBy?.name && <div>🤝 Invited by {m.referredBy.name}{m.referredBy.memberNo ? ` (${m.referredBy.memberNo})` : ''}</div>}
                   {m.detailsUpdatedAt && <div>✏️ Updated own details {when(m.detailsUpdatedAt)}</div>}
                   {m.status === 'approved' && <Attendance m={m} />}

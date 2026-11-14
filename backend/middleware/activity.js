@@ -41,6 +41,7 @@ function describe(section, method, part, body = {}, last = '') {
                 pending: ['update', 'moved back to pending the application of'],
             }[body.status] || null
             if (part === 'send-card') return ['email', 'emailed the membership card to']
+            if (part === 'paper') return ['create', 'added from a paper form the application of']
             if (part === 'recommend') return ['update', body.verdict === 'concern' ? 'raised a concern about the application of' : 'recommended the application of']
             if (method === 'DELETE') return ['delete', 'deleted the application of']
             return null
