@@ -1,7 +1,9 @@
 import { v2 as cloudinary } from 'cloudinary'
 import '../config/cloudinary.js' // sets the Cloudinary account keys
 
-// PDFs are stored as "raw" files (Cloudinary blocks PDF delivery for images on free accounts); pictures as images
+// PDFs are stored as "raw" files, pictures as images.
+// Cloudinary blocks the delivery of PDF and ZIP files on many accounts, raw ones too (visitors get "401 deny or
+// ACL failure"). In the Cloudinary console, Settings > Security > "Allow delivery of PDF and ZIP files" must be on.
 export const kindOf = (mimetype) => (mimetype === 'application/pdf' ? 'raw' : 'image')
 
 export function uploadFile(buffer, { mimetype, originalname }) {
