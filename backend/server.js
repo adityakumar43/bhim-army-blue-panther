@@ -129,7 +129,7 @@ app.use((err, req, res, next) => {
 })
 
 // Start answering straight away, and connect to the database at the same time.
-// Hostinger puts the app to sleep when nobody uses it and starts it again for the next visitor,
+// The host puts the app to sleep when nobody uses it and starts it again for the next visitor,
 // so every second spent before listen() is a second that visitor waits. Database requests that
 // arrive before the connection is ready simply wait for it (Mongoose holds them), so nothing is lost.
 app.listen(process.env.PORT || 5000, () => console.log('API running'))

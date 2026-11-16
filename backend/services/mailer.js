@@ -14,6 +14,38 @@ function getTransport() {
 }
 
 
+// Render's free plan blocks SMTP (ports 25, 465, 587), so when BREVO_API_KEY is set every email goes
+// over HTTPS through Brevo's API instead. Without it the SMTP settings above are used (local, other hosts).
+function senderOf(from) {
+  const m = String(from || '').match(/^\s*"?([^"<]*?)"?\s*<([^>]+)>\s*$/)
+  return m ? { ...(m[1] ? { name: m[1] } : {}), email: m[2].trim() } : { email: String(from || '').trim() }
+}
+
+async function sendViaBrevo({ to, subject, text, html }) {
+  const list = [].concat(to).flatMap((t) => String(t).split(',')).map((e) => e.trim()).filter(Boolean)
+  const res = await fetch('https://api.brevo.com/v3/smtp/email', {
+    method: 'POST',
+    headers: { 'api-key': process.env.BREVO_API_KEY, 'content-type': 'application/json', accept: 'application/json' },
+    body: JSON.stringify({
+      sender: senderOf(process.env.MAIL_FROM || process.env.SMTP_USER),
+      to: list.map((email) => ({ email })),
+      subject,
+      htmlContent: html,
+      ...(text ? { textContent: text } : {}),
+    }),
+    signal: AbortSignal.timeout(20000),
+  })
+  const data = await res.json().catch(() => ({}))
+  if (!res.ok) {
+    const err = new Error(`Brevo did not accept ${list.join(', ')}: ${res.status} ${data.message || data.code || ''}`.trim())
+    // Out of today's free emails (or sending too fast): the caller can stop and try again later
+    err.quota = res.status === 402 || res.status === 429 || /limit|credit|quota/i.test(`${data.code} ${data.message}`)
+    throw err
+  }
+  console.log(`Email handed to Brevo for ${list.join(', ')}: ${data.messageId || 'ok'}`)
+  return true
+}
+
 let capture = null
 // For `npm run preview-emails`: runs fn and gives back the email it would have sent, without sending anything
 export async function captureMail(fn) {
@@ -27,6 +59,7 @@ export async function sendMail({ to, subject, text, html }) {
   // Every email gets the same look (logo, name, slogan); an email written only as text is made into HTML too
   const body = emailLayout({ html: html || textToHtml(text), text, subject })
   if (capture) return capture.push({ to, subject, text, body }) > 0
+  if (process.env.BREVO_API_KEY) return sendViaBrevo({ to, subject, text, html: body })
   const t = getTransport()
   if (!t) return false
   const info = await t.sendMail({ from: process.env.MAIL_FROM || process.env.SMTP_USER, to, subject, text, html: body })

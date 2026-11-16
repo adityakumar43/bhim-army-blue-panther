@@ -60,6 +60,8 @@ export async function runMailout(id) {
             if (!ok) return save({ status: 'stopped', note: 'Email is not set up on the server (SMTP settings in .env).', finishedAt: new Date() })
             sent++
         } catch (err) {
+            // Today's email limit is used up: stop here without skipping this member, so "Continue" tomorrow picks up from them
+            if (err.quota) return save({ status: 'stopped', note: 'The daily email limit was reached. Press Continue tomorrow to send to the rest.', finishedAt: new Date() })
             failed++
             console.error(`Announcement to ${m.email} failed:`, err.message)
         }
