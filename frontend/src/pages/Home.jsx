@@ -89,7 +89,7 @@ export default function Home() {
       const today = new Intl.DateTimeFormat('en-CA', { timeZone: 'Asia/Kolkata' }).format(new Date()) // today in India, like the Events page
       const upcoming = all.filter((e) => e.date.slice(0, 10) >= today).sort((a, b) => a.date.localeCompare(b.date))
       const past = all.filter((e) => e.date.slice(0, 10) < today).sort((a, b) => b.date.localeCompare(a.date))
-      setEvents([...upcoming, ...past].slice(0, 3))
+      setEvents([...upcoming, ...past.map((e) => ({ ...e, past: true }))].slice(0, 3))
     }).catch(() => setEvents([]))
   }, [])
 
@@ -162,14 +162,18 @@ export default function Home() {
           <SectionHead title={t('sections.campaigns')} intro={t('home.campaignsIntro')} to="/campaigns" label={t('viewAll')} />
           <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
             {campaigns.slice(0, 3).map((c) => ( // only the first 3 here; "View all" opens the full list
-              <article key={c.id} className={`${cardBox} ${c.image ? '' : 'border-t-4 border-t-brand'}`}>
+              // The whole card opens this campaign on the Campaigns page; "Read more" shows the text goes on
+              <Link key={c.id} to={`/campaigns#campaign-${c.id}`} className={`${cardBox} group ${c.image ? '' : 'border-t-4 border-t-brand'}`}>
                 {c.image && <img src={c.image} alt="" loading="lazy" onError={hideBroken} className="aspect-video w-full object-cover object-top" />}
-                <div className="flex-1 p-5 sm:p-6">
+                <div className="flex flex-1 flex-col p-5 sm:p-6">
                   {c.icon && <span className="mb-3 inline-flex h-11 w-11 items-center justify-center rounded-xl bg-mist text-brand" aria-hidden="true"><Icon name={c.icon} size={24} /></span>}
                   <h3 className="mb-2 text-lg font-extrabold sm:text-xl">{pickText(c, 'title', lang)}</h3>
-                  <p className="line-clamp-4 text-navy/75">{pickText(c, 'body', lang)}</p>
+                  <p className="line-clamp-4 flex-1 text-navy/75">{pickText(c, 'body', lang)}</p>
+                  <span className="mt-4 inline-flex items-center gap-1 font-bold text-brand group-hover:underline">
+                    {t('home.readMore')} <span aria-hidden="true" className="transition group-hover:translate-x-0.5">→</span>
+                  </span>
                 </div>
-              </article>
+              </Link>
             ))}
           </div>
         </div>
@@ -179,17 +183,29 @@ export default function Home() {
         <section className="bg-white">
           <div className={wrap}>
             <SectionHead title={t('sections.events')} intro={t('home.eventsIntro')} to="/events" label={t('cal.open')} />
-            <div className="grid gap-3 sm:grid-cols-2 sm:gap-5 lg:grid-cols-3">
+            {/* One or two events: a calendar card fills the row, so it does not end in an empty space (two cards: centred).
+                Phones show one card per row, so there is no gap to fill and the button above is enough. */}
+            <div className={`grid gap-3 sm:grid-cols-2 sm:gap-5 ${events.length === 1 ? 'lg:mx-auto lg:max-w-4xl' : 'lg:grid-cols-3'}`}>
               {events.map((ev) => (
                 <Link key={ev._id} to={`/events/${ev._id}`} className={`${cardBox} max-sm:flex-row max-sm:items-center`}>
                   <CardPhoto url={ev.image?.url} icon="calendar" />
                   <div className="min-w-0 flex-1 p-5 max-sm:p-3">
                     <DateLine date={ev.date} place={ev.location} lang={lang} />
+                    {ev.past && <span className="mb-1.5 inline-block rounded-full bg-navy/8 px-2.5 py-0.5 text-xs font-bold text-navy/65">{t('home.eventHeld')}</span>}
                     <h3 className="mb-1.5 line-clamp-2 text-lg leading-snug font-extrabold max-sm:mb-0 max-sm:text-base">{pickText(ev, 'title', lang)}</h3>
                     <p className="line-clamp-2 text-navy/75 max-sm:hidden">{pickText(ev, 'body', lang)}</p>
                   </div>
                 </Link>
               ))}
+              {events.length < 3 && (
+                <Link to="/events" className="group flex flex-col items-center justify-center gap-3 rounded-2xl border-2 border-dashed border-brand/30 bg-mist/40 p-6 text-center transition hover:border-brand hover:bg-mist max-sm:hidden">
+                  <span className="flex h-14 w-14 shrink-0 items-center justify-center rounded-2xl bg-brand text-white shadow-md shadow-brand/25" aria-hidden="true"><Icon name="calendar" size={26} /></span>
+                  <span className="min-w-0">
+                    <span className="block text-lg font-extrabold text-brand">{t('home.eventsMore')} <span aria-hidden="true" className="inline-block transition group-hover:translate-x-0.5">→</span></span>
+                    <span className="mt-1 block text-sm text-navy/70">{t('home.eventsMoreText')}</span>
+                  </span>
+                </Link>
+              )}
             </div>
           </div>
         </section>

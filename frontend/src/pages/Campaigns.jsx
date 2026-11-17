@@ -11,7 +11,7 @@ export default function Campaigns() {
       
       <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
         {campaigns.map((c) => (
-          <article key={c.id} className="panel flex flex-col border-t-4 border-t-brand">
+          <article key={c.id} id={`campaign-${c.id}`} className="panel flex scroll-mt-28 flex-col border-t-4 border-t-brand">
             {c.icon && <span className="mb-4 inline-flex h-12 w-12 items-center justify-center rounded-xl bg-mist text-brand" aria-hidden="true"><Icon name={c.icon} size={26} /></span>}
             <h2 className="mb-2 text-2xl font-extrabold">{pickText(c, 'title', i18n.language)}</h2>
             <p className="flex-1 text-lg">{pickText(c, 'body', i18n.language)}</p>

@@ -368,7 +368,11 @@
     "helpTitle": "Facing injustice? You are not alone.",
     "helpText": "Caste atrocity, discrimination, or the police refusing an FIR: file your complaint online, get a reference number and track it. Your district team will contact you.",
     "helpCta": "File a complaint",
-    "helpPolice": "Police"
+    "helpPolice": "Police",
+    "readMore": "Read more",
+    "eventHeld": "Held",
+    "eventsMore": "See all events",
+    "eventsMoreText": "Open the events calendar and add programmes to your phone calendar."
   },
   "announce": {
     "label": "Latest updates",
