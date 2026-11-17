@@ -14,7 +14,13 @@
     "olderNews": "पुराने समाचार देखें",
     "olderEvents": "पुराने कार्यक्रम देखें",
     "listen": "सुनें",
-    "stop": "रोकें"
+    "stop": "रोकें",
+    "moreNews": "और समाचार",
+    "moreEvents": "और कार्यक्रम",
+    "today": "आज है",
+    "tomorrow": "कल है",
+    "daysLeft_one": "{{count}} दिन बाकी",
+    "daysLeft_other": "{{count}} दिन बाकी"
   },
   "poster": {
     "button": "पोस्टर बनाकर शेयर करें",

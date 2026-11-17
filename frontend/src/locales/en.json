@@ -14,7 +14,13 @@
     "olderNews": "Show older news",
     "olderEvents": "Show older events",
     "listen": "Listen",
-    "stop": "Stop"
+    "stop": "Stop",
+    "moreNews": "More news",
+    "moreEvents": "More events",
+    "today": "Today",
+    "tomorrow": "Tomorrow",
+    "daysLeft_one": "{{count}} day left",
+    "daysLeft_other": "{{count}} days left"
   },
   "poster": {
     "button": "Share as a poster",
