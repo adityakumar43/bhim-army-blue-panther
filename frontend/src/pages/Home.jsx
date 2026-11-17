@@ -107,6 +107,34 @@ export default function Home() {
           loading it stays out too, so the page does not jump when they arrive; it appears only if there are no slides. */}
       <Hero photoOnPhones={slides !== null && slides.length === 0} numbers={numbers} />
 
+      {/* The help desk, right under the main heading: someone facing injustice should not have to look for it in the menu */}
+      <section className="bg-white" aria-labelledby="home-help-title">
+        <div className="mx-auto max-w-7xl px-5 pt-8 sm:pt-12 lg:px-16">
+          <div className="flex flex-col gap-4 rounded-2xl border border-red-200 border-l-4 border-l-red-600 bg-red-50/60 p-4 shadow-sm sm:p-6 lg:flex-row lg:items-center lg:gap-8">
+            <div className="flex min-w-0 flex-1 items-start gap-4">
+              <span className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-red-600 text-white shadow-md shadow-red-600/25" aria-hidden="true"><Icon name="shield" size={26} /></span>
+              <div className="min-w-0">
+                <h2 id="home-help-title" className="text-xl font-extrabold text-red-800 sm:text-2xl">{t('home.helpTitle')}</h2>
+                <p className="mt-1 text-navy/80">{t('home.helpText')}</p>
+              </div>
+            </div>
+            <div className="flex flex-col gap-2 sm:flex-row sm:flex-wrap lg:w-80 lg:shrink-0 lg:flex-col">
+              <Link to="/help" className="inline-flex min-h-12 flex-1 items-center justify-center gap-2 rounded-xl bg-red-600 px-6 text-base font-bold text-white shadow-md shadow-red-600/25 transition hover:bg-red-700">
+                {t('home.helpCta')} <span aria-hidden="true">→</span>
+              </Link>
+              <div className="flex gap-2">
+                <a href="tel:112" className="inline-flex min-h-11 flex-1 items-center justify-center gap-1.5 whitespace-nowrap rounded-xl border border-red-300 bg-white px-3 text-sm font-bold text-red-800 hover:border-red-500">
+                  <Icon name="phone" size={16} /> 112 <span className="font-semibold text-navy/60">· {t('home.helpPolice')}</span>
+                </a>
+                <a href="tel:14566" className="inline-flex min-h-11 flex-1 items-center justify-center gap-1.5 whitespace-nowrap rounded-xl border border-red-300 bg-white px-3 text-sm font-bold text-red-800 hover:border-red-500">
+                  <Icon name="phone" size={16} /> 14566 <span className="font-semibold text-navy/60">· SC/ST</span>
+                </a>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
       {/* Our path: the three principles */}
       <section className="bg-white">
         <div className={wrap}>

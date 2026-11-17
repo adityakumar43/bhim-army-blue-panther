@@ -364,7 +364,11 @@
     "campaignsIntro": "Our work on the ground, in villages and towns.",
     "eventsIntro": "Upcoming and recent programmes.",
     "newsIntro": "News, programmes and statements from the organisation.",
-    "bandIntro": "Become a member and stand with us for education, unity and justice."
+    "bandIntro": "Become a member and stand with us for education, unity and justice.",
+    "helpTitle": "Facing injustice? You are not alone.",
+    "helpText": "Caste atrocity, discrimination, or the police refusing an FIR: file your complaint online, get a reference number and track it. Your district team will contact you.",
+    "helpCta": "File a complaint",
+    "helpPolice": "Police"
   },
   "announce": {
     "label": "Latest updates",
