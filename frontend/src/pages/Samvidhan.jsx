@@ -252,6 +252,7 @@ function Speech() {
     const { t, i18n } = useTranslation()
     const lang = i18n.language === 'en' ? 'en' : 'hi'
     const pick = (q, f) => (lang === 'hi' ? q[`${f}Hi`] : q[`${f}En`])
+    const [all, setAll] = useState(false) // phones show the first 2 quotes until "Read the other ..." is pressed
     return (
         <section id="speech" className={`${section} scroll-mt-28`}>
             <div className="flex flex-col gap-5 sm:flex-row sm:items-center">
@@ -263,7 +264,7 @@ function Speech() {
             </div>
             <div className="mt-6 grid gap-4 lg:grid-cols-2">
                 {SPEECH.map((q, i) => (
-                    <figure key={i} className="flex flex-col rounded-xl border-l-4 border-gold bg-[#fffaf0] p-5">
+                    <figure key={i} className={`flex flex-col rounded-xl border-l-4 border-gold bg-[#fffaf0] p-5 ${!all && i >= 2 ? 'max-lg:hidden' : ''}`}>
                         <figcaption className="text-sm font-extrabold tracking-wide text-brand uppercase">{pick(q, 'title')}</figcaption>
                         {q.contextEn && <p className="mt-2 text-sm text-navy/65 italic">{pick(q, 'context')}</p>}
                         <blockquote className="mt-2 flex-1 text-lg leading-relaxed text-navy">“{pick(q, 'body')}”</blockquote>
@@ -271,6 +272,11 @@ function Speech() {
                     </figure>
                 ))}
             </div>
+            {!all && SPEECH.length > 2 && (
+                <button type="button" onClick={() => setAll(true)} className="mt-4 inline-flex min-h-11 w-full items-center justify-center gap-1 rounded-xl border-2 border-brand px-4 font-bold text-brand hover:bg-brand hover:text-white lg:hidden">
+                    {t('samvidhan.moreQuotes', { count: SPEECH.length - 2 })} <span aria-hidden="true">↓</span>
+                </button>
+            )}
             {t('samvidhan.translated') && <p className="mt-4 text-xs text-navy/65">{t('samvidhan.translated')}</p>}
         </section>
     )

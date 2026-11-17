@@ -70,7 +70,7 @@ export default function Events() {
         if (window.innerWidth < 1024) setTimeout(() => listRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' }), 50)
     }
 
-    const navBtn = 'grid h-9 w-9 place-items-center rounded-full text-xl font-bold text-brand hover:bg-mist'
+    const navBtn = 'grid h-11 w-11 place-items-center rounded-full text-xl font-bold text-brand hover:bg-mist'
 
     return (
         <div className="mx-auto max-w-6xl px-5 py-8 sm:py-10 lg:px-8">
@@ -113,7 +113,7 @@ export default function Events() {
 
                         <div className="mt-3 flex items-center justify-between gap-2 border-t border-navy/5 pt-3 text-xs text-navy/65">
                             <span className="flex items-center gap-1.5"><span className="h-1.5 w-1.5 rounded-full bg-gold" aria-hidden="true" />{t('cal.hasEvents', { defaultValue: 'Has events' })}</span>
-                            <button onClick={() => { goToday(); setPicked('') }} className="rounded-lg px-2 py-1 font-semibold text-brand hover:bg-mist">{t('cal.today', { defaultValue: 'Today' })}</button>
+                            <button onClick={() => { goToday(); setPicked('') }} className="inline-flex min-h-11 items-center rounded-lg px-3 font-semibold text-brand hover:bg-mist">{t('cal.today', { defaultValue: 'Today' })}</button>
                         </div>
                     </div>
 
@@ -130,14 +130,14 @@ export default function Events() {
                         <h2 className="text-xl font-extrabold sm:text-2xl">
                             {picked ? dayTitle(picked) : t('cal.thisMonth', { month: monthTitle, defaultValue: 'Events in {{month}}' })}
                         </h2>
-                        {picked && <button onClick={() => setPicked('')} className="text-sm font-semibold text-brand underline">{t('cal.wholeMonth', { defaultValue: 'Show the whole month' })}</button>}
+                        {picked && <button onClick={() => setPicked('')} className="inline-flex min-h-11 items-center text-sm font-semibold text-brand underline">{t('cal.wholeMonth', { defaultValue: 'Show the whole month' })}</button>}
                     </div>
                     {events === null && <Loading />}
                     {events && list.length === 0 && (
                         <div className="rounded-2xl border border-dashed border-navy/15 bg-white px-6 py-10 text-center text-navy/65">
                             <p className="text-3xl" aria-hidden="true">📭</p>
                             <p className="mt-2">{picked ? t('cal.noneDay', { defaultValue: 'No events on this day.' }) : t('cal.noneMonth', { defaultValue: 'No events this month. Try the next month.' })}</p>
-                            {!picked && <button onClick={() => move(1)} className="mt-3 text-sm font-semibold text-brand underline">{t('cal.next', { defaultValue: 'Next month' })} →</button>}
+                            {!picked && <button onClick={() => move(1)} className="mt-2 inline-flex min-h-11 items-center px-2 text-sm font-semibold text-brand underline">{t('cal.next', { defaultValue: 'Next month' })} →</button>}
                         </div>
                     )}
                     <ul className="flex flex-col gap-3">

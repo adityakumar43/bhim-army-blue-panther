@@ -16,7 +16,7 @@ export default function Privacy() {
             </p>
 
             {/* Contents */}
-            <nav aria-label={t('privacy.contents', { defaultValue: 'Contents' })} className="mb-8 rounded-2xl border border-navy/10 bg-white p-5 shadow-sm">
+            <nav id="contents" aria-label={t('privacy.contents', { defaultValue: 'Contents' })} className="mb-8 scroll-mt-28 rounded-2xl border border-navy/10 bg-white p-5 shadow-sm">
                 <h2 className="mb-3 font-extrabold">📑 {t('privacy.contents', { defaultValue: 'Contents' })}</h2>
                 <ol className="grid gap-x-6 gap-y-1.5 text-sm sm:grid-cols-2">
                     {sections.map((s, i) => (
@@ -58,6 +58,9 @@ export default function Privacy() {
                                 <p className="mt-2 text-sm text-navy/70">{t('privacy.reply', { defaultValue: 'We will reply as soon as we can.' })}</p>
                             </div>
                         )}
+                        <a href="#contents" className="mt-4 inline-flex min-h-10 items-center gap-1 text-sm font-semibold text-brand no-underline hover:no-underline">
+                            <span aria-hidden="true">↑</span> {t('privacy.backTop', { defaultValue: 'Back to contents' })}
+                        </a>
                     </section>
                 ))}
             </div>

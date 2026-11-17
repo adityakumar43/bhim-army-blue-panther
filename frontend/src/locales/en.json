@@ -629,7 +629,8 @@
     "agreeHelp": "I agree that the details I give, including photos and voice messages, are used by the team to help me, as explained in the Privacy Policy.",
     "agreeVol": "I agree that my details are used by the team to contact me about volunteer work, as explained in the Privacy Policy.",
     "agreeContact": "I agree that my details are used to reply to my message, as explained in the Privacy Policy.",
-    "byDonating": "By donating, you agree to our"
+    "byDonating": "By donating, you agree to our",
+    "backTop": "Back to contents"
   },
   "unsub": {
     "title": "Stop announcement emails?",
@@ -772,6 +773,8 @@
     "speechTitle": "25 November 1949: Dr. Ambedkar's last speech in the Constituent Assembly",
     "speechIntro": "The day before the Constitution was adopted, he warned what India must do to keep its democracy alive.",
     "translated": "",
+    "moreQuotes_one": "Read the other quote",
+    "moreQuotes_other": "Read the other {{count}} quotes",
     "quizTitle": "Constitution quiz",
     "quizIntro": "10 questions about our Constitution and Dr. Ambedkar. How many can you get right?",
     "start": "Start the quiz",

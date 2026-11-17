@@ -32,7 +32,10 @@ function useNotify() {
 export function NotifyButton() {
     const { t } = useTranslation()
     const { state, busy, note, on, off } = useNotify()
+    const [tried, setTried] = useState(false) // pressed the button on this page
     if (state === null) return null
+    // Blocked earlier in the browser settings: they chose that, so say nothing (only explain it right after a press)
+    if (state === 'blocked' && !tried) return null
     if (state === 'unsupported') {
         // iPhone: notifications only work inside the installed app
         return isIphone() && !isInstalledApp() ? <p className="mt-4 max-w-sm text-xs text-white/60">🔔 {t('push.iosHint')}</p> : null
@@ -40,7 +43,7 @@ export function NotifyButton() {
     return (
         <div className="mt-4 max-w-sm">
             {state === 'off' && (
-                <button onClick={on} disabled={busy} className="inline-flex min-h-10 items-center gap-2 rounded-xl border border-gold/50 px-3 text-sm font-semibold text-gold hover:bg-gold hover:text-navy disabled:opacity-60">
+                <button onClick={() => { setTried(true); on() }} disabled={busy} className="inline-flex min-h-10 items-center gap-2 rounded-xl border border-gold/50 px-3 text-sm font-semibold text-gold hover:bg-gold hover:text-navy disabled:opacity-60">
                     <Icon name="bell" size={16} /> {busy ? '…' : t('push.title')}
                 </button>
             )}
