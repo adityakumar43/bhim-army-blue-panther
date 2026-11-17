@@ -28,13 +28,15 @@ export function InspirationPhoto({ person, name, className = '', sizes = '(min-w
 }
 
 // level: the heading level of the name (3 under a section heading; 2 when the cards come right after the page title)
-export default function InspirationCard({ person, level = 3 }) {
+// compact: on phones show only the photo, years, name and title (the text and contributions are on the person's page)
+export default function InspirationCard({ person, level = 3, compact = false }) {
   const Name = `h${level}`
   const Sub = `h${level + 1}`
   const { t, i18n } = useTranslation()
   const lang = i18n.language
   const name = pickText(person, 'name', lang)
   const contributions = pickList(person, 'contributions', lang).slice(0, 2)
+  const full = compact ? 'max-sm:hidden' : '' // parts left out of a compact card on phones
 
   return (
     // The whole card opens the person's page: the "Read more" link is stretched over the card (after:absolute after:inset-0)
@@ -45,12 +47,12 @@ export default function InspirationCard({ person, level = 3 }) {
           {pickText(person, 'years', lang)}
         </span>
       </div>
-      <div className="flex flex-1 flex-col p-4">
-        <Name className="text-lg leading-snug font-extrabold">{name}</Name>
+      <div className={`flex flex-1 flex-col ${compact ? 'p-3 sm:p-4' : 'p-4'}`}>
+        <Name className={`leading-snug font-extrabold ${compact ? 'text-base sm:text-lg' : 'text-lg'}`}>{name}</Name>
         <p className="mt-0.5 text-xs font-semibold text-brand">{pickText(person, 'title', lang)}</p>
-        <p className="mt-2 line-clamp-2 text-sm text-navy/80">{pickText(person, 'short', lang)}</p>
+        <p className={`mt-2 line-clamp-2 text-sm text-navy/80 ${full}`}>{pickText(person, 'short', lang)}</p>
         {contributions.length > 0 && (
-          <div className="mt-3 rounded-lg bg-mist/60 p-3">
+          <div className={`mt-3 rounded-lg bg-mist/60 p-3 ${full}`}>
             <Sub className="mb-1 text-xs font-bold text-navy">{t('inspire.keyContributions')}</Sub>
             <ul className="text-sm text-navy/80">
               {contributions.map((c) => (
@@ -60,8 +62,8 @@ export default function InspirationCard({ person, level = 3 }) {
           </div>
         )}
         <Link to={`/inspirations/${person.slug}`} aria-label={`${t('inspire.readMore')}: ${name}`}
-          className="mt-auto inline-flex min-h-10 items-center gap-1 pt-2 text-sm font-bold text-brand outline-none after:absolute after:inset-0 after:content-['']">
-          {t('inspire.readMore')} <span aria-hidden="true" className="transition-transform group-hover:translate-x-1">→</span>
+          className={`mt-auto inline-flex min-h-10 items-center gap-1 pt-2 text-sm font-bold text-brand outline-none after:absolute after:inset-0 after:content-[''] ${compact ? 'max-sm:min-h-0 max-sm:pt-0' : ''}`}>
+          <span className={`inline-flex items-center gap-1 ${compact ? 'max-sm:sr-only' : ''}`}>{t('inspire.readMore')} <span aria-hidden="true" className="transition-transform group-hover:translate-x-1">→</span></span>
         </Link>
       </div>
     </article>

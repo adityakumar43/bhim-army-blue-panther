@@ -73,9 +73,14 @@ export default function Inspiration() {
           </div>
         </div>
 
-        <h2 className="mt-14 mb-6 text-2xl font-extrabold">{t('inspire.more')}</h2>
-        <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-4">
-          {more.map((p) => <InspirationCard key={p.slug} person={p} />)}
+        <h2 className="mt-10 mb-4 text-2xl font-extrabold sm:mt-14 sm:mb-6">{t('inspire.more')}</h2>
+        {/* Phones: one row of small cards to swipe sideways. Larger screens: the full cards in a grid. */}
+        <div data-more-row className="-mx-5 flex snap-x snap-mandatory gap-3 overflow-x-auto px-5 pb-3 sm:mx-0 sm:grid sm:grid-cols-2 sm:gap-5 sm:overflow-visible sm:px-0 sm:pb-0 lg:grid-cols-4">
+          {more.map((p) => (
+            <div key={p.slug} className="w-[44%] shrink-0 snap-start sm:w-auto">
+              <InspirationCard person={p} compact />
+            </div>
+          ))}
         </div>
       </div>
     </>
