@@ -26,38 +26,92 @@ const trackLimiter = rateLimit({ windowMs: 15 * 60 * 1000, max: 20, message: { m
 
 // ----- Public -----
 
-router.post('/', reportLimiter, helpdeskUpload, async (req, res) => {
-  const b = req.body || {}
-  if (b.website) return res.status(201).json({ refNo: 'HD-000000-0000' }) // bot trap
+// Checks a report (the Help desk page's, or a paper complaint form typed in by the team) and tidies it.
+// Gives { error } with the message to show, or { data } ready to save. paper: there is no voice message, and the
+// tick means "the person signed the consent on the paper form".
+function readReport(b, { paper = false, hasVoice = false } = {}) {
   const name = String(b.name || '').trim()
   const phone = cleanPhone(b.phone)
   const description = String(b.description || '').trim()
-  if (!name) return res.status(400).json({ message: 'Please enter your name' })
-  if (!/^[6-9]\d{9}$/.test(phone)) return res.status(400).json({ message: 'Enter a valid 10-digit mobile number' })
-  if (b.email && !/^\S+@\S+\.\S+$/.test(b.email)) return res.status(400).json({ message: 'Enter a valid email address' })
-  if (!STATE_CODES.includes(String(b.stateCode || ''))) return res.status(400).json({ message: 'Choose your state' })
-  if (!CATEGORIES.includes(b.category)) return res.status(400).json({ message: 'Choose what the problem is about' })
+  if (!name) return { error: paper ? "Enter the person's name" : 'Please enter your name' }
+  if (!/^[6-9]\d{9}$/.test(phone)) return { error: 'Enter a valid 10-digit mobile number' }
+  if (b.email && !/^\S+@\S+\.\S+$/.test(b.email)) return { error: 'Enter a valid email address' }
+  if (!STATE_CODES.includes(String(b.stateCode || ''))) return { error: paper ? 'Choose the state' : 'Choose your state' }
+  if (!CATEGORIES.includes(b.category)) return { error: 'Choose what the problem is about' }
   // The district is optional, but must come from the state's list (saved in the list's spelling)
   const district = b.district ? canonicalDistrict(b.stateCode, b.district) : ''
-  if (district === null) return res.status(400).json({ message: 'Please choose your district from the list' })
+  if (district === null) return { error: 'Please choose the district from the list' }
   const agreed = b.consent === true || b.consent === 'true' // the "I agree" tick box
-  if (!agreed) return res.status(400).json({ message: 'Please tick the box to agree to the Privacy Policy' })
-  const voiceFile = req.files?.voice?.[0]
+  if (!agreed) return { error: paper ? 'Tick the box to confirm the person signed the consent on the paper form' : 'Please tick the box to agree to the Privacy Policy' }
 
-  // A voice message can take the place of the written description
-  if (!voiceFile && description.length < 20) return res.status(400).json({ message: 'Please describe what happened (at least 20 letters), or record a voice message' })
-  if (description.length > 3000) return res.status(400).json({ message: 'Please keep the description under 3000 letters' })
+  // A voice message can take the place of the written description (only on the Help desk page)
+  if (!hasVoice && description.length < 20) {
+    return { error: paper ? 'Type in what happened from the paper form (at least 20 letters)' : 'Please describe what happened (at least 20 letters), or record a voice message' }
+  }
+  if (description.length > 3000) return { error: 'Please keep the description under 3000 letters' }
   // When it happened: the month and year are required, the day only if the person remembers it ("2026-03" or "2026-03-14")
   const when = String(b.incidentDate || '')
-  if (!/^\d{4}-\d{2}(-\d{2})?$/.test(when)) return res.status(400).json({ message: 'Choose the month and year of the incident' })
+  if (!/^\d{4}-\d{2}(-\d{2})?$/.test(when)) return { error: 'Choose the month and year of the incident' }
   const incidentDayKnown = when.length === 10
   const day = incidentDayKnown ? when : `${when}-01`
   const incidentDate = new Date(`${day}T00:00:00Z`)
   // A real date (JavaScript quietly turns 31 February into 3 March), not before 1950, and not later than today in India
   const indiaToday = new Intl.DateTimeFormat('en-CA', { timeZone: 'Asia/Kolkata' }).format(new Date())
   if (Number.isNaN(incidentDate.getTime()) || incidentDate.toISOString().slice(0, 10) !== day || when < '1950' || when > indiaToday.slice(0, when.length)) {
-    return res.status(400).json({ message: 'Check the date of the incident' })
+    return { error: 'Check the date of the incident' }
   }
+  return {
+    data: {
+      name: name.slice(0, 100), phone, email: b.email || undefined, stateCode: b.stateCode, state: stateNameEn(b.stateCode),
+      district, village: String(b.village || '').trim().slice(0, 100),
+      policeStation: String(b.policeStation || '').trim().slice(0, 100), category: b.category, incidentDate, incidentDayKnown, description,
+      history: [{ status: 'new' }],
+      consentAt: new Date(),
+    },
+  }
+}
+
+// The District admin a new case from this district goes to (the longest-serving one), if there is one
+const districtOwner = (stateCode, district) =>
+  district ? Admin.findOne({ role: 'districtadmin', state: stateCode, district, active: true }).sort({ createdAt: 1 }) : null
+
+// Saves a new case. The reference number is random; it is tried again in the rare case it already exists.
+async function createCase(data) {
+  for (let i = 0; i < 5; i++) {
+    try {
+      return await Complaint.create({ ...data, refNo: newRef() })
+    } catch (err) {
+      if (err.code !== 11000 || !err.keyPattern?.refNo) throw err
+    }
+  }
+  throw new Error('Could not create a reference number')
+}
+
+// Tells everyone who should know about a new case: the District admin it was given to (unless they typed it in
+// themselves), the admin alert address, and the person (their reference number, if they gave an email)
+function announce(c, owner, { by } = {}) {
+  const how = c.source === 'paper' ? ` (paper form${c.paperRef ? ` no. ${c.paperRef}` : ''}, typed in by ${c.addedByName})` : ''
+  if (owner?.email && !(by && owner._id.equals(by._id))) {
+    sendMail({
+      to: owner.email,
+      subject: `New help desk case ${c.refNo} in ${c.district}`,
+      text: `A new help desk case from ${c.district} has been given to you${how}.\n\n${c.refNo} · ${c.category}\nFrom ${c.name} (${c.phone})\n\n${(c.description || '').slice(0, 400)}\n\nOpen the help desk: ${(process.env.CLIENT_URL || '').replace(/\/+$/, '')}/admin/helpdesk`,
+    }).catch((err) => console.error('District case email failed:', err.message))
+  }
+  notifyAdmin(`New help desk case ${c.refNo}`, `${c.category} in ${c.district ? c.district + ', ' : ''}${c.state}${how}\nFrom ${c.name} (${c.phone})\n\n${(c.description || '').slice(0, 400)}`)
+  // Only the reference number we made: nothing they typed is repeated, so the email cannot carry spam
+  if (c.email) {
+    sendMail({ to: c.email, ...complaintReceivedEmail(c.refNo) })
+      .catch((err) => console.error('Help desk email failed:', err.message))
+  }
+}
+
+router.post('/', reportLimiter, helpdeskUpload, async (req, res) => {
+  const b = req.body || {}
+  if (b.website) return res.status(201).json({ refNo: 'HD-000000-0000' }) // bot trap
+  const voiceFile = req.files?.voice?.[0]
+  const { error, data } = readReport(b, { hasVoice: !!voiceFile })
+  if (error) return res.status(400).json({ message: error })
 
   // Upload the photos and the voice message (if any) at the same time
   const [photos, voice] = await Promise.all([
@@ -65,48 +119,58 @@ router.post('/', reportLimiter, helpdeskUpload, async (req, res) => {
     voiceFile ? uploadAudio(voiceFile.buffer, 'bluepanther/helpdesk-voice') : undefined,
   ])
   if (voice) voice.seconds = Math.min(Math.max(Math.round(Number(b.voiceSeconds) || 0), 0), 600)
-  const cleanUp = async () => {
+  // A case from a district that has a District admin goes straight to them
+  const owner = await districtOwner(data.stateCode, data.district)
+  let c
+  try {
+    c = await createCase({ ...data, photos, voice, assignedTo: owner ? { adminId: owner._id, name: owner.name } : undefined })
+  } catch (err) {
     await Promise.all(photos.map((p) => deleteImage(p.publicId)))
     if (voice) await deleteImage(voice.publicId, 'video')
+    throw err
   }
-  const data = {
-    name: name.slice(0, 100), phone, email: b.email || undefined, stateCode: b.stateCode, state: stateNameEn(b.stateCode),
-    district, village: String(b.village || '').trim().slice(0, 100),
-    policeStation: String(b.policeStation || '').trim().slice(0, 100), category: b.category, incidentDate, incidentDayKnown, description, photos, voice,
-    history: [{ status: 'new' }],
-    consentAt: new Date(),
-  }
-  // A case from a district that has a District admin goes straight to them
-  const owner = district ? await Admin.findOne({ role: 'districtadmin', state: b.stateCode, district, active: true }).sort({ createdAt: 1 }) : null
+  announce(c, owner)
+  res.status(201).json({ refNo: c.refNo })
+})
 
-  // A reference number is random; try again in the rare case it already exists
-  for (let i = 0; i < 5; i++) {
-    try {
-      const c = await Complaint.create({ ...data, assignedTo: owner ? { adminId: owner._id, name: owner.name } : undefined, refNo: newRef() })
-      if (owner?.email) {
-        sendMail({
-          to: owner.email,
-          subject: `New help desk case ${c.refNo} in ${district}`,
-          text: `A new help desk case from ${district} has been given to you.\n\n${c.refNo} · ${c.category}\nFrom ${name} (${phone})\n\n${description.slice(0, 400)}\n\nOpen the help desk: ${(process.env.CLIENT_URL || '').replace(/\/+$/, '')}/admin/helpdesk`,
-        }).catch((err) => console.error('District case email failed:', err.message))
-      }
-      notifyAdmin(`New help desk case ${c.refNo}`, `${c.category} in ${c.district ? c.district + ', ' : ''}${c.state}\nFrom ${name} (${phone})\n\n${description.slice(0, 400)}`)
-      // If they gave an email, send them their reference number so they don't lose it.
-      // Only the reference number we made: nothing they typed is repeated, so the email cannot carry spam.
-      if (c.email) {
-        sendMail({ to: c.email, ...complaintReceivedEmail(c.refNo) })
-          .catch((err) => console.error('Help desk email failed:', err.message))
-      }
-      return res.status(201).json({ refNo: c.refNo })
-    } catch (err) {
-      if (err.code !== 11000) {
-        await cleanUp()
-        throw err
-      }
-    }
+// The team types in a paper complaint form (the printable form in Downloads), for someone without internet.
+// Same checks as the Help desk page, but no hourly limit and no voice message; the photos are pictures of the
+// form and of the papers that came with it. A State admin adds cases of their own state only, a District admin
+// of their own district only (and the case is then theirs).
+router.post('/paper', protect, requireAny('helpdesk', 'district'), helpdeskUpload, async (req, res) => {
+  const b = req.body || {}
+  const { error, data } = readReport(b, { paper: true })
+  if (error) return res.status(400).json({ message: error })
+  const scope = stateScope(req.admin)
+  if (scope && data.stateCode !== scope) return res.status(403).json({ message: 'You can only add cases from your own state' })
+  const area = districtScope(req.admin)
+  if (area && !sameDistrict(area.district).test(data.district)) return res.status(403).json({ message: 'You can only add cases from your own district' })
+  if (req.files?.voice?.length) return res.status(400).json({ message: 'A voice message cannot be added to a paper form' })
+
+  // The same paper form typed in twice: say which case it already is (capitals and spaces around it do not count,
+  // the same check as for a district name)
+  const paperRef = String(b.paperRef || '').trim().slice(0, 40)
+  if (paperRef) {
+    const twin = await Complaint.findOne({ stateCode: data.stateCode, paperRef: sameDistrict(paperRef) }).select('refNo').lean()
+    if (twin) return res.status(409).json({ message: `Paper form ${paperRef} was already typed in as case ${twin.refNo}` })
   }
-  await cleanUp()
-  throw new Error('Could not create a reference number')
+
+  const photos = await Promise.all((req.files?.photos || []).slice(0, 3).map((f) => uploadImage(f.buffer, 'bluepanther/helpdesk')))
+  const owner = area ? req.admin : await districtOwner(data.stateCode, data.district)
+  let c
+  try {
+    c = await createCase({
+      ...data, photos, urgent: b.urgent === true || b.urgent === 'true',
+      assignedTo: owner ? { adminId: owner._id, name: owner.name } : undefined,
+      source: 'paper', paperRef: paperRef || undefined, addedById: req.admin._id, addedByName: req.admin.name,
+    })
+  } catch (err) {
+    await Promise.all(photos.map((p) => deleteImage(p.publicId))) // do not leave photos behind for a case that was not saved
+    if (err.name === 'ValidationError') return res.status(400).json({ message: 'Some details are too long. Please shorten them.' })
+    throw err
+  }
+  announce(c, owner, { by: req.admin })
+  res.status(201).json(c)
 })
 
 // The updates the person sees. Cases from before the history was kept get a simple one made from what is known.
@@ -144,7 +208,7 @@ router.get('/', protect, requireAny('helpdesk', 'district'), async (req, res) =>
   if (CATEGORIES.includes(req.query.category)) filter.category = req.query.category
   if (req.query.mine === '1') filter['assignedTo.adminId'] = req.admin._id
   if (req.query.urgent === '1') filter.urgent = true
-  const found = (f) => withFind(f, req, ['refNo', 'name', 'phone', 'email'])
+  const found = (f) => withFind(f, req, ['refNo', 'name', 'phone', 'email', 'paperRef'])
   const c = cursorOf(req) // a page at a time
   if (c === false || (c && c.group === null)) return res.status(400).json({ message: 'Bad page' })
   const size = pageSize(req, 500)

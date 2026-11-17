@@ -15,3 +15,9 @@ export const STATUS = {
   closed: { emoji: '📁', en: 'Closed', hi: 'बंद', tone: 'gray' },
 }
 export const categoryOf = (key) => CATEGORIES.find((c) => c.key === key) || CATEGORIES.at(-1)
+
+// A WhatsApp link with a ready-made message giving the person their reference number (admin panel, paper forms)
+export function whatsappRef(c) {
+  const text = `जय भीम ${c.name} 🙏\nआपकी शिकायत भीम आर्मी ब्लू पैंथर सहायता केंद्र में दर्ज हो गई है।\nसंदर्भ संख्या: ${c.refNo}\n\nYour complaint is registered. Reference number: ${c.refNo}\n\nइसी नंबर और अपने मोबाइल नंबर से प्रगति देखें / Track it with this number and your mobile number: ${window.location.origin}/help\n— भीम आर्मी ब्लू पैंथर`
+  return `https://wa.me/91${String(c.phone).replace(/\D/g, '').slice(-10)}?text=${encodeURIComponent(text)}`
+}

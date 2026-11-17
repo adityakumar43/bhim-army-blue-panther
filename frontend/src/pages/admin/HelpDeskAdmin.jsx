@@ -5,8 +5,9 @@ import { LoadMore } from './paged.jsx'
 import { usePaged } from './usePaged.js'
 import { PageHeader, Notice, ListLoading, Pill, FindNote } from './ui.jsx'
 import { useFind, matchesFind } from './find.js'
-import { CATEGORIES, STATUS, categoryOf } from '../../data/helpdesk.js'
+import { CATEGORIES, STATUS, categoryOf, whatsappRef } from '../../data/helpdesk.js'
 import { stateByCode } from '../../data/states.js'
+import PaperComplaint from './PaperComplaint.jsx'
 
 const TABS = [['new', '🆕 New'], ['in_progress', '🔄 In progress'], ['resolved', '✅ Resolved'], ['closed', '📁 Closed'], ['', 'All']]
 const STALE_DAYS = 3 // an open case with no update for this long gets a warning
@@ -88,6 +89,7 @@ function Case({ c, team, canDelete, onSaved, onDelete }) {
                 {c.email && <a href={`mailto:${c.email}`} className="break-all hover:text-brand hover:underline">✉️ {c.email}</a>}
                 <span>📍 {[c.village, c.district, stateByCode(c.stateCode)?.en || c.state].filter(Boolean).join(', ')}</span>
                 {c.policeStation && <span>👮 PS {c.policeStation}</span>}
+                {c.source === 'paper' && <span>📝 Paper form{c.paperRef ? ` no. ${c.paperRef}` : ''}{c.addedByName ? `, typed in by ${c.addedByName}` : ''}</span>}
                 {c.incidentDate && <span>📅 Happened {new Date(c.incidentDate).toLocaleDateString('en-IN', c.incidentDayKnown === false ? { month: 'long', year: 'numeric', timeZone: 'UTC' } : { dateStyle: 'medium', timeZone: 'UTC' })}</span>}
             </div>
             <p className="mt-2 text-sm">
@@ -194,6 +196,8 @@ export default function HelpDeskAdmin() {
     const [district, setDistrict] = useState('')
     const [team, setTeam] = useState([])
     const [saved, setSaved] = useState(null) // the case just updated, to offer a WhatsApp message
+    const [paperOpen, setPaperOpen] = useState(false) // the "Add from a paper form" panel
+    const [added, setAdded] = useState(null) // a paper case just saved with "Save and close": its reference number to send
     const [error, setError] = useState('')
     const myState = ['stateadmin', 'districtadmin'].includes(me.role) ? stateByCode(me.state) : null
     // Opened from the search box at the top: show that tab and only the matching case
@@ -222,13 +226,15 @@ export default function HelpDeskAdmin() {
 
     // Districts of the cases loaded, to show one district's cases
     const districts = [...new Set((items || []).map((c) => c.district).filter(Boolean))].sort()
-    const shown = items?.filter((c) => (!district || c.district === district) && matchesFind(find, c.refNo, c.name, c.phone))
+    const shown = items?.filter((c) => (!district || c.district === district) && matchesFind(find, c.refNo, c.name, c.phone, c.paperRef || ''))
     const staleCount = shown?.filter((c) => ['new', 'in_progress'].includes(c.status) && daysSince(lastUpdate(c)) >= STALE_DAYS).length || 0
     const toggle = (on) => `min-h-10 rounded-xl border px-3 text-sm font-semibold transition ${on ? 'border-brand bg-brand text-white' : 'border-brand/15 bg-white text-navy/75 hover:bg-mist'}`
 
     return (
         <>
-            <PageHeader title="Help Desk" subtitle="Problems reported by people through the Help desk page." />
+            <PageHeader title="Help Desk" subtitle="Problems reported by people through the Help desk page or on paper forms.">
+                {!paperOpen && <button onClick={() => { setPaperOpen(true); setAdded(null) }} className="abtn-primary">📝 Add from paper form</button>}
+            </PageHeader>
             <FindNote find={find} clear={clearFind} />
             {myState && <p className="mb-4 rounded-xl bg-mist px-4 py-2.5 text-sm font-semibold text-brand">📍 You are seeing only cases from {me.district ? `${me.district} district, ` : ''}{myState.en}.</p>}
 
@@ -254,6 +260,19 @@ export default function HelpDeskAdmin() {
                 <button onClick={() => setMine((v) => !v)} aria-pressed={mine} className={toggle(mine)}>🙋 My cases</button>
                 <button onClick={() => setUrgentOnly((v) => !v)} aria-pressed={urgentOnly} className={toggle(urgentOnly)}>🔴 Urgent only</button>
             </div>
+
+            {paperOpen && (
+                <PaperComplaint me={me} onClose={() => setPaperOpen(false)}
+                    onSaved={(c, closing) => { if (closing) setAdded(c); if (!status || status === 'new') load(); refresh() }} />
+            )}
+            {added && (
+                <div role="status" className="mb-4 flex flex-wrap items-center gap-2 rounded-xl border border-green-300 bg-green-50 px-4 py-3 text-sm shadow-sm">
+                    <span className="font-semibold text-green-800">✅ Case <span className="font-mono">{added.refNo}</span> added for {added.name}. Write the number on the paper form and send it to them:</span>
+                    <a href={whatsappRef(added)} target="_blank" rel="noreferrer" onClick={() => setAdded(null)}
+                        className="abtn min-h-9 border-0 bg-[#15803d] px-3 text-white hover:bg-[#166534] hover:text-white">📲 Send on WhatsApp</a>
+                    <button onClick={() => setAdded(null)} className="ml-auto min-h-9 px-2 text-navy/65 underline">Done</button>
+                </div>
+            )}
 
             {staleCount > 0 && (
                 <p className="mb-4 rounded-xl border border-amber-300 bg-amber-50 px-4 py-2.5 text-sm font-semibold text-amber-900">

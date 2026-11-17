@@ -45,7 +45,7 @@ router.get('/', protect, async (req, res) => {
             }))))
     }
     if (any('helpdesk', 'district')) {
-        jobs.push(Complaint.find({ $and: [inState, { $or: or(['refNo', 'name', 'email', 'village']) }] })
+        jobs.push(Complaint.find({ $and: [inState, { $or: or(['refNo', 'name', 'email', 'village', 'paperRef']) }] })
             .select('refNo name phone status district stateCode state urgent').sort({ createdAt: -1 }).limit(LIMIT).lean()
             .then((rows) => rows.map((c) => ({
                 kind: 'case', id: c._id, title: `${c.refNo} · ${c.name}`, sub: [c.phone, place(c)].filter(Boolean).join(' · '),

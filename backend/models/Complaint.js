@@ -28,6 +28,11 @@ const complaintSchema = new mongoose.Schema(
     history: [{ status: String, note: { type: String, maxlength: 1000 }, at: { type: Date, default: Date.now } }],
     urgent: { type: Boolean, default: false, index: true },
     consentAt: Date, // when they ticked "I agree" to the Privacy Policy
+    // How the case came in: 'online' (the Help desk page) or 'paper' (a paper complaint form typed in from the admin panel)
+    source: { type: String, enum: ['online', 'paper'], default: 'online' },
+    paperRef: { type: String, trim: true, maxlength: 40 }, // the number written on the paper form, to find it again
+    addedById: { type: mongoose.Schema.Types.ObjectId, ref: 'Admin' }, // the team member who typed in a paper form
+    addedByName: String,
     assignedTo: { adminId: mongoose.Schema.Types.ObjectId, name: String }, // the team member handling this case
     remindedAt: Date, // the last reminder email to the team about this case
     // Still no update after a week: 1 = the State Admins were told, 2 = the Super Admins too. Counts only while at is after the last update.

@@ -32,6 +32,7 @@ const nameOf = (doc) => {
 
 // Turns a request into [action, text], or null when it should not be logged
 function describe(section, method, part, body = {}, last = '') {
+    if (section === 'helpdesk' && part === 'paper') return ['create', 'added from a paper form the help desk case']
     switch (section) {
         case 'members':
             if (part === 'status') return {
