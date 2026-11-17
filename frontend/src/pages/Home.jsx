@@ -43,17 +43,17 @@ function SectionHead({ title, intro, to, label }) {
 // The picture of an event or news card. Without one (or when it does not load) a blue box with an icon takes its
 // place, so every card in the row has the same shape.
 const photoBox = 'aspect-[5/2] w-full max-sm:ml-3 max-sm:aspect-square max-sm:w-20 max-sm:shrink-0 max-sm:rounded-xl'
-function CardPhoto({ url, icon }) {
+function CardPhoto({ url, icon, className = '' }) {
   const [broken, setBroken] = useState(false)
   if (!url || broken) {
     return (
-      <span aria-hidden="true" className={`${photoBox} relative flex items-center justify-center overflow-hidden bg-linear-to-br from-navy to-brand text-white/85`}>
+      <span aria-hidden="true" className={`${photoBox} ${className} relative flex items-center justify-center overflow-hidden bg-linear-to-br from-navy to-brand text-white/85`}>
         <Chakra className="pointer-events-none absolute -right-8 -bottom-12 h-36 w-36 text-white/10 max-sm:hidden" />
         <Icon name={icon} size={30} />
       </span>
     )
   }
-  return <img src={cdn(url, 600)} alt="" loading="lazy" onError={() => setBroken(true)} className={`${photoBox} object-cover`} />
+  return <img src={cdn(url, 600)} alt="" loading="lazy" onError={() => setBroken(true)} className={`${photoBox} ${className} object-cover`} />
 }
 
 function DateLine({ date, place, lang }) {
@@ -169,7 +169,7 @@ export default function Home() {
                   {c.icon && <span className="mb-3 inline-flex h-11 w-11 items-center justify-center rounded-xl bg-mist text-brand" aria-hidden="true"><Icon name={c.icon} size={24} /></span>}
                   <h3 className="mb-2 text-lg font-extrabold sm:text-xl">{pickText(c, 'title', lang)}</h3>
                   <p className="line-clamp-4 flex-1 text-navy/75">{pickText(c, 'body', lang)}</p>
-                  <span className="mt-4 inline-flex items-center gap-1 font-bold text-brand group-hover:underline">
+                  <span className="mt-4 inline-flex items-center gap-1 font-bold text-brand">
                     {t('home.readMore')} <span aria-hidden="true" className="transition group-hover:translate-x-0.5">→</span>
                   </span>
                 </div>
@@ -183,13 +183,14 @@ export default function Home() {
         <section className="bg-white">
           <div className={wrap}>
             <SectionHead title={t('sections.events')} intro={t('home.eventsIntro')} to="/events" label={t('cal.open')} />
-            {/* One or two events: a calendar card fills the row, so it does not end in an empty space (two cards: centred).
+            {/* One or two events: a calendar card fills the row, so it does not end in an empty space. A single event is
+                shown wide (photo beside the text) over two columns on large screens, so the cards stay low.
                 Phones show one card per row, so there is no gap to fill and the button above is enough. */}
-            <div className={`grid gap-3 sm:grid-cols-2 sm:gap-5 ${events.length === 1 ? 'lg:mx-auto lg:max-w-4xl' : 'lg:grid-cols-3'}`}>
+            <div className="grid gap-3 sm:grid-cols-2 sm:gap-5 lg:grid-cols-3">
               {events.map((ev) => (
-                <Link key={ev._id} to={`/events/${ev._id}`} className={`${cardBox} max-sm:flex-row max-sm:items-center`}>
-                  <CardPhoto url={ev.image?.url} icon="calendar" />
-                  <div className="min-w-0 flex-1 p-5 max-sm:p-3">
+                <Link key={ev._id} to={`/events/${ev._id}`} className={`${cardBox} max-sm:flex-row max-sm:items-center ${events.length === 1 ? 'lg:col-span-2 lg:flex-row' : ''}`}>
+                  <CardPhoto url={ev.image?.url} icon="calendar" className={events.length === 1 ? 'lg:aspect-auto lg:w-2/5 lg:shrink-0 lg:self-stretch' : ''} />
+                  <div className={`min-w-0 flex-1 p-5 max-sm:p-3 ${events.length === 1 ? 'lg:flex lg:flex-col lg:justify-center lg:p-7' : ''}`}>
                     <DateLine date={ev.date} place={ev.location} lang={lang} />
                     {ev.past && <span className="mb-1.5 inline-block rounded-full bg-navy/8 px-2.5 py-0.5 text-xs font-bold text-navy/65">{t('home.eventHeld')}</span>}
                     <h3 className="mb-1.5 line-clamp-2 text-lg leading-snug font-extrabold max-sm:mb-0 max-sm:text-base">{pickText(ev, 'title', lang)}</h3>
