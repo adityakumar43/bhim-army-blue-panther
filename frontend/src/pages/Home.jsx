@@ -160,20 +160,24 @@ export default function Home() {
       <section className="bg-[#f3f6fb]">
         <div className={wrap}>
           <SectionHead title={t('sections.campaigns')} intro={t('home.campaignsIntro')} to="/campaigns" label={t('viewAll')} />
-          <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
+          {/* Phones: one row to swipe sideways (the next card peeks in at the edge), like the leaders row further down,
+              so the page is much shorter. Larger screens: a grid. */}
+          <div className="-mx-5 flex snap-x snap-mandatory gap-4 overflow-x-auto px-5 pb-3 sm:mx-0 sm:grid sm:grid-cols-2 sm:gap-5 sm:overflow-visible sm:px-0 sm:pb-0 lg:grid-cols-3">
             {campaigns.slice(0, 3).map((c) => ( // only the first 3 here; "View all" opens the full list
-              // The whole card opens this campaign on the Campaigns page; "Read more" shows the text goes on
-              <Link key={c.id} to={`/campaigns#campaign-${c.id}`} className={`${cardBox} group ${c.image ? '' : 'border-t-4 border-t-brand'}`}>
-                {c.image && <img src={c.image} alt="" loading="lazy" onError={hideBroken} className="aspect-video w-full object-cover object-top" />}
-                <div className="flex flex-1 flex-col p-5 sm:p-6">
-                  {c.icon && <span className="mb-3 inline-flex h-11 w-11 items-center justify-center rounded-xl bg-mist text-brand" aria-hidden="true"><Icon name={c.icon} size={24} /></span>}
-                  <h3 className="mb-2 text-lg font-extrabold sm:text-xl">{pickText(c, 'title', lang)}</h3>
-                  <p className="line-clamp-4 flex-1 text-navy/75">{pickText(c, 'body', lang)}</p>
-                  <span className="mt-4 inline-flex items-center gap-1 font-bold text-brand">
-                    {t('home.readMore')} <span aria-hidden="true" className="transition group-hover:translate-x-0.5">→</span>
-                  </span>
-                </div>
-              </Link>
+              <div key={c.id} className="w-[85%] shrink-0 snap-start sm:w-auto">
+                {/* The whole card opens this campaign on the Campaigns page; "Read more" shows the text goes on */}
+                <Link to={`/campaigns#campaign-${c.id}`} className={`${cardBox} group ${c.image ? '' : 'border-t-4 border-t-brand'}`}>
+                  {c.image && <img src={c.image} alt="" loading="lazy" onError={hideBroken} className="aspect-video w-full object-cover object-top" />}
+                  <div className="flex flex-1 flex-col p-5 sm:p-6">
+                    {c.icon && <span className="mb-3 inline-flex h-11 w-11 items-center justify-center rounded-xl bg-mist text-brand" aria-hidden="true"><Icon name={c.icon} size={24} /></span>}
+                    <h3 className="mb-2 text-lg font-extrabold sm:text-xl">{pickText(c, 'title', lang)}</h3>
+                    <p className="line-clamp-4 flex-1 text-navy/75">{pickText(c, 'body', lang)}</p>
+                    <span className="mt-4 inline-flex items-center gap-1 font-bold text-brand">
+                      {t('home.readMore')} <span aria-hidden="true" className="transition group-hover:translate-x-0.5">→</span>
+                    </span>
+                  </div>
+                </Link>
+              </div>
             ))}
           </div>
         </div>

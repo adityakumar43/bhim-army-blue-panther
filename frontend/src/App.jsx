@@ -7,6 +7,7 @@ import { hasBand } from './components/bands.js'
 import ProtectedRoute from './components/ProtectedRoute.jsx'
 import RouteSeo from './components/Seo.jsx'
 import InstallApp from './components/InstallApp.jsx'
+import JoinButton from './components/JoinButton.jsx'
 import { NotifyPrompt } from './components/Notify.jsx'
 import { countVisit } from './lib/track.js'
 import { trackPage } from './lib/analytics.js'
@@ -171,6 +172,7 @@ export default function App() {
         </ErrorBoundary>
       </main>
       {!isAdmin && <Footer />}
+      {!isAdmin && <JoinButton />}
       {!isAdmin && <InstallApp />}
       {!isAdmin && <NotifyPrompt />}
     </>
