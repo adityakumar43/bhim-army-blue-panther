@@ -19,10 +19,19 @@ const InspirationsPreview = lazy(() => import('../components/InspirationsPreview
 
 const hideBroken = (e) => { e.currentTarget.style.display = 'none' }
 // The slides from the last visit, shown at once while the new list loads (null = never loaded on this device)
-const cachedSlides = () => { try { return JSON.parse(localStorage.getItem('slidesCache')) } catch { return null } }
+// The slides from the last visit; on a first visit, [] when the site had no slides when it was last built
+// (window.__homeHint, written by scripts/prerender.js), so no empty space is kept for a slider that never comes
+const cachedSlides = () => {
+  try { const saved = JSON.parse(localStorage.getItem('slidesCache')); if (saved) return saved } catch { /* nothing saved */ }
+  return globalThis.__homeHint?.slides === false ? [] : null
+}
 const cacheSlides = (list) => { try { localStorage.setItem('slidesCache', JSON.stringify(list)) } catch { /* ignore */ } }
 // The numbers under the main heading (members, states ...), kept from the last visit so they are there at once
-const cachedNumbers = () => { try { return JSON.parse(localStorage.getItem('numbersCache')) } catch { return null } }
+// The numbers from the last visit; on a first visit, the ones from when the site was last built (window.__homeHint)
+const cachedNumbers = () => {
+  try { const saved = JSON.parse(localStorage.getItem('numbersCache')); if (saved) return saved } catch { /* nothing saved */ }
+  return globalThis.__homeHint?.numbers || null
+}
 const cacheNumbers = (n) => { try { localStorage.setItem('numbersCache', JSON.stringify(n)) } catch { /* ignore */ } }
 const wrap = 'mx-auto max-w-7xl px-5 py-10 sm:py-16 lg:px-16' // a little less space between sections on phones
 const cardBox = 'flex h-full flex-col overflow-hidden rounded-2xl border border-navy/10 bg-white shadow-sm transition hover:shadow-md'

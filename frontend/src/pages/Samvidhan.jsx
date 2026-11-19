@@ -256,7 +256,7 @@ function Speech() {
     return (
         <section id="speech" className={`${section} scroll-mt-28`}>
             <div className="flex flex-col gap-5 sm:flex-row sm:items-center">
-                <img src="/inspirations/ambedkar-round.jpg" alt="" className="h-24 w-24 shrink-0 rounded-full object-cover object-top shadow-md ring-4 ring-gold/40" />
+                <img src="/inspirations/ambedkar-round-288.webp" alt="" className="h-24 w-24 shrink-0 rounded-full object-cover object-top shadow-md ring-4 ring-gold/40" />
                 <div>
                     <h2 className="text-2xl font-extrabold sm:text-3xl">{t('samvidhan.speechTitle')}</h2>
                     <p className="mt-1 text-navy/70">{t('samvidhan.speechIntro')}</p>

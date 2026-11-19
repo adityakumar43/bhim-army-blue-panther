@@ -42,7 +42,9 @@ export default function InspirationCard({ person, level = 3, compact = false }) 
     // The whole card opens the person's page: the "Read more" link is stretched over the card (after:absolute after:inset-0)
     <article className="group relative flex cursor-pointer flex-col overflow-hidden rounded-2xl border border-navy/10 bg-white shadow-sm transition hover:-translate-y-1 hover:shadow-lg focus-within:ring-2 focus-within:ring-brand">
       <div className="relative">
-        <InspirationPhoto person={person} name={name} className="aspect-[5/4] w-full" />
+        {/* Compact cards are about half the phone's width, so phones fetch the small copy of the photo */}
+        <InspirationPhoto person={person} name={name} className="aspect-[5/4] w-full"
+          sizes={compact ? '(min-width: 1024px) 300px, (min-width: 640px) 46vw, 46vw' : undefined} />
         <span className="absolute bottom-2 left-2 rounded-full bg-navy/85 px-2.5 py-0.5 text-xs font-semibold text-gold">
           {pickText(person, 'years', lang)}
         </span>

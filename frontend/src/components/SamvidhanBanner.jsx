@@ -13,7 +13,7 @@ export default function SamvidhanBanner() {
             <div className="pointer-events-none absolute inset-y-0 left-0 w-2 bg-gold" />
             {/* Phones: one slim row (small photo, title, one button). Computers: the full banner with the text and both buttons. */}
             <div className="mx-auto flex max-w-7xl items-center gap-3 px-4 py-2.5 sm:gap-4 sm:px-5 sm:py-5 lg:px-16">
-                <img src="/inspirations/ambedkar-round.jpg" alt="" className="h-10 w-10 shrink-0 rounded-full object-cover ring-2 ring-gold/60 sm:h-16 sm:w-16 sm:ring-4" />
+                <img src="/inspirations/ambedkar-round-288.webp" alt="" className="h-10 w-10 shrink-0 rounded-full object-cover ring-2 ring-gold/60 sm:h-16 sm:w-16 sm:ring-4" />
                 <div className="min-w-0 flex-1">
                     <p className="flex items-center gap-1.5 text-sm leading-tight font-extrabold text-gold sm:gap-2 sm:text-xl"><Icon name="book" size={20} className="hidden shrink-0 sm:block" />{t('samvidhan.bannerTitle')}</p>
                     <p className="mt-0.5 hidden text-white/85 sm:block">{t('samvidhan.bannerText')}</p>

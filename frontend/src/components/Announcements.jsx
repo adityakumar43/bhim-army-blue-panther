@@ -11,7 +11,11 @@ const safeLink = (l) => (l && /^(\/(?!\/)|https?:\/\/)/.test(l) ? l : null)
 const remembered = () => { try { return sessionStorage.getItem('hiddenUpdates') } catch { return null } }
 const remember = (value) => { try { sessionStorage.setItem('hiddenUpdates', value) } catch { /* ignore */ } }
 // The updates from the last visit, shown at once while the new ones load (null = never loaded on this device)
-const cachedUpdates = () => { try { return JSON.parse(localStorage.getItem('updatesCache')) } catch { return null } }
+// On a first visit: [] when the site had no updates when it was last built (window.__homeHint, see scripts/prerender.js)
+const cachedUpdates = () => {
+  try { const saved = JSON.parse(localStorage.getItem('updatesCache')); if (saved) return saved } catch { /* nothing saved */ }
+  return globalThis.__homeHint?.updates === false ? [] : null
+}
 const cacheUpdates = (list) => { try { localStorage.setItem('updatesCache', JSON.stringify(list)) } catch { /* ignore */ } }
 
 const Icon = ({ d }) => (
