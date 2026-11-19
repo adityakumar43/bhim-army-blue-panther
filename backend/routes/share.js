@@ -7,8 +7,10 @@ import { STATE_NAMES } from '../config/stateNames.js'
 
 // Link previews for WhatsApp, Facebook, Telegram and X.
 // These apps do not run the website's JavaScript, so they cannot see a news title or photo on the normal page.
-// The Share button links here instead: this page has the title and photo in its tags for the apps,
-// and sends real people straight on to the normal page.
+// The Share button links here instead. The apps' link readers get a small page with the title and photo in its
+// tags; real people are sent straight on to the normal page (a 302 redirect).
+// The page itself must NOT forward anywhere (no meta refresh): Facebook and WhatsApp follow such a forward and
+// then read the website's general tags instead of these ones.
 const router = Router()
 const ORG = 'Bhim Army Blue Panther'
 const TAGLINE = 'शिक्षित बनो, संगठित रहो, संघर्ष करो'
@@ -41,10 +43,24 @@ ${image ? `<meta property="og:image" content="${esc(image)}">
 <meta name="twitter:description" content="${esc(description)}">
 ${image ? `<meta name="twitter:image" content="${esc(image)}">` : ''}
 <link rel="canonical" href="${esc(url)}">
-<meta http-equiv="refresh" content="0;url=${esc(url)}">
 </head>
-<body><p><a href="${esc(url)}">${esc(title)}</a></p><script>location.replace(${JSON.stringify(url)})</script></body>
+<body><p><a href="${esc(url)}">${esc(title)}</a></p></body>
 </html>`
+}
+
+// The link readers of the apps that show previews (and search engines). Everyone else is a person in a browser.
+const PREVIEW_BOT = /facebookexternalhit|facebot|meta-externalagent|whatsapp|twitterbot|telegrambot|linkedinbot|slackbot|discordbot|pinterest|redditbot|skypeuripreview|applebot|googlebot|bingbot|embedly|iframely|vkshare|snapchat|viber|kakaotalk|mastodon|\b(?:bot|crawler|spider)\b/i
+const isPreviewBot = (req) => { const ua = req.get('user-agent') || ''; return !ua || PREVIEW_BOT.test(ua) }
+
+// Link readers get the preview page; people go straight to the page on the website
+function reply(req, res, data, maxAge = 600) {
+    res.set('Vary', 'User-Agent')
+    if (!isPreviewBot(req)) {
+        res.set('Cache-Control', 'no-store')
+        return res.redirect(302, data.url)
+    }
+    res.set('Cache-Control', `public, max-age=${maxAge}`)
+    res.type('html').send(page(data))
 }
 
 // The Samvidhan Divas page. Shared certificates and quiz scores link here with the sharer's name and score,
@@ -81,8 +97,7 @@ router.get('/samvidhan', (req, res) => {
     if (score !== null) q.set('score', String(score))
     if (score !== null && /^[1-9]\d{0,5}$/.test(String(req.query.q || ''))) q.set('q', String(req.query.q))
     const url = `${site()}/samvidhan${q.size ? `?${q}` : ''}${part ? `#${part}` : ''}`
-    res.set('Cache-Control', 'public, max-age=3600')
-    res.type('html').send(page({ title, description, image: `${site()}/og-samvidhan.jpg`, url }))
+    reply(req, res, { title, description, image: `${site()}/og-samvidhan.jpg`, url }, 3600)
 })
 
 // One state's leadership page, /leadership/states/<code>. The preview shows the state's name, its state team
@@ -114,8 +129,7 @@ router.get('/states/:code', async (req, res) => {
         ? photo.replace('/upload/', '/upload/w_1200,h_630,c_pad,b_rgb:0b1a3d,q_auto,f_jpg/')
         : process.env.SHARE_IMAGE || `${site()}/og-default.jpg`
 
-    res.set('Cache-Control', 'public, max-age=600')
-    res.type('html').send(page({ title: short(title, 120), description: short(description, 200), image, url }))
+    reply(req, res, { title: short(title, 120), description: short(description, 200), image, url })
 })
 
 router.get('/:kind/:id', async (req, res) => {
@@ -132,13 +146,12 @@ router.get('/:kind/:id', async (req, res) => {
         const when = new Date(item.date).toLocaleDateString('hi-IN', { dateStyle: 'long', timeZone: 'Asia/Kolkata' })
         description = short(`📅 ${when}${item.location ? ` · 📍 ${item.location}` : ''}${description ? ` — ${description}` : ''}`, 200)
     }
-    res.set('Cache-Control', 'public, max-age=600')
-    res.type('html').send(page({
+    reply(req, res, {
         title,
         description: description || `${ORG} — ${TAGLINE}`,
         image: shareImage(item.image?.url) || process.env.SHARE_IMAGE || `${site()}/og-default.jpg`,
         url,
-    }))
+    })
 })
 
 export default router
