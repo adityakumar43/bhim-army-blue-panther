@@ -47,14 +47,7 @@
   </script>
   <meta name="theme-color" content="#0B3C9D" />
   <title>Bhim Army Blue Panther</title>
-  <link rel="preconnect" href="https://fonts.googleapis.com" />
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <!-- The font loads without holding up the page; until it arrives, text shows in the phone's own font -->
-  <link rel="preload" as="style" href="https://fonts.googleapis.com/css2?family=Mukta:wght@400;600;800&display=swap"
-    onload="this.onload=null;this.rel='stylesheet'" />
-  <noscript>
-    <link href="https://fonts.googleapis.com/css2?family=Mukta:wght@400;600;800&display=swap" rel="stylesheet" />
-  </noscript>
+  <!-- The Mukta font is served from this website (see index.css), so there is no extra connection to Google first -->
   <!-- Connect to the backend and the photo server early, so the slides and news start loading sooner -->
   <link rel="preconnect" href="%VITE_API_URL%" crossorigin />
   <link rel="preconnect" href="https://res.cloudinary.com" />

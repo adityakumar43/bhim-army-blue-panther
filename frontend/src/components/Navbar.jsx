@@ -4,6 +4,7 @@ import { useTranslation } from 'react-i18next'
 import Icon from './Icon.jsx'
 import Announcements from './Announcements.jsx'
 import ErrorBoundary from './ErrorBoundary.jsx'
+import { setLanguage } from '../i18n.js'
 
 const links = [
   ['/', 'home'], ['/about', 'about'], ['/leadership/states', 'states'], ['/campaigns', 'campaigns'],
@@ -50,12 +51,12 @@ export default function Navbar() {
         </nav>
 
         <div className="hidden items-center gap-3 xl:flex">
-          <LangSwitch lang={lang} onChange={i18n.changeLanguage} />
+          <LangSwitch lang={lang} onChange={setLanguage} />
           <Link to="/join" className="btn rounded-xl bg-gold text-navy shadow-md hover:brightness-105">{t('nav.join')}</Link>
         </div>
 
         <div className="flex items-center gap-2 xl:hidden">
-          <LangSwitch lang={lang} onChange={i18n.changeLanguage} />
+          <LangSwitch lang={lang} onChange={setLanguage} />
           <button onClick={() => setMenuOn(open ? null : pathname)} aria-expanded={open} aria-label="Menu"
             className="flex h-11 w-11 items-center justify-center rounded-lg bg-white/10 text-white">
             <Icon name={open ? 'close' : 'menu'} size={22} />
