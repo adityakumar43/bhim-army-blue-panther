@@ -415,7 +415,12 @@
     "districtTeams": "District teams",
     "districtIntro": "Our teams in {{count}} districts. Tap a district to go to its team.",
     "district": "District",
-    "notFound": "This state was not found."
+    "notFound": "This state was not found.",
+    "joinIn": "Join the organisation in {{state}}",
+    "joinInText": "Become a member and work with this team in your area.",
+    "joinFirst": "Be among the first members here and help build the team.",
+    "copyLink": "Copy link",
+    "copied": "Link copied"
   },
   "inspire": {
     "title": "Our Inspirational Leaders",

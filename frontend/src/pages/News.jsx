@@ -10,17 +10,17 @@ import EmptyState from '../components/EmptyState.jsx'
 import { WhatsAppShare, ListenButton } from '../components/ShareListen.jsx'
 import StickyTabs from '../components/StickyTabs.jsx'
 import useLoad from '../lib/useLoad.js'
+import DateTile from '../components/DateTile.jsx'
 
 const PAGE = 50
 const todayKey = () => new Intl.DateTimeFormat('en-CA', { timeZone: 'Asia/Kolkata' }).format(new Date()) // today in India
 
 // A news picture cut to the same 16:9 shape for every card, so the grid lines up.
-// A missing or broken picture leaves a calm blue box instead of an empty hole.
-function Picture({ item, width }) {
+// A missing or broken picture shows the date like a calendar page instead, so the cards do not all look the same.
+function Picture({ item, width, featured = false }) {
+  const { i18n } = useTranslation()
   const [broken, setBroken] = useState(false)
-  if (!item.image?.url || broken) {
-    return <span aria-hidden="true" className="absolute inset-0 flex items-center justify-center bg-gradient-to-br from-navy to-brand text-4xl opacity-90">📰</span>
-  }
+  if (!item.image?.url || broken) return <DateTile date={item.createdAt} lang={i18n.language} big={featured} className="absolute inset-0" />
   return (
     <img src={thumb(item.image.url, width, Math.round((width * 9) / 16))} alt="" loading="lazy" onError={() => setBroken(true)}
       className="absolute inset-0 h-full w-full object-cover motion-safe:transition motion-safe:duration-300 group-hover:scale-[1.03]" />
@@ -36,7 +36,7 @@ function NewsCard({ item, featured = false }) {
   return (
     <article className={`group relative flex overflow-hidden rounded-2xl border border-navy/10 bg-white shadow-sm motion-safe:transition hover:shadow-md ${featured ? 'flex-col md:flex-row' : 'flex-row sm:flex-col'}`}>
       <Link to={link} tabIndex={-1} aria-hidden="true" className={`relative block shrink-0 overflow-hidden bg-mist ${featured ? 'aspect-video md:aspect-auto md:min-h-80 md:w-1/2' : 'w-28 sm:aspect-video sm:w-auto'}`}>
-        <Picture item={item} width={featured ? 960 : 640} />
+        <Picture item={item} width={featured ? 960 : 640} featured={featured} />
       </Link>
       <div className={`flex min-w-0 flex-1 flex-col ${featured ? 'p-5 sm:p-7' : 'p-3 sm:p-5'}`}>
         <div className="text-sm font-semibold text-brand">{formatDate(item.createdAt, lang)}</div>

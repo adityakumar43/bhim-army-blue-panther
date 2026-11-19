@@ -1,6 +1,9 @@
 import { Router } from 'express'
 import mongoose from 'mongoose'
 import { News, Event } from '../models/Content.js'
+import Leader from '../models/Leader.js'
+import { STATE_CODES } from '../config/states.js'
+import { STATE_NAMES } from '../config/stateNames.js'
 
 // Link previews for WhatsApp, Facebook, Telegram and X.
 // These apps do not run the website's JavaScript, so they cannot see a news title or photo on the normal page.
@@ -80,6 +83,39 @@ router.get('/samvidhan', (req, res) => {
     const url = `${site()}/samvidhan${q.size ? `?${q}` : ''}${part ? `#${part}` : ''}`
     res.set('Cache-Control', 'public, max-age=3600')
     res.type('html').send(page({ title, description, image: `${site()}/og-samvidhan.jpg`, url }))
+})
+
+// One state's leadership page, /leadership/states/<code>. The preview shows the state's name, its state team
+// (name and post) and the first leader's photo, so a link posted on WhatsApp or Facebook says whose team it is.
+// (Listed before /:kind/:id, which would otherwise catch /share/states/<code>.)
+router.get('/states/:code', async (req, res) => {
+    const code = String(req.params.code)
+    if (!STATE_CODES.includes(code)) return res.redirect(302, `${site()}/leadership/states`)
+    const [en, hi] = STATE_NAMES[code] || [code, code]
+    const url = `${site()}/leadership/states/${code}`
+    const team = await Leader.find({ state: code, level: 'state' }).sort({ order: 1, createdAt: 1 }).limit(20).lean()
+    const districts = await Leader.countDocuments({ state: code, level: 'district' })
+
+    const title = `${hi} प्रदेश नेतृत्व | ${en} State Leadership – ${ORG}`
+    const people = team.slice(0, 4).map((l) => {
+        const name = l.nameHi || l.nameEn
+        const role = l.roleHi || l.roleEn
+        return name && role ? `${name} (${role})` : name
+    }).filter(Boolean)
+    let description = people.join(' · ')
+    if (team.length > 4) description += ` · और ${team.length - 4}`
+    if (districts > 0) description += `${description ? ' — ' : ''}${districts} ज़िला पदाधिकारी`
+    if (!description) description = `${hi} में ${ORG} की टीम। ${TAGLINE}`
+
+    // The first leader with a photo. The photo is fitted whole onto the site's dark blue (not cut to fill),
+    // because these portraits are tall and often have the name printed at the bottom.
+    const photo = team.find((l) => l.photo?.url)?.photo?.url
+    const image = photo && photo.includes('/upload/')
+        ? photo.replace('/upload/', '/upload/w_1200,h_630,c_pad,b_rgb:0b1a3d,q_auto,f_jpg/')
+        : process.env.SHARE_IMAGE || `${site()}/og-default.jpg`
+
+    res.set('Cache-Control', 'public, max-age=600')
+    res.type('html').send(page({ title: short(title, 120), description: short(description, 200), image, url }))
 })
 
 router.get('/:kind/:id', async (req, res) => {

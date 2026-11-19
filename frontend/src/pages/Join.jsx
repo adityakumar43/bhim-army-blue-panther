@@ -101,6 +101,16 @@ export default function Join() {
     setSeenRef(linkRef)
     setForm((old) => ({ ...old, ref: linkRef }))
   }
+  // Opened from a state's leadership page (/join?state=delhi): choose that state (done once for each new link)
+  const linkState = params.get('state') || ''
+  const [seenState, setSeenState] = useState('')
+  if (linkState && linkState !== seenState) {
+    setSeenState(linkState)
+    if (STATES.some((s) => s.code === linkState)) {
+      setForm((old) => (old.stateCode === linkState ? old : { ...old, stateCode: linkState, district: '' }))
+    }
+  }
+
   useEffect(() => {
     if (!form.ref) return
     let current = true

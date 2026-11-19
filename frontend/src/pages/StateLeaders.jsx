@@ -1,4 +1,4 @@
-import { useMemo } from 'react'
+import { useMemo, useState } from 'react'
 import { Link, useParams } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
 import { api } from '../lib/api.js'
@@ -12,9 +12,41 @@ import EmptyState from '../components/EmptyState.jsx'
 import Icon from '../components/BoxIcon.jsx' // two-tone icons for the coloured boxes
 import LoadFailed from '../components/LoadFailed.jsx'
 import useLoad from '../lib/useLoad.js'
+import { WhatsAppShare } from '../components/ShareListen.jsx'
+import { shareLink } from '../lib/share.js'
 
 // A district's id for the page (used for the "jump to" links). Hindi letters and signs are kept (Devanagari script).
 const slug = (s) => 'district-' + s.toLowerCase().replace(/[^a-z0-9\p{Script=Devanagari}]+/gu, '-').replace(/^-|-$/g, '')
+
+// End of a state's page: join in this state (the Join form opens with the state already chosen),
+// and share the page. Shared links go through the backend's /share/states page, so WhatsApp and Facebook
+// show the state's name, its team and a photo instead of the website's general preview.
+function JoinShare({ state, lang, hasTeam }) {
+  const { t } = useTranslation()
+  const [copied, setCopied] = useState(false)
+  const name = stateName(state, lang)
+  const link = shareLink('states', state.code)
+  const item = { _id: state.code, titleHi: `${state.hi} प्रदेश नेतृत्व – भीम आर्मी ब्लू पैंथर`, titleEn: `${state.en} State Leadership – Bhim Army Blue Panther` }
+  async function copy() {
+    try { await navigator.clipboard.writeText(link); setCopied(true); setTimeout(() => setCopied(false), 2500) } catch { window.prompt(t('leaders.copyLink', { defaultValue: 'Copy link' }), link) }
+  }
+  return (
+    <section className="mt-12 flex flex-col gap-6 rounded-2xl bg-linear-to-br from-navy to-brand p-6 text-white shadow-md sm:p-8 md:flex-row md:items-center md:justify-between">
+      <div className="min-w-0">
+        <h2 className="text-2xl font-extrabold text-gold">{t('leaders.joinIn', { state: name, defaultValue: 'Join the organisation in {{state}}' })}</h2>
+        <p className="mt-1 text-white/80">{hasTeam ? t('leaders.joinInText', { defaultValue: 'Become a member and work with this team in your area.' }) : t('leaders.joinFirst', { defaultValue: 'Be among the first members here and help build the team.' })}</p>
+      </div>
+      <div className="flex shrink-0 flex-wrap items-center gap-3">
+        <Link to={`/join?state=${state.code}`} className="btn bg-gold text-navy hover:brightness-105">{t('nav.join')} →</Link>
+        <WhatsAppShare item={item} kind="states" />
+        <button type="button" onClick={copy} className="btn border-2 border-white/40 text-white hover:bg-white/10">
+          {copied ? `✓ ${t('leaders.copied', { defaultValue: 'Link copied' })}` : t('leaders.copyLink', { defaultValue: 'Copy link' })}
+        </button>
+        <span role="status" className="sr-only">{copied ? t('leaders.copied', { defaultValue: 'Link copied' }) : ''}</span>
+      </div>
+    </section>
+  )
+}
 
 // One state's leadership, at /leadership/states/<code>: the state team, then each district's team
 export default function StateLeaders() {
@@ -109,6 +141,8 @@ export default function StateLeaders() {
             </div>
           </section>
         )}
+
+        {leaders && <JoinShare state={state} lang={lang} hasTeam={leaders.length > 0} />}
       </div>
     </>
   )

@@ -5,6 +5,7 @@ import Hero from '../components/Hero.jsx'
 import Slider from '../components/Slider.jsx'
 import Icon from '../components/Icon.jsx'
 import Chakra from '../components/Chakra.jsx'
+import DateTile from '../components/DateTile.jsx'
 import { api } from '../lib/api.js'
 import { pickText, formatDate } from '../lib/text.js'
 import { cdn } from '../lib/img.js'
@@ -40,11 +41,12 @@ function SectionHead({ title, intro, to, label }) {
   )
 }
 
-// The picture of an event or news card. Without one (or when it does not load) a blue box with an icon takes its
-// place, so every card in the row has the same shape.
+// The picture of an event or news card. Without one (or when it does not load) a calendar-style date takes its
+// place (an icon when there is no date), so every card in the row has the same shape.
 const photoBox = 'aspect-[5/2] w-full max-sm:ml-3 max-sm:aspect-square max-sm:w-20 max-sm:shrink-0 max-sm:rounded-xl'
-function CardPhoto({ url, icon, className = '' }) {
+function CardPhoto({ url, icon, date, lang, className = '' }) {
   const [broken, setBroken] = useState(false)
+  if ((!url || broken) && date) return <DateTile date={date} lang={lang} className={`${photoBox} ${className} relative`} />
   if (!url || broken) {
     return (
       <span aria-hidden="true" className={`${photoBox} ${className} relative flex items-center justify-center overflow-hidden bg-linear-to-br from-navy to-brand text-white/85`}>
@@ -193,7 +195,7 @@ export default function Home() {
             <div className="grid gap-3 sm:grid-cols-2 sm:gap-5 lg:grid-cols-3">
               {events.map((ev) => (
                 <Link key={ev._id} to={`/events/${ev._id}`} className={`${cardBox} max-sm:flex-row max-sm:items-center ${events.length === 1 ? 'lg:col-span-2 lg:flex-row' : ''}`}>
-                  <CardPhoto url={ev.image?.url} icon="calendar" className={events.length === 1 ? 'lg:aspect-auto lg:w-2/5 lg:shrink-0 lg:self-stretch' : ''} />
+                  <CardPhoto url={ev.image?.url} icon="calendar" date={ev.date} lang={lang} className={events.length === 1 ? 'lg:aspect-auto lg:w-2/5 lg:shrink-0 lg:self-stretch' : ''} />
                   <div className={`min-w-0 flex-1 p-5 max-sm:p-3 ${events.length === 1 ? 'lg:flex lg:flex-col lg:justify-center lg:p-7' : ''}`}>
                     <DateLine date={ev.date} place={ev.location} lang={lang} />
                     {ev.past && <span className="mb-1.5 inline-block rounded-full bg-navy/8 px-2.5 py-0.5 text-xs font-bold text-navy/65">{t('home.eventHeld')}</span>}
@@ -223,7 +225,7 @@ export default function Home() {
           <div className="grid gap-3 sm:grid-cols-2 sm:gap-5 lg:grid-cols-3">
             {news.map((n) => (
               <Link key={n._id} to={`/news/${n._id}`} className={`${cardBox} max-sm:flex-row max-sm:items-center`}>
-                <CardPhoto url={n.image?.url} icon="news" />
+                <CardPhoto url={n.image?.url} icon="news" date={n.createdAt} lang={lang} />
                 <div className="min-w-0 flex-1 p-5 max-sm:p-3">
                   <DateLine date={n.createdAt} lang={lang} />
                   <h3 className="mb-1.5 line-clamp-2 text-lg leading-snug font-extrabold max-sm:mb-0 max-sm:text-base">{pickText(n, 'title', lang)}</h3>

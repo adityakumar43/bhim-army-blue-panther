@@ -3,12 +3,14 @@ import { Link, useLocation } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
 import { useSeo } from '../lib/seo.js'
 import BoxIcon from '../components/BoxIcon.jsx'
+import { useHideJoinButton } from '../lib/joinButton.js'
 
 // Shown for any address the website does not have (a typo, or an old link)
 export default function NotFound() {
     const { t } = useTranslation()
     const { pathname } = useLocation()
     useSeo({ title: t('notFound.title', { defaultValue: 'Page not found' }) })
+    useHideJoinButton() // this page has its own Join link below; the floating button would cover the last links
 
     // Ask search engines not to list this address
     useEffect(() => {

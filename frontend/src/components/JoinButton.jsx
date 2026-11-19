@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react'
 import { Link, useLocation } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
 import Icon from './Icon.jsx'
+import { useJoinButtonHidden } from '../lib/joinButton.js'
 
 // Phones and tablets: a yellow "Join" button fixed in the bottom corner, because the header's Join button only shows
 // on wide screens. It stays out of the way: not on pages where joining is beside the point (the Join form itself, the
@@ -17,6 +18,7 @@ export default function JoinButton() {
   const [pastHero, setPastHero] = useState(false)
   const [footerOnScreen, setFooterOnScreen] = useState(false)
   const [goingDown, setGoingDown] = useState(false)
+  const pageHidesIt = useJoinButtonHidden() // e.g. the 404 page, which has its own Join link
 
   useEffect(() => {
     let last = window.scrollY
@@ -40,7 +42,7 @@ export default function JoinButton() {
     return () => watch.disconnect()
   }, [pathname])
 
-  if (HIDDEN.some((p) => pathname === p || pathname.startsWith(`${p}/`))) return null
+  if (pageHidesIt || HIDDEN.some((p) => pathname === p || pathname.startsWith(`${p}/`))) return null
   const show = (!home || pastHero) && !footerOnScreen && !goingDown
   return (
     <Link to="/join" tabIndex={show ? 0 : -1} aria-hidden={!show}
