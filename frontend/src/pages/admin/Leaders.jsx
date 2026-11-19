@@ -13,6 +13,9 @@ const TEXTS = [
   ['roleHi', 'Post (Hindi), like प्रदेश अध्यक्ष'], ['roleEn', 'Post (English), like State President'],
 ]
 const sortedStates = [...STATES].sort((a, b) => a.en.localeCompare(b.en))
+// The team a leader is listed in (the same rule as the server): national, a state team, or one district's team
+const teamOf = (l) => (l.level === 'national' ? 'national'
+  : `${l.state}|${l.level}|${l.level === 'district' ? String(l.areaHi || l.areaEn || '').trim().toLowerCase() : ''}`)
 
 export default function Leaders() {
   // A State admin works only on their own state's leaders
@@ -30,6 +33,7 @@ export default function Leaders() {
   const [busy, setBusy] = useState(false)
   const [adding, setAdding] = useState(false)
   const [formKey, setFormKey] = useState(0)
+  const [moving, setMoving] = useState(null) // the leader being moved up or down
 
   const set = (f) => (e) => setForm({ ...form, [f]: e.target.value })
   const load = () => api.get('/leaders').then(setItems).catch((e) => setError(e.message))
@@ -87,6 +91,27 @@ export default function Leaders() {
       setError(err.message)
     }
   }
+
+  // ↑ ↓: move a leader one place up or down within their own team (the list comes from the server in order)
+  async function move(l, step) {
+    const team = (items || []).filter((x) => teamOf(x) === teamOf(l))
+    const i = team.findIndex((x) => x._id === l._id)
+    const j = i + step
+    if (i < 0 || j < 0 || j >= team.length) return
+    const ids = team.map((x) => x._id);
+    [ids[i], ids[j]] = [ids[j], ids[i]]
+    setMoving(l._id)
+    setError('')
+    try {
+      await api.post('/leaders/reorder', { ids })
+      await load()
+    } catch (err) {
+      setError(err.message)
+    } finally {
+      setMoving(null)
+    }
+  }
+  const placeIn = (l) => { const team = (items || []).filter((x) => teamOf(x) === teamOf(l)); return [team.findIndex((x) => x._id === l._id), team.length] }
 
   // Districts already used in the chosen state, offered while typing a district name
   const knownDistricts = (field) => {
@@ -165,8 +190,9 @@ export default function Leaders() {
             <label className="flex flex-col gap-1 font-semibold">📞 Public phone (optional)
               <input type="tel" value={form.phone} onChange={set('phone')} className="input" />
             </label>
-            <label className="flex flex-col gap-1 font-semibold">🔢 Order (1 shows first)
+            <label className="flex flex-col gap-1 font-semibold">🔢 Order (1 shows first, optional)
               <input type="number" min="0" value={form.order} onChange={set('order')} className="input" />
+              <span className="text-xs font-normal text-navy/65">Easier: leave it empty and use the ↑ ↓ buttons in the list below.</span>
             </label>
             <label className="flex flex-col gap-1 font-semibold sm:col-span-2">
               📷 {editing?.photo ? 'Replace photo (leave empty to keep it)' : 'Photo (optional)'}
@@ -216,12 +242,18 @@ export default function Leaders() {
                 <div className="truncate text-sm text-navy/70">{l.roleEn || l.roleHi}</div>
                 <div className="mt-1.5 flex flex-wrap gap-1.5">
                   <Pill tone={l.level === 'national' ? 'gold' : l.level === 'district' ? 'green' : 'blue'}>{l.level === 'national' ? '🏛️' : l.level === 'district' ? '🏘️' : '📍'} {where(l)}</Pill>
-                  {l.order ? <Pill tone="gray">#{l.order}</Pill> : null}
+                  {placeIn(l)[1] > 1 && <Pill tone="gray">#{placeIn(l)[0] + 1}</Pill>}
                 </div>
                 {l.phone && <div className="mt-1 text-xs text-navy/65">📞 {l.phone}</div>}
               </div>
             </div>
             <div className="mt-auto flex gap-2 pt-3">
+              {placeIn(l)[1] > 1 && (
+                <span className="flex gap-1">
+                  <button type="button" onClick={() => move(l, -1)} disabled={!!moving || placeIn(l)[0] === 0} aria-label={`Move ${l.nameEn || l.nameHi} up`} title="Move up (shows earlier)" className="abtn min-h-9 w-10 px-0 disabled:opacity-35">↑</button>
+                  <button type="button" onClick={() => move(l, 1)} disabled={!!moving || placeIn(l)[0] === placeIn(l)[1] - 1} aria-label={`Move ${l.nameEn || l.nameHi} down`} title="Move down (shows later)" className="abtn min-h-9 w-10 px-0 disabled:opacity-35">↓</button>
+                </span>
+              )}
               <button onClick={() => startEdit(l)} className="abtn min-h-9 flex-1 px-3">✏️ Edit</button>
               <button onClick={() => remove(l)} className="abtn-danger min-h-9 flex-1 px-3">🗑️ Delete</button>
             </div>

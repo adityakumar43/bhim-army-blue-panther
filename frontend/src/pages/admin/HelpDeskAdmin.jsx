@@ -38,6 +38,8 @@ function Case({ c, team, canDelete, onSaved, onDelete }) {
     const [urgent, setUrgent] = useState(!!c.urgent)
     const [busy, setBusy] = useState(false)
     const [error, setError] = useState('')
+    const [full, setFull] = useState(false) // the whole description, not only its first lines
+    const long = (c.description || '').length > 220 || (c.description || '').split('\n').length > 3
     const cat = categoryOf(c.category)
     const st = STATUS[c.status]
     const photos = [c.photo, ...(c.photos || [])].filter((p) => p?.url)
@@ -98,7 +100,17 @@ function Case({ c, team, canDelete, onSaved, onDelete }) {
                     : <span className="rounded-full bg-gold/15 px-2.5 py-0.5 font-semibold text-navy/70">🙋 Not given to anyone yet</span>}
             </p>
 
-            {c.description && <p className="mt-3 rounded-xl bg-mist/40 px-3 py-2 whitespace-pre-line text-navy/90">{c.description}</p>}
+            {c.description && (
+                <div className="mt-3 rounded-xl bg-mist/40 px-3 py-2">
+                    {/* Long descriptions show their first 3 lines, so a list of cases is quick to go through */}
+                    <p className={`whitespace-pre-line text-navy/90 ${long && !full && !open ? 'line-clamp-3' : ''}`}>{c.description}</p>
+                    {long && !open && (
+                        <button type="button" onClick={() => setFull((v) => !v)} aria-expanded={full} className="mt-1 min-h-8 text-sm font-semibold text-brand underline">
+                            {full ? 'Show less' : 'Read full description'}
+                        </button>
+                    )}
+                </div>
+            )}
             {c.voice?.url && (
                 <div className="mt-2 rounded-xl border border-red-200 bg-red-50/50 p-2.5">
                     <p className="mb-1 text-xs font-bold text-red-800">🎤 Voice message{c.voice.seconds ? ` (${clock(c.voice.seconds)})` : ''}</p>
@@ -194,6 +206,8 @@ export default function HelpDeskAdmin() {
     const [mine, setMine] = useState(false)
     const [urgentOnly, setUrgentOnly] = useState(false)
     const [district, setDistrict] = useState('')
+    const [filtersOpen, setFiltersOpen] = useState(false) // phones: the type, district and other filters are shown
+    const activeFilters = [category, district, mine, urgentOnly].filter(Boolean).length
     const [team, setTeam] = useState([])
     const [saved, setSaved] = useState(null) // the case just updated, to offer a WhatsApp message
     const [paperOpen, setPaperOpen] = useState(false) // the "Add from a paper form" panel
@@ -245,6 +259,11 @@ export default function HelpDeskAdmin() {
                             className={`min-h-10 rounded-xl px-4 text-sm font-semibold transition ${status === key ? 'bg-brand text-white shadow-md shadow-brand/25' : 'text-navy/70 hover:bg-mist'}`}>{label}</button>
                     ))}
                 </div>
+                {/* Phones: the other filters fold behind one button, so the cases start higher up the screen */}
+                <button type="button" onClick={() => setFiltersOpen((v) => !v)} aria-expanded={filtersOpen} className={`${toggle(filtersOpen || activeFilters > 0)} sm:hidden`}>
+                    ⚙️ Filters{activeFilters > 0 ? ` (${activeFilters})` : ''}
+                </button>
+                <div className={`${filtersOpen ? 'flex w-full' : 'hidden'} flex-wrap gap-2 sm:contents`}>
                 <select aria-label="Category" value={category} onChange={(e) => setCategory(e.target.value)} className="input min-h-10 w-auto py-2 text-sm">
                     <option value="">📂 All types</option>
                     {CATEGORIES.map((c) => <option key={c.key} value={c.key}>{c.emoji} {c.en}</option>)}
@@ -255,8 +274,9 @@ export default function HelpDeskAdmin() {
                         {districts.map((d) => <option key={d} value={d}>{d}</option>)}
                     </select>
                 )}
+                </div>
             </div>
-            <div className="mb-5 flex flex-wrap gap-2">
+            <div className={`mb-5 flex-wrap gap-2 ${filtersOpen ? 'flex' : 'hidden sm:flex'}`}>
                 <button onClick={() => setMine((v) => !v)} aria-pressed={mine} className={toggle(mine)}>🙋 My cases</button>
                 <button onClick={() => setUrgentOnly((v) => !v)} aria-pressed={urgentOnly} className={toggle(urgentOnly)}>🔴 Urgent only</button>
             </div>

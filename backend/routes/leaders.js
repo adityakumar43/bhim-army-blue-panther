@@ -1,4 +1,5 @@
 import { Router } from 'express'
+import mongoose from 'mongoose'
 import Leader from '../models/Leader.js'
 import { protect, requirePermission, stateScope } from '../middleware/auth.js'
 import { upload } from '../middleware/upload.js'
@@ -71,6 +72,25 @@ router.post('/', protect, requirePermission('leaders'), upload.single('photo'), 
     await deleteImage(data.photo?.publicId) // not saved: do not leave the photo unused in Cloudinary
     throw err
   }
+})
+
+// The team a leader is listed in: national, a state's team, or one district's team. Leaders are put in order
+// only within their own team (the ↑ ↓ buttons in the admin list).
+const teamOf = (l) => (l.level === 'national' ? 'national'
+  : `${l.state}|${l.level}|${l.level === 'district' ? String(l.areaHi || l.areaEn || '').trim().toLowerCase() : ''}`)
+
+// Admin: save a new order for one team. ids = the team's leaders, first to last; each gets order 1, 2, 3...
+router.post('/reorder', protect, requirePermission('leaders'), async (req, res) => {
+  const ids = Array.isArray(req.body?.ids) ? req.body.ids.map(String) : []
+  if (ids.length === 0 || ids.length > 200 || new Set(ids).size !== ids.length || !ids.every((id) => mongoose.isValidObjectId(id))) {
+    return res.status(400).json({ message: 'Nothing to reorder' })
+  }
+  const found = await Leader.find({ _id: { $in: ids } })
+  if (found.length !== ids.length) return res.status(404).json({ message: 'Some of these leaders were not found. Reload the page.' })
+  if (found.some((l) => notMyState(req, l.state))) return res.status(403).json({ message: OWN_STATE_ONLY })
+  if (new Set(found.map(teamOf)).size > 1) return res.status(400).json({ message: 'Leaders can only be reordered within one team' })
+  await Leader.bulkWrite(ids.map((id, i) => ({ updateOne: { filter: { _id: id }, update: { $set: { order: i + 1 } } } })))
+  res.json({ ok: true })
 })
 
 router.put('/:id', protect, requirePermission('leaders'), upload.single('photo'), async (req, res) => {

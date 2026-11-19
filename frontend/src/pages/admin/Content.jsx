@@ -23,7 +23,7 @@ const KINDS = {
     endpoint: '/gallery', needImage: true,
     fields: ['titleHi', 'titleEn', 'section', 'kind', 'communityEn', 'communityHi'],
     labels: {
-      titleHi: 'Caption (Hindi)', titleEn: 'Caption (English)', section: 'Where should it appear?',
+      titleHi: 'Caption (Hindi)', titleEn: 'Caption (English, optional)', section: 'Where should it appear?',
       kind: 'Dance or festival?', communityEn: 'Community / tribe name (English)', communityHi: 'Community / tribe name (Hindi)',
     },
   },
@@ -51,8 +51,8 @@ const ADD_LABEL = { news: 'Add news', events: 'Add event', gallery: 'Add photo',
 const PAGE = 100 // the most the server gives at once
 
 const LABELS = {
-  titleHi: 'Title (Hindi)', titleEn: 'Title (English)',
-  bodyHi: 'Details (Hindi)', bodyEn: 'Details (English)',
+  titleHi: 'Title (Hindi)', titleEn: 'Title (English, optional)',
+  bodyHi: 'Details (Hindi)', bodyEn: 'Details (English, optional)',
   date: 'Date', location: 'Location', time: 'Time (optional)', stateCode: 'State (optional, for the calendar)',
 }
 
@@ -190,6 +190,9 @@ export default function Content({ kind }) {
               <Icon name="close" size={18} />
             </button>
           </div>
+          {config.fields.includes('bodyHi') && (
+            <p className="mb-3 rounded-xl bg-mist px-3 py-2 text-sm text-brand">💡 Hindi is enough. English visitors see the Hindi text when the English boxes are left empty. Fill them only if you want your own English wording.</p>
+          )}
           <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
             {config.fields.map((f) => {
               // The dance/festival and community boxes only matter for the Adivasi section
