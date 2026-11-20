@@ -16,20 +16,50 @@ import { WhatsAppShare } from '../components/ShareListen.jsx'
 import { shareLink } from '../lib/share.js'
 
 // A district's id for the page (used for the "jump to" links). Hindi letters and signs are kept (Devanagari script).
+// The coloured icon box before a heading (the same style as each district's heading)
+const HeadIcon = ({ name }) => (
+  <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-mist text-brand" aria-hidden="true"><Icon name={name} size={18} /></span>
+)
+
 const slug = (s) => 'district-' + s.toLowerCase().replace(/[^a-z0-9\p{Script=Devanagari}]+/gu, '-').replace(/^-|-$/g, '')
 
 // End of a state's page: join in this state (the Join form opens with the state already chosen),
 // and share the page. Shared links go through the backend's /share/states page, so WhatsApp and Facebook
 // show the state's name, its team and a photo instead of the website's general preview.
-function JoinShare({ state, lang, hasTeam }) {
+const shareItem = (state) => ({ _id: state.code, titleHi: `${state.hi} प्रदेश नेतृत्व – भीम आर्मी ब्लू पैंथर`, titleEn: `${state.en} State Leadership – Bhim Army Blue Panther` })
+
+// Copy the page's share link; returns [copied, copy]
+function useCopyLink(state) {
   const { t } = useTranslation()
   const [copied, setCopied] = useState(false)
-  const name = stateName(state, lang)
-  const link = shareLink('states', state.code)
-  const item = { _id: state.code, titleHi: `${state.hi} प्रदेश नेतृत्व – भीम आर्मी ब्लू पैंथर`, titleEn: `${state.en} State Leadership – Bhim Army Blue Panther` }
   async function copy() {
+    const link = shareLink('states', state.code)
     try { await navigator.clipboard.writeText(link); setCopied(true); setTimeout(() => setCopied(false), 2500) } catch { window.prompt(t('leaders.copyLink', { defaultValue: 'Copy link' }), link) }
   }
+  return [copied, copy]
+}
+
+// The same buttons in the top band, so they are seen without scrolling
+function BandButtons({ state }) {
+  const { t } = useTranslation()
+  const [copied, copy] = useCopyLink(state)
+  return (
+    <div className="mt-5 flex flex-wrap items-center gap-2.5">
+      <Link to={`/join?state=${state.code}`} className="inline-flex min-h-10 items-center rounded-full bg-gold px-4 text-sm font-bold text-navy hover:brightness-105">{t('nav.join')} →</Link>
+      <WhatsAppShare item={shareItem(state)} kind="states" small />
+      <button type="button" onClick={copy} className="inline-flex min-h-10 items-center rounded-full border border-white/40 px-4 text-sm font-semibold text-white hover:bg-white/10">
+        {copied ? `✓ ${t('leaders.copied', { defaultValue: 'Link copied' })}` : t('leaders.copyLink', { defaultValue: 'Copy link' })}
+      </button>
+      <span role="status" className="sr-only">{copied ? t('leaders.copied', { defaultValue: 'Link copied' }) : ''}</span>
+    </div>
+  )
+}
+
+function JoinShare({ state, lang, hasTeam }) {
+  const { t } = useTranslation()
+  const [copied, copy] = useCopyLink(state)
+  const name = stateName(state, lang)
+  const item = shareItem(state)
   return (
     <section className="mt-12 flex flex-col gap-6 rounded-2xl bg-linear-to-br from-navy to-brand p-6 text-white shadow-md sm:p-8 md:flex-row md:items-center md:justify-between">
       <div className="min-w-0">
@@ -82,6 +112,17 @@ export default function StateLeaders() {
 
   useJsonLd('leaders-jsonld', leadersJsonLd(leaders, state?.en))
 
+  // "1 state leader · 2 district leaders · 1 district" under the state's name
+  const summary = leaders?.length ? [
+    stateTeam.length && t('leaders.sumState', { count: stateTeam.length }),
+    districts.length && t('leaders.sumDistrictLeaders', { count: leaders.length - stateTeam.length }),
+    districts.length && t('leaders.sumDistricts', { count: districts.length }),
+  ].filter(Boolean).join(' · ') : null
+  // A small state team gets the wide cards (photo beside the text); a big one stays a grid
+  const wide = stateTeam.length <= 4
+  // The "jump to a district" buttons only help when there are a few districts to choose from
+  const showJump = districts.length >= 3
+
   const back = <Link to="/leadership/states" className="mb-6 inline-flex items-center gap-1 font-semibold text-brand">← {t('leaders.back')}</Link>
 
   if (!state) {
@@ -95,7 +136,9 @@ export default function StateLeaders() {
 
   return (
     <>
-      <Band kicker={t('leaders.state')} title={stateName(state, i18n.language)} />
+      <Band kicker={t('leaders.state')} title={stateName(state, i18n.language)} intro={summary}>
+        <BandButtons state={state} />
+      </Band>
       <div className="mx-auto max-w-7xl px-5 py-10 lg:px-16">
         {back}
         {leaders === null && !failed && <Loading />}
@@ -104,28 +147,32 @@ export default function StateLeaders() {
 
         {stateTeam.length > 0 && (
           <section>
-            {districts.length > 0 && <h2 className="mb-4 text-2xl font-extrabold">🏛️ {t('leaders.stateTeam', { defaultValue: 'State team' })}</h2>}
-            <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 sm:gap-5 md:grid-cols-4 lg:grid-cols-5">
-              {stateTeam.map((l) => <LeaderCard key={l._id} leader={l} />)}
+            {districts.length > 0 && <h2 className="mb-4 flex items-center gap-2.5 text-2xl font-extrabold"><HeadIcon name="building" />{t('leaders.stateTeam', { defaultValue: 'State team' })}</h2>}
+            <div className={wide ? 'grid gap-4 sm:gap-5 lg:grid-cols-2' : 'grid grid-cols-2 gap-4 sm:grid-cols-3 sm:gap-5 md:grid-cols-4 lg:grid-cols-5'}>
+              {stateTeam.map((l) => <LeaderCard key={l._id} leader={l} wide={wide} />)}
             </div>
           </section>
         )}
 
         {districts.length > 0 && (
           <section className={stateTeam.length ? 'mt-12 border-t border-navy/10 pt-10' : ''}>
-            <h2 className="text-2xl font-extrabold">🏘️ {t('leaders.districtTeams', { defaultValue: 'District teams' })}</h2>
-            <p className="mt-1 text-navy/65">{t('leaders.districtIntro', { count: districts.length, defaultValue: 'Our teams in {{count}} districts. Tap a district to go to its team.' })}</p>
+            <h2 className="flex items-center gap-2.5 text-2xl font-extrabold"><HeadIcon name="users" />{t('leaders.districtTeams', { defaultValue: 'District teams' })}</h2>
+            <p className="mt-1 text-navy/65">{showJump
+              ? t('leaders.districtIntro', { count: districts.length })
+              : t('leaders.districtCount', { count: districts.length })}</p>
 
             {/* Jump to a district */}
-            <nav aria-label={t('leaders.districtTeams', { defaultValue: 'District teams' })} className="mt-4 mb-8 flex flex-wrap gap-2">
-              {districts.map((d) => (
-                <a key={d.key} href={`#${slug(d.key)}`} className="inline-flex min-h-10 items-center gap-1.5 rounded-full border border-brand/20 bg-white px-4 text-sm font-semibold text-brand shadow-sm hover:bg-mist">
-                  📍 {d.name} <span className="text-navy/65">({d.people.length})</span>
-                </a>
-              ))}
-            </nav>
+            {showJump && (
+              <nav aria-label={t('leaders.districtTeams', { defaultValue: 'District teams' })} className="mt-4 flex flex-wrap gap-2">
+                {districts.map((d) => (
+                  <a key={d.key} href={`#${slug(d.key)}`} className="inline-flex min-h-10 items-center gap-1.5 rounded-full border border-brand/20 bg-white px-4 text-sm font-semibold text-brand shadow-sm hover:bg-mist">
+                    <Icon name="pin" size={14} /> {d.name} <span className="text-navy/65">({d.people.length})</span>
+                  </a>
+                ))}
+              </nav>
+            )}
 
-            <div className="flex flex-col gap-8">
+            <div className="mt-6 flex flex-col gap-8 sm:mt-8">
               {districts.map((d) => (
                 <section key={d.key} id={slug(d.key)} className="scroll-mt-28 rounded-2xl border border-navy/10 bg-white p-5 shadow-sm sm:p-6">
                   <h3 className="mb-4 flex items-center gap-2 text-xl font-extrabold">
@@ -142,7 +189,8 @@ export default function StateLeaders() {
           </section>
         )}
 
-        {leaders && <JoinShare state={state} lang={lang} hasTeam={leaders.length > 0} />}
+        {/* The buttons are already in the top band; on a long page they are shown again at the end */}
+        {leaders?.length > 6 && <JoinShare state={state} lang={lang} hasTeam />}
       </div>
     </>
   )

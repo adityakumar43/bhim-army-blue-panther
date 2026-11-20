@@ -4,7 +4,8 @@ import { BANDS } from './bands.js'
 
 const dots = { backgroundImage: 'radial-gradient(rgba(255,255,255,0.07) 1px, transparent 1px)', backgroundSize: '22px 22px' }
 
-export function Band({ kicker, title, intro }) {
+// children: optional extra content under the intro (for example buttons)
+export function Band({ kicker, title, intro, children }) {
   return (
     <section className="relative overflow-hidden bg-navy text-white">
       <div className="pointer-events-none absolute inset-0" style={dots} />
@@ -13,6 +14,7 @@ export function Band({ kicker, title, intro }) {
         <p className="mb-2 text-sm font-semibold text-gold">{kicker}</p>
         <h1 className="text-[clamp(1.75rem,4vw,2.75rem)] leading-snug font-extrabold">{title}</h1>
         {intro && <p className="mt-2 max-w-2xl text-white/80 sm:mt-3 sm:text-lg">{intro}</p>}
+        {children}
       </div>
     </section>
   )
