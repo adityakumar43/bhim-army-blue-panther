@@ -12,7 +12,13 @@ export default function About() {
   return (
     <div className="mx-auto max-w-4xl px-5 py-12 lg:px-16">
 
-      <p className="mb-10 text-lg">{t('about.intro')}</p>
+      {/* The intro with Babasaheb and the Constitution beside it (above it on phones) */}
+      <div className="mb-12 grid items-center gap-6 md:grid-cols-5 md:gap-8">
+        <img src="/hero-640.webp" srcSet="/hero-640.webp 640w, /hero-1000.webp 1000w" sizes="(min-width: 768px) 320px, 100vw"
+          alt={t('about.photoAlt', { defaultValue: 'Babasaheb Dr. B. R. Ambedkar with the Constitution of India' })} width="640" height="616" loading="lazy"
+          className="w-full rounded-2xl object-cover shadow-md ring-1 ring-navy/10 max-md:aspect-video md:order-2 md:col-span-2" />
+        <p className="text-lg md:order-1 md:col-span-3">{t('about.intro')}</p>
+      </div>
 
       <h2 className="mb-5 text-3xl font-extrabold">{t('about.principlesTitle')}</h2>
       <div className="mb-12 grid gap-5 md:grid-cols-3">
@@ -30,7 +36,7 @@ export default function About() {
       <p className="mb-5 text-lg text-navy/75">{t('home.campaignsIntro')}</p>
       <div className="mb-4 grid gap-4 sm:grid-cols-2">
         {campaigns.map((c) => (
-          <Link key={c.id} to="/campaigns" className="panel flex items-start gap-4 transition hover:border-brand/40 hover:shadow-md">
+          <Link key={c.id} to={`/campaigns#campaign-${c.id}`} className="panel flex items-start gap-4 transition hover:border-brand/40 hover:shadow-md">
             {c.icon && <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-mist text-brand" aria-hidden="true"><Icon name={c.icon} size={22} /></span>}
             <span className="min-w-0">
               <span className="block text-lg leading-snug font-extrabold">{pickText(c, 'title', lang)}</span>

@@ -9,7 +9,7 @@ import { useJoinButtonHidden } from '../lib/joinButton.js'
 // help desk, a membership card ...), on the home page only after the main heading (it has its own Join button), and
 // it moves away while the footer is on screen, so it never covers the footer's links. It also slides away while the
 // visitor scrolls down (reading) and comes back as soon as they scroll up, so it does not sit on top of the text.
-const HIDDEN = ['/join', '/help', '/membership', '/volunteer', '/donate', '/card', '/receipt', '/certificate', '/unsubscribe']
+const HIDDEN = ['/join', '/contact', '/help', '/membership', '/volunteer', '/donate', '/card', '/receipt', '/certificate', '/unsubscribe']
 
 export default function JoinButton() {
   const { t } = useTranslation()

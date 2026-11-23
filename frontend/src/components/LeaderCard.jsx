@@ -25,7 +25,7 @@ export default function LeaderCard({ leader, hideArea = false, wide = false }) {
         ? <img src={large(leader.photo, 500)} alt={name} loading="lazy" onError={() => setBroken(true)}
           className={`aspect-7/8 bg-white object-contain ${wide ? 'w-32 shrink-0 sm:w-44' : 'w-full'}`} />
         : <div aria-hidden="true" className={`flex aspect-7/8 items-center justify-center bg-navy text-4xl font-extrabold text-white/80 ${wide ? 'w-32 shrink-0 sm:w-44' : 'w-full'}`}>{initials(name)}</div>}
-      <div className={`flex-1 p-4 text-center ${wide ? 'flex-none text-left sm:p-6' : ''}`}>
+      <div className={`flex-1 p-4 text-center ${wide ? 'min-w-0 text-left sm:p-6' : ''}`}>
         <h4 className={`font-extrabold ${wide ? 'text-lg sm:text-2xl' : ''}`}>{name}</h4>
         {role && <p className={`text-sm font-semibold text-brand ${wide ? 'sm:mt-1 sm:text-base' : ''}`}>{role}</p>}
         {area && !hideArea && <p className="text-sm text-navy/70">{area}</p>}

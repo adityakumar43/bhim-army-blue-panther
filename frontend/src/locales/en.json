@@ -163,6 +163,7 @@
     "title": "About Us",
     "workTitle": "What we do",
     "intro": "The primary mission of Bhim Army Blue Panthers is to uplift the backward, Dalit, minority, women, and tribal (Adivasi) communities across the country and to raise a strong voice against the crimes, exploitation, and atrocities committed against them.",
+    "photoAlt": "Babasaheb Dr. B. R. Ambedkar with the Constitution of India",
     "principlesTitle": "Our Path",
     "educate": {
       "title": "Educate",
@@ -430,6 +431,11 @@
     "joinFirst": "Be among the first members here and help build the team.",
     "copyLink": "Copy link",
     "copied": "Link copied"
+  },
+  "campaigns": {
+    "more": "Read more",
+    "less": "Show less",
+    "volunteer": "Volunteer for this campaign"
   },
   "inspire": {
     "title": "Our Inspirational Leaders",

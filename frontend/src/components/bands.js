@@ -1,12 +1,13 @@
-// Pages that open with the dark title band: [heading, optional intro line]
+// Pages that open with the dark title band: [heading, optional intro line, optional inner width]
+// The inner width matches the page's own container, so the band's title starts where the content does
 export const BANDS = {
-  '/about': ['about.title'],
-  '/campaigns': ['sections.campaigns', 'home.campaignsIntro'],
+  '/about': ['about.title', null, 'max-w-4xl px-5 lg:px-16'],
+  '/campaigns': ['sections.campaigns', 'home.campaignsIntro', 'max-w-6xl px-5 lg:px-10'],
   '/news': ['sections.news', 'home.newsIntro'],
   '/events': ['cal.title', 'cal.intro'],
   '/polls': ['poll.title', 'poll.intro'],
   '/gallery': ['nav.gallery'],
-  '/contact': ['contact.title'],
+  '/contact': ['contact.title', null, 'max-w-6xl px-5 lg:px-10'],
   '/join': ['join.title', 'join.intro'],
   '/donate': ['donate.title', 'donate.intro'],
   '/leadership/states': ['leaders.statesTitle', 'leaders.statesIntro'],

@@ -1,5 +1,5 @@
 import { useMemo, useState } from 'react'
-import { Link } from 'react-router-dom'
+import { Link, useSearchParams } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
 import { api } from '../lib/api.js'
 import { trackEvent } from '../lib/analytics.js'
@@ -37,7 +37,12 @@ function Part({ n, title, done, children }) {
 export default function Volunteer() {
     const { t, i18n } = useTranslation()
     const lang = i18n.language === 'hi' ? 'hi' : 'en'
-    const [form, setForm] = useState(EMPTY)
+    // Coming from a campaign (/volunteer?skill=teaching): that kind of help starts ticked
+    const [params] = useSearchParams()
+    const [form, setForm] = useState(() => {
+        const skill = params.get('skill')
+        return SKILLS.some((s) => s.key === skill) ? { ...EMPTY, skills: [skill] } : EMPTY
+    })
     const [done, setDone] = useState(null) // { updated } once sent
     const [error, setError] = useState('')
     const [busy, setBusy] = useState(false)

@@ -23,8 +23,9 @@ export default function Leadership() {
       {failed && <LoadFailed onRetry={reload} className="mb-10" />}
       {national?.length === 0 && <p className="mb-10 text-navy/70">{t('leaders.empty')}</p>}
       {national?.length > 0 && (
-        <div className="mb-12 grid grid-cols-2 gap-4 sm:grid-cols-3 sm:gap-5">
-          {national.map((l) => <LeaderCard key={l._id} leader={l} />)}
+        // A few leaders: the wide card (photo beside the name), so one card does not sit alone in a big empty row
+        <div className={national.length <= 2 ? 'mb-12 grid gap-4 sm:gap-5 lg:grid-cols-2' : 'mb-12 grid grid-cols-2 gap-4 sm:grid-cols-3 sm:gap-5'}>
+          {national.map((l) => <LeaderCard key={l._id} leader={l} wide={national.length <= 2} />)}
         </div>
       )}
 
