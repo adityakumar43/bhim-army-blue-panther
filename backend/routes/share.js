@@ -2,6 +2,7 @@ import { Router } from 'express'
 import mongoose from 'mongoose'
 import { News, Event } from '../models/Content.js'
 import Leader from '../models/Leader.js'
+import Download from '../models/Download.js'
 import { STATE_CODES } from '../config/states.js'
 import { STATE_NAMES } from '../config/stateNames.js'
 
@@ -132,6 +133,31 @@ router.get('/states/:code', async (req, res) => {
     reply(req, res, { title: short(title, 120), description: short(description, 200), image, url })
 })
 
+// One file on the Downloads page. The preview shows the file's name, what it is, its type and size, and a picture:
+// the picture itself for a poster or photo (fitted whole onto the site's dark blue), or the Downloads banner for a PDF
+// (PDFs are stored as plain files, so no picture can be made from their first page).
+// The friend who taps the link lands on the Downloads page at that file.
+// (Listed before /:kind/:id, which would otherwise catch /share/downloads/<id>.)
+const sizeText = (b) => (!b ? '' : b < 1024 * 1024 ? `${Math.max(1, Math.round(b / 1024))} KB` : `${(b / (1024 * 1024)).toFixed(1)} MB`)
+router.get('/downloads/:id', async (req, res) => {
+    const list = `${site()}/downloads`
+    if (!mongoose.isValidObjectId(req.params.id)) return res.redirect(302, list)
+    const d = await Download.findById(req.params.id).lean()
+    if (!d) return res.redirect(302, list)
+
+    const isImage = d.file?.resourceType === 'image'
+    const type = d.file?.format === 'pdf' ? 'PDF' : isImage ? 'फ़ोटो' : String(d.file?.format || '').toUpperCase()
+    const title = `${d.file?.format === 'pdf' ? '📄' : isImage ? '🖼️' : '📁'} ${short(d.titleHi || d.titleEn, 100) || 'डाउनलोड'}`
+    const facts = [type, sizeText(d.file?.bytes), 'मुफ़्त डाउनलोड'].filter(Boolean).join(' · ')
+    const about = short(d.descriptionHi || d.descriptionEn, 140)
+    const description = short(`${about ? `${about} — ` : ''}${facts} | ${ORG}`, 200)
+    const image = isImage && d.file.url.includes('/upload/')
+        ? d.file.url.replace('/upload/', '/upload/w_1200,h_630,c_pad,b_rgb:0b1a3d,q_auto,f_jpg/')
+        : `${site()}/og-downloads.jpg`
+
+    reply(req, res, { title, description, image, url: `${list}#dl-${d._id}` })
+})
+
 router.get('/:kind/:id', async (req, res) => {
     const Model = Object.hasOwn(MODELS, req.params.kind) ? MODELS[req.params.kind] : null // only news and events
     const fallback = `${site()}/${req.params.kind === 'events' ? 'news' : req.params.kind || ''}`
@@ -154,4 +180,5 @@ router.get('/:kind/:id', async (req, res) => {
     })
 })
 
-export default router
+export default router
+
