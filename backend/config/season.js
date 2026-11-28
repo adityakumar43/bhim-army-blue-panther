@@ -1,6 +1,6 @@
 // When the Samvidhan pledge is open: month-day windows in Indian time. A window may cross the new year.
 // This is the one place to change. To also open it around Ambedkar Jayanti, add { from: '04-10', to: '04-20' }.
-export const PLEDGE_SEASONS = [{ from: '11-01', to: '11-26' }]
+export const PLEDGE_SEASONS = [{ from: '11-01', to: '01-26' }]
 
 const parts = (now) => Object.fromEntries(new Intl.DateTimeFormat('en-CA', { timeZone: 'Asia/Kolkata', year: 'numeric', month: '2-digit', day: '2-digit' })
     .formatToParts(now).map((p) => [p.type, p.value]))
